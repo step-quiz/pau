@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seguiment de continguts · ESO 2025-26</title>
+<!-- Anti-flash: amaga el body si no hi ha sessió, auth.js la torna a mostrar -->
+<script>
+try {
+  var _s = JSON.parse(localStorage.getItem('dept-auth-token') || 'null');
+  if (!_s || Date.now() > _s.expires) document.documentElement.classList.add('auth-locked');
+} catch(e) { document.documentElement.classList.add('auth-locked'); }
+</script>
+<style>.auth-locked body { visibility: hidden; }</style>
+<script src="repartiment-data.js"></script>
+<script src="common.js"></script>
+<style>
+:root {
+  --navy:   #1f3a5f;
+  --blue:   #2e75b6;
+  --blue-bg:#eaf1fa;
+  --ink:    #22262b;
+  --muted:  #5f5e5a;
+  --hint:   #8a8a85;
+  --line:   #dfe3ea;
+  --bg:     #f4f6f9;
+  --card:   #ffffff;
+  --topbar-h: 52px;
+  --sidebar-w: 256px;
+
+  /* sentit palette */
+  --s-comprensio:   #506080; --s-comprensio-bg: #ecf0f7; --s-comprensio-bd: #b0bfcf;
+  --s-numeric:      #1a6fa8; --s-numeric-bg:    #e8f2fb; --s-numeric-bd:    #8bbfe0;
+  --s-espacial:     #1a8a5c; --s-espacial-bg:   #e5f5ed; --s-espacial-bd:   #80ccaa;
+  --s-mesura:       #b56010; --s-mesura-bg:     #fdf3e5; --s-mesura-bd:     #e0aa60;
+  --s-algebraic:    #6b3fa0; --s-algebraic-bg:  #f2ecfb; --s-algebraic-bd:  #b090d8;
+  --s-estocastic:   #a02848; --s-estocastic-bg: #fde8ef; --s-estocastic-bd: #d888a8;
+
+  /* status palette */
+  --st-pendent-c:  #8a8a85; --st-pendent-bg:   #f4f6f9; --st-pendent-bd:  #c8cfd8;
+  --st-fet-c:      #166534; --st-fet-bg:        #dcfce7; --st-fet-bd:      #86efac;
+  --st-parcial-c:  #92400e; --st-parcial-bg:    #fef3c7; --st-parcial-bd:  #fbbf24;
+  --st-nofet-c:    #991b1b; --st-nofet-bg:      #fee2e2; --st-nofet-bd:    #fca5a5;
+  --st-nohofar-c:  #6b7280; --st-nohofar-bg:    #f3f4f6; --st-nohofar-bd:  #d1d5db;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased;
+  font-size: 15px; line-height: 1.5; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Shell ───────────────────────────────────────────────────────── */
+.app { height: 100dvh; display: flex; flex-direction: column; }
+
+/* ── Topbar ──────────────────────────────────────────────────────── */
+.topbar {
+  flex: 0 0 var(--topbar-h); height: var(--topbar-h);
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 16px; background: var(--card);
+  border-bottom: 1px solid var(--line); z-index: 30;
+}
+.pill-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 13px; border-radius: 20px;
+  border: 1px solid var(--line); font-size: 13px; font-weight: 600;
+  color: var(--muted); background: var(--card); transition: .12s;
+  white-space: nowrap; text-decoration: none; cursor: pointer;
+}
+.pill-btn:hover { border-color: var(--navy); color: var(--navy); text-decoration: none; }
+.pill-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.pill-btn.blue  { border-color: var(--blue); color: var(--blue); }
+.pill-btn.blue:hover { background: var(--blue); color: #fff; }
+.pill-btn.green { border-color: #166534; color: #166534; }
+.pill-btn.green:hover { background: #166534; color: #fff; }
+.brand { font-size: 15px; font-weight: 800; color: var(--navy);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand small { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.spacer { flex: 1; }
+.autosave-msg { font-size: 11.5px; color: var(--hint); white-space: nowrap; }
+.autosave-msg.saved { color: #166534; }
+.autosave-msg.saving { color: var(--hint); }
+
+/* ── Body row ────────────────────────────────────────────────────── */
+.body-row {
+  flex: 1 1 auto; display: flex; min-height: 0;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+.sidebar {
+  flex: 0 0 var(--sidebar-w); width: var(--sidebar-w);
+  background: var(--card); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; overflow-y: auto;
+  z-index: 20;
+}
+.sidebar-section { padding: 8px 8px 4px; }
+.sidebar-section-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--hint); font-weight: 700; padding: 4px 10px 4px;
+}
+.cla-btn {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 8px 10px 8px 12px;
+  border-radius: 8px; cursor: pointer;
+  transition: .1s; border: 1px solid transparent;
+  text-align: left;
+}
+.cla-btn:hover { background: #f0f3f6; }
+.cla-btn.active { background: var(--blue-bg); border-color: var(--blue); }
+.cla-btn .cla-name { font-size: 13.5px; font-weight: 600; color: var(--ink); flex: 1; }
+.cla-btn.active .cla-name { color: var(--navy); }
+
+/* Progress mini bar */
+.prog-wrap { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.prog-bar-bg { width: 52px; height: 5px; background: #e0e4ea; border-radius: 3px; overflow: hidden; }
+.prog-bar-fg { height: 100%; background: var(--blue); border-radius: 3px; transition: width .3s; }
+.prog-label { font-size: 10px; color: var(--hint); }
+
+/* ── Detail ──────────────────────────────────────────────────────── */
+.detail-wrap { flex: 1 1 auto; overflow-y: auto; min-width: 0; }
+.detail { max-width: 900px; margin: 0 auto; padding: 22px 20px 60px; }
+
+.detail-header {
+  margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px solid var(--line);
+}
+.detail-header h2 { font-size: 20px; color: var(--navy); margin-bottom: 4px; }
+.detail-header .dh-meta { font-size: 12.5px; color: var(--muted); }
+.dh-meta a { color: var(--muted); font-size: 12.5px; }
+
+/* Progress summary bar */
+.progress-summary {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 14px; margin-bottom: 18px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 8px; flex-wrap: wrap;
+}
+.ps-bar-wrap { flex: 1 1 180px; }
+.ps-bar-bg { height: 8px; background: #e0e4ea; border-radius: 4px; overflow: hidden; }
+.ps-bar-fg { height: 100%; border-radius: 4px; transition: width .4s; }
+.ps-bar-fg.green  { background: #22c55e; }
+.ps-bar-fg.amber  { background: #f59e0b; }
+.ps-stats { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.ps-stats strong { color: var(--ink); }
+
+/* Status legend inline */
+.status-legend {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  font-size: 11px; color: var(--hint); margin-left: auto;
+}
+.sl-item { display: flex; align-items: center; gap: 4px; }
+.sl-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── Sentit section ─────────────────────────────────────────────── */
+.s-section {
+  margin-bottom: 10px;
+  border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
+}
+.s-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer; user-select: none;
+}
+.s-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.s-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; flex: 1; }
+.s-hores { font-size: 12px; font-weight: 700; opacity: .7; }
+.s-chevron { font-size: 10px; color: rgba(0,0,0,.35); transition: transform .15s; margin-left: 4px; }
+.s-section.open .s-chevron { transform: rotate(90deg); }
+.s-body { background: var(--card); display: none; }
+.s-section.open .s-body { display: block; }
+
+/* mini stats per sentit */
+.s-stats { font-size: 11px; color: rgba(0,0,0,.45); margin-right: 6px; }
+
+/* Sentit themes */
+.s-header.comprensio { background: var(--s-comprensio-bg); }
+.s-header.comprensio .s-dot   { background: var(--s-comprensio); }
+.s-header.comprensio .s-label { color: var(--s-comprensio); }
+.s-section.comprensio { border-color: var(--s-comprensio-bd); }
+.s-header.numeric    { background: var(--s-numeric-bg); }
+.s-header.numeric    .s-dot   { background: var(--s-numeric); }
+.s-header.numeric    .s-label { color: var(--s-numeric); }
+.s-section.numeric   { border-color: var(--s-numeric-bd); }
+.s-header.espacial   { background: var(--s-espacial-bg); }
+.s-header.espacial   .s-dot   { background: var(--s-espacial); }
+.s-header.espacial   .s-label { color: var(--s-espacial); }
+.s-section.espacial  { border-color: var(--s-espacial-bd); }
+.s-header.mesura     { background: var(--s-mesura-bg); }
+.s-header.mesura     .s-dot   { background: var(--s-mesura); }
+.s-header.mesura     .s-label { color: var(--s-mesura); }
+.s-section.mesura    { border-color: var(--s-mesura-bd); }
+.s-header.algebraic  { background: var(--s-algebraic-bg); }
+.s-header.algebraic  .s-dot   { background: var(--s-algebraic); }
+.s-header.algebraic  .s-label { color: var(--s-algebraic); }
+.s-section.algebraic { border-color: var(--s-algebraic-bd); }
+.s-header.estocastic { background: var(--s-estocastic-bg); }
+.s-header.estocastic .s-dot   { background: var(--s-estocastic); }
+.s-header.estocastic .s-label { color: var(--s-estocastic); }
+.s-section.estocastic{ border-color: var(--s-estocastic-bd); }
+
+/* ── Tema table ────────────────────────────────────────────────── */
+.tema-table { width: 100%; border-collapse: collapse; }
+.tema-table thead th {
+  text-align: left; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em; color: var(--hint);
+  padding: 7px 12px 5px; border-bottom: 1px solid var(--line);
+}
+.tema-table thead th.th-status { width: 140px; }
+.tema-table thead th.th-hores  { width: 52px; text-align: right; }
+.tema-table thead th.th-nota   { width: 260px; }
+
+.tema-row.status-nohofar { opacity: .5; }
+.tema-row.status-nohofar .tema-name { text-decoration: line-through; }
+
+.tema-row td { padding: 8px 12px; border-bottom: 1px solid #eef1f4; vertical-align: middle; }
+.tema-row:last-child td { border-bottom: none; }
+.tema-row:hover td { background: #f7f9fc; }
+.tema-row.status-nohofar:hover td { background: transparent; }
+
+.tema-toggle { display: flex; align-items: flex-start; gap: 7px; cursor: pointer; user-select: none; }
+.tema-caret { font-size: 9px; color: var(--hint); margin-top: 4px; flex-shrink: 0; transition: transform .12s; }
+.tema-toggle.open .tema-caret { transform: rotate(90deg); }
+.tema-name { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.35; }
+.hores-td { font-size: 13px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+.cont-list { display: none; margin-top: 7px; padding-left: 18px; }
+.cont-list.open { display: block; }
+.cont-list li { font-size: 12px; color: var(--muted); padding: 2px 0; line-height: 1.4;
+  list-style: none; display: flex; gap: 6px; }
+.cont-list li::before { content:''; display: inline-block; width: 4px; height: 4px;
+  border-radius: 50%; background: var(--hint); flex-shrink: 0; margin-top: 5px; }
+.cont-num { color: var(--hint); font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Status select ────────────────────────────────────────────── */
+.status-sel {
+  appearance: none; -webkit-appearance: none;
+  padding: 4px 28px 4px 10px; border-radius: 20px;
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: .1s; border: 1.5px solid var(--st-pendent-bd);
+  background-color: var(--st-pendent-bg); color: var(--st-pendent-c);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%238a8a85' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; background-size: 14px;
+  outline: none; max-width: 140px; width: 100%;
+}
+.status-sel.s-fet {
+  border-color: var(--st-fet-bd); background-color: var(--st-fet-bg); color: var(--st-fet-c);
+}
+.status-sel.s-parcial {
+  border-color: var(--st-parcial-bd); background-color: var(--st-parcial-bg); color: var(--st-parcial-c);
+}
+.status-sel.s-no-fet {
+  border-color: var(--st-nofet-bd); background-color: var(--st-nofet-bg); color: var(--st-nofet-c);
+}
+.status-sel.s-no-ho-fare {
+  border-color: var(--st-nohofar-bd); background-color: var(--st-nohofar-bg); color: var(--st-nohofar-c);
+}
+
+/* ── Nota field ────────────────────────────────────────────────── */
+.nota-input {
+  width: 100%; padding: 4px 8px;
+  border: 1px solid transparent; border-radius: 6px;
+  background: transparent; font-size: 13px; color: var(--ink);
+  transition: .1s; resize: none; overflow: hidden; min-height: 28px;
+}
+.nota-input:hover { background: #f0f3f6; border-color: #d0d5de; }
+.nota-input:focus { outline: none; background: #fff; border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(46,117,182,.12); }
+.nota-input::placeholder { color: var(--hint); font-style: italic; }
+
+/* ── Toast ──────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  background: #1f3a5f; color: #fff; padding: 9px 18px; border-radius: 8px;
+  font-size: 13px; opacity: 0; pointer-events: none; transition: .25s; z-index: 60;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── Hamburger (mobile sidebar) ──────────────────────────────── */
+.hamb { display: none; }
+.backdrop { position: fixed; inset: 0; background: rgba(20,30,45,.35);
+  opacity: 0; pointer-events: none; transition: .2s; z-index: 15; }
+.backdrop.show { opacity: 1; pointer-events: auto; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 820px) {
+  .hamb { display: flex; }
+  .brand small { display: none; }
+  .sidebar {
+    position: fixed; top: var(--topbar-h); bottom: 0; left: 0;
+    transform: translateX(-102%); transition: transform .22s;
+    box-shadow: 6px 0 24px rgba(20,30,45,.18); z-index: 25;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .detail { padding: 14px 12px 50px; }
+  .tema-table thead th.th-nota { display: none; }
+  .nota-cell { display: none; }
+}
+@media (max-width: 600px) {
+  .autosave-msg { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="pill-btn hamb" id="hambBtn" aria-label="Obrir llista de classes">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 5h12M2 8h12M2 11h12"/></svg>
+    </button>
+    <a class="pill-btn" href="index.html">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 4l-5 4 5 4"/></svg>
+      Inici
+    </a>
+    <div class="brand">Seguiment de continguts <small>ESO · 2025-26</small></div>
+    <div class="spacer"></div>
+    <span class="autosave-msg" id="autosaveMsg">●  Desat</span>
+    <a class="pill-btn" href="repartiment.html">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M5 6h6M5 9h4M5 12h3"/></svg>
+      Repartiment
+    </a>
+    <button class="pill-btn green" id="exportBtn" title="Exporta totes les dades a JSON">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v7M5 7l3 3 3-3"/><path d="M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11"/></svg>
+      Exporta
+    </button>
+    <button class="pill-btn blue" id="importBtn" title="Importa dades des d'un JSON">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V6M5 9l3-3 3 3"/><path d="M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11"/></svg>
+      Importa
+    </button>
+    <input type="file" id="importFile" accept=".json" style="display:none">
+  </header>
+
+  <div class="backdrop" id="backdrop"></div>
+
+  <div class="body-row">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div id="sidebarContent"></div>
+    </aside>
+
+    <!-- Detail -->
+    <div class="detail-wrap" id="detailWrap">
+      <div class="detail" id="detail"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div><!-- /.app -->
+
+<script>
+/* ─── CONFIG ──────────────────────────────────────────────────────── */
+const LS_KEY  = 'dept-seguiment-2025-26';
+const CURS_INFO = { '1ESO':'90h · 3h/set', '2ESO':'90h · 3h/set', '3ESO':'90h · 3h/set', '4ESO':'120h · 4h/set' };
+
+const STATUS_META = {
+  '':           { label: '— pendent',    cls: '',              dot: '#c8cfd8' },
+  'fet':        { label: '✓ Fet',        cls: 's-fet',         dot: '#22c55e' },
+  'parcial':    { label: '◐ Parcial',    cls: 's-parcial',     dot: '#f59e0b' },
+  'no-fet':     { label: '✗ No fet',     cls: 's-no-fet',      dot: '#ef4444' },
+  'no-ho-fare': { label: '⊘ No ho faré', cls: 's-no-ho-fare',  dot: '#9ca3af' },
+};
+
+/* ─── STATE ───────────────────────────────────────────────────────── */
+let state = {
+  activeClasse: CLASSES[0].id,
+  data: {                        // persistit a localStorage
+    curs: '2025-26',
+    lastSaved: null,
+    classes: {},                 // classeId → { "sentit/temaId": { status, nota } }
+  },
+};
+
+/* ─── PERSIST ─────────────────────────────────────────────────────── */
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) state.data = JSON.parse(raw);
+  } catch(e) { /* primera vegada o dades corruptes */ }
+}
+
+let saveTimer = null;
+function scheduleSave() {
+  setMsg('Desant…', false);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveData, 600);
+}
+
+function saveData() {
+  state.data.lastSaved = new Date().toISOString();
+  localStorage.setItem(LS_KEY, JSON.stringify(state.data));
+  setMsg('● Desat', true);
+}
+
+function setMsg(txt, ok) {
+  const el = document.getElementById('autosaveMsg');
+  el.textContent = txt;
+  el.className = 'autosave-msg' + (ok ? ' saved' : ' saving');
+}
+
+function getEntry(classeId, key) {
+  return (state.data.classes[classeId] || {})[key] || { status: '', nota: '' };
+}
+
+function setEntry(classeId, key, field, value) {
+  if (!state.data.classes[classeId]) state.data.classes[classeId] = {};
+  if (!state.data.classes[classeId][key]) state.data.classes[classeId][key] = { status: '', nota: '' };
+  state.data.classes[classeId][key][field] = value;
+  scheduleSave();
+}
+
+/* ─── PROGRESS ────────────────────────────────────────────────────── */
+
+function calcProgress(classeId) {
+  const curs = CLASSES.find(c => c.id === classeId).curs;
+  const cursData = REPARTIMENT[curs];
+  let total = 0, done = 0, horesTotal = 0, horesDone = 0;
+  for (const bloc of cursData.blocs) {
+    for (const tema of bloc.temes) {
+      total++;
+      horesTotal += tema.hores;
+      const e = getEntry(classeId, `${bloc.sentit}/${tema.id}`);
+      if (e.status === 'fet' || e.status === 'parcial') {
+        done++;
+        horesDone += tema.hores;
+      }
+    }
+  }
+  return { total, done, pct: total ? Math.round(done/total*100) : 0, horesTotal, horesDone };
+}
+
+/* ─── SIDEBAR RENDER ──────────────────────────────────────────────── */
+
+function renderSidebar() {
+  const groups = {};
+  for (const c of CLASSES) {
+    if (!groups[c.group]) groups[c.group] = [];
+    groups[c.group].push(c);
+  }
+  const groupLabels = { '1':'1r ESO', '2':'2n ESO', '3':'3r ESO', '4':'4t ESO' };
+
+  let html = '';
+  for (const [g, classes] of Object.entries(groups)) {
+    html += `<div class="sidebar-section">
+      <div class="sidebar-section-label">${escHtml(groupLabels[g])}</div>`;
+    for (const c of classes) {
+      const p = calcProgress(c.id);
+      const isActive = c.id === state.activeClasse;
+      html += `<button class="cla-btn${isActive?' active':''}" data-cla="${c.id}">
+        <span class="cla-name">${escHtml(c.label)}</span>
+        <div class="prog-wrap">
+          <div class="prog-bar-bg"><div class="prog-bar-fg" style="width:${p.pct}%"></div></div>
+          <div class="prog-label">${p.done}/${p.total}</div>
+        </div>
+      </button>`;
+    }
+    html += '</div>';
+  }
+  document.getElementById('sidebarContent').innerHTML = html;
+}
+
+/* ─── DETAIL RENDER ───────────────────────────────────────────────── */
+
+function renderDetail() {
+  const classe = CLASSES.find(c => c.id === state.activeClasse);
+  const cursData = REPARTIMENT[classe.curs];
+  const p = calcProgress(classe.id);
+  const pctStr = `${p.pct}%`;
+  const pctColor = p.pct === 100 ? 'green' : 'amber';
+
+  let html = `<div class="detail-header">
+    <h2>${escHtml(classe.label)} &mdash; Curs 2025-26</h2>
+    <div class="dh-meta">
+      ${escHtml(cursData.label)} · ${escHtml(CURS_INFO[classe.curs])}
+      &nbsp;·&nbsp;
+      <a href="repartiment.html" target="_blank">Veure repartiment ↗</a>
+    </div>
+  </div>
+
+  <div class="progress-summary">
+    <div class="ps-bar-wrap">
+      <div class="ps-bar-bg">
+        <div class="ps-bar-fg ${pctColor}" style="width:${pctStr}"></div>
+      </div>
+    </div>
+    <div class="ps-stats">
+      <strong>${p.done}</strong> de <strong>${p.total}</strong> temes coberts
+      &nbsp;·&nbsp; <strong>${p.horesDone}h</strong> de ${p.horesTotal}h
+    </div>
+    <div class="status-legend">
+      ${Object.entries(STATUS_META).filter(([k])=>k).map(([k,m])=>
+        `<div class="sl-item"><div class="sl-dot" style="background:${m.dot}"></div>${escHtml(m.label.replace(/^[✓◐✗⊘—] /,''))}</div>`
+      ).join('')}
+    </div>
+  </div>`;
+
+  for (const bloc of cursData.blocs) {
+    const sm = SENTITS[bloc.sentit];
+    const sid = `det-${state.activeClasse}--${bloc.sentit}`;
+
+    // Stats for this bloc
+    let bTotal = 0, bDone = 0;
+    for (const t of bloc.temes) {
+      bTotal++;
+      const e = getEntry(state.activeClasse, `${bloc.sentit}/${t.id}`);
+      if (e.status === 'fet' || e.status === 'parcial') bDone++;
+    }
+    const bStats = bTotal > 0 ? `${bDone}/${bTotal}` : '';
+
+    html += `<div class="s-section ${bloc.sentit} open" id="ss-${sid}">
+      <div class="s-header ${bloc.sentit}" data-sid="${sid}">
+        <div class="s-dot"></div>
+        <div class="s-label">${escHtml(sm.label)}</div>
+        <div class="s-stats">${bStats}</div>
+        <div class="s-hores">${bloc.hores}h</div>
+        <span class="s-chevron">▶</span>
+      </div>
+      <div class="s-body">
+        <table class="tema-table">
+          <colgroup><col/><col class="th-status"/><col class="th-hores"/><col class="th-nota"/></colgroup>
+          <thead><tr>
+            <th>Tema</th>
+            <th class="th-status">Estat</th>
+            <th class="th-hores">h</th>
+            <th class="th-nota">Notes del professor/a</th>
+          </tr></thead>
+          <tbody>
+          ${bloc.temes.map(t => buildTemaRow(classe.id, bloc.sentit, t)).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('detail').innerHTML = html;
+
+  // Attach live event handlers for this detail
+  attachDetailEvents();
+}
+
+function buildTemaRow(classeId, sentit, t) {
+  const key = `${sentit}/${t.id}`;
+  const entry = getEntry(classeId, key);
+  const stMeta = STATUS_META[entry.status] || STATUS_META[''];
+  const rowCls = entry.status === 'no-ho-fare' ? ' status-nohofar' : '';
+  const rid = `${classeId}__${sentit}__${t.id}`;
+
+  const options = Object.entries(STATUS_META).map(([v,m]) =>
+    `<option value="${v}"${v===entry.status?' selected':''}>${escHtml(m.label)}</option>`
+  ).join('');
+
+  const items = t.continguts.map((c, i) =>
+    `<li><span class="cont-num">${i+1}.</span><span>${escHtml(c)}</span></li>`
+  ).join('');
+
+  return `<tr class="tema-row${rowCls}" data-key="${escHtml(key)}" data-cla="${escHtml(classeId)}">
+    <td>
+      <div class="tema-toggle" data-rid="${escHtml(rid)}">
+        <span class="tema-caret">▶</span>
+        <span class="tema-name">${escHtml(t.label)}</span>
+      </div>
+      <ul class="cont-list" id="cl-${escHtml(rid)}">${items}</ul>
+    </td>
+    <td>
+      <select class="status-sel ${stMeta.cls}" data-field="status" aria-label="Estat de ${escHtml(t.label)}">
+        ${options}
+      </select>
+    </td>
+    <td class="hores-td">${t.hores}h</td>
+    <td class="nota-cell">
+      <textarea class="nota-input" rows="1" placeholder="Anotació del professorat…"
+        data-field="nota" aria-label="Notes per a ${escHtml(t.label)}">${escHtml(entry.nota)}</textarea>
+    </td>
+  </tr>`;
+}
+
+function attachDetailEvents() {
+  const detail = document.getElementById('detail');
+
+  // Collapsible sentit sections
+  detail.addEventListener('click', e => {
+    const hdr = e.target.closest('.s-header');
+    if (hdr) {
+      document.getElementById('ss-' + hdr.dataset.sid)?.classList.toggle('open');
+      return;
+    }
+    const tog = e.target.closest('.tema-toggle');
+    if (tog) {
+      const list = document.getElementById('cl-' + tog.dataset.rid);
+      const open = tog.classList.toggle('open');
+      list?.classList.toggle('open', open);
+    }
+  });
+
+  // Status dropdown
+  detail.addEventListener('change', e => {
+    const sel = e.target.closest('.status-sel');
+    if (!sel) return;
+    const row = sel.closest('.tema-row');
+    const classeId = row.dataset.cla;
+    const key = row.dataset.key;
+    const val = sel.value;
+
+    // Update select style
+    sel.className = `status-sel ${(STATUS_META[val]||STATUS_META['']).cls}`;
+    // Update row style for no-ho-fare
+    row.classList.toggle('status-nohofar', val === 'no-ho-fare');
+
+    setEntry(classeId, key, 'status', val);
+    // Re-render sidebar progress without full re-render
+    refreshSidebarProgress();
+    refreshDetailProgress();
+  });
+
+  // Nota textarea
+  detail.addEventListener('input', e => {
+    const ta = e.target.closest('.nota-input');
+    if (!ta) return;
+    // Auto-resize
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+
+    const row = ta.closest('.tema-row');
+    setEntry(row.dataset.cla, row.dataset.key, 'nota', ta.value);
+  });
+}
+
+/* partial re-renders (avoid full rebuild while editing) */
+
+function refreshSidebarProgress() {
+  document.querySelectorAll('.cla-btn').forEach(btn => {
+    const cla = btn.dataset.cla;
+    const p = calcProgress(cla);
+    const fg = btn.querySelector('.prog-bar-fg');
+    const lbl = btn.querySelector('.prog-label');
+    if (fg)  fg.style.width = p.pct + '%';
+    if (lbl) lbl.textContent = `${p.done}/${p.total}`;
+  });
+}
+
+function refreshDetailProgress() {
+  const p = calcProgress(state.activeClasse);
+  const cursData = REPARTIMENT[CLASSES.find(c=>c.id===state.activeClasse).curs];
+
+  const barFg = document.querySelector('.ps-bar-fg');
+  const stats = document.querySelector('.ps-stats');
+  if (barFg) {
+    barFg.style.width = p.pct + '%';
+    barFg.className = `ps-bar-fg ${p.pct === 100 ? 'green' : 'amber'}`;
+  }
+  if (stats) {
+    stats.innerHTML = `<strong>${p.done}</strong> de <strong>${p.total}</strong> temes coberts
+      &nbsp;·&nbsp; <strong>${p.horesDone}h</strong> de ${p.horesTotal}h`;
+  }
+
+  // Update per-sentit stats
+  for (const bloc of cursData.blocs) {
+    let bTotal = 0, bDone = 0;
+    for (const t of bloc.temes) {
+      bTotal++;
+      const e = getEntry(state.activeClasse, `${bloc.sentit}/${t.id}`);
+      if (e.status === 'fet' || e.status === 'parcial') bDone++;
+    }
+    const sid = `det-${state.activeClasse}--${bloc.sentit}`;
+    const statEl = document.querySelector(`#ss-${sid} .s-stats`);
+    if (statEl) statEl.textContent = `${bDone}/${bTotal}`;
+  }
+}
+
+/* ─── EXPORT / IMPORT ─────────────────────────────────────────────── */
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `seguiment-2025-26-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Dades exportades correctament ✓');
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.classes) throw new Error('Format invàlid');
+      state.data = parsed;
+      saveData();
+      renderSidebar();
+      renderDetail();
+      showToast('Dades importades correctament ✓');
+    } catch(err) {
+      showToast('Error en importar: format JSON invàlid');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+/* ─── TOAST ───────────────────────────────────────────────────────── */
+
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ─── SIDEBAR TOGGLE (mobile) ─────────────────────────────────────── */
+
+document.getElementById('hambBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+});
+document.getElementById('backdrop').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+});
+
+/* ─── CLASS SELECTION ─────────────────────────────────────────────── */
+
+document.getElementById('sidebarContent').addEventListener('click', e => {
+  const btn = e.target.closest('.cla-btn');
+  if (!btn) return;
+  state.activeClasse = btn.dataset.cla;
+  // Update sidebar active state
+  document.querySelectorAll('.cla-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.cla === state.activeClasse));
+  renderDetail();
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+  document.getElementById('detailWrap').scrollTop = 0;
+});
+
+/* ─── INIT ────────────────────────────────────────────────────────── */
+loadData();
+renderSidebar();
+renderDetail();
+setMsg('● Desat', true);
+</script>
+<script src="auth.js"></script>
+</body>
+</html>
