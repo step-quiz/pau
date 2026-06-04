@@ -2,1652 +2,802 @@
 <html lang="ca">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Material de matemàtiques — Cerca</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="David Arso Civil">
+<title>PAU Matemàtiques — Repàs</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  /* ── Design tokens ──────────────────────────────────────────────── */
-  :root {
-    --bg:        #f5f5f7;
-    --surface:   #ffffff;
-    --surface-2: #fafafa;
-    --surface-3: #f0f0f3;
-    --text:      #1d1d1f;
-    --text-2:    #6e6e73;
-    --text-3:    #aeaeb2;
-    --accent:    #0071e3;
-    --accent-soft: rgba(0,113,227,.10);
-    --green:     #34c759;
-    --amber:     #ff9f0a;
-    --purple:    #bf5af2;
-    --red:       #ff3b30;
-    --divider:   rgba(0,0,0,.07);
-    --divider-2: rgba(0,0,0,.04);
-    --radius:    14px;
-    --radius-sm: 8px;
-    --radius-xs: 5px;
-    --sh:        0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.05);
-    --sh-md:     0 4px 16px rgba(0,0,0,.07), 0 2px 6px rgba(0,0,0,.04);
-    --sh-lg:     0 16px 48px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
-    --ease:      cubic-bezier(.4,0,.2,1);
-    --spring:    cubic-bezier(.34,1.56,.64,1);
-    --mono:      ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-  }
+/* ── Paleta coherent amb step-quiz.net ─────────────────────────────────────── */
+:root{
+  --bg:       #f8fafc;   /* step-quiz --bg-body     */
+  --surface:  #ffffff;
+  --border:   #cbd5e1;   /* step-quiz --border-heavy */
+  --txt:      #1e293b;   /* step-quiz --text-main    */
+  --muted:    #64748b;   /* step-quiz --text-muted   */
+  --accent:   #3b82f6;   /* step-quiz --accent       */
+  --hd-bg:    #1e293b;   /* header = slate-800       */
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  /* Colors de categoria — harmònics amb la paleta cool/slate de step-quiz */
+  --alg:  #c95252;  /* rose-red suau    */
+  --geo:  #0d9488;  /* teal-600         */
+  --ana:  #7c5cbf;  /* violet suau      */
+  --pro:  #c47d30;  /* amber-600 suau   */
 
-  html, body {
-    height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    -webkit-font-smoothing: antialiased;
-    font-size: 16px;
-    line-height: 1.45;
-  }
+  --alg-tint: rgba(201,82,82,.07);
+  --geo-tint: rgba(13,148,136,.07);
+  --ana-tint: rgba(124,92,191,.07);
+  --pro-tint: rgba(196,125,48,.07);
+}
 
-  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
-  input, select { font: inherit; color: inherit; }
-  ul { list-style: none; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Libre Baskerville',Georgia,serif;
+  background:var(--bg);color:var(--txt);
+  min-height:100vh;
+  padding-bottom:68px; /* espai pel footer fix */
+}
 
-  /* ── Topbar ─────────────────────────────────────────────────────── */
-  .topbar {
-    position: sticky; top: 0; z-index: 50;
-    display: grid;
-    grid-template-columns: 196px 1fr auto;  /* rail · search · recents */
-    align-items: center;
-    gap: 16px;
-    padding: 10px 20px;
-    background: rgba(255,255,255,.88);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 1px solid var(--divider);
-  }
-  .search-wrap {
-    position: relative;
-    max-width: 560px;
-    width: 100%;
-    justify-self: start;
-  }
-  .search-wrap svg {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    width: 14px; height: 14px; color: var(--text-3); pointer-events: none;
-  }
-  #search {
-    width: 100%;
-    padding: 8px 12px 8px 34px;
-    background: var(--surface-3);
-    border: 1px solid transparent;
-    border-radius: 980px;
-    transition: background .15s, border-color .15s, box-shadow .15s;
-  }
-  #search:focus {
-    outline: none;
-    background: var(--surface);
-    border-color: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-soft);
-  }
+/* ── HEADER ────────────────────────────────────────────────────────────────── */
+header{
+  background:var(--hd-bg);color:#fff;
+  padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.hd-left{}
+header h1{font-size:.92rem;font-weight:700;line-height:1.3;}
+.breadcrumb{
+  font-family:'Source Code Pro',monospace;font-size:.67rem;
+  color:rgba(255,255,255,.55);margin-top:3px;
+}
 
-  /* ── Recents ────────────────────────────────────────────────────── */
-  .recents-wrap { position: relative; justify-self: end; }
-  .recents-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 14px;
-    border-radius: 980px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-2);
-    background: var(--surface-3);
-    border: 1px solid transparent;
-    transition: background .12s, color .12s, border-color .12s;
-    white-space: nowrap;
-  }
-  .recents-btn svg { width: 15px; height: 15px; }
-  .recents-btn.icon-only { gap: 0; padding: 8px; width: 38px; height: 38px; justify-content: center; }
-  .recents-btn.icon-only svg { width: 17px; height: 17px; }
-  .recents-btn:hover { background: rgba(0,113,227,.18); color: var(--text); box-shadow: inset 0 0 0 2px #000; border-color: transparent; }
-  .recents-wrap.is-open .recents-btn {
-    background: var(--surface);
-    border-color: var(--accent);
-    color: var(--text);
-  }
+/* Enllaç Step Quiz a la capçalera */
+.site-link{
+  display:flex;align-items:center;gap:8px;
+  text-decoration:none;flex-shrink:0;
+  opacity:.85;transition:opacity .18s;
+}
+.site-link:hover{opacity:1;}
+.site-icon{
+  width:47px;height:47px;object-fit:contain;
+  border-radius:8px;
+}
+@keyframes icon-blink-shake{
+  0%  {transform:translateX(0);   opacity:1;}
+  8%  {transform:translateX(-7px);opacity:.15;}
+  16% {transform:translateX( 7px);opacity:1;}
+  24% {transform:translateX(-6px);opacity:.15;}
+  32% {transform:translateX( 6px);opacity:1;}
+  40% {transform:translateX(-5px);opacity:.15;}
+  48% {transform:translateX( 5px);opacity:1;}
+  58% {transform:translateX(-4px);opacity:.15;}
+  68% {transform:translateX( 4px);opacity:1;}
+  78% {transform:translateX(-2px);opacity:.15;}
+  88% {transform:translateX( 2px);opacity:1;}
+  100%{transform:translateX(0);   opacity:1;}
+}
+.site-icon.blink-shake{
+  animation:icon-blink-shake 2s ease-out forwards;
+}
+.site-label{
+  font-family:'Source Code Pro',monospace;font-size:.65rem;
+  color:rgba(255,255,255,.7);line-height:1.4;
+  text-align:right;white-space:nowrap;
+}
 
-  .recents-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    width: 340px;
-    max-width: 90vw;
-    max-height: min(440px, 70vh);
-    overflow-y: auto;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius);
-    box-shadow: var(--sh-md);
-    padding: 6px;
-    z-index: 60;
-    animation: fade-up .18s var(--ease);
-  }
-  .recents-menu[hidden] { display: none; }
-  .recents-menu .rec-head {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 8px 8px;
-    font-size: 10px; font-weight: 700;
-    letter-spacing: .06em; text-transform: uppercase;
-    color: var(--text-3);
-  }
-  .recents-menu .rec-clear {
-    font-size: 11px; font-weight: 600;
-    color: var(--text-3);
-    text-transform: none; letter-spacing: 0;
-    padding: 2px 6px; border-radius: 6px;
-  }
-  .recents-menu .rec-clear:hover { color: var(--red); background: var(--surface-2); }
-  .recents-menu .rec-item {
-    display: flex; align-items: center; gap: 10px;
-    width: 100%;
-    padding: 8px 8px;
-    border-radius: var(--radius-sm);
-    text-align: left;
-    transition: background .12s;
-    cursor: pointer;
-  }
-  .recents-menu .rec-item:hover { background: var(--surface-3); }
-  .recents-menu .rec-icon {
-    flex-shrink: 0;
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 9px; font-weight: 700;
-  }
-  .recents-menu .rec-icon[data-format=pdf] { color: #c0392b; background: rgba(192,57,43,.08); }
-  .recents-menu .rec-icon[data-format=doc] { color: #2563eb; background: rgba(37,99,235,.08); }
-  .recents-menu .rec-body { flex: 1; min-width: 0; }
-  .recents-menu .rec-title {
-    font-size: 12.5px; font-weight: 500; color: var(--text);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .recents-menu .rec-when { font-size: 10.5px; color: var(--text-3); margin-top: 1px; }
-  .recents-menu .rec-empty {
-    padding: 18px 12px; text-align: center;
-    font-size: 12.5px; color: var(--text-3); line-height: 1.5;
-  }
+/* ── VIEWS ─────────────────────────────────────────────────────────────────── */
+.view{display:none;padding:22px 18px 28px;max-width:820px;margin:0 auto;}
+.view.active{display:block;}
 
-  /* ── Layout ─────────────────────────────────────────────────────── */
-  .layout {
-    display: grid;
-    grid-template-columns: 224px 1fr 0;
-    height: calc(100vh - 57px);
-    height: calc(100dvh - 57px);
-    transition: grid-template-columns .25s var(--ease);
-  }
-  .layout.has-preview {
-    grid-template-columns: 224px minmax(380px, 1fr) minmax(420px, 620px);
-  }
+/* ── CATEGORIES ─────────────────────────────────────────────────────────────── */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+.cat-card{
+  border:2px solid var(--border);border-radius:8px;padding:18px 16px;
+  cursor:pointer;background:var(--surface);text-align:left;
+  transition:transform .15s,box-shadow .15s,border-color .15s;
+}
+.cat-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.09);}
+.cat-card .num{font-family:'Source Code Pro',monospace;font-size:.63rem;color:var(--muted);margin-bottom:5px;}
+.cat-card h2{font-size:.93rem;font-weight:700;margin-bottom:5px;}
+.cat-card p{font-size:.77rem;color:var(--muted);line-height:1.5;}
+.cat-card[data-cat=algebra]     {border-color:var(--alg);}  .cat-card[data-cat=algebra]     h2{color:var(--alg);}
+.cat-card[data-cat=geometria]   {border-color:var(--geo);}  .cat-card[data-cat=geometria]   h2{color:var(--geo);}
+.cat-card[data-cat=analisi]     {border-color:var(--ana);}  .cat-card[data-cat=analisi]     h2{color:var(--ana);}
+.cat-card[data-cat=probabilitat]{border-color:var(--pro);}  .cat-card[data-cat=probabilitat]h2{color:var(--pro);}
 
-  /* ── Filter rail ────────────────────────────────────────────────── */
-  .filter-rail {
-    border-right: 1px solid var(--divider);
-    overflow-y: auto;
-    padding: 10px 14px 80px;
-    background: var(--surface-2);
-  }
-  .filter-rail h3 {
-    font-size: 9.68px;
-    font-weight: 700;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin: 14px 4px 8px;
-  }
-  .filter-rail h3:first-child { margin-top: 4px; }
+/* ── BACK BUTTON ────────────────────────────────────────────────────────────── */
+.back-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'Source Code Pro',monospace;font-size:.73rem;
+  color:var(--accent);cursor:pointer;margin-bottom:20px;
+  padding:6px 11px;border:1px solid var(--accent);border-radius:5px;background:none;
+  transition:background .15s,color .15s;
+}
+.back-btn:hover{background:var(--accent);color:#fff;}
 
-  /* Mode toggle (Bàsic / Avançat) */
-  .mode-toggle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: var(--surface-3);
-    border-radius: 980px;
-    padding: 3px;
-    margin-bottom: 4px;
-  }
-  .mode-toggle button {
-    padding: 6px 10px;
-    border-radius: 980px;
-    font-size: 10.56px;
-    font-weight: 600;
-    color: var(--text-2);
-    transition: background .15s, color .15s, box-shadow .15s;
-  }
-  .mode-toggle button.active {
-    background: var(--surface);
-    color: var(--text);
-    box-shadow: var(--sh);
-  }
-  .mode-toggle button:hover {
-    background: rgba(0,113,227,.18);
-    color: var(--text);
-    box-shadow: inset 0 0 0 2px #000;
-  }
+/* ── LIST VIEW ──────────────────────────────────────────────────────────────── */
+.cat-title{font-size:1.05rem;font-weight:700;margin-bottom:20px;}
 
-  .mode-hint {
-    margin: 8px 4px 0;
-    padding: 8px 10px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    border-radius: var(--radius-sm);
-    font-size: 9.68px;
-    line-height: 1.4;
-  }
+.year-group{margin-bottom:26px;}
+.year-header{
+  display:flex;align-items:baseline;gap:12px;
+  margin-bottom:10px;padding-bottom:8px;
+  border-bottom:2px solid var(--border);
+}
+.year-label{
+  font-family:'Source Code Pro',monospace;
+  font-size:1.08rem;font-weight:600;
+  color:var(--txt);letter-spacing:.02em;
+}
+.year-count{font-family:'Source Code Pro',monospace;font-size:.66rem;color:var(--muted);}
 
-  /* Activity blocks (advanced mode only) */
-  .filter-block {
-    padding: 4px 0 6px;
-  }
-  .filter-block + .filter-block {
-    border-top: 1px solid var(--divider-2);
-    margin-top: 4px;
-  }
-  .filter-block-label {
-    font-size: 8.8px;
-    font-weight: 700;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    padding: 6px 10px 4px;
-  }
+/* Exercici item */
+.ex-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ex-item{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 16px;
+  border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;background:var(--surface);position:relative;
+  box-shadow:inset 4px 0 0 transparent;
+  transition:box-shadow .18s ease,background .18s ease,border-color .18s ease,transform .18s ease;
+}
+.ex-item[data-cat=algebra]:hover{
+  box-shadow:inset 4px 0 0 var(--alg);background:var(--alg-tint);
+  border-color:color-mix(in srgb,var(--alg) 30%,var(--border));transform:translateX(3px);}
+.ex-item[data-cat=geometria]:hover{
+  box-shadow:inset 4px 0 0 var(--geo);background:var(--geo-tint);
+  border-color:color-mix(in srgb,var(--geo) 30%,var(--border));transform:translateX(3px);}
+.ex-item[data-cat=analisi]:hover{
+  box-shadow:inset 4px 0 0 var(--ana);background:var(--ana-tint);
+  border-color:color-mix(in srgb,var(--ana) 30%,var(--border));transform:translateX(3px);}
+.ex-item[data-cat=probabilitat]:hover{
+  box-shadow:inset 4px 0 0 var(--pro);background:var(--pro-tint);
+  border-color:color-mix(in srgb,var(--pro) 30%,var(--border));transform:translateX(3px);}
 
-  .filter-group {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 3.2px 6px;
-    margin-bottom: 6.4px;
-    box-shadow: var(--sh);
-  }
-  .filter-group summary {
-    list-style: none;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    padding: 4.8px 10px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    font-size: 13.2px;
-    user-select: none;
-    border: 1px solid transparent;
-  }
-  .filter-group summary::-webkit-details-marker { display: none; }
-  .filter-group summary:hover {
-    background: #e2e2e7;
-    border-color: #1d1d1f;
-  }
-  .filter-group .group-label { flex: 1; }
-  .filter-group .group-count {
-    font-size: 8.8px;
-    font-weight: 700;
-    color: var(--accent);
-    background: var(--accent-soft);
-    padding: 2px 7px;
-    border-radius: 980px;
-    min-width: 18px;
-    text-align: center;
-  }
-  .filter-group .group-count:empty { display: none; }
-  .filter-group .group-caret {
-    width: 10px; height: 10px;
-    color: var(--text-3);
-    transition: transform .15s;
-  }
-  .filter-group[open] .group-caret { transform: rotate(90deg); }
+.ex-badge{
+  font-family:'Source Code Pro',monospace;font-size:.6rem;
+  padding:3px 7px;border-radius:3px;color:#fff;white-space:nowrap;flex-shrink:0;opacity:.88;
+}
+.ex-info{flex:1;min-width:0;}
+.ex-title{font-size:.87rem;line-height:1.4;}
+.ex-sub{font-family:'Source Code Pro',monospace;font-size:.66rem;color:var(--muted);margin-top:3px;}
+.ex-arrow{
+  font-size:.85rem;color:var(--muted);flex-shrink:0;
+  opacity:0;transform:translateX(-4px);
+  transition:opacity .18s ease,transform .18s ease;user-select:none;
+}
+.ex-item:hover .ex-arrow{opacity:1;transform:translateX(0);}
 
-  .filter-list { padding: 1.6px 4px 4.8px; }
-  .filter-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 3.2px 8px;
-    border-radius: var(--radius-xs);
-    cursor: pointer;
-    font-size: 13.2px;
-    transition: background .12s, border-color .12s;
-    border: 1px solid transparent;
-  }
-  .filter-item:hover {
-    background: #e2e2e7;
-    border-color: #1d1d1f;
-  }
-  .filter-item input[type=checkbox] {
-    width: 14px; height: 14px;
-    accent-color: var(--accent);
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .filter-item .fi-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .filter-item .fi-count {
-    font-size: 9.68px;
-    color: var(--text-3);
-    font-variant-numeric: tabular-nums;
-  }
-  .filter-item.is-zero { opacity: .4; }
-  .filter-item.is-zero:hover { opacity: .7; }
+/* Marca "optatiu" */
+.ex-optatiu-tag{
+  font-family:'Source Code Pro',monospace;font-size:.58rem;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--border);
+  border-radius:3px;padding:2px 6px;flex-shrink:0;
+  background:var(--bg);
+}
+.ex-item.is-optatiu{opacity:.55;}
+.ex-item.is-optatiu:hover{opacity:1;}
 
-  .filter-rail .clear-all {
-    width: 100%;
-    margin-top: 10px;
-    padding: 9px;
-    border-radius: var(--radius-sm);
-    font-size: 10.56px; font-weight: 600;
-    color: var(--text-2);
-    background: var(--surface);
-    box-shadow: var(--sh);
-    transition: background .15s, color .15s;
-  }
-  .filter-rail .clear-all:hover { background: var(--red); color: #fff; }
-  .filter-rail .clear-all:disabled { opacity: .4; cursor: default; background: var(--surface); color: var(--text-3); }
+/* ── BOTÓ "MARCAR COM A FET" ────────────────────────────────────────────── */
+.done-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:'Libre Baskerville',serif;font-size:.84rem;
+  padding:9px 18px;border-radius:6px;cursor:pointer;
+  border:3px solid transparent;
+  transition:background .18s,color .18s,border-color .18s;
+  margin-bottom:16px;
+}
+.done-btn.not-done{background:#94a3b8;color:#fff;}
+.done-btn.is-done{background:#22c55e;color:#fff;font-weight:700;}
+.done-btn:hover{border-color:#000;}
 
-  /* ── Results ────────────────────────────────────────────────────── */
-  .results-wrap {
-    overflow-y: auto;
-    padding: 16px 22px 60px;
-  }
-  .chip-row {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    margin-bottom: 10px;
-    min-height: 0;
-  }
-  .chip-row:empty { margin-bottom: 0; }
-  .chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 6px 4px 10px;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: 980px;
-    font-size: 11px;
-    color: var(--text-2);
-    box-shadow: var(--sh);
-  }
-  .chip .chip-x {
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--text-3);
-    transition: background .12s, color .12s;
-  }
-  .chip .chip-x:hover { background: var(--red); color: #fff; }
-  .chip .chip-x svg { width: 8px; height: 8px; }
-  .chip.chip-query { color: var(--accent); }
+/* Marca "Fet" a la llista d'exercicis */
+.ex-fet-tag{
+  font-family:'Source Code Pro',monospace;font-size:.58rem;font-weight:700;
+  letter-spacing:.04em;
+  color:#fff;background:#22c55e;
+  border-radius:3px;padding:2px 7px;flex-shrink:0;
+}
+.ex-item.is-fet{
+  background:color-mix(in srgb,#22c55e 8%,var(--surface));
+  border-color:color-mix(in srgb,#22c55e 35%,var(--border));
+}
 
-  .results {
-    display: flex; flex-direction: column;
-    gap: 7px;
-    align-items: start;
-  }
-  /* When the preview drawer is open, cards fill the (now narrow) results column */
-  .layout.has-preview .results { align-items: stretch; }
-  .layout.has-preview .card { width: 100%; }
-  .layout.has-preview .card-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+/* ── DETAIL ─────────────────────────────────────────────────────────────────── */
+.det-header{margin-bottom:16px;}
+.det-header h2{font-size:.98rem;font-weight:700;line-height:1.4;}
+.det-meta{font-family:'Source Code Pro',monospace;font-size:.68rem;color:var(--muted);margin-top:3px;}
 
-  /* ── Card ───────────────────────────────────────────────────────── */
-  .card {
-    display: grid;
-    grid-template-columns: 32px 1fr auto;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 14px;
-    width: max-content;
-    min-width: 320px;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius-sm);
-    box-shadow: inset 3px 0 0 transparent;
-    transition:
-      box-shadow .18s var(--ease),
-      transform  .18s var(--ease),
-      background .18s var(--ease),
-      border-color .18s var(--ease);
-    animation: fade-up .25s var(--ease) both;
-    cursor: pointer;
-  }
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .card.is-open {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-  }
+/* ── TABS ───────────────────────────────────────────────────────────────────── */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:0;}
+.tab-btn{
+  flex:1;padding:10px 4px;font-family:'Libre Baskerville',serif;font-size:.82rem;
+  cursor:pointer;border:none;background:none;
+  border-bottom:3px solid transparent;margin-bottom:-2px;
+  color:var(--muted);transition:color .1s;
+}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;}
+.tab-btn:hover:not(.active){color:var(--txt);}
+.tab-content{display:none;padding:16px 0;}
+.tab-content.active{display:block;}
 
-  .card:hover { box-shadow: inset 6px 0 0 #000; transform: translateX(2px); }
+/* ── PDF VIEWER ─────────────────────────────────────────────────────────────── */
+.pdf-wrap{display:flex;flex-direction:column;gap:8px;}
+.pdf-frame{width:100%;height:72vh;border:1px solid var(--border);border-radius:5px;background:#f0ede6;}
+.pdf-actions{display:flex;justify-content:space-between;align-items:center;}
+.pdf-fname{font-family:'Source Code Pro',monospace;font-size:.68rem;color:var(--muted);}
+.pdf-link{
+  font-family:'Source Code Pro',monospace;font-size:.72rem;color:var(--accent);
+  text-decoration:none;padding:5px 10px;border:1px solid var(--accent);border-radius:3px;
+  transition:background .15s,color .15s;
+}
+.pdf-link:hover{background:var(--accent);color:#fff;}
 
-  .card .card-icon {
-    width: 30px; height: 36px;
-    border-radius: 4px;
-    background: linear-gradient(135deg, rgba(0,113,227,.10), transparent);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 9px; font-weight: 700;
-    letter-spacing: .04em;
-    flex-shrink: 0;
-  }
-  .card[data-format=pdf]  .card-icon { color: #c0392b; background: rgba(192,57,43,.08); }
-  .card[data-format=doc]  .card-icon { color: #2563eb; background: rgba(37,99,235,.08); }
+/* ── PDF VIEWER — mòbil (PDF.js) ────────────────────────────────────────────── */
+.pdf-pdfjs{
+  display:flex;flex-direction:column;gap:0;
+  border:1px solid var(--border);border-radius:6px;overflow:hidden;
+}
+.pdf-canvas-wrap{
+  background:#f0ede6;overflow-x:auto;
+  display:flex;justify-content:center;
+  min-height:200px;
+}
+.pdf-canvas{display:block;max-width:100%;}
+.pdf-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--surface);
+  border-top:1px solid var(--border);gap:10px;
+}
+.pdf-nav-btn{
+  font-size:1.2rem;padding:6px 16px;border:1px solid var(--border);
+  border-radius:5px;background:var(--surface);cursor:pointer;
+  color:var(--accent);font-weight:700;transition:background .15s;
+  -webkit-tap-highlight-color:transparent;
+  min-width:48px;min-height:44px;
+}
+.pdf-nav-btn:disabled{color:var(--border);cursor:default;}
+.pdf-nav-btn:not(:disabled):active{background:var(--accent);color:#fff;}
+.pdf-nav-info{
+  font-family:'Source Code Pro',monospace;font-size:.78rem;
+  color:var(--muted);flex:1;text-align:center;
+}
+.pdf-loading{
+  display:flex;align-items:center;justify-content:center;
+  min-height:200px;color:var(--muted);font-size:.85rem;
+  font-family:'Source Code Pro',monospace;
+}
 
-  .card-main { min-width: 0; }
-  .card-title {
-    font-size: 15.5px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.35;
-    margin-bottom: 4px;
-  }
-  .card-meta {
-    display: flex; align-items: center; flex-wrap: wrap;
-    gap: 4px 6px;
-    font-size: 12.5px;
-    color: var(--text-2);
-  }
+/* ── YOUTUBE EMBED ──────────────────────────────────────────────────────────── */
+.yt-wrap{
+  position:relative;width:100%;padding-top:56.25%; /* 16:9 */
+  border-radius:6px;overflow:hidden;
+  border:1px solid var(--border);background:#000;
+}
+.yt-wrap iframe{
+  position:absolute;inset:0;width:100%;height:100%;border:0;
+}
+.yt-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'Source Code Pro',monospace;font-size:.62rem;
+  background:#ff0000;color:#fff;padding:3px 8px;
+  border-radius:3px;margin-bottom:12px;opacity:.88;
+}
 
-  .pill {
-    display: inline-flex; align-items: center;
-    padding: 1px 7px;
-    border-radius: 980px;
-    font-size: 11.5px;
-    font-weight: 600;
-    letter-spacing: .01em;
-    line-height: 1.6;
-    white-space: nowrap;
-    background: var(--surface-3);
-    color: var(--text-2);
-  }
-
-  .card-actions {
-    display: none;
-    gap: 6px;
-  }
-  .card.is-open .card-actions { display: flex; }
-  .card-actions .btn-act {
-    padding: 7px 12px;
-    border-radius: 980px;
-    font-size: 12px;
-    font-weight: 600;
-    border: 1px solid var(--divider);
-    background: var(--surface);
-    color: var(--text);
-    transition: background .12s, border-color .12s, transform .12s;
-  }
-  .card-actions .btn-act:hover { background: var(--surface-3); }
-  .card-actions .btn-act.btn-prim {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-  .card-actions .btn-act.btn-prim:hover { background: #0064cc; }
-  .card-actions .btn-act:active { transform: scale(.96); }
-
-  /* Empty / loading / error */
-  .state-empty, .state-loading, .state-error {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-2);
-  }
-  .state-empty .se-icon { font-size: 32px; margin-bottom: 12px; opacity: .5; }
-  .state-empty p { margin: 4px 0; }
-  .state-empty button { margin-top: 14px; padding: 8px 16px; border-radius: 980px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; }
-  .state-error { color: var(--red); }
-  .state-error code { font-family: var(--mono); font-size: 12px; padding: 2px 6px; background: var(--surface-3); border-radius: 4px; color: var(--text); }
-
-  .skel {
-    height: 60px;
-    background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 50%, var(--surface-2) 100%);
-    background-size: 200% 100%;
-    border-radius: var(--radius-sm);
-    animation: shimmer 1.4s ease-in-out infinite;
-    margin-bottom: 6px;
-  }
-  @keyframes shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  /* ── Preview drawer ─────────────────────────────────────────────── */
-  .preview-drawer {
-    border-left: 1px solid var(--divider);
-    background: var(--surface);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .preview-drawer[hidden] { display: none; }
-
-  .preview-head {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--divider);
-    flex-shrink: 0;
-  }
-  .preview-head .pv-title {
-    flex: 1;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.3;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-  .preview-head .pv-close {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: var(--surface-3);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--text-2);
-    transition: background .12s;
-    flex-shrink: 0;
-  }
-  .preview-head .pv-close:hover { background: var(--red); color: #fff; }
-  .preview-head .pv-close svg { width: 12px; height: 12px; }
-
-  .preview-body { flex: 1; overflow: hidden; min-height: 0; position: relative; }
-  .preview-body iframe { width: 100%; height: 100%; border: none; display: block; }
-
-  /* ── Footer ─────────────────────────────────────────────────────── */
-  .footer-note {
-    position: fixed; left: 0; bottom: 0;
-    padding: 6px 14px;
-    font-size: 10px; color: var(--text-3);
-    pointer-events: none;
-  }
-  .footer-note a { color: var(--text-3); pointer-events: auto; }
-
-  /* ── Top-right cluster (Configuració + Recents) ─────────────────── */
-  .topbar-right { justify-self: end; display: flex; align-items: center; gap: 10px; }
-
-  /* Standalone topbar links (Repositori, Filtrar CB) — same pill as the dropdowns */
-  .link-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 14px;
-    border-radius: 980px;
-    font-size: 13px; font-weight: 600;
-    color: var(--text-2);
-    background: var(--surface-3);
-    border: 1px solid transparent;
-    text-decoration: none;
-    transition: background .12s, color .12s, box-shadow .12s;
-    white-space: nowrap;
-  }
-  .link-btn svg { width: 15px; height: 15px; }
-
-  .config-wrap { position: relative; }
-  .config-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 14px;
-    border-radius: 980px;
-    font-size: 13px; font-weight: 600;
-    color: var(--text-2);
-    background: var(--surface-3);
-    border: 1px solid transparent;
-    transition: background .12s, color .12s, border-color .12s;
-    white-space: nowrap;
-  }
-  .config-btn svg { width: 15px; height: 15px; }
-  .config-btn:hover { background: rgba(0,113,227,.18); color: var(--text); box-shadow: inset 0 0 0 2px #000; border-color: transparent; }
-  .link-btn:hover   { background: rgba(0,113,227,.18); color: var(--text); box-shadow: inset 0 0 0 2px #000; text-decoration: none; }
-  .config-wrap.is-open .config-btn {
-    background: var(--surface);
-    border-color: var(--accent);
-    color: var(--text);
-  }
-
-  .config-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    width: 280px; max-width: 90vw;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius);
-    box-shadow: var(--sh-md);
-    padding: 6px;
-    z-index: 60;
-    animation: fade-up .18s var(--ease);
-  }
-  .config-menu[hidden] { display: none; }
-  .config-item {
-    display: flex; align-items: center; gap: 11px;
-    padding: 9px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 500;
-    color: var(--text);
-    text-decoration: none;
-  }
-  .config-item:hover { background: var(--surface-3); text-decoration: none; }
-  .config-item svg { width: 16px; height: 16px; color: var(--text-2); flex-shrink: 0; }
-  .config-item.cfg-ai { color: var(--accent); font-weight: 600; }
-  .config-item.cfg-ai svg { color: var(--accent); }
-  .cfg-sep { height: 1px; background: var(--divider); margin: 5px 8px; }
-
-  /* ── Pristine hint state (no filter, no search) ─────────────────── */
-  .results > .state-hint { align-self: stretch; width: 100%; }
-  .state-hint {
-    position: relative;
-    min-height: min(62vh, 480px);
-    padding: 6px 0;
-  }
-  .hint-bubble {
-    position: absolute;
-    display: inline-flex; align-items: flex-start;
-    gap: 11px;
-    max-width: 300px;
-    padding: 13px 17px;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius);
-    box-shadow: var(--sh-md);
-    font-size: 13.5px; font-weight: 500;
-    color: var(--text);
-    line-height: 1.4;
-  }
-  .hint-bubble .hint-arrow {
-    flex-shrink: 0;
-    width: 22px; height: 22px;
-    color: var(--accent);
-    margin-top: 1px;
-  }
-  .hint-bubble--search  { top: 6px;  left: 2px; }
-  .hint-bubble--filters { top: 104px; left: 2px; }
-  .hint-bubble--search  .hint-arrow { animation: nudge-up 1s var(--ease) infinite; }
-  .hint-bubble--filters .hint-arrow { animation: nudge-left 1s var(--ease) infinite; }
-  @keyframes nudge-up   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-  @keyframes nudge-left { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
-  @media (prefers-reduced-motion: reduce) {
-    .hint-bubble .hint-arrow { animation: none; }
-  }
-
-  /* ── Small screens (best-effort, not optimized) ─────────────────── */
-  @media (max-width: 900px) {
-    .topbar { grid-template-columns: 1fr auto; }
-    .layout, .layout.has-preview {
-      grid-template-columns: 1fr;
-      height: auto;
-    }
-    .filter-rail { display: none; }
-    .preview-drawer { display: none !important; }
-  }
-
-  /* A2 — Anell de focus coherent (:focus-visible) */
-  button:focus-visible,
-  a:focus-visible,
-  input:focus-visible,
-  summary:focus-visible,
-  [role="button"]:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 4px var(--accent-soft);
-  }
-  /* A1: les targetes reutilitzen l'efecte d'hover + anell */
-  .card:focus-visible {
-    outline: none;
-    box-shadow: inset 6px 0 0 #000, 0 0 0 3px var(--accent-soft);
-  }
+/* ── FOOTER (fix, igual que step-quiz.net) ──────────────────────────────────── */
+footer{
+  position:fixed;bottom:0;left:0;width:100%;
+  background:#f8f9fa;border-top:1px solid #ccc;
+  padding:9px 16px;
+  padding-bottom:max(9px,env(safe-area-inset-bottom));
+  z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;flex-wrap:wrap;text-align:center;
+}
+footer a{color:#333;text-decoration:underline;font-size:.83rem;}
+footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;}
+.cc-img{border:0;height:22px;vertical-align:middle;}
 </style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="mode-toggle" id="mode-toggle" aria-label="Mode de filtres">
-    <button id="mode-basic"    aria-pressed="true">Bàsic</button>
-    <button id="mode-advanced" aria-pressed="false">Avançat</button>
+<header>
+  <div class="hd-left">
+    <h1>PAU Matemàtiques — Repàs per categories</h1>
+    <div class="breadcrumb" id="breadcrumb">Tria una categoria per començar</div>
   </div>
-  <div class="search-wrap">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-      <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
-    </svg>
-    <input id="search" type="search" placeholder="Cerca…" autocomplete="off" spellcheck="false">
-  </div>
-  <div class="topbar-right">
-    <a class="link-btn" id="repartiment-btn" href="repartiment.html" title="Repartiment de continguts per curs">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M5 6h6M5 9h4M5 12h3"/></svg>
-      <span>Repartiment</span>
-    </a>
-    <a class="link-btn" id="seguiment-btn" href="seguiment.html" title="Seguiment de continguts per classe">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M5 8.5l2 2 4-4"/></svg>
-      <span>Seguiment</span>
-    </a>
-    <a class="link-btn" id="florence-cb-btn" target="_blank" rel="noopener" href="https://m.step-quiz.net/florence-cb" title="Mapa Florence → Competències Bàsiques">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="5.5" r="1.6"/><circle cx="6.5" cy="12.5" r="1.6"/><path d="M5.7 5.4l5 0.6M5.3 5.9l1 5"/></svg>
-      <span>Florence-CB</span>
-    </a>
-    <a class="link-btn" id="cb-btn" target="_blank" rel="noopener" href="banc-cb.html" title="Filtra les proves CB i exporta'n un PDF">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M2.5 6h11M6 6v7.5"/></svg>
-      <span>Filtrar CB</span>
-    </a>
-    <div class="config-wrap" id="config-wrap">
-      <button class="config-btn" id="config-btn" aria-haspopup="true" aria-expanded="false" title="Edició del catàleg">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.6l2.8 2.8M11.8 1.4a1.4 1.4 0 0 1 2 2L5 12.2 1.6 13l.8-3.4z"/></svg>
-        <span>Editar</span>
-      </button>
-      <div class="config-menu" id="config-menu" role="menu" hidden>
-        <a class="config-item" role="menuitem" target="_blank" rel="noopener" href="afegir-material.html">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3.5v9M3.5 8h9"/></svg>
-          <span>Afegir i catalogar material</span>
-        </a>
-        <a class="config-item cfg-ai" role="menuitem" target="_blank" rel="noopener" href="extreu-json.html">
-          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5l1.4 3.4 3.6.3-2.7 2.3.8 3.5L8 12.9l-3.1 1.8.8-3.5L3 8.9l3.6-.3z"/></svg>
-          <span>Catalogar material amb IA</span>
-        </a>
-        <a class="config-item" role="menuitem" target="_blank" rel="noopener" href="eliminar-curs.html">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3.5l3.5 3.5-5.5 5.5H3.5v-3.5z"/><path d="M7.5 5l3.5 3.5"/></svg>
-          <span>Eliminar text d'un curs concret</span>
-        </a>
-      </div>
-    </div>
-    <a class="link-btn" id="repo-btn" target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/1jTYNRPJrR9ToTuDkYNahEtZaOrUp-wQg?usp=drive_link" title="Obre el repositori">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.8 4.2A1.2 1.2 0 0 1 3 3h3l1.5 1.6H13a1.2 1.2 0 0 1 1.2 1.2v6A1.2 1.2 0 0 1 13 13H3a1.2 1.2 0 0 1-1.2-1.2z"/></svg>
-      <span>Drive ↗</span>
-    </a>
-    <div class="recents-wrap" id="recents-wrap">
-      <button class="recents-btn icon-only" id="recents-btn" aria-haspopup="true" aria-expanded="false" aria-label="Recents" title="Documents oberts recentment">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/>
-        </svg>
-      </button>
-      <div class="recents-menu" id="recents-menu" hidden></div>
-    </div>
-  </div>
+  <a class="site-link" href="https://step-quiz.net" target="_blank" rel="noopener"
+     title="Step Quiz — David Arso Civil">
+    <div class="site-label">Step Quiz<br>step-quiz.net</div>
+    <img class="site-icon" src="icon.png" alt="Step Quiz"
+         onerror="this.style.display='none'">
+  </a>
 </header>
 
-<main class="layout" id="layout">
-  <aside class="filter-rail" id="filter-rail" aria-label="Filtres"></aside>
+<!-- VIEW 1: Categories -->
+<div class="view active" id="v-cats">
+  <p style="font-size:.84rem;color:var(--muted);margin:4px 0 4px;">Selecciona la categoria que vols treballar:</p>
+  <div class="cat-grid">
+    <div class="cat-card" data-cat="algebra"      onclick="showCat('algebra')">
+      <div class="num">…</div>
+      <h2>Àlgebra</h2>
+      <p>Matrius, sistemes lineals amb paràmetre</p>
+    </div>
+    <div class="cat-card" data-cat="geometria"    onclick="showCat('geometria')">
+      <div class="num">…</div>
+      <h2>Geometria afí i mètrica</h2>
+      <p>Rectes i plans, distàncies, perpendiculars</p>
+    </div>
+    <div class="cat-card" data-cat="analisi"      onclick="showCat('analisi')">
+      <div class="num">…</div>
+      <h2>Anàlisi / Càlcul</h2>
+      <p>Funcions, Bolzano, tangents, integrals, optimització</p>
+    </div>
+    <div class="cat-card" data-cat="probabilitat" onclick="showCat('probabilitat')">
+      <div class="num">…</div>
+      <h2>Probabilitat</h2>
+      <p>Probabilitat total, Bayes, binomial B(n,p)</p>
+    </div>
+  </div>
+</div>
 
-  <section class="results-wrap">
-    <div class="chip-row" id="chip-row" aria-live="polite"></div>
-    <ul class="results" id="results"></ul>
-  </section>
+<!-- VIEW 2: List -->
+<div class="view" id="v-list">
+  <button class="back-btn" onclick="goBack('cats')">← Torna a les categories</button>
+  <div class="cat-title" id="list-title"></div>
+  <div id="ex-list"></div>
+</div>
 
-  <aside class="preview-drawer" id="preview-drawer" hidden></aside>
-</main>
+<!-- VIEW 3: Detail -->
+<div class="view" id="v-detail">
+  <button class="back-btn" onclick="goBack('list')">← Torna a la llista</button>
+  <div class="det-header">
+    <h2 id="det-title"></h2>
+    <div class="det-meta" id="det-meta"></div>
+  </div>
+  <button class="done-btn not-done" id="done-btn" onclick="toggleDone()">Marcar com a fet</button>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('e',this)">📄 Enunciat</button>
+    <button class="tab-btn"        onclick="showTab('p',this)">💡 Pistes</button>
+    <button class="tab-btn"        onclick="showTab('s',this)">✅ Solució</button>
+    <button class="tab-btn" id="tab-btn-v" style="display:none" onclick="showTab('v',this)">🎥 Vídeo</button>
+  </div>
+  <div class="tab-content active" id="tc-e"></div>
+  <div class="tab-content"        id="tc-p"></div>
+  <div class="tab-content"        id="tc-s"></div>
+  <div class="tab-content"        id="tc-v"></div>
+</div>
 
-<script src="common.js"></script>
+<!-- FOOTER — copyright CC BY-NC-ND, com a step-quiz.net -->
+<footer>
+  <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" style="flex-shrink:0;">
+    <img class="cc-img" alt="Llicència Creative Commons BY-NC-ND 4.0"
+         src="https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png"
+         onerror="this.style.display='none'">
+  </a>
+  <span>
+    © 2026 <strong>David Arso Civil</strong>. Ús educatiu lliure.
+    Prohibida la comercialització i la modificació
+    (<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>).
+  </span>
+</footer>
+
+<script src="config.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   Material finder — vanilla JS, no dependencies.
+   Lògica principal — la configuració ve de config.js
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ─── CONFIG ────────────────────────────────────────────────────── */
-const MANIFEST_URL = 'manifest.json';
+const CAT_COLOR = {algebra:'#c95252',geometria:'#0d9488',analisi:'#7c5cbf',probabilitat:'#c47d30'};
+const CAT_NAME  = {algebra:'Àlgebra',geometria:'Geometria afí i mètrica',analisi:'Anàlisi / Càlcul',probabilitat:'Probabilitat'};
 
-/* ─── STATE ─────────────────────────────────────────────────────── */
-const state = {
-  manifest: null,
-  vocabLabels: {},
-  query: '',
-  filters: {},                  // { groupKey: Set([values]) }
-  openId: null,                 // card actualment expandida amb les dues accions
-  previewing: false,            // si el panell lateral està obert mostrant l'iframe
-  filterCollapsed: { format: true, type: true },
-  uiMode: 'basic',              // 'basic' | 'advanced' — persistit a localStorage
-};
-FILTER_GROUPS.forEach(g => state.filters[g.key] = new Set());
+const EXERS = {
 
-/* ─── DOM REFS ──────────────────────────────────────────────────── */
-const $ = id => document.getElementById(id);
-const els = {
-  layout:        $('layout'),
-  filterRail:    $('filter-rail'),
-  chipRow:       $('chip-row'),
-  results:       $('results'),
-  preview:       $('preview-drawer'),
-  search:        $('search'),
-  recentsWrap:   $('recents-wrap'),
-  recentsBtn:    $('recents-btn'),
-  recentsMenu:   $('recents-menu'),
-  configWrap:    $('config-wrap'),
-  configBtn:     $('config-btn'),
-  configMenu:    $('config-menu'),
-};
+algebra: [
+  {id:'alg-23j-q2',   any:'2023', conv:'Juny',        ref:'q2',   titol:'Producte de matrius A·B i propietat idempotent'},
+  {id:'alg-23j-q4',   any:'2023', conv:'Juny',        ref:'q4',   titol:'Sistema lineal amb paràmetre λ'},
+  {id:'alg-23j2-q2',  any:'2023', conv:'Juny (Sèrie 5)', ref:'q2', titol:'Sistema lineal amb paràmetre k'},
+  {id:'alg-23j2-q5',  any:'2023', conv:'Juny (Sèrie 5)', ref:'q5', titol:'Família de matrius 2×2 amb a, b ∈ ℝ'},
+  {id:'alg-23s-q1',   any:'2023', conv:'Setembre',    ref:'q1',   titol:'Matriu inversa via (A−2I)²=3I'},
+  {id:'alg-23s-q3',   any:'2023', conv:'Setembre',    ref:'q3',   titol:'Sistema lineal amb paràmetre m'},
+  {id:'alg-24i-q2',   any:'2024', conv:'Juny (inc.)', ref:'q2',   titol:'Matriu invertible i equació matricial PX+Q=2R'},
+  {id:'alg-24j-q2',   any:'2024', conv:'Juny',        ref:'q2',   titol:'Sistema lineal amb paràmetre k'},
+  {id:'alg-24s-q2',   any:'2024', conv:'Setembre',    ref:'q2',   titol:'Sistema lineal amb paràmetre m'},
+  {id:'alg-25i-q2',   any:'2025', conv:'Juny (inc.)', ref:'q2',   titol:'Sistema amb plans π₁,π₂,π₃ (paràmetre a)'},
+  {id:'alg-25i-q4b',  any:'2025', conv:'Juny (inc.)', ref:'q4b',  titol:'Matrius que commuten; invertibilitat; A⁻¹=A'},
+  {id:'alg-25j-q2',   any:'2025', conv:'Juny',        ref:'q2',   titol:'Sistema lineal amb paràmetre p'},
+  {id:'alg-25s-q2',   any:'2025', conv:'Setembre',    ref:'q2',   titol:'Sistema lineal amb paràmetre m'},
+],
 
-/* ─── RECENTS (localStorage) ────────────────────────────────────── */
-const RECENTS_KEY = 'material:recents';
-const RECENTS_MAX = 10;
+geometria: [
+  {id:'geo-23j-q6',   any:'2023', conv:'Juny',        ref:'q6',   titol:'Plans perpendiculars i punt més proper a una recta'},
+  {id:'geo-23j2-q3',  any:'2023', conv:'Juny (Sèrie 5)', ref:'q3', titol:'Posició relativa de rectes a l\'espai segons m i distància'},
+  {id:'geo-23s-q5',   any:'2023', conv:'Setembre',    ref:'q5',   titol:'Perpendicular comuna de dues rectes i distància'},
+  {id:'geo-24i-q6',   any:'2024', conv:'Juny (inc.)', ref:'q6',   titol:'Posició relativa de rectes i perpendicular comuna'},
+  {id:'geo-24j-q6',   any:'2024', conv:'Juny',        ref:'q6',   titol:'Pla mediador i triangle isòsceles'},
+  {id:'geo-24s-q6',   any:'2024', conv:'Setembre',    ref:'q6',   titol:'Recta perpendicular a un pla i plans paral·lels'},
+  {id:'geo-25j-q4b',  any:'2025', conv:'Juny',        ref:'q4b',  titol:'Pla perpendicular a x+y=0 i recta mediadora'},
+  {id:'geo-25s-q4b',  any:'2025', conv:'Setembre',    ref:'q4b',  titol:'Plans paral·lels a 2x−y+z=5 i distàncies'},
+],
 
-function getRecents() {
+analisi: [
+  {id:'ana-23j-q1',   any:'2023', conv:'Juny',        ref:'q1',   titol:'Polinomi cúbic determinat per condicions sobre f, f\', f\'\''},
+  {id:'ana-23j-q3',   any:'2023', conv:'Juny',        ref:'q3',   titol:'Funció f\'(x) per trams i recta tangent a f\''},
+  {id:'ana-23j-q5',   any:'2023', conv:'Juny',        ref:'q5',   titol:'Optimització: jardí rectangular adossat a un mur'},
+  {id:'ana-23j2-q1',  any:'2023', conv:'Juny (Sèrie 5)', ref:'q1', titol:'Àrea de la regió delimitada per f(x)=−x²+x+6 i g(x)=−9x+3x²'},
+  {id:'ana-23j2-q4',  any:'2023', conv:'Juny (Sèrie 5)', ref:'q4', titol:'Optimització: torre de comunicacions i cost del cablejat'},
+  {id:'ana-23j2-q6',  any:'2023', conv:'Juny (Sèrie 5)', ref:'q6', titol:'Funció racional: paràmetres a, b per extrem relatiu'},
+  {id:'ana-23s-q2',   any:'2023', conv:'Setembre',    ref:'q2',   titol:'f(x)=1/x: tangent i triangle d\'àrea constant'},
+  {id:'ana-23s-q4',   any:'2023', conv:'Setembre',    ref:'q4',   titol:'Bolzano i àrea entre f(x) i h(x)'},
+  {id:'ana-23s-q6',   any:'2023', conv:'Setembre',    ref:'q6',   titol:'Optimització: trapezi isòsceles d\'àrea màxima'},
+  {id:'ana-24i-q1',   any:'2024', conv:'Juny (inc.)', ref:'q1',   titol:'f(x)=−2+10(x−1)·ln(x): Bolzano, monotonia, límits'},
+  {id:'ana-24i-q3',   any:'2024', conv:'Juny (inc.)', ref:'q3',   titol:'Paràboles f_a: tangent i àrea entre corbes'},
+  {id:'ana-24i-q5',   any:'2024', conv:'Juny (inc.)', ref:'q5',   titol:'Optimització: decorat rectangle + semicercles'},
+  {id:'ana-24j-q1',   any:'2024', conv:'Juny',        ref:'q1',   titol:'f(x)=2·ln(x)/x: extrems, asímptotes, tangent'},
+  {id:'ana-24j-q3',   any:'2024', conv:'Juny',        ref:'q3',   titol:'Àrea d\'un terreny: cúbica i recta PR'},
+  {id:'ana-24j-q5',   any:'2024', conv:'Juny',        ref:'q5',   titol:'Optimització: cobert de fusta adossat a una paret'},
+  {id:'ana-24s-q1',   any:'2024', conv:'Setembre',    ref:'q1',   titol:'f(x)=3x¹³+5x³+2: Bolzano i monotonia'},
+  {id:'ana-24s-q3',   any:'2024', conv:'Setembre',    ref:'q3',   titol:'Àrees del logotip: cúbica i paràbola'},
+  {id:'ana-24s-q5',   any:'2024', conv:'Setembre',    ref:'q5',   titol:'Rectangle inscrit en y=e^(−2x): àrea màxima i tangent'},
+  {id:'ana-25i-q1',   any:'2025', conv:'Juny (inc.)', ref:'q1',   titol:'f(x)=√(1+x³): domini, derivada, tangent'},
+  {id:'ana-25i-q4a',  any:'2025', conv:'Juny (inc.)', ref:'q4a',  titol:'Optimització: ampolla cilindre + mitja esfera'},
+  {id:'ana-25j-q1',   any:'2025', conv:'Juny',        ref:'q1',   titol:'f(x)=(x²−2x)/(x−1): asímptotes, tangents, pendent'},
+  {id:'ana-25j-q4a',  any:'2025', conv:'Juny',        ref:'q4a',  titol:'Vela semiparabòlica: cost del material'},
+  {id:'ana-25s-q1',   any:'2025', conv:'Setembre',    ref:'q1',   titol:'Optimització: terreny triangular A(m) mínim'},
+  {id:'ana-25s-q3c',  any:'2025', conv:'Setembre',    ref:'q3c',  titol:'Trobar a, b, c de f(x)=ax³+bx²+cx per condicions'},
+  {id:'ana-25s-q4a',  any:'2025', conv:'Setembre',    ref:'q4a',  titol:'Vitrall Sagrada Família: sin(x/4) i cos(x/4)'},
+],
+
+probabilitat: [
+  {id:'pro-24i-q4',   any:'2024', conv:'Juny (inc.)', ref:'q4',   titol:'La Rut i els problemes: prob. total, Bayes, binomial'},
+  {id:'pro-24j-q4',   any:'2024', conv:'Juny',        ref:'q4',   titol:'Boles B,A,Y,E,S,F,A,N,S: sense i amb reemplaçament'},
+  {id:'pro-24s-q4',   any:'2024', conv:'Setembre',    ref:'q4',   titol:'Arrítmia i monitor Holter: prob. total i Bayes'},
+  {id:'pro-25i-q3',   any:'2025', conv:'Juny (inc.)', ref:'q3',   titol:'Filtre de correu brossa: prob. total, Bayes i integral'},
+  {id:'pro-25j-q3',   any:'2025', conv:'Juny',        ref:'q3',   titol:'Peces ferro/acer: prob. total, binomial i màxim f(p)'},
+  {id:'pro-25s-q3ab', any:'2025', conv:'Setembre',    ref:'q3ab', titol:'Sesamoïditis: probabilitat total i Bayes'},
+  /* ── Selecció EBAU (diverses CCAA) ───────────────────────── */
+  {id:'pro-ebau-01',  any:'2018', conv:'EBAU (Andalusia)',        ref:'eb01', titol:'Rentadores L₁,L₂,L₃: probabilitat total i Bayes'},
+  {id:'pro-ebau-02',  any:'2019', conv:'EBAU (Astúries)',         ref:'eb02', titol:'Advocats A,B,C: probabilitat total i Bayes'},
+  {id:'pro-ebau-03',  any:'2020', conv:'ABAU Ext. (Galícia)',     ref:'eb03', titol:'Distribuïdors A,B,C de vehicles: prob. total i Bayes'},
+  {id:'pro-ebau-04',  any:'2019', conv:'EvAU (Madrid)',           ref:'eb04', titol:'Videoconsoles i fracàs escolar: prob. total i Bayes'},
+  {id:'pro-ebau-05',  any:'2020', conv:'PAU Ord. (València)',     ref:'eb05', titol:'Detector de plagi: prob. total, Bayes i intersecció'},
+  {id:'pro-ebau-06',  any:'2019', conv:'EBAU (Canàries)',         ref:'eb06', titol:'Llicències W/MacOS/Linux: Bayes i binomial'},
+  {id:'pro-ebau-07',  any:'2017', conv:'EvAU (Castella-La Manxa)',ref:'eb07', titol:'Càncer de pulmó i fumadors: distribució binomial'},
+  {id:'pro-ebau-08',  any:'2019', conv:'EBAU (La Rioja)',         ref:'eb08', titol:'WhatsApp i missatges: distribució binomial B(3,0.1)'},
+  {id:'pro-ebau-09',  any:'2019', conv:'PEvAU (Andalusia)',       ref:'eb09', titol:'Successos A i B: P(A), P(B), independència, De Morgan'},
+  {id:'pro-ebau-10',  any:'2020', conv:'PBAU Ext. (Illes Balears)',ref:'eb10',titol:'Successos A i B: P(B), P(A|B), intersecció, De Morgan'},
+  {id:'pro-ebau-11',  any:'2018', conv:'EBAU (Castella i Lleó)',  ref:'eb11', titol:'Test i problemes: P(T∩R), P(Tᶜ∩Rᶜ), De Morgan'},
+  {id:'pro-ebau-12',  any:'2019', conv:'EAU (País Basc)',         ref:'eb12', titol:'Successos A i B amb fraccions: exactament un, De Morgan'},
+  {id:'pro-ebau-13',  any:'2020', conv:'PAU Ext. (València)',     ref:'eb13', titol:'Successos A i B: independència i P(Aᶜ|B)'},
+],
+
+}; // fi EXERS
+
+/* ── PDF VIEWER ─────────────────────────────────────────────────────────────── */
+const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+               || (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+
+if (IS_MOBILE) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+/* Estat de cada visor PDF (clau = viewer-id) */
+const PDF_STATE = {};
+
+function pdfPanel(id, tipus) {
+  const fname = `${id}-${tipus}.pdf`;
+  const path  = `data/${fname}`;
+
+  if (!IS_MOBILE) {
+    return `
+      <div class="pdf-wrap">
+        <iframe class="pdf-frame" src="${path}#pagemode=none" title="${tipus}"></iframe>
+        <div class="pdf-actions">
+          <span class="pdf-fname">${fname}</span>
+          <a class="pdf-link" href="${path}" target="_blank">Obre en nova pestanya ↗</a>
+        </div>
+      </div>`;
+  }
+
+  const vid = `pdfjs-${id}-${tipus}`;
+  return `
+    <div class="pdf-pdfjs" id="${vid}">
+      <div class="pdf-canvas-wrap">
+        <div class="pdf-loading">Carregant PDF…</div>
+      </div>
+      <div class="pdf-nav">
+        <button class="pdf-nav-btn" id="${vid}-prev"
+                onclick="pdfNav('${vid}',-1)" disabled>‹</button>
+        <span  class="pdf-nav-info" id="${vid}-info">—</span>
+        <button class="pdf-nav-btn" id="${vid}-next"
+                onclick="pdfNav('${vid}', 1)" disabled>›</button>
+      </div>
+    </div>`;
+}
+
+async function initPdfViewer(vid, path) {
+  if (PDF_STATE[vid]) return;           // ja carregat
+  PDF_STATE[vid] = null;                // marca "en curs" per evitar doble crida
+
   try {
-    const raw = localStorage.getItem(RECENTS_KEY);
-    if (!raw) return [];
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr : [];
-  } catch (e) { return []; }
-}
-
-function pushRecent(id) {
-  if (!id) return;
-  let list = getRecents().filter(r => r.id !== id);   // dedup: remove existing
-  list.unshift({ id, ts: Date.now() });               // newest first
-  list = list.slice(0, RECENTS_MAX);                   // cap at 10
-  try { localStorage.setItem(RECENTS_KEY, JSON.stringify(list)); } catch (e) {}
-}
-
-function clearRecents() {
-  try { localStorage.removeItem(RECENTS_KEY); } catch (e) {}
-  renderRecentsMenu();
-}
-
-function relativeTime(ts) {
-  const diff = Date.now() - ts;
-  const min = Math.floor(diff / 60000);
-  if (min < 1)  return 'ara mateix';
-  if (min < 60) return `fa ${min} min`;
-  const h = Math.floor(min / 60);
-  if (h < 24)   return `fa ${h} h`;
-  const d = Math.floor(h / 24);
-  if (d === 1)  return 'ahir';
-  if (d < 7)    return `fa ${d} dies`;
-  const w = Math.floor(d / 7);
-  if (w < 5)    return `fa ${w} setmana${w === 1 ? '' : 'nes'}`;
-  const mo = Math.floor(d / 30);
-  return `fa ${mo} mes${mo === 1 ? '' : 'os'}`;
-}
-
-function renderRecentsMenu() {
-  const list = getRecents();
-  const byId = new Map((state.manifest?.files || []).map(f => [f.id, f]));
-  // Keep only recents that still exist in the manifest.
-  const items = list.map(r => ({ rec: r, file: byId.get(r.id) })).filter(x => x.file);
-
-  if (!items.length) {
-    els.recentsMenu.innerHTML = `
-      <div class="rec-head"><span>Recents</span></div>
-      <div class="rec-empty">Encara no has obert cap document al Drive.<br>Els que obris apareixeran aquí.</div>`;
-    return;
-  }
-
-  els.recentsMenu.innerHTML = `
-    <div class="rec-head">
-      <span>Oberts recentment</span>
-      <button class="rec-clear" id="rec-clear">Esborra</button>
-    </div>
-    ${items.map(({ rec, file }) => `
-      <button class="rec-item" data-id="${escHtml(file.id)}">
-        <span class="rec-icon" data-format="${escHtml(file.format || '')}">${escHtml((file.format || '?').toUpperCase())}</span>
-        <span class="rec-body">
-          <span class="rec-title">${escHtml(file.title)}</span>
-          <span class="rec-when">${escHtml(relativeTime(rec.ts))}</span>
-        </span>
-      </button>`).join('')}
-  `;
-
-  const clr = $('rec-clear');
-  if (clr) clr.onclick = (e) => { e.stopPropagation(); clearRecents(); };
-}
-
-function toggleRecentsMenu(force) {
-  const open = force !== undefined ? force : els.recentsMenu.hidden;
-  if (open) {
-    toggleConfigMenu(false);
-    renderRecentsMenu();
-    els.recentsMenu.hidden = false;
-    els.recentsWrap.classList.add('is-open');
-    els.recentsBtn.setAttribute('aria-expanded', 'true');
-  } else {
-    els.recentsMenu.hidden = true;
-    els.recentsWrap.classList.remove('is-open');
-    els.recentsBtn.setAttribute('aria-expanded', 'false');
-  }
-}
-
-function toggleConfigMenu(force) {
-  const open = force !== undefined ? force : els.configMenu.hidden;
-  if (open) {
-    toggleRecentsMenu(false);
-    els.configMenu.hidden = false;
-    els.configWrap.classList.add('is-open');
-    els.configBtn.setAttribute('aria-expanded', 'true');
-  } else {
-    els.configMenu.hidden = true;
-    els.configWrap.classList.remove('is-open');
-    els.configBtn.setAttribute('aria-expanded', 'false');
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   UTIL — normalize, fuzzy match, labels
-   ═══════════════════════════════════════════════════════════════════ */
-
-
-function damerauLevenshtein(a, b) {
-  const m = a.length, n = b.length;
-  if (!m) return n;
-  if (!n) return m;
-  const d = Array.from({length: m + 1}, () => new Array(n + 1).fill(0));
-  for (let i = 0; i <= m; i++) d[i][0] = i;
-  for (let j = 0; j <= n; j++) d[0][j] = j;
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i-1] === b[j-1] ? 0 : 1;
-      d[i][j] = Math.min(
-        d[i-1][j]   + 1,
-        d[i][j-1]   + 1,
-        d[i-1][j-1] + cost
-      );
-      if (i > 1 && j > 1 && a[i-1] === b[j-2] && a[i-2] === b[j-1]) {
-        d[i][j] = Math.min(d[i][j], d[i-2][j-2] + 1);
-      }
+    const doc = await pdfjsLib.getDocument(path).promise;
+    PDF_STATE[vid] = { doc, page: 1, total: doc.numPages, rendering: false };
+    await renderPdfPage(vid);
+  } catch(e) {
+    const container = document.getElementById(vid);
+    if (container) {
+      container.querySelector('.pdf-canvas-wrap').innerHTML =
+        `<div class="pdf-loading" style="color:#c95252">Error al carregar el PDF</div>`;
     }
+    delete PDF_STATE[vid];
   }
-  return d[m][n];
 }
 
-/* Returns score per token: 100 exact, 60 distance-1, 0 no match */
-function scoreToken(blob, token) {
-  if (!token) return 0;
-  if (blob.indexOf(token) >= 0) return 100;
-  if (token.length < 4) return 0;
-  // Scan windows of length L-1, L, L+1 in the blob
-  const L = token.length;
-  for (const wl of [L, L - 1, L + 1]) {
-    if (wl < 2 || wl > blob.length) continue;
-    for (let i = 0; i + wl <= blob.length; i++) {
-      const w = blob.substring(i, i + wl);
-      if (damerauLevenshtein(token, w) <= 1) return 60;
-    }
+async function renderPdfPage(vid) {
+  const state = PDF_STATE[vid];
+  if (!state || state.rendering) return;
+  state.rendering = true;
+
+  const container = document.getElementById(vid);
+  if (!container) { state.rendering = false; return; }
+
+  const wrap = container.querySelector('.pdf-canvas-wrap');
+  const page = await state.doc.getPage(state.page);
+
+  const containerW = container.offsetWidth || window.innerWidth - 36;
+  const baseVP     = page.getViewport({ scale: 1 });
+  const dpr        = window.devicePixelRatio || 1;
+  const scale      = (containerW / baseVP.width) * dpr;
+  const vp         = page.getViewport({ scale });
+
+  // Reutilitza o crea el canvas
+  let canvas = wrap.querySelector('canvas');
+  if (!canvas) {
+    wrap.innerHTML = '';
+    canvas = document.createElement('canvas');
+    canvas.className = 'pdf-canvas';
+    wrap.appendChild(canvas);
   }
-  return 0;
+  // Mida física (píxels reals) × dpr, mida CSS (píxels CSS) sense dpr
+  canvas.width        = vp.width;
+  canvas.height       = vp.height;
+  canvas.style.width  = (vp.width  / dpr) + 'px';
+  canvas.style.height = (vp.height / dpr) + 'px';
+
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+
+  // Actualitza nav
+  document.getElementById(`${vid}-info`).textContent =
+    `pàg. ${state.page} / ${state.total}`;
+  document.getElementById(`${vid}-prev`).disabled = state.page <= 1;
+  document.getElementById(`${vid}-next`).disabled = state.page >= state.total;
+
+  state.rendering = false;
 }
 
-function matchesQuery(file, queryTokens) {
-  if (!queryTokens.length) return { ok: true, score: 0 };
-  let total = 0;
-  for (const t of queryTokens) {
-    const sBlob  = scoreToken(file._blob, t);
-    if (sBlob === 0) return { ok: false, score: 0 };
-    // E2: ponderar per camp — títol (×3) > camps principals (×2) > notes/altres (×1)
-    const sTitle = scoreToken(file._blobTitle, t);
-    const sMain  = scoreToken(file._blobMain, t);
-    total += Math.max(sTitle * 3, sMain * 2, sBlob);
-  }
-  return { ok: true, score: total };
+async function pdfNav(vid, delta) {
+  const state = PDF_STATE[vid];
+  if (!state) return;
+  const np = state.page + delta;
+  if (np < 1 || np > state.total) return;
+  state.page = np;
+  await renderPdfPage(vid);
 }
 
-function label(value) {
-  if (!value && value !== 0) return '';
-  if (state.vocabLabels[value]) return state.vocabLabels[value];
-  return String(value).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-}
+/* ── NAVIGATION ─────────────────────────────────────────────────────────────── */
+let currentCat = null;
 
+function showCat(cat) {
+  currentCat = cat;
+  show('v-list');
+  setBreadcrumb(CAT_NAME[cat]);
 
-/* Course umbrella matching: a filter on '3ESO' matches files tagged
-   ['3ESO'] or ['ESO']. A file with NO course tags matches every course
-   filter (it is considered universally relevant). */
-function fileMatchesCourse(file, requested) {
-  const tags = file.courses || [];
-  if (tags.length === 0) return true;
-  if (tags.includes(requested)) return true;
-  if (tags.includes('ESO')  && ESO_COURSES.includes(requested))  return true;
-  if (tags.includes('Bat')  && BATX_COURSES.includes(requested)) return true;
-  return false;
-}
+  const titleEl = document.getElementById('list-title');
+  titleEl.textContent = CAT_NAME[cat];
+  titleEl.style.color = CAT_COLOR[cat];
 
-/* For a given filter group, does the file pass the group's selection? */
-function fileMatchesGroup(file, group, selectedSet) {
-  if (!selectedSet || !selectedSet.size) return true;
-  if (group.key === 'course') {
-    for (const req of selectedSet) if (fileMatchesCourse(file, req)) return true;
-    return false;
-  }
-  const v = file[group.field];
-  if (Array.isArray(v)) {
-    for (const x of v) if (selectedSet.has(x)) return true;
-    return false;
-  }
-  return selectedSet.has(v);
-}
+  const color = CAT_COLOR[cat];
 
-function fileMatchesAllFilters(file) {
-  for (const g of FILTER_GROUPS) {
-    if (!fileMatchesGroup(file, g, state.filters[g.key])) return false;
-  }
-  return true;
-}
+  // Tots els exercicis (els optatius es mostren amb marca, no s'amaguen)
+  const exercicis = EXERS[cat];
 
-/* ═══════════════════════════════════════════════════════════════════
-   FILTER ENGINE — main compute
-   ═══════════════════════════════════════════════════════════════════ */
+  // Agrupa per any (ordre descendent)
+  const byYear = {};
+  exercicis.forEach(ex => {
+    if (!byYear[ex.any]) byYear[ex.any] = [];
+    byYear[ex.any].push(ex);
+  });
+  const years = Object.keys(byYear).sort((a, b) => b - a);
 
-function computeFiltered() {
-  if (!state.manifest) return [];
-  const queryTokens = normalize(state.query).split(' ').filter(Boolean);
-  const out = [];
-  for (const f of state.manifest.files) {
-    if (!fileMatchesAllFilters(f)) continue;
-    const m = matchesQuery(f, queryTokens);
-    if (!m.ok) continue;
-    out.push({ file: f, score: m.score });
-  }
-  if (queryTokens.length) {
-    out.sort((a, b) => b.score - a.score || a.file.title.localeCompare(b.file.title));
-  } else {
-    out.sort((a, b) => a.file.title.localeCompare(b.file.title));
-  }
-  return out.map(x => x.file);
-}
+  const container = document.getElementById('ex-list');
+  container.innerHTML = '';
 
-/* "Net": cap filtre seleccionat i cap cerca escrita. */
-function isPristine() {
-  return !state.query && !FILTER_GROUPS.some(G => state.filters[G.key].size > 0);
-}
+  years.forEach(year => {
+    const exs = byYear[year];
+    const group = document.createElement('div');
+    group.className = 'year-group';
 
-/* Per-checkbox counts: for each group G and each value V,
-   count files matching all filters EXCEPT G, AND value V is set/has V. */
-function computeCounts() {
-  const counts = {};
-  if (!state.manifest) return counts;
-  const queryTokens = normalize(state.query).split(' ').filter(Boolean);
+    const header = document.createElement('div');
+    header.className = 'year-header';
+    header.innerHTML = `
+      <span class="year-label">${year}</span>
+      <span class="year-count">${exs.length} exercici${exs.length !== 1 ? 's' : ''}</span>`;
+    group.appendChild(header);
 
-  // Pre-filter: files that match query and ALL filters except for G
-  for (const G of FILTER_GROUPS) {
-    counts[G.key] = {};
-    const passQueryAndOthers = state.manifest.files.filter(f => {
-      const m = matchesQuery(f, queryTokens);
-      if (!m.ok) return false;
-      for (const H of FILTER_GROUPS) {
-        if (H.key === G.key) continue;
-        if (!fileMatchesGroup(f, H, state.filters[H.key])) return false;
-      }
-      return true;
+    const ul = document.createElement('ul');
+    ul.className = 'ex-list';
+
+    exs.forEach(ex => {
+      const isOptatiu = OPTATIUS.has(ex.id);
+      const isFet     = getDoneSet().has(ex.id);
+      const li = document.createElement('li');
+      li.className = 'ex-item' + (isOptatiu ? ' is-optatiu' : '') + (isFet ? ' is-fet' : '');
+      li.dataset.cat  = cat;
+      li.dataset.exId = ex.id;
+      li.innerHTML = `
+        <span class="ex-badge" style="background:${color}">${ex.conv}</span>
+        <div class="ex-info">
+          <div class="ex-title">${ex.titol}</div>
+          <div class="ex-sub">${ex.id}</div>
+        </div>
+        ${isOptatiu ? '<span class="ex-optatiu-tag">optatiu</span>' : ''}
+        ${isFet     ? '<span class="ex-fet-tag">✓ Fet</span>'       : ''}
+        <span class="ex-arrow">→</span>`;
+      li.onclick = () => showExercise(ex);
+      ul.appendChild(li);
     });
-    const values = state.manifest.vocabulary[G.key] || [];
-    for (const v of values) {
-      let c = 0;
-      for (const f of passQueryAndOthers) {
-        if (G.key === 'course' ? fileMatchesCourse(f, v)
-            : (Array.isArray(f[G.field]) ? f[G.field].includes(v) : f[G.field] === v)) {
-          c++;
-        }
-      }
-      counts[G.key][v] = c;
-    }
-  }
-  return counts;
+
+    group.appendChild(ul);
+    container.appendChild(group);
+  });
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   RENDER — filters, chips, results, preview
-   ═══════════════════════════════════════════════════════════════════ */
+function showExercise(ex) {
+  show('v-detail');
+  setBreadcrumb(CAT_NAME[currentCat] + ' › ' + ex.any + ' ' + ex.conv + ' ' + ex.ref.toUpperCase());
+  document.getElementById('det-title').textContent = ex.titol;
+  document.getElementById('det-meta').textContent  =
+    CAT_NAME[currentCat] + '  ·  ' + ex.any + '  ·  ' + ex.conv + '  ·  ' + ex.ref.toUpperCase() + '  ·  ' + ex.id;
+  document.getElementById('tc-e').innerHTML = pdfPanel(ex.id, 'e');
+  document.getElementById('tc-p').innerHTML = pdfPanel(ex.id, 'p');
+  document.getElementById('tc-s').innerHTML = pdfPanel(ex.id, 's');
 
-function renderFilters() {
-  if (!state.manifest) return;
-  const counts = computeCounts();
-  const mode = state.uiMode;
-  const basic = state.manifest.basic || {};
-  const blocks = state.manifest.activity_blocks || [];
-
-  // For each group, decide which values to show.
-  // - basic: only the slugs whitelisted in manifest.basic[G.key]; if the group
-  //   has no entry in manifest.basic, the whole group is hidden.
-  // - advanced: all values from vocabulary[G.key].
-  function valuesFor(G) {
-    const all = state.manifest.vocabulary[G.key] || [];
-    if (mode === 'advanced') return all;
-    const allow = basic[G.key];
-    if (!allow) return null;                     // group hidden in basic
-    const allowSet = new Set(allow);
-    return all.filter(v => allowSet.has(v));     // preserve manifest order
+  // Pestanya de vídeo: mostrar només si hi ha entrada a VIDEOS
+  const ytId = VIDEOS[ex.id];
+  const tabBtnV = document.getElementById('tab-btn-v');
+  const tcV = document.getElementById('tc-v');
+  if (ytId) {
+    tabBtnV.style.display = '';
+    tcV.innerHTML = `
+      <span class="yt-badge">▶ YouTube</span>
+      <div class="yt-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/${ytId}?rel=0"
+          title="Vídeo explicatiu"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>`;
+  } else {
+    tabBtnV.style.display = 'none';
+    tcV.innerHTML = '';
   }
 
-  function renderItem(G, v) {
-    const c = counts[G.key]?.[v] ?? 0;
-    const checked = state.filters[G.key].has(v);
-    const zero = !checked && c === 0;
-    return `
-      <label class="filter-item ${zero ? 'is-zero' : ''}">
-        <input type="checkbox" data-group="${G.key}" data-value="${escHtml(v)}" ${checked ? 'checked' : ''}>
-        <span class="fi-label">${escHtml(label(v))}</span>
-      </label>`;
-  }
-
-  const html = FILTER_GROUPS.map(G => {
-    const values = valuesFor(G);
-    if (values === null) return '';              // group hidden
-    const sel = state.filters[G.key];
-    const open = state.filterCollapsed[G.key] !== true;
-    const selSize = sel.size;
-
-    // Special case: in advanced mode, render Activity grouped by blocks.
-    let body;
-    if (G.key === 'activity' && mode === 'advanced' && blocks.length) {
-      body = blocks.map(b => `
-        <div class="filter-block">
-          <div class="filter-block-label">${escHtml(b.label)}</div>
-          <div class="filter-list">
-            ${b.items.map(v => renderItem(G, v)).join('')}
-          </div>
-        </div>`).join('');
-    } else {
-      body = `<div class="filter-list">${values.map(v => renderItem(G, v)).join('')}</div>`;
-    }
-
-    return `
-      <details class="filter-group" ${open ? 'open' : ''} data-group="${G.key}">
-        <summary>
-          <svg class="group-caret" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
-            <path d="M3 1l4 4-4 4z"/>
-          </svg>
-          <span class="group-label">${escHtml(G.label)}</span>
-          <span class="group-count">${selSize ? selSize : ''}</span>
-        </summary>
-        ${body}
-      </details>`;
-  }).join('');
-
-  const hasAny = FILTER_GROUPS.some(G => state.filters[G.key].size > 0) || state.query;
-  // Count active filters from groups hidden in basic — useful so the user
-  // knows why some chips are showing without a matching rail entry.
-  let hiddenActive = 0;
-  if (mode === 'basic') {
-    for (const G of FILTER_GROUPS) {
-      const values = valuesFor(G);
-      const allow = values ? new Set(values) : new Set();
-      for (const v of state.filters[G.key]) if (!allow.has(v)) hiddenActive++;
-    }
-  }
-
-  els.filterRail.innerHTML = `
-    ${hiddenActive ? `<div class="mode-hint">Tens ${hiddenActive} filtre${hiddenActive===1?'':'s'} actiu${hiddenActive===1?'':'s'} només visible${hiddenActive===1?'':'s'} a Avançat.</div>` : ''}
-    ${html}
-    <button class="clear-all" ${hasAny ? '' : 'disabled'}>Esborra-ho tot</button>
-  `;
-
-  updateModeToggle();
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector('.tab-btn').classList.add('active');
+  document.getElementById('tc-e').classList.add('active');
+  // Inicia el visor PDF de la pestanya activa (enunciat)
+  if (IS_MOBILE) initPdfViewer(`pdfjs-${ex.id}-e`, `data/${ex.id}-e.pdf`);
+  // Guarda l'id de l'exercici actiu per a showTab i done-btn
+  document.getElementById('v-detail').dataset.exId = ex.id;
+  updateDoneBtn(ex.id);
 }
 
-function updateModeToggle() {
-  const b = $('mode-basic'), a = $('mode-advanced');
-  if (b) { b.classList.toggle('active', state.uiMode === 'basic');    b.setAttribute('aria-pressed', state.uiMode === 'basic'     ? 'true' : 'false'); }
-  if (a) { a.classList.toggle('active', state.uiMode === 'advanced'); a.setAttribute('aria-pressed', state.uiMode === 'advanced'  ? 'true' : 'false'); }
+function goBack(to) {
+  if (to === 'cats') { show('v-cats'); setBreadcrumb('Tria una categoria per començar'); }
+  if (to === 'list') { show('v-list'); setBreadcrumb(CAT_NAME[currentCat]); }
 }
 
-function setMode(m) {
-  if (state.uiMode === m) return;
-  state.uiMode = m;
-  try { localStorage.setItem('material:uiMode', m); } catch (e) {}
-  renderAll();
-}
-
-function renderChips() {
-  const chips = [];
-  if (state.query) {
-    chips.push(`<span class="chip chip-query">
-      <span>Cerca: "${escHtml(state.query)}"</span>
-      <button class="chip-x" data-chip-clear="query" title="Esborra cerca">
-        <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l6 6M7 1l-6 6"/></svg>
-      </button>
-    </span>`);
-  }
-  for (const G of FILTER_GROUPS) {
-    for (const v of state.filters[G.key]) {
-      chips.push(`<span class="chip">
-        <span>${escHtml(G.label)}: ${escHtml(label(v))}</span>
-        <button class="chip-x" data-chip-group="${G.key}" data-chip-value="${escHtml(v)}" title="Treu filtre">
-          <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l6 6M7 1l-6 6"/></svg>
-        </button>
-      </span>`);
-    }
-  }
-  els.chipRow.innerHTML = chips.join('');
-}
-
-function renderResults(filtered) {
-  // Estat inicial "net": sense cap filtre ni cerca → no mostrem tots els
-  // resultats (introdueix soroll), sinó dues bombolles d'orientació.
-  if (isPristine()) {
-    els.results.innerHTML = `
-      <li class="state-hint">
-        <div class="hint-bubble hint-bubble--search">
-          <svg class="hint-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-          <span>Podeu fer una cerca per paraula clau</span>
-        </div>
-        <div class="hint-bubble hint-bubble--filters">
-          <svg class="hint-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          <span>Podeu escollir els filtres que convenen</span>
-        </div>
-      </li>`;
-    return;
-  }
-  if (!filtered.length) {
-    els.results.innerHTML = `
-      <li class="state-empty">
-        <div class="se-icon">∅</div>
-        <p><strong>No s'ha trobat cap material.</strong></p>
-        <p>Prova a treure algun filtre o revisa la cerca.</p>
-        <button id="empty-reset">Restableix filtres</button>
-      </li>`;
-    const btn = $('empty-reset');
-    if (btn) btn.onclick = clearAll;
-    return;
-  }
-
-  els.results.innerHTML = filtered.map((f, idx) => {
-    const isOpen = state.openId === f.id;
-    const origin = f.origin || '';
-    const fmtIcon = (f.format || '?').toUpperCase();
-
-    const courseChips = (f.courses || []).map(c =>
-      `<span class="pill pill-course">${escHtml(label(c))}</span>`).join('');
-
-    const isLink = !!f.url;
-    const openHref = isLink
-      ? f.url
-      : (f.format === 'doc'
-          ? `https://docs.google.com/document/d/${encodeURIComponent(f.drive_id)}/edit`
-          : `https://drive.google.com/file/d/${encodeURIComponent(f.drive_id)}/view`);
-    const openLabel = isLink ? 'Obre la prova ↗' : 'Obre al Drive ↗';
-
-    return `
-      <li>
-        <div class="card ${isOpen ? 'is-open' : ''}"
-             data-id="${escHtml(f.id)}" data-idx="${idx}"
-             data-format="${escHtml(f.format || '')}"
-             data-origin="${escHtml(origin)}"
-             tabindex="0" role="button" aria-expanded="${isOpen}">
-          <div class="card-icon">${escHtml(fmtIcon)}</div>
-          <div class="card-main">
-            <div class="card-title">${escHtml(f.title)}</div>
-            <div class="card-meta">
-              ${courseChips}
-              ${origin ? `<span class="pill pill-origin" data-origin="${escHtml(origin)}">${escHtml(label(origin))}</span>` : ''}
-            </div>
-          </div>
-          <div class="card-actions">
-            ${isLink ? '' : `<button class="btn-act btn-prim act-preview" data-id="${escHtml(f.id)}">Previsualitza</button>`}
-            <a class="btn-act ${isLink ? 'btn-prim ' : ''}act-drive" href="${openHref}" target="_blank" rel="noopener">${openLabel}</a>
-          </div>
-        </div>
-      </li>`;
-  }).join('');
-}
-
-function renderPreview() {
-  if (!state.previewing || !state.openId) {
-    els.preview.hidden = true;
-    els.layout.classList.remove('has-preview');
-    return;
-  }
-  const f = state.manifest.files.find(x => x.id === state.openId);
-  if (!f) {
-    closePreview();
-    return;
-  }
-  els.preview.hidden = false;
-  els.layout.classList.add('has-preview');
-
-  const previewSrc = f.url
-    ? f.url
-    : `https://drive.google.com/file/d/${encodeURIComponent(f.drive_id)}/preview`;
-
-  els.preview.innerHTML = `
-    <div class="preview-head">
-      <div class="pv-title">${escHtml(f.title)}</div>
-      <button class="pv-close" id="pv-close" title="Tanca (Esc)">
-        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l8 8M10 2l-8 8"/></svg>
-      </button>
-    </div>
-    <div class="preview-body" id="pv-body">
-      <iframe src="${previewSrc}" title="Visor de ${escHtml(f.title)}" allow="autoplay"></iframe>
-    </div>
-  `;
-
-  $('pv-close').onclick = closePreview;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   ACTIONS — toggle card open, preview drawer
-   ═══════════════════════════════════════════════════════════════════ */
-
-/* Swap is-open class without touching the rest of the DOM */
-function applyOpenState(prevId, newId) {
-  if (prevId) {
-    const el = els.results.querySelector(`.card[data-id="${CSS.escape(prevId)}"]`);
-    if (el) { el.classList.remove('is-open'); el.setAttribute('aria-expanded', 'false'); }
-  }
-  if (newId) {
-    const el = els.results.querySelector(`.card[data-id="${CSS.escape(newId)}"]`);
-    if (el) { el.classList.add('is-open'); el.setAttribute('aria-expanded', 'true'); }
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tc-' + name).classList.add('active');
+  // Inicia el visor PDF de la pestanya ara visible (càrrega diferida)
+  if (IS_MOBILE) {
+    const exId = document.getElementById('v-detail').dataset.exId;
+    if (exId) initPdfViewer(`pdfjs-${exId}-${name}`, `data/${exId}-${name}.pdf`);
   }
 }
 
-function toggleOpen(id) {
-  if (state.openId === id) { closeCard(); return; }
-  const prevId = state.openId;
-  state.openId = id;
-  state.previewing = false;
-  applyOpenState(prevId, id);
-  renderPreview();
-  syncToUrl(false);
+function show(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function closeCard() {
-  const prevId = state.openId;
-  state.openId = null;
-  state.previewing = false;
-  applyOpenState(prevId, null);
-  renderPreview();
-  syncToUrl(false);
-  // Retorna el focus a la targeta si l'usuari navega amb teclat.
-  if (prevId) {
-    const el = els.results.querySelector(`.card[data-id="${CSS.escape(prevId)}"]`);
-    if (el && el.contains(document.activeElement)) el.focus();
-  }
+function setBreadcrumb(txt) {
+  document.getElementById('breadcrumb').textContent = txt;
 }
 
-function openPreview(id) {
-  // Web resources (proves CB, etc.) have no Drive preview — open externally.
-  const wf = state.manifest?.files.find(x => x.id === id);
-  if (wf && wf.url) {
-    pushRecent(id);
-    window.open(wf.url, '_blank', 'noopener');
-    return;
-  }
-  const prevId = state.openId;
-  state.openId = id;
-  state.previewing = true;
-  applyOpenState(prevId, id);
-  renderPreview();
-  syncToUrl(false);
-}
-
-function closePreview() {
-  state.previewing = false;
-  renderPreview();
-  syncToUrl(false);
-}
-
-function clearAll() {
-  state.query = '';
-  els.search.value = '';
-  FILTER_GROUPS.forEach(g => state.filters[g.key].clear());
-  syncToUrl();
-  renderAll();
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   URL STATE
-   ═══════════════════════════════════════════════════════════════════ */
-
-function buildUrlParams({ openOnly } = {}) {
-  const p = new URLSearchParams();
-  if (state.query) p.set('q', state.query);
-  for (const G of FILTER_GROUPS) {
-    if (state.filters[G.key].size) {
-      p.set(G.key, [...state.filters[G.key]].join(','));
-    }
-  }
-  if (state.openId) p.set('open', state.openId);
-  if (openOnly) {
-    const o = new URLSearchParams();
-    if (state.openId) o.set('open', state.openId);
-    return o.toString();
-  }
-  return p.toString();
-}
-
-function syncToUrl(replace = true) {
-  const qs = buildUrlParams();
-  const url = location.pathname + (qs ? '?' + qs : '');
-  if (replace) history.replaceState(null, '', url);
-  else         history.pushState(null, '', url);
-}
-
-function syncFromUrl() {
-  const p = new URLSearchParams(location.search);
-  state.query = p.get('q') || '';
-  els.search.value = state.query;
-  for (const G of FILTER_GROUPS) {
-    state.filters[G.key].clear();
-    const v = p.get(G.key);
-    if (v) v.split(',').forEach(x => x && state.filters[G.key].add(x));
-  }
-  state.openId = p.get('open') || null;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   GLUE — render everything
-   ═══════════════════════════════════════════════════════════════════ */
-
-function renderAll() {
-  renderFilters();
-  renderChips();
-  renderResults(computeFiltered());
-  renderPreview();
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   EVENT WIRING
-   ═══════════════════════════════════════════════════════════════════ */
-
-let searchTimer = 0;
-els.search.addEventListener('input', e => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    state.query = e.target.value.trim();
-    syncToUrl();
-    renderAll();
-  }, 120);
-});
-
-els.filterRail.addEventListener('change', e => {
-  const cb = e.target.closest('input[type=checkbox][data-group]');
-  if (!cb) return;
-  const g = cb.dataset.group, v = cb.dataset.value;
-  if (cb.checked) state.filters[g].add(v);
-  else            state.filters[g].delete(v);
-  syncToUrl();
-  renderAll();
-});
-
-els.filterRail.addEventListener('click', e => {
-  if (e.target.closest('.clear-all')) {
-    clearAll();
-    return;
-  }
-  // Track collapse/expand of filter groups
-  const summary = e.target.closest('summary');
-  if (summary) {
-    const det = summary.parentElement;
-    // <details> toggles AFTER the event; defer
-    setTimeout(() => {
-      const g = det.dataset.group;
-      state.filterCollapsed[g] = !det.open;
-    }, 0);
-  }
-});
-
-els.chipRow.addEventListener('click', e => {
-  const btn = e.target.closest('button.chip-x');
-  if (!btn) return;
-  if (btn.dataset.chipClear === 'query') {
-    state.query = '';
-    els.search.value = '';
-  } else if (btn.dataset.chipGroup) {
-    state.filters[btn.dataset.chipGroup].delete(btn.dataset.chipValue);
-  }
-  syncToUrl();
-  renderAll();
-});
-
-els.results.addEventListener('click', e => {
-  // "Previsualitza" button → open side drawer with iframe.
-  const pv = e.target.closest('button.act-preview');
-  if (pv) {
-    e.stopPropagation();
-    openPreview(pv.dataset.id);
-    return;
-  }
-  // "Obre al Drive" link → record as recent, then let the browser open it.
-  const drive = e.target.closest('a.act-drive');
-  if (drive) {
-    e.stopPropagation();
-    const card = drive.closest('.card');
-    if (card) pushRecent(card.dataset.id);
-    return;
-  }
-  // Click on the card body → toggle action buttons.
-  const card = e.target.closest('.card');
-  if (card) toggleOpen(card.dataset.id);
-});
-
-// A1 — Operació amb teclat: Enter/Espai obren la targeta enfocada.
-els.results.addEventListener('keydown', e => {
-  if (e.key !== 'Enter' && e.key !== ' ') return;
-  const card = e.target.closest('.card[role="button"]');
-  if (!card) return;
-  if (e.key === ' ') e.preventDefault(); // evita scroll de pàgina
-  const id = card.dataset.id;
-  toggleOpen(id);
-  // En obrir, mou el focus al primer botó d'acció.
-  if (state.openId === id) {
-    const firstBtn = card.querySelector('.card-actions .btn-act');
-    if (firstBtn) firstBtn.focus();
-  }
-});
-
-document.addEventListener('keydown', e => {
-  // Escape closes the side preview first; on a second press, collapses the card.
-  if (e.key === 'Escape') {
-    if (!els.configMenu.hidden)  { toggleConfigMenu(false); return; }
-    if (!els.recentsMenu.hidden) { toggleRecentsMenu(false); return; }
-    if (state.previewing) closePreview();
-    else if (state.openId) closeCard();
-  }
-});
-
-/* Configuració button + dropdown */
-els.configBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  toggleConfigMenu();
-});
-
-/* Recents button + dropdown */
-els.recentsBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  toggleRecentsMenu();
-});
-els.recentsMenu.addEventListener('click', e => {
-  const item = e.target.closest('.rec-item');
-  if (!item) return;
-  const id = item.dataset.id;
-  toggleRecentsMenu(false);
-  // Selecting a recent re-opens it in the preview drawer.
-  openPreview(id);
-  const card = document.querySelector(`.card[data-id="${CSS.escape(id)}"]`);
-  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
-// Clicking a menu item (now opens in a new tab) closes the Edició menu.
-els.configMenu.addEventListener('click', e => {
-  if (e.target.closest('.config-item')) toggleConfigMenu(false);
-});
-// Click outside closes the dropdowns.
-document.addEventListener('click', e => {
-  if (!els.recentsMenu.hidden && !els.recentsWrap.contains(e.target)) {
-    toggleRecentsMenu(false);
-  }
-  if (!els.configMenu.hidden && !els.configWrap.contains(e.target)) {
-    toggleConfigMenu(false);
-  }
-});
-
-window.addEventListener('popstate', () => {
-  syncFromUrl();
-  renderAll();
-});
-
-/* ═══════════════════════════════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════════════════════════════ */
-
-async function loadManifest() {
-  const res = await fetch(MANIFEST_URL, { cache: 'no-cache' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} en carregar ${MANIFEST_URL}`);
-  const data = await res.json();
-  // Validate basics
-  if (!data.vocabulary || !Array.isArray(data.files)) {
-    throw new Error('Manifest invàlid: falta "vocabulary" o "files".');
-  }
-  // Build search blob per file
-  for (const f of data.files) {
-    const parts = [
-      f.title || '', f.notes || '',
-      ...(f.courses || []).map(label),
-      label(f.origin || ''),
-      label(f.math_sense || ''),
-      ...(f.activities || []).map(label),
-      label(f.type || ''),
-      // Also include raw values so people can search "1ESO" literally
-      ...(f.courses || []),
-      f.origin || '', f.math_sense || '',
-      ...(f.activities || []),
-      f.type || '', f.format || ''
-    ];
-    f._blob = normalize(parts.join(' '));
-    // Blobs parcials per ponderar el rànquing (E2): títol × 3, camps principals × 2, notes × 1
-    f._blobTitle = normalize(f.title || '');
-    f._blobMain  = normalize([
-      ...(f.courses || []).map(label),
-      label(f.origin || ''),
-      label(f.math_sense || ''),
-      ...(f.activities || []).map(label),
-      label(f.type || ''),
-      ...(f.courses || []),
-      f.origin || '', f.math_sense || '',
-      ...(f.activities || []),
-      f.type || '', f.format || ''
-    ].join(' '));
-  }
-  return data;
-}
-
-function showLoading() {
-  els.results.innerHTML = Array.from({length: 5}).map(() => `<li class="skel"></li>`).join('');
-}
-
-function showError(err) {
-  els.results.innerHTML = `
-    <li class="state-error">
-      <p><strong>No s'ha pogut carregar el manifest.</strong></p>
-      <p>${escHtml(err.message)}</p>
-      <p>Comprova que <code>${escHtml(MANIFEST_URL)}</code> existeixi i sigui accessible.</p>
-    </li>`;
-}
-
-async function init() {
-  showLoading();
-  // Wire the static mode toggle (it lives in the topbar, not in the rail).
-  $('mode-basic').onclick    = () => setMode('basic');
-  $('mode-advanced').onclick = () => setMode('advanced');
+/* ── MARCAR COM A FET (localStorage) ────────────────────────────────────── */
+function getDoneSet() {
   try {
-    // Restaure ui mode from localStorage (default: basic).
-    try {
-      const saved = localStorage.getItem('material:uiMode');
-      if (saved === 'basic' || saved === 'advanced') state.uiMode = saved;
-    } catch (e) {}
-    state.manifest = await loadManifest();
-    state.vocabLabels = state.manifest.vocabulary_labels || {};
-    syncFromUrl();
-    renderAll();
-    // Scroll-to-open if preview was deep-linked
-    if (state.openId) {
-      setTimeout(() => {
-        const card = document.querySelector(`.card[data-id="${CSS.escape(state.openId)}"]`);
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-    }
-  } catch (err) {
-    console.error(err);
-    showError(err);
+    const raw = localStorage.getItem('pau-done');
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch { return new Set(); }
+}
+
+function saveDoneSet(set) {
+  try { localStorage.setItem('pau-done', JSON.stringify([...set])); } catch {}
+}
+
+function updateDoneBtn(exId) {
+  const done = getDoneSet().has(exId);
+  const btn  = document.getElementById('done-btn');
+  if (!btn) return;
+  btn.className   = 'done-btn ' + (done ? 'is-done' : 'not-done');
+  btn.textContent = done ? '✓ Fet' : 'Marcar com a fet';
+}
+
+function toggleDone() {
+  const exId = document.getElementById('v-detail').dataset.exId;
+  if (!exId) return;
+  const set = getDoneSet();
+  if (set.has(exId)) { set.delete(exId); } else { set.add(exId); }
+  saveDoneSet(set);
+  updateDoneBtn(exId);
+  // Actualitza el badge a l'element de la llista (sense reconstruir-la)
+  const li = document.querySelector(`.ex-item[data-ex-id="${exId}"]`);
+  if (!li) return;
+  const isDone = set.has(exId);
+  li.classList.toggle('is-fet', isDone);
+  const existing = li.querySelector('.ex-fet-tag');
+  const arrow    = li.querySelector('.ex-arrow');
+  if (isDone && !existing) {
+    const tag = document.createElement('span');
+    tag.className   = 'ex-fet-tag';
+    tag.textContent = '✓ Fet';
+    li.insertBefore(tag, arrow);
+  } else if (!isDone && existing) {
+    existing.remove();
   }
 }
 
-init();
+/* Blink-and-shake de la icona Step Quiz als 5 segons */
+setTimeout(() => {
+  const icon = document.querySelector('.site-icon');
+  if (icon) icon.classList.add('blink-shake');
+}, 5000);
+
+/* Comptadors automàtics de les targetes de categoria.
+   El recompte i el rang d'anys es calculen a partir d'EXERS[cat], que és
+   l'única font de veritat: només cal afegir o treure entrades als arrays
+   i el número i el rang d'anys del menú s'actualitzen sols. El text de
+   les .num al HTML és només un marcador («…») que aquest codi reemplaça. */
+document.querySelectorAll('.cat-card').forEach(card => {
+  const cat = card.dataset.cat;
+  if (!cat || !EXERS[cat]) return;
+  const numEl = card.querySelector('.num');
+  if (!numEl) return;
+
+  const items = EXERS[cat];
+  const n = items.length;
+
+  if (n === 0) {
+    numEl.textContent = '0 exercicis';
+    return;
+  }
+
+  const anys = items.map(ex => Number(ex.any));
+  const min = Math.min(...anys);
+  const max = Math.max(...anys);
+  const rang = (min === max) ? `${min}` : `${min}–${max}`;
+
+  numEl.textContent = `${n} exercicis · ${rang}`;
+});
 </script>
 </body>
 </html>
