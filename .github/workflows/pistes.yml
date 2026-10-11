@@ -1,0 +1,60 @@
+# Compila les pistes (pistes/src/*.tex -> data/*-p.pdf) cada vegada que es
+# modifica una pista a la branca main, i desa els PDF que hagin canviat.
+# Com que la compilació és determinista, si cap pista no ha canviat no es fa cap commit.
+name: Compila les pistes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pistes/src/**'
+      - 'pistes/build.py'
+      - '.devcontainer/install-latex.sh'
+      - '.github/workflows/pistes.yml'
+  workflow_dispatch:   # també es pot executar a mà: pestanya Actions → Compila les pistes → Run workflow
+
+permissions:
+  contents: write      # per desar els PDF a main
+  pages: write         # per demanar que la web es torni a publicar
+
+concurrency:
+  group: compila-pistes
+  cancel-in-progress: false
+
+jobs:
+  compila:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Instal·la TeX Live
+        run: bash .devcontainer/install-latex.sh
+
+      - name: Compila totes les pistes
+        run: python3 pistes/build.py
+
+      - name: Desa els PDF que hagin canviat
+        id: desa
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/*-p.pdf
+          if git diff --cached --quiet; then
+            echo "Cap PDF de pista ha canviat."
+          else
+            git diff --cached --stat
+            git commit -m "Compila les pistes (automàtic)"
+            git pull --rebase origin main
+            git push origin HEAD:main
+            echo "canvis=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Els commits fets per aquesta Action no tornen a activar cap workflow, i
+      # per això es demana explícitament que GitHub Pages torni a publicar la web.
+      - name: Torna a publicar la web
+        if: steps.desa.outputs.canvis == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" \
+            || echo "No s'ha pogut demanar la publicació (no és greu: es farà amb el proper canvi)."
