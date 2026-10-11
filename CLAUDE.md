@@ -6,6 +6,7 @@ Web estàtica (`index.html` + `config.js`) amb 67 exercicis de PAU. Cada exercic
 - `-p.pdf` es genera des de `pistes/src/<id>.tex` amb `python3 pistes/build.py <id>`. No editeu mai el PDF directament. El repositori és l'única font de les pistes (ja no hi ha còpia a Overleaf).
 - A `main`, la GitHub Action `.github/workflows/pistes.yml` recompila les pistes quan canvia un `.tex` i desa els PDF. A les altres branques, compileu-les vosaltres abans del commit.
 - La llista d'exercicis de la web és l'objecte `EXERS` d'`index.html`; ha de coincidir amb els fitxers de `data/`.
+- Per afegir una convocatòria nova (p. ex. juny o setembre 2027), seguiu `UPDATING.md`.
 
 ## Revisió de pistes
 
