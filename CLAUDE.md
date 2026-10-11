@@ -1,4 +1,4 @@
-# pau3 — Repàs PAU de Matemàtiques
+# pau — Repàs PAU de Matemàtiques
 
 Web estàtica (`index.html` + `config.js`) amb 67 exercicis de PAU. Cada exercici `<id>` té tres PDF a `data/`: `-e` (enunciat), `-p` (pista), `-s` (solució).
 

@@ -1,7 +1,7 @@
 {
   // Codespaces per editar i compilar les pistes (pistes/src/*.tex).
   // En crear el Codespace s'instal·la TeX Live (uns minuts, només la primera vegada).
-  "name": "pau3 · pistes LaTeX",
+  "name": "pau · pistes LaTeX",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "postCreateCommand": "bash .devcontainer/install-latex.sh",
   "customizations": {

@@ -16,7 +16,7 @@ Cada exercici té una pista en LaTeX a `src/<id>.tex`, que es compila a `../data
 Explica a Claude quina pista vols canviar i com. Claude edita el `.tex`, el compila, t'ensenya el resultat i el puja a la seva branca. Després només cal fusionar el PR.
 
 ### 2. Des de la web de GitHub (sense instal·lar res)
-1. Obre el fitxer de la pista, per exemple `https://github.com/arsocivil/pau3/blob/main/pistes/src/geo-24s-q6.tex`.
+1. Obre el fitxer de la pista, per exemple `https://github.com/step-quiz/pau/blob/main/pistes/src/geo-24s-q6.tex`.
 2. Clica el llapis (*Edit this file*), fes el canvi i clica **Commit changes…** directament a `main`.
 3. La GitHub Action **Compila les pistes** compila el PDF i el desa a `data/` tota sola en un parell de minuts. Pots seguir-la a la pestanya **Actions** del repositori: si surt una creu vermella, és que el LaTeX té un error (clica-hi per veure'l).
 
