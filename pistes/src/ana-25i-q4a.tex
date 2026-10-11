@@ -1,0 +1,31 @@
+% Pista ana-25i-q4a · Anàlisi
+% Procedència: PAU Catalunya 2025 · Convocatòria de juny (incidències) · Sèrie 4 · Exercici 4 — Opció A
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de juny (incidències)}{Sèrie 4}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 4 --- Opció A}}
+
+\noindent El dissenyador d'una casa de perfums ha decidit que l'ampolla del proper perfum que l'empresa traurà al mercat serà de vidre i tindrà la forma d'un cilindre amb una mitja esfera a la part superior, tal com es pot veure a la figura següent:
+
+\noindent\textit{(A la figura: $r$ és el radi del cilindre i de la mitja esfera, i $h$ és l'altura del cilindre.)}
+
+\noindent El perfum estarà contingut a la part cilíndrica, la qual té una capacitat de $100\,\text{cm}^{3}$. L'enginyer a càrrec del procés de producció es proposa minimitzar el cost total del vidre usat i, per tant, vol que la superfície total de l'ampolla sigui mínima.
+
+\subsection*{\textit{a)} \normalfont Comproveu que la superfície total de l'ampolla de perfum ve donada per la fórmula
+\[
+S(r) = 3\pi r^{2} + \dfrac{200}{r}.
+\]
+\hfill\textnormal{[1~punt]}}
+
+\pista{La superfície total és la suma de les superfícies de les TRES parts que recobreixen l'ampolla: la cara lateral del cilindre, la tapa inferior i la mitja esfera de dalt (compte: la tapa superior del cilindre no hi és, perquè està coberta per la mitja esfera). Expressa cada part en funció de $r$ i $h$. Després, utilitza la condició que el volum del cilindre és $100\,\text{cm}^{3}$ per eliminar $h$ i deixar-ho tot només en funció de $r$.}
+
+\subsection*{\textit{b)} \normalfont Quines dimensions ha de tenir l'ampolla de perfum perquè la superfície total sigui mínima? Quina és la superfície total de l'ampolla en aquest cas? \hfill\textnormal{[1,5~punts]}}
+
+\noindent\textit{Nota:} Recordeu que la superfície d'una esfera ve donada per la fórmula $4\pi r^{2}$, on $r$ és el seu radi.
+
+\pista{És un problema d'optimització d'una sola variable: deriva $S(r)$, resol l'equació $S'(r) = 0$ i comprova que el valor trobat és efectivament un mínim (i no és ni un màxim ni un punt d'inflexió). Un cop has obtingut el valor de $r$, podràs saber el valor d'$h$ a partir de la dada del volum. Finalment, substitueix a $S(r)$ per obtenir la superfície total mínima.}
+
+\end{document}

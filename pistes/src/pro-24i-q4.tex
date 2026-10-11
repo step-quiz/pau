@@ -1,0 +1,25 @@
+% Pista pro-24i-q4 · Probabilitat
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny (incidències) · Sèrie 5 · Qüestió 4
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny (incidències)}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 4}}
+
+\noindent La Rut fa servir el mètode següent per a fer els problemes de matemàtiques: tira un dau equilibrat i, si el resultat és com a màxim 4, pensa i resol el problema ella mateixa; si el resultat és 5 o 6, busca la solució del problema per Internet i la copia. Quan és ella qui ha pensat la solució, la resposta és correcta en el $75\,\%$ dels casos; quan copia la solució d'Internet, la resposta és correcta només en el $40\,\%$ dels casos.
+
+\subsection*{\textit{a)} \normalfont Quina és la probabilitat que la solució d'un problema respost seguint aquest mètode sigui correcta? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten a una resposta correcta: o bé la Rut ha pensat la solució i és correcta, o bé l'ha copiat i és correcta. Aplica el teorema de la probabilitat total. Ves amb compte amb les probabilitats inicials: com que el dau és equilibrat, l'esdeveniment «com a màxim 4» té probabilitat $\dfrac{4}{6}$ i, en canvi, l'esdeveniment «5 o 6» té probabilitat $\dfrac{2}{6}$.}
+
+\subsection*{\textit{b)} \normalfont Quina és la probabilitat que un problema l'hagi resolt la Rut si sabem que la solució és correcta? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Aquest és un exemple clar on has d'aplicar el Teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen: tu coneixes la probabilitat de «la solució és correcta \emph{sabent que} l'ha resolt ella», però et demanen la probabilitat de «l'ha resolt ella \emph{sabent que} la solució és correcta».}
+
+\subsection*{\textit{c)} \normalfont Demà la Rut ha d'entregar 5 problemes de matemàtiques. Quina és la probabilitat que n'hi hagi almenys 4 de correctes? \hfill\textnormal{[1~punt]}}
+
+\pista{Aquí tens una variable binomial $X \sim B(5, p)$, on $p$ és la probabilitat que un problema qualsevol sigui correcte, que has calculat a l'apartat a). L'esdeveniment «almenys 4 correctes» equival a «exactament 4 o exactament 5»: calcula $P(X = 4)$, calcula $P(X = 5)$ i suma els dos resultats.}
+
+\end{document}

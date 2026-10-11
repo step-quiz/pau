@@ -1,0 +1,25 @@
+% Pista pro-24s-q4 · Probabilitat
+% Procedència: PAU Catalunya 2024 · Convocatòria de setembre · Sèrie 3 · Qüestió 4
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de setembre}{Sèrie 3}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 4}}
+
+\noindent S'estima que el $20\,\%$ dels habitants d'una regió pateix algun tipus d'arrítmia. Per a diagnosticar-la, hi ha la possibilitat de col·locar al pacient un monitor Holter, que detecta l'arrítmia en un $95\,\%$ dels casos de persones que la pateixen, però que també dona falsos positius, per motius elèctrics, en persones que no pateixen arrítmies en un $0{,}5\,\%$ dels casos.
+
+\subsection*{\textit{a)} \normalfont Si escollim 4 persones a l'atzar, quina és la probabilitat que almenys una d'elles pateixi arrítmies? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Aquí tens una variable binomial $X \sim B(4, 0{,}2)$, on $0{,}2$ és la probabilitat que una persona qualsevol pateixi arrítmies. Quan et demanen «almenys una», és més còmode treballar amb el succés contrari, «cap d'elles»: calcula $q = P(X = 0)$, i la resposta serà $p = 1 - q$.}
+
+\subsection*{\textit{b)} \normalfont Quina és la probabilitat que una persona escollida a l'atzar obtingui un diagnòstic positiu d'arrítmia? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten a un diagnòstic positiu: o bé la persona pateix arrítmia i el Holter la detecta, o bé no la pateix però el Holter dona un fals positiu. Aplica el teorema de la probabilitat total.}
+
+\subsection*{\textit{c)} \normalfont Si una persona obté un diagnòstic negatiu a la prova del Holter, quina és la probabilitat que realment pateixi arrítmies? \hfill\textnormal{[1~punt]}}
+
+\pista{Aquest és un exemple clar on has d'aplicar el Teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen: tu coneixes la probabilitat de «donar negatiu \emph{sabent que} pateix arrítmia» (que és el complementari del $95\,\%$ de detecció), però et demanen la probabilitat de «patir arrítmia \emph{sabent que} ha donat negatiu». Fixa't que els apartats estan relacionats: la probabilitat de «donar negatiu» és la complementària de la que has calculat a l'apartat b).}
+
+\end{document}

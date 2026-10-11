@@ -1,0 +1,29 @@
+% Pista alg-23j2-q2 · Àlgebra
+% Procedència: PAU Catalunya 2023 · Convocatòria de juny · Sèrie 5 · Qüestió 2
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2023}{Convocatòria de juny}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 2}}
+
+\noindent Considereu el sistema d'equacions lineals
+\[
+\left.\begin{array}{r}
+x - y + kz = -1 \\
+x + ky + z = 3 \\
+2x + (k - 1)y + 2z = 2
+\end{array}\right\},
+\]
+en què $k$ és un paràmetre real.
+
+\subsection*{\textit{a)} \normalfont Discutiu el sistema en funció del valor de $k$. \hfill\textnormal{[1,5~punts]}}
+
+\pista{Escriu la matriu ampliada i aplica Gauss (o estudia rangs amb determinants, com prefereixis). Si tries Gauss, fes $F_{2} \to F_{2} - F_{1}$ i $F_{3} \to F_{3} - 2F_{1}$ per a netejar la primera columna; després fes $F_{3} \to F_{3} - F_{2}$ per a eliminar la $y$ de la tercera fila. Mira per a quins valors de $k$ s'anul·la algun element de la diagonal (o el determinant de la matriu del sistema): són els casos que has d'estudiar per separat. Per a cada cas, compara el rang de la matriu del sistema amb el de l'ampliada per a classificar-lo (determinat / indeterminat / incompatible).}
+
+\subsection*{\textit{b)} \normalfont Resoleu el sistema per a $k = 0$ i per a $k = 1$. \hfill\textnormal{[1~punt]}}
+
+\pista{No tornis a començar: reaprofita la triangulació de l'apartat \textit{a)}. Per a cada valor, recorda com has classificat el sistema a l'apartat a): si és compatible indeterminat, expressa la solució en funció d'un paràmetre; si és determinat, n'obtindràs una única solució.}
+
+\end{document}

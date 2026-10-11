@@ -282,8 +282,9 @@ header h1{font-size:.92rem;font-weight:700;line-height:1.3;}
   display:inline-flex;align-items:center;gap:5px;
   font-family:'Source Code Pro',monospace;font-size:.62rem;
   background:#ff0000;color:#fff;padding:3px 8px;
-  border-radius:3px;margin-bottom:12px;opacity:.88;
+  border-radius:3px;opacity:.88;
 }
+.yt-actions{margin-bottom:12px;}
 
 /* ── FOOTER (fix, igual que step-quiz.net) ──────────────────────────────────── */
 footer{
@@ -410,6 +411,7 @@ algebra: [
   {id:'alg-25s-q2',   any:'2025', conv:'Setembre',    ref:'q2',   titol:'Sistema lineal amb paràmetre m'},
   {id:'alg-26j-q2',   any:'2026', conv:'Juny',        ref:'q2',   titol:'Sistema de tres plans amb paràmetre m'},
   {id:'alg-26j2-q2',  any:'2026', conv:'Juny (Sèrie 5)', ref:'q2', titol:'Matrius M, N: invertibilitat de MN i NM'},
+  {id:'alg-26s-q2',   any:'2026', conv:'Setembre',    ref:'q2',   titol:'Sistema lineal amb paràmetre k: solució que no depèn de k'},
 ],
 
 geometria: [
@@ -423,6 +425,7 @@ geometria: [
   {id:'geo-25s-q4b',  any:'2025', conv:'Setembre',    ref:'q4b',  titol:'Plans paral·lels a 2x−y+z=5 i distàncies'},
   {id:'geo-26j-q4b',  any:'2026', conv:'Juny',        ref:'q4b',  titol:'Pla PQR, àrea del triangle i tetraedre de volum 1'},
   {id:'geo-26j2-q4b', any:'2026', conv:'Juny (Sèrie 5)', ref:'q4b', titol:'Braç robòtic: distància, pla i punt de xoc'},
+  {id:'geo-26s-q4b',  any:'2026', conv:'Setembre',    ref:'q4b',  titol:'Capsa en 3D: quart vèrtex, alçària i projecció sobre un pla'},
 ],
 
 analisi: [
@@ -455,6 +458,8 @@ analisi: [
   {id:'ana-26j-q4a',  any:'2026', conv:'Juny',        ref:'q4a',  titol:'Optimització: barana circular i quadrada de 10 m'},
   {id:'ana-26j2-q1',  any:'2026', conv:'Juny (Sèrie 5)', ref:'q1', titol:'Paràbola i hipèrbola: punts de tall i àrea entre corbes'},
   {id:'ana-26j2-q4a', any:'2026', conv:'Juny (Sèrie 5)', ref:'q4a', titol:'f(x) a partir de la gràfica de f\'(x): tangent, extrems, àrea'},
+  {id:'ana-26s-q1',   any:'2026', conv:'Setembre',    ref:'q1',   titol:'f(x)=5x/(x²+1): monotonia, asímptotes i recta normal'},
+  {id:'ana-26s-q4a',  any:'2026', conv:'Setembre',    ref:'q4a',  titol:'Optimització: capsa de cartró de volum màxim'},
 ],
 
 probabilitat: [
@@ -466,20 +471,7 @@ probabilitat: [
   {id:'pro-25s-q3ab', any:'2025', conv:'Setembre',    ref:'q3ab', titol:'Sesamoïditis: probabilitat total i Bayes'},
   {id:'pro-26j-q3',   any:'2026', conv:'Juny',        ref:'q3',   titol:'Entrades de concert: sorteig i web; Bolzano amb decibels'},
   {id:'pro-26j2-q3',  any:'2026', conv:'Juny (Sèrie 5)', ref:'q3', titol:'Lectura i esport: prob. total, Bayes i extrems de f(x)'},
-  /* ── Selecció EBAU (diverses CCAA) ───────────────────────── */
-  {id:'pro-ebau-01',  any:'2018', conv:'EBAU (Andalusia)',        ref:'eb01', titol:'Rentadores L₁,L₂,L₃: probabilitat total i Bayes'},
-  {id:'pro-ebau-02',  any:'2019', conv:'EBAU (Astúries)',         ref:'eb02', titol:'Advocats A,B,C: probabilitat total i Bayes'},
-  {id:'pro-ebau-03',  any:'2020', conv:'ABAU Ext. (Galícia)',     ref:'eb03', titol:'Distribuïdors A,B,C de vehicles: prob. total i Bayes'},
-  {id:'pro-ebau-04',  any:'2019', conv:'EvAU (Madrid)',           ref:'eb04', titol:'Videoconsoles i fracàs escolar: prob. total i Bayes'},
-  {id:'pro-ebau-05',  any:'2020', conv:'PAU Ord. (València)',     ref:'eb05', titol:'Detector de plagi: prob. total, Bayes i intersecció'},
-  {id:'pro-ebau-06',  any:'2019', conv:'EBAU (Canàries)',         ref:'eb06', titol:'Llicències W/MacOS/Linux: Bayes i binomial'},
-  {id:'pro-ebau-07',  any:'2017', conv:'EvAU (Castella-La Manxa)',ref:'eb07', titol:'Càncer de pulmó i fumadors: distribució binomial'},
-  {id:'pro-ebau-08',  any:'2019', conv:'EBAU (La Rioja)',         ref:'eb08', titol:'WhatsApp i missatges: distribució binomial B(3,0.1)'},
-  {id:'pro-ebau-09',  any:'2019', conv:'PEvAU (Andalusia)',       ref:'eb09', titol:'Successos A i B: P(A), P(B), independència, De Morgan'},
-  {id:'pro-ebau-10',  any:'2020', conv:'PBAU Ext. (Illes Balears)',ref:'eb10',titol:'Successos A i B: P(B), P(A|B), intersecció, De Morgan'},
-  {id:'pro-ebau-11',  any:'2018', conv:'EBAU (Castella i Lleó)',  ref:'eb11', titol:'Test i problemes: P(T∩R), P(Tᶜ∩Rᶜ), De Morgan'},
-  {id:'pro-ebau-12',  any:'2019', conv:'EAU (País Basc)',         ref:'eb12', titol:'Successos A i B amb fraccions: exactament un, De Morgan'},
-  {id:'pro-ebau-13',  any:'2020', conv:'PAU Ext. (València)',     ref:'eb13', titol:'Successos A i B: independència i P(Aᶜ|B)'},
+  {id:'pro-26s-q3',   any:'2026', conv:'Setembre',    ref:'q3',   titol:'Parc eòlic: distribució binomial i àrea entre corbes'},
 ],
 
 }; // fi EXERS
@@ -528,19 +520,24 @@ function pdfPanel(id, tipus) {
 }
 
 async function initPdfViewer(vid, path) {
-  if (PDF_STATE[vid]) return;           // ja carregat
-  PDF_STATE[vid] = null;                // marca "en curs" per evitar doble crida
+  // L'estat va lligat al contenidor del visor: showExercise el torna a crear cada
+  // vegada, de manera que en reobrir un exercici el PDF es torna a carregar.
+  const container = document.getElementById(vid);
+  if (!container || container.dataset.pdf) return;   // ja carregat o carregant
+  container.dataset.pdf = 'carregant';
 
   try {
     const doc = await pdfjsLib.getDocument(path).promise;
+    if (!container.isConnected) return;               // ja s'ha canviat d'exercici
     PDF_STATE[vid] = { doc, page: 1, total: doc.numPages, rendering: false };
+    container.dataset.pdf = 'ok';
     await renderPdfPage(vid);
   } catch(e) {
-    const container = document.getElementById(vid);
-    if (container) {
+    if (container.isConnected) {
       container.querySelector('.pdf-canvas-wrap').innerHTML =
         `<div class="pdf-loading" style="color:#c95252">Error al carregar el PDF</div>`;
     }
+    delete container.dataset.pdf;                      // permet tornar-ho a provar
     delete PDF_STATE[vid];
   }
 }
@@ -681,7 +678,10 @@ function showExercise(ex) {
   if (ytId) {
     tabBtnV.style.display = '';
     tcV.innerHTML = `
-      <span class="yt-badge">▶ YouTube</span>
+      <div class="pdf-actions yt-actions">
+        <span class="yt-badge">▶ YouTube</span>
+        <a class="pdf-link" href="https://www.youtube.com/watch?v=${ytId}" target="_blank" rel="noopener">Obre a YouTube ↗</a>
+      </div>
       <div class="yt-wrap">
         <iframe
           src="https://www.youtube-nocookie.com/embed/${ytId}?rel=0"

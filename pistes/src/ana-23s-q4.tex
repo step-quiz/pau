@@ -1,0 +1,21 @@
+% Pista ana-23s-q4 · Anàlisi
+% Procedència: PAU Catalunya 2023 · Convocatòria de setembre · Sèrie 2 · Qüestió 4
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2023}{Convocatòria de setembre}{Sèrie 2}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 4}}
+
+\noindent Sigui la funció $f(x)$ definida per $f(x) = -3x + e^{2x^{3} - 1}$.
+
+\subsection*{\textit{a)} \normalfont Justifiqueu que $f(x) = 2$ té una solució en l'interval $(-1, 0)$. \hfill\textnormal{[1,25~punts]}}
+
+\pista{Aquest és un problema d'aplicació del Teorema de Bolzano. Però aquest teorema serveix per estudiar equacions del tipus $g(x)=0$, i aquí tens $f(x)=2$. Una estratègia usual és definir una funció auxiliar $g(x) = f(x) - 2$, perquè llavors «$f(x) = 2$» i «$g(x) = 0$» són exactament la mateixa condició. Després, comprova que $g$ és contínua a $[-1, 0]$ (mira els seus components: una funció lineal i una altra, exponencial, totes elles contínues) i avalua $g(-1)$ i $g(0)$. Si tenen signes oposats, el teorema et garanteix que existeix un punt dins l'interval on $g(x)$ s'anul·la, és a dir, on $f(x)$ val 2.}
+
+\subsection*{\textit{b)} \normalfont Sigui la funció $h(x) = -3x^{2} + e^{2x^{3} - 1}$. Calculeu l'àrea de la regió compresa entre les gràfiques de les funcions $f(x)$ i $h(x)$. \hfill\textnormal{[1,25~punts]}}
+
+\pista{L'àrea entre dues corbes és la integral definida de la diferència de les dues funcions (la de «dalt» menys la de «baix»). Però abans, calcula la diferència $f(x) - h(x)$ i simplifica-la: la integral et quedarà senzilla. Els límits d'integració són els punts de tall entre les gràfiques de $f(x)$ i $h(x)$. Per trobar-los, hauràs de resoldre l'equació $f(x) - h(x) = 0$. Per decidir quina funció va per «dalt» a l'interval, avalua la diferència en un punt interior. Ara bé, recorda que també pots calcular el valor absolut de la integral definida, i llavors ja no cal descobrir quina és la funció que queda per «dalt».}
+
+\end{document}

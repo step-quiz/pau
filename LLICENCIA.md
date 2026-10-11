@@ -6,10 +6,10 @@ Material desenvolupat per **David Arso Civil** per al Departament de Matemàtiqu
 
 | | Contingut pedagògic | Codi |
 |---|---|---|
-| **Llicència** | CC BY-NC-SA 4.0 | MIT |
+| **Llicència** | CC BY-NC-ND 4.0 | MIT |
 | Fer-lo servir a classe | Sí | Sí |
-| Modificar-lo i adaptar-lo | Sí | Sí |
-| Publicar-ne la versió modificada | Sí, amb la mateixa llicència | Sí |
+| Modificar-lo i adaptar-lo | Només per a ús propi, sense difondre'l | Sí |
+| Publicar-ne la versió modificada | No | Sí |
 | Ús comercial | No | Sí |
 | Cal citar l'autoria | Sí | Sí |
 
@@ -17,16 +17,14 @@ Material desenvolupat per **David Arso Civil** per al Departament de Matemàtiqu
 
 ## Què vol dir a la pràctica
 
-L'INS Miquel Tarradell pot fer servir, modificar i publicar aquest material de manera indefinida, sense demanar permís i sense dependre de la disponibilitat de l'autor.
-
-Altres centres també poden fer-ho, sempre que citin l'autoria i mantinguin el material obert amb la mateixa llicència.
+L'INS Miquel Tarradell, i qualsevol altre centre, pot fer servir i compartir aquest material de manera indefinida, sense demanar permís i sense dependre de la disponibilitat de l'autor, sempre que en citi l'autoria, no en faci un ús comercial i no el modifiqui.
 
 L'autoria correspon a la persona que va crear el material i no es transfereix: els drets morals d'autoria són irrenunciables i intransmissibles (article 14 del text refós de la Llei de propietat intel·lectual).
 
 ## Com citar-lo
 
 > Material desenvolupat per David Arso Civil per al Departament de Matemàtiques de l'INS Miquel Tarradell.
-> Contingut sota CC BY-NC-SA 4.0, codi sota llicència MIT.
+> Contingut sota CC BY-NC-ND 4.0, codi sota llicència MIT.
 
 El text legal complet és al fitxer [`LICENSE`](LICENSE).
 

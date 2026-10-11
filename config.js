@@ -25,8 +25,15 @@ const OPTATIUS = new Set([
 const VIDEOS = {
   // 'alg-23j-q2': 'XXXXXXXXXXX',
   // 'ana-24j-q1': 'YYYYYYYYYYY',
+   // Vídeos de «Matemàtiques amb Bogdan» (Bogdan Crintea)
+   'ana-23j-q1':'NVQeKEQMhmw',
    'ana-24j-q1':'bW5Cz1lC4TA',
    'ana-24s-q1':'lB4Q0zkDgiA',
    'ana-24j-q3':'z8l7bqoaAZs',
-   'pro-24j-q4':'cBUZsq_4bWM'
+   'pro-24j-q4':'cBUZsq_4bWM',
+   'ana-25j-q1':'RDymPAwtR9k',
+   'alg-25j-q2':'1WGgbloeAio',
+   'pro-25j-q3':'u1RTaehUGCM',
+   'ana-25j-q4a':'W0JjPG41UY0',
+   'geo-25j-q4b':'U-sItqNaRzM'
 };

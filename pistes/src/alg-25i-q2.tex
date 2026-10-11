@@ -1,0 +1,33 @@
+% Pista alg-25i-q2 · Àlgebra
+% Procedència: PAU Catalunya 2025 · Convocatòria de juny (incidències) · Sèrie 4 · Exercici 2
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de juny (incidències)}{Sèrie 4}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 2}}
+
+\noindent Considereu el sistema d'equacions
+\[
+\left.\begin{array}{r}
+x + 3y + az = 1 \\
+-2x - 6y + 2z = 2a \\
+ax + 3y + z = 3
+\end{array}\right\},
+\]
+on $a$ és un paràmetre real, i siguin $\pi_{1}$ el pla determinat per la primera equació, $\pi_{2}$ el determinat per la segona, i $\pi_{3}$ el determinat per la tercera.
+
+\subsection*{\textit{a)} \normalfont Discutiu el sistema en funció del valor de $a$. \hfill\textnormal{[1~punt]}}
+
+\pista{Escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$. Calcula $\det(A)$ i troba els valors del paràmetre $a$ que l'anul·len. Per a cadascun d'aquests valors, compara els rangs d'$A$ i d'$A^{'}$, i no oblidis el cas en què $\det(A) \neq 0$.}
+
+\subsection*{\textit{b)} \normalfont Descriviu la posició relativa dels tres plans $\pi_{1}$, $\pi_{2}$ i $\pi_{3}$ en funció del valor de $a$. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Tres plans en l'espai es tallen en un sol punt, en una recta o no tenen cap punt en comú, segons que el sistema sigui compatible determinat, compatible indeterminat o incompatible (apartat a)). Sense punts comuns, poden ser tots tres paral·lels, dos coincidents i un de paral·lel, dos de paral·lels tallats per un tercer, o un prisma triangular. Per saber quin és el teu cas, recorda com trobem si dos plans són paral·lels, i també com podem saber si dos plans són coincidents.}
+
+\subsection*{\textit{c)} \normalfont En algun cas la intersecció dels tres plans és una recta? En cas afirmatiu, digueu per a quin valor del paràmetre, i doneu un vector director i un punt d'aquesta recta. \hfill\textnormal{[0,75~punts]}}
+
+\pista{La intersecció de plans és una recta quan el sistema té infinites solucions amb un únic grau de llibertat. Fixa el valor corresponent del paràmetre, resol el sistema deixant una incògnita lliure (per exemple $z = \lambda$), i de l'expressió paramètrica de la solució pots extreure directament un punt i un vector director de la recta.}
+
+\end{document}

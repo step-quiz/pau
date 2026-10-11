@@ -1,0 +1,26 @@
+% Pista alg-24i-q2 · Àlgebra
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny (incidències) · Sèrie 5 · Qüestió 2
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny (incidències)}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 2}}
+
+\noindent Considereu les matrius
+\[
+P = \begin{pmatrix} 2 & 1 & -1 \\ 2 & 1 & 0 \\ 1 & 0 & 1 \end{pmatrix}, \quad
+Q = \begin{pmatrix} 2 & 2 & 2 \\ 2 & 2 & 2 \\ 2 & 2 & 2 \end{pmatrix}, \quad
+R = \begin{pmatrix} 1 & 2 & 3 \\ 1 & 1 & 1 \\ 3 & 2 & 1 \end{pmatrix}.
+\]
+
+\subsection*{\textit{a)} \normalfont Decidiu si la matriu $P$ és invertible i, en cas de ser-ho, calculeu la seva inversa. Expliqueu detalladament el procediment seguit. \hfill\textnormal{[1,25~punts]}}
+
+\pista{Per a decidir si $P$ és invertible, calcula $\det(P)$: recorda que una matriu és invertible si i només si el seu determinant és no nul. Si ho és, calcula la inversa pel mètode amb què tinguis més pràctica (adjunts o Gauss) i escriu-ne tots els passos: l'enunciat ho demana explícitament i, a la correcció, un resultat sense procediment no puntua.}
+
+\subsection*{\textit{b)} \normalfont Calculeu una matriu $X$ de 3 files i 3 columnes que compleixi $PX + Q = 2R$. \hfill\textnormal{[1,25~punts]}}
+
+\pista{Aïlla $X$ de l'equació matricial: passa $Q$ a l'altre membre i multiplica els dos membres per $P^{-1}$. Per l'esquerra o per la dreta? Com que el producte de matrius no és commutatiu, fixa't a quin costat de $X$ hi ha la $P$. Per als càlculs, aprofita la $P^{-1}$ de l'apartat a).}
+
+\end{document}

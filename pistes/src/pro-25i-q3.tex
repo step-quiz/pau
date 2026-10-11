@@ -1,0 +1,32 @@
+% Pista pro-25i-q3 · Probabilitat
+% Procedència: PAU Catalunya 2025 · Convocatòria de juny (incidències) · Sèrie 4 · Exercici 3
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de juny (incidències)}{Sèrie 4}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 3}}
+
+\noindent Un usuari d'Internet ha estimat que el $25\,\%$ dels correus electrònics que rep són correu brossa, mentre que la resta no ho són. Per a facilitar la classificació del correu, s'ha instal·lat un filtre que envia a la carpeta de correu brossa el $95\,\%$ dels missatges que efectivament ho són. Malauradament, aquest filtre deixa a la safata d'entrada només el $90\,\%$ dels missatges bons (i la resta els envia a la carpeta de correu brossa).
+
+\subsection*{\textit{a)} \normalfont Quina és la probabilitat que un missatge sigui enviat pel filtre a la carpeta de correu brossa? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten un missatge a acabar a la carpeta de brossa: o bé era efectivament brossa i el filtre l'ha classificat bé, o bé no ho era però el filtre s'ha equivocat. Aplica el teorema de la probabilitat total, i ves amb compte perquè et donen el $90\,\%$ dels missatges bons que \emph{no} van a la brossa: el que et cal és el percentatge que sí que hi va.}
+
+\subsection*{\textit{b)} \normalfont Un dia, aquest usuari obre la carpeta de correu brossa. Quin percentatge de missatges que no són correu brossa hi trobarà? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Aquest és un exemple clar on has d'aplicar el Teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen: tu coneixes la probabilitat de «anar a la carpeta de brossa \emph{sabent que} no és brossa», però et demanen la probabilitat de «no ser brossa \emph{sabent que} és a la carpeta de brossa».}
+
+\vspace{0.6em}
+\noindent En un servidor de correu electrònic determinat, la probabilitat de rebre com a mínim dos correus en menys de $t$ minuts ve donada per la funció
+\[
+F(t) = \int_{0}^{t} A\,e^{-0{,}5x}\,dx,
+\]
+on $A$ és una constant real.
+
+\subsection*{\textit{c)} \normalfont Sabent que la probabilitat de rebre com a mínim dos correus en menys de dos minuts és $1 - e^{-1}$, trobeu el valor de $A$. \hfill\textnormal{[1~punt]}}
+
+\pista{Primer resol la integral definida (per trobar una funció primitiva, és bastant directe). Obtindràs $F(t)$ com una expressió que depèn de $t$ i d'$A$. Després, escriu l'equació $F(2) = 1 - e^{-1}$ i aïlla $A$.}
+
+\end{document}

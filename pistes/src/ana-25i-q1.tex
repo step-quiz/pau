@@ -1,0 +1,28 @@
+% Pista ana-25i-q1 · Anàlisi
+% Procedència: PAU Catalunya 2025 · Convocatòria de juny (incidències) · Sèrie 4 · Exercici 1
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de juny (incidències)}{Sèrie 4}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 1}}
+
+\noindent Considereu la funció
+\[
+f(x) = +\sqrt{1 + x^{3}}.
+\]
+
+\subsection*{\textit{a)} \normalfont Indiqueu el domini d'aquesta funció i els talls de la corba $y = f(x)$ amb els eixos de coordenades. \hfill\textnormal{[0,5~punts]}}
+
+\pista{El domini ve donat per la condició que fa que l'expressió de dins l'arrel quadrada sigui no negativa. Per tant, estudia quins valors de $x$ fan que $1+x^3\geq 0$. Per trobar el punt de tall amb l'eix $OX$, resol $f(x) = 0$; per al punt de tall amb l'eix $OY$, només cal avaluar $f(0)$.}
+
+\subsection*{\textit{b)} \normalfont Resoleu l'equació $f'(x) = 0$ i estudieu les zones de creixement i decreixement de la funció $f(x)$, així com els seus màxims i mínims locals. \hfill\textnormal{[1~punt]}}
+
+\pista{Per derivar, tingues present que $f(x)$ és una composició de funcions. Un cop tinguis $f'(x)$, resol $f'(x) = 0$. Compte: en estudiar el creixement, no t'oblidis dels valors del domini on $f'(x)$ pogués no estar definida, especialment a la frontera del domini. Per classificar els punts trobats, estudia el signe de $f'(x)$ als intervals resultants; fixa't que un punt amb $f'(x)=0$ no té per què ser sempre un màxim o un mínim. De vegades, també serà un punt d'inflexió.}
+
+\subsection*{\textit{c)} \normalfont Trobeu quin ha de ser el valor de $a$ per tal que el punt $(a, 3)$ pertanyi a la gràfica de la funció i calculeu l'equació de la recta tangent a la corba $y = f(x)$ en aquest punt. \hfill\textnormal{[1~punt]}}
+
+\pista{Que un punt pertanyi a la gràfica vol dir que les seves coordenades compleixen \mbox{$y = f(x)$}: imposa aquesta condició per trobar $a$. Després, recorda la fórmula de la recta tangent, $y - f(a) = f'(a)(x - a)$.}
+
+\end{document}

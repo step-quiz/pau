@@ -1,0 +1,23 @@
+% Pista ana-23s-q6 · Anàlisi
+% Procedència: PAU Catalunya 2023 · Convocatòria de setembre · Sèrie 2 · Qüestió 6
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2023}{Convocatòria de setembre}{Sèrie 2}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 6}}
+
+\noindent Volem construir una peça metàl·lica que tingui per secció un trapezi isòsceles amb la base superior tres vegades més llarga que la base inferior. Els altres costats del trapezi fan 10 mm, tal com podeu observar en la figura següent:
+
+\noindent\textit{(A la figura: la base superior fa $3x$, la inferior fa $x$ i els dos costats laterals fan 10 mm cadascun.)}
+
+\subsection*{\textit{a)} \normalfont Expresseu l'altura del trapezi en funció de la longitud $x$ de la base inferior. \hfill\textnormal{[0,5~punts]}}
+
+\pista{Com que el trapezi és isòsceles, les dues «parts» que sobresurten de la base superior respecte a la base inferior són iguals i mesuren, cadascuna d'elles, $\dfrac{3x - x}{2}$. Simplifica aquesta fracció: veuràs que cadascuna de les parts mesura $x$. Si dibuixes l'altura del trapezi (la distància vertical entre les dues bases), formes un triangle rectangle on els catets són l'altura $h$ i $x$, i la hipotenusa és el costat lateral del trapezi (que mesura 10 mm). A partir d'aquí, l'altura $h$ surt directament aplicant el teorema de Pitàgores i aïllant.}
+
+\subsection*{\textit{b)} \normalfont Calculeu la longitud de la base inferior del trapezi de manera que l'àrea de la peça sigui màxima i trobeu el valor d'aquesta àrea màxima. \hfill\textnormal{[2~punts]}}
+
+\pista{És un problema d'optimització: el primer pas és escriure l'àrea del trapezi en funció d'una sola variable. Recorda que l'àrea d'un trapezi és $A = \dfrac{(\text{base superior} + \text{base inferior}) \cdot h}{2}$. Substitueix-hi els valors de l'enunciat ($3x$ i $x$) i l'altura $h$ que has trobat a l'apartat a), i obtindràs $A(x)$. A partir d'aquí, deriva i resol $A'(x) = 0$; queda't només amb la solució que tingui sentit en el problema i comprova que correspon a un màxim. Recorda que la teva resposta final ha d'incloure les \emph{dues} dades que et demanen: la longitud de la base inferior \emph{i} el valor de l'àrea màxima.}
+
+\end{document}

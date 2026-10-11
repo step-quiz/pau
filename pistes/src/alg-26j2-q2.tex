@@ -1,0 +1,30 @@
+% Pista alg-26j2-q2 · Àlgebra
+% Procedència: PAU Catalunya 2026 · Convocatòria de juny · Sèrie 5 · Exercici 2
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2026}{Convocatòria de juny}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 2}}
+
+\noindent Considereu les matrius
+\[
+M = \begin{pmatrix} 3 & 3 & 0 \\ k - 1 & -1 & -1 \end{pmatrix}, \quad
+N = \begin{pmatrix} 3 & 1 \\ k - 1 & 0 \\ 0 & 2 \end{pmatrix},
+\]
+on $k$ és un nombre real qualsevol.
+
+\subsection*{2.1. \normalfont Calculeu els valors de $k$ per als quals $MN$ és invertible. \hfill\textnormal{[0,75~punts]}}
+
+\pista{El producte $MN$ és una matriu $2 \times 2$: calcula'l explícitament (multiplicant la matriu $2 \times 3$ per la $3 \times 2$). Un cop tinguis els quatre elements en funció de $k$, calcula el determinant d'aquesta matriu $2 \times 2$ (t'ha de sortir una expressió de segon grau en $k$) i troba per a quins valors s'anul·la: per a aquests valors, $MN$ no serà invertible; per a tots els altres, sí.}
+
+\subsection*{2.2. \normalfont Calculeu els valors de $k$ per als quals $NM$ és invertible. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Ara $NM$ és una matriu $3 \times 3$: calcula el producte. Abans de desenvolupar el determinant, fixa't en les columnes: comprova si alguna és combinació lineal de les altres dues (els coeficients poden dependre de $k$). Si és així, què en dedueixes sobre el determinant i, per tant, sobre la invertibilitat de $NM$?}
+
+\subsection*{2.3. \normalfont Estudieu per a quins valors reals de $m$, $n$ i $k$ el sistema $M \begin{pmatrix} x \\ y \\ z \end{pmatrix} = \begin{pmatrix} m \\ n \end{pmatrix}$ és compatible indeterminat. \hfill\textnormal{[1~punt]}}
+
+\pista{Escriu les dues equacions del sistema. Obtindràs una matriu $M$ del sistema i una matriu ampliada $M^{'}$. Busca un menor d'ordre 2 de $M$ que no s'anul·li per a cap valor de $k$. Troba $\mathrm{rang}(M)$ i $\mathrm{rang}(M^{'})$ i decideix per a quins valors de $m$, $n$ i $k$ el sistema és compatible indeterminat.}
+
+\end{document}

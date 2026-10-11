@@ -1,0 +1,24 @@
+% Pista geo-24i-q6 · Geometria
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny (incidències) · Sèrie 5 · Qüestió 6
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny (incidències)}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 6}}
+
+\noindent Considereu les rectes
+\[
+r: \dfrac{x-5}{4} = \dfrac{y-4}{3} = \dfrac{z-3}{-1} \quad\text{i}\quad s: \begin{cases} x = 4 + 2k \\ y = 3 + k \\ z = -1 \end{cases}
+\]
+
+\subsection*{\textit{a)} \normalfont Quina és la seva posició relativa? Calculeu l'equació implícita d'un pla $\pi$ que sigui paral·lel a les dues rectes i que passi per l'origen de coordenades. \hfill\textnormal{[1,25~punts]}}
+
+\pista{Dedueix quins són els vectors directors $\vec{v_{r}}$ i $\vec{v_{s}}$ i un punt de cada recta. Per a decidir la posició relativa: si els directors són proporcionals, les rectes són paral·leles (o coincidents); si no ho són, pot ser que es tallin o que siguin encreuades. Per a distingir entre rectes que es tallen o que es creuen, recorda el determinant format pels dos vectors directors i el vector $\vec{PQ}$, amb $P\in r$ i $Q\in s$. Per a trobar el pla $\pi$, pensa que el seu vector normal ha de ser perpendicular als dos directors, de manera que $\vec{n_{\pi}} = \vec{v_{r}} \times \vec{v_{s}}$. Com que el pla passa per l'origen, vol dir que el terme independent de l'equació general és $D=0$.}
+
+\subsection*{\textit{b)} \normalfont Calculeu l'equació de la recta $t$ que talla les dues rectes $r$ i $s$ perpendicularment. \hfill\textnormal{[1,25~punts]}}
+
+\pista{La recta $t$ que busques (la «perpendicular comuna») té com a vector director, precisament, $\vec{v_{r}} \times \vec{v_{s}}$, que ja has calculat a l'apartat anterior. Per a trobar un punt de $t$, pren un punt genèric de $r$ (amb paràmetre $\lambda$) i un punt genèric de $s$ (amb paràmetre $k$) i imposa que el vector que els uneix sigui perpendicular simultàniament a $\vec{v_{r}}$ i a $\vec{v_{s}}$: obtindràs un sistema de dues equacions amb dues incògnites ($\lambda$ i $k$). Quan l'hagis resolt, has de trobar un punt concret de $t$: substitueix el valor que has obtingut per a un d'aquests paràmetres a l'equació de la seva recta. Finalment, ja ho tindràs tot per a escriure l'equació que busques.}
+
+\end{document}

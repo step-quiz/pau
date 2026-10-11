@@ -1,0 +1,25 @@
+% Pista geo-26j-q4b · Geometria
+% Procedència: PAU Catalunya 2026 · Convocatòria de juny · Sèrie 1 · Exercici 4 — Opció B
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2026}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 4 --- Opció B}}
+
+\noindent Considereu els punts de l'espai $P = (1, 0, -1)$, $Q = (3, -2, 0)$ i $R = (1, 1, 1)$.
+
+\subsection*{4.1. \normalfont Calculeu l'equació del pla que conté els punts $P$, $Q$ i $R$. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Troba dos vectors continguts al pla, per exemple $\vec{PQ}$ i $\vec{PR}$. El vector normal del pla que busques és, precisament, el producte vectorial d'aquests dos: $\vec{n} = \vec{PQ} \times \vec{PR}$. Amb aquest vector normal $(A, B, C)$, escriu l'equació general $Ax + By + Cz + D = 0$ i troba $D$ substituint-hi les coordenades d'un dels tres punts (per exemple, $R$).}
+
+\subsection*{4.2. \normalfont Comproveu que l'àrea del triangle $\Delta PQR$ és $\dfrac{3\sqrt{5}}{2}\,u^{2}$. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Tens dues vies. La més ràpida: l'àrea del triangle és la meitat del mòdul del producte vectorial de dos costats, $\text{Àrea} = \frac{1}{2}\left|\vec{PQ} \times \vec{PR}\right|$, i aquest producte vectorial ja el tens calculat de l'apartat anterior. Alternativament (més llarga però igualment vàlida), pots fer servir base per alçada: pren $PQ$ com a base, calcula'n la longitud, i calcula l'alçada com la distància de $R$ a la recta $PQ$ (projectant $R$ ortogonalment sobre aquesta recta).}
+
+\subsection*{4.3. \normalfont Determineu les condicions que han de complir les coordenades d'un quart punt $S = (x, y, z)$ per tal que $P$, $Q$, $R$ i $S$ formin un tetraedre de volum 1. (El volum del tetraedre format pels punts $P$, $Q$, $R$ i $S$ és: $\text{volum}(PQRS) = \dfrac{\text{àrea}(\Delta PQR) \cdot \text{altura}}{3}$.) \hfill\textnormal{[1~punt]}}
+
+\pista{A la fórmula que et donen, $\text{volum}(PQRS) = \dfrac{\text{àrea}(\Delta PQR) \cdot \text{altura}}{3}$, l'altura és, precisament, la distància del punt $S$ al pla que conté $P$, $Q$ i $R$ (el que has trobat a l'apartat 4.1). Iguala aquesta expressió del volum a 1, substituint-hi l'àrea que ja coneixes de l'apartat 4.2 i la fórmula de la distància punt-pla en funció de $x, y, z$. T'apareixerà una equació amb un valor absolut: en resultaran, doncs, dues condicions (dos plans paral·lels al primer).}
+
+\end{document}

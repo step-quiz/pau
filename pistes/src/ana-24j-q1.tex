@@ -1,0 +1,29 @@
+% Pista ana-24j-q1 · Anàlisi
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny · Sèrie 1 · Qüestió 1
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 1}}
+
+\noindent Considereu la funció
+\[
+f(x) = 2\,\dfrac{\ln x}{x},
+\]
+definida per a $x > 0$.
+
+\subsection*{\textit{a)} \normalfont Estudieu-ne els màxims i els mínims, i les zones de creixement i de decreixement. \hfill\textnormal{[1~punt]}}
+
+\pista{Aplica la regla del quocient per a derivar $f(x)$. Un cop tinguis $f'(x)$, resol l'equació $f'(x) = 0$ per trobar els candidats a extrems. Després, estudia el signe de $f'(x)$ als intervals resultants: així classificaràs cada punt crític i, alhora, determinaràs les zones de creixement i decreixement.}
+
+\subsection*{\textit{b)} \normalfont Aquesta funció té asímptotes? Feu un esbós de la seva gràfica. \hfill\textnormal{[1~punt]}}
+
+\pista{Per a cercar asímptotes verticals, estudia el límit a la frontera del domini ($x \to 0^{+}$); compte: aquest límit no és una indeterminació. Per a les horitzontals, calcula el límit quan $x \to +\infty$, que sí que és una indeterminació: pots aplicar la regla de L'Hôpital. Per a l'esbós, combina aquesta informació amb el creixement i l'extrem de l'apartat a).}
+
+\subsection*{\textit{c)} \normalfont Calculeu l'equació de la recta tangent a la gràfica de $y = f(x)$ en el punt d'abscissa $x = 1$. \hfill\textnormal{[0,5~punts]}}
+
+\pista{Aplica la fórmula de la recta tangent, $y - f(1) = f'(1)(x - 1)$. Ja tens $f'(x)$ de l'apartat a): només cal avaluar $f(1)$ i $f'(1)$.}
+
+\end{document}

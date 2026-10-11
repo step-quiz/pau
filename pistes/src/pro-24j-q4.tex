@@ -1,0 +1,33 @@
+% Pista pro-24j-q4 · Probabilitat
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny · Sèrie 1 · Qüestió 4
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 4}}
+
+\noindent L'Andreu posa les nou boles amb les lletres $B$, $A$, $Y$, $E$, $S$, $F$, $A$, $N$, $S$ dins d'una bossa.
+
+\subsection*{\textit{a)} \normalfont A continuació, treu de la bossa dues boles a l'atzar, una darrere l'altra i sense reemplaçament (és a dir, no retorna a la bossa la primera bola abans de treure la segona).}
+
+\noindent \textit{a.1)} Calculeu la probabilitat que la primera bola sigui una A o una E. \hfill \textnormal{[0,5~punts]}
+
+\pista{Els esdeveniments «sortir A» i «sortir E» són disjunts (no poden passar alhora), per tant la probabilitat de la unió és la suma de probabilitats. Compta, primer, quantes boles hi ha de cada tipus (compte: alguna lletra es repeteix).}
+
+\noindent \textit{a.2)} Calculeu la probabilitat que les dues boles siguin diferents. \hfill \textnormal{[0,75~punts]}
+
+\pista{Molt sovint, quan et demanen la probabilitat de «les dues diferents», és més còmode calcular el complementari: la probabilitat de «les dues iguals». Identifica quines lletres apareixen repetides (només n'hi ha dues que es repeteixen) i suma les probabilitats de cada parella coincident, tenint en compte que és sense reemplaçament. Per obtenir la resposta final $p$, recorda que tu has estat buscant la probabilitat $q$ de l'esdeveniment contrari. Per tant, hauràs de calcular $p=1-q$.}
+
+\subsection*{\textit{b)} \normalfont L'Andreu torna a posar totes les boles a la bossa i en treu cinc a l'atzar, una darrere l'altra, però ara amb reemplaçament (és a dir, ara sí que retorna a la bossa cada bola extreta abans d'agafar la següent).}
+
+\noindent \textit{b.1)} Calculeu la probabilitat que no hagi tret cap A. \hfill \textnormal{[0,5~punts]}
+
+\pista{Amb reemplaçament, les cinc extraccions són independents. Per tant, la probabilitat que cap de les cinc extraccions sigui A és el producte de les cinc probabilitats individuals (que són totes iguals entre elles).}
+
+\noindent \textit{b.2)} Calculeu la probabilitat que hagi tret almenys dues A. \hfill \textnormal{[0,75~punts]}
+
+\pista{Aquí tens una variable binomial $X \sim B(5, p)$, on $p$ és la probabilitat que una extracció sigui A. L'esdeveniment «almenys dues A» és el contrari de «cap A o exactament una A»: calcula $q = P(X = 0) + P(X = 1)$, i la resposta serà $p = 1 - q$. És molt menys feina que sumar $P(X = 2) + P(X = 3) + P(X = 4) + P(X = 5)$.}
+
+\end{document}

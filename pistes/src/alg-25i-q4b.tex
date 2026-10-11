@@ -1,0 +1,28 @@
+% Pista alg-25i-q4b · Àlgebra
+% Procedència: PAU Catalunya 2025 · Convocatòria de juny (incidències) · Sèrie 4 · Exercici 4 — Opció B
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de juny (incidències)}{Sèrie 4}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 4 --- Opció B}}
+
+\noindent Considereu les matrius
+\[
+A = \begin{pmatrix} a & 0 \\ 1 & a^{2} \end{pmatrix}, \text{ on } a \text{ és un paràmetre real, i } B = \begin{pmatrix} 2 & 0 \\ 1 & 4 \end{pmatrix}.
+\]
+
+\subsection*{\textit{a)} \normalfont Trobeu els valors de $a$ que fan que les matrius $A$ i $B$ commutin. (Dues matrius $A$ i $B$ commuten si $AB = BA$.) \hfill\textnormal{[0,75~punts]}}
+
+\pista{Calcula els dos productes $AB$ i $BA$ (compte: en el producte de matrius, l'ordre dels factors sí que importa, i en general $AB \neq BA$). Igualar les dues matrius resultants és igualar-les element per element: de les quatre igualtats que obtindràs, algunes seran trivialment certes, i d'altres et donaran una equació d'on podràs deduir el valor o els valors d'$a$.}
+
+\subsection*{\textit{b)} \normalfont Trobeu els valors de $a$ per als quals la matriu $A$ és invertible. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Calcula $\det(A)$ en funció d'$a$ i recorda que una matriu és invertible si i només si el seu determinant és no nul.}
+
+\subsection*{\textit{c)} \normalfont Trobeu els valors de $a$ per als quals $A^{-1} = A$. \hfill\textnormal{[1~punt]}}
+
+\pista{Pots multiplicar l'equació $A^{-1} = A$, tant el membre esquerre com el dret, per la matriu $A$. Obtindràs una equació sense la inversa (et serà més fàcil de treballar). Iguala les dues matrius, element per element. Obtindràs moltes equacions: el paràmetre $a$ les ha de complir totes.}
+
+\end{document}

@@ -1,0 +1,19 @@
+{
+  // Tasques de VS Code / Codespaces: menú Terminal → Run Task…
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Pista oberta → data/<id>-p.pdf",
+      "type": "shell",
+      "command": "python3 pistes/build.py ${fileBasenameNoExtension}",
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Totes les pistes → data/*-p.pdf",
+      "type": "shell",
+      "command": "python3 pistes/build.py",
+      "problemMatcher": []
+    }
+  ]
+}

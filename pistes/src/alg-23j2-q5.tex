@@ -1,0 +1,25 @@
+% Pista alg-23j2-q5 · Àlgebra
+% Procedència: PAU Catalunya 2023 · Convocatòria de juny · Sèrie 5 · Qüestió 5
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2023}{Convocatòria de juny}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 5}}
+
+\noindent Considereu la família $\mathcal{S}$ de matrius de la forma $\begin{pmatrix} a & b \\ b & a \end{pmatrix}$, en què $a, b \in \mathbb{R}$.
+
+\subsection*{\textit{a)} \normalfont Calculeu $\begin{pmatrix} 2 & 3 \\ 3 & 2 \end{pmatrix} \cdot \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}^{-1}$. \hfill\textnormal{[1,25~punts]}}
+
+\pista{Necessites la inversa d'una matriu $2 \times 2$: recorda la regla ràpida
+\[
+\begin{pmatrix} a & b \\ c & d \end{pmatrix}^{-1} = \frac{1}{ad - bc}\begin{pmatrix} d & -b \\ -c & a \end{pmatrix}.
+\]
+Calcula primer aquesta inversa i després fes el producte de matrius en l'ordre indicat.}
+
+\subsection*{\textit{b)} \normalfont Trobeu totes les matrius de la família $\mathcal{S}$, és a dir, de la forma $A = \begin{pmatrix} a & b \\ b & a \end{pmatrix}$, que verifiquin la igualtat $A^{2} = I$, on $I$ és la matriu identitat d'ordre 2. \hfill\textnormal{[1,25~punts]}}
+
+\pista{No facis cap cas particular: agafa la matriu genèrica de la família, eleva-la al quadrat simbòlicament i imposa que el resultat sigui $I$. En igualar entrada a entrada et sortiran dues condicions senzilles sobre $a$ i $b$ (una de producte i una de suma de quadrats). Resol-les amb cura i veuràs que hi ha exactament quatre matrius que les compleixen.}
+
+\end{document}

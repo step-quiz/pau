@@ -1,0 +1,23 @@
+% Pista ana-25s-q4a · Anàlisi
+% Procedència: PAU Catalunya 2025 · Convocatòria de setembre · Sèrie 3 · Exercici 4 — Opció A
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de setembre}{Sèrie 3}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 4 --- Opció A}}
+
+\noindent Un vidrier està reparant un dels vitralls de la Sagrada Família la forma del qual és la de la part ombrejada de la figura adjunta. S'ha adonat que Gaudí el va dissenyar de manera que un dels costats segueix la funció $y = 3\sin(x/4)$ i un altre segueix la funció $y = 3\cos(x/4)$, on $x$ i $y$ estan expressades en metres.
+
+\noindent\textit{(A la figura: $B$ és sobre l'eix $OY$. Una gràfica passa per $A$ i $C$, i l'altra per $B$ i $C$; $C$ és el primer punt de tall de les dues gràfiques a la dreta de l'eix $OY$. La part ombrejada és la regió limitada per les dues gràfiques i el segment $AB$.)}
+
+\subsection*{\textit{a)} \normalfont Raoneu a quina funció correspon cada gràfica i calculeu les coordenades dels punts $B$ i $C$ assenyalats a la figura (tenint en compte que $A$ és l'origen de coordenades). \hfill\textnormal{[1~punt]}}
+
+\pista{Avalua les dues funcions a $x = 0$: una d'elles passa per l'origen $A$ i l'altra per $B$, això t'indica directament quina correspon a cada costat del vitrall. El punt $C$ és la intersecció de les dues corbes: iguala $3\sin(x/4) = 3\cos(x/4)$ i resol l'equació treballant en radiants; de totes les solucions, queda't amb la del punt $C$ de la figura. Després, substitueix-la en una de les dues funcions per obtenir la segona coordenada del punt $C$.}
+
+\subsection*{\textit{b)} \normalfont Calculeu el preu del vitrall sabent que costa 750\,\euro/m$^{2}$. \hfill\textnormal{[1,5~punts]}}
+
+\pista{L'àrea d'una regió entre dues corbes és la integral definida de la diferència de les dues funcions (la de «dalt» menys la de «baix»). Els extrems de la integral són les coordenades $x$ dels punts $A$ i $C$ de l'apartat anterior. Quan calculis la primitiva, ves amb compte amb el coeficient que hi apareix. No t'aturis a l'àrea: per obtenir el preu del vitrall, multiplica-la pel que costa cada $\text{m}^{2}$.}
+
+\end{document}

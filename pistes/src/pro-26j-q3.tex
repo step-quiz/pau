@@ -1,0 +1,32 @@
+% Pista pro-26j-q3 · Probabilitat
+% Procedència: PAU Catalunya 2026 · Convocatòria de juny · Sèrie 1 · Exercici 3
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2026}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 3}}
+
+\noindent L'Ajuntament de Canet de Mar ha aconseguit 24 entrades gratuïtes per a un concert d'un grup de rock català, i ha decidit sortejar-les entre els veïns interessats a assistir-hi. Tots els veïns del poble seguidors d'aquest grup s'apunten al sorteig, i només al $16\,\%$ els toca una entrada. De la resta de seguidors del grup, sis setenes parts intenten comprar una entrada per la web, on la probabilitat d'aconseguir-ne és del $25\,\%$.
+
+\subsection*{3.1. \normalfont Quantes persones d'aquest municipi tenen entrada per al concert? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Calcula per separat les dues «vies» per aconseguir entrada: la probabilitat d'obtenir-la al sorteig ($16\,\%$) i la probabilitat d'aconseguir-la després per la web (compte: aquesta és una probabilitat composta, ja que primer cal no haver tingut sort al sorteig, després haver-ho intentat ---sis setenes parts--- i finalment haver-ho aconseguit ---el $25\,\%$---). Suma els dos percentatges per obtenir el percentatge total de seguidors amb entrada. Finalment, fes servir la dada que el $16\,\%$ correspon a 24 persones per plantejar una regla de tres i trobar quantes persones representa el percentatge total.}
+
+\subsection*{3.2. \normalfont Si escollim a l'atzar un veí de Canet seguidor d'aquest grup de rock i no té entrada per al concert, quina és la probabilitat que hagués intentat aconseguir-la via web? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Et demanen una probabilitat condicionada «en sentit invers» respecte de les dades que et donen (que parlaven de no tenir èxit \emph{sabent que} s'ha intentat per la web): és un cas clar per aplicar el teorema de Bayes. Necessitaràs $P(\text{no té entrada})$ (que és el complementari de la probabilitat total que has calculat a l'apartat anterior) i $P(\text{no té entrada} \mid \text{ho intenta per la web})$ (que és el complementari del $25\,\%$ d'èxit al web).}
+
+\vspace{0.6em}
+\noindent El dia del concert, l'equip de so mesura el nivell de decibels generat pels crits entusiastes del públic durant els 5 minuts de durada de la cançó més famosa del grup; es pot aproximar per la funció
+\[
+S(t) = -t^{3} + 12t^{2} - 30t + 90, \qquad t \in [0, 5],
+\]
+on $t$ és el temps en minuts i $S(t)$ els decibels. Quan se superen els 100 decibels es considera que el públic està molt entregat i s'activen automàticament uns efectes lumínics especials.
+
+\subsection*{3.3. \normalfont S'activaran en algun moment durant aquests cinc minuts? Si la resposta és afirmativa, calculeu en quin minut s'activen, aproximat a les dècimes. \hfill\textnormal{[1~punt]}}
+
+\pista{Reformula la pregunta: vols saber si, en algun moment, $S(t) = 100$. Defineix la funció auxiliar $D(t) = S(t) - 100$ i comprova que és contínua (és polinòmica). Avalua $D(0)$ i $D(5)$: si tenen signes oposats, el teorema de Bolzano et garanteix que hi ha un punt on $D$ s'anul·la (és a dir, on $S(t) = 100$). Per aproximar aquest punt a les dècimes, avalua $D$ en valors intermedis de $t$ fins a trobar dos valors separats una dècima entre els quals $D$ canviï de signe.}
+
+\end{document}

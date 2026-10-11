@@ -1,0 +1,25 @@
+% Pista ana-24s-q5 · Anàlisi
+% Procedència: PAU Catalunya 2024 · Convocatòria de setembre · Sèrie 3 · Qüestió 5
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de setembre}{Sèrie 3}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 5}}
+
+\noindent Per a cada punt $(x, y)$ de la corba $y = e^{-2x}$, amb $x > 0$ i $y > 0$, considereu el rectangle amb vèrtexs als punts $(0, 0)$, $(x, 0)$, $(0, y)$ i $(x, y)$.
+
+\subsection*{\textit{a)} \normalfont Comproveu que, d'entre tots aquests rectangles, el que té $x = \dfrac{1}{2}$ és el d'àrea màxima. Quin és el valor d'aquesta àrea? \hfill\textnormal{[1,5~punts]}}
+
+\pista{El rectangle té base $x$ i alçada $y = e^{-2x}$. Escriu l'àrea del rectangle en funció d'$x$, és a dir, escriu $A(x)$. És un problema d'optimització: deriva $A(x)$ (recorda que estàs derivant un producte de funcions); després, resol l'equació $A'(x) = 0$ i, finalment, comprova que $x = \dfrac{1}{2}$ és efectivament un màxim. Per acabar, avalua $A\!\left(\dfrac{1}{2}\right)$ per a obtenir el valor de l'àrea màxima.}
+
+\subsection*{\textit{b)} \normalfont Calculeu l'equació de la recta tangent a la funció $y = e^{-2x}$ en el punt d'abscissa $x = 0$, i el seu punt de tall amb l'eix de les abscisses. \hfill\textnormal{[1~punt]}}
+
+\pista{Anomena $f(x) = e^{-2x}$ i podràs trobar l'equació de la recta tangent així:
+\[
+y - f(0) = f'(0)(x - 0).
+\]
+Calcula $f'(x)$ (compte: no és la $A'(x)$ de l'apartat anterior) i avalua $f(0)$ i $f'(0)$. Un cop tinguis l'equació de la recta tangent, per trobar el punt de tall amb l'eix $OX$ imposa $y = 0$ i aïlla $x$. Recorda que la teva resposta final ha de ser un punt amb les dues coordenades.}
+
+\end{document}

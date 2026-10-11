@@ -1,0 +1,27 @@
+% Pista alg-23j-q2 · Àlgebra
+% Procedència: PAU Catalunya 2023 · Convocatòria de juny · Sèrie 1 · Qüestió 2
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2023}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 2}}
+
+\noindent Considereu les dues matrius següents:
+\[
+A = \begin{pmatrix} 2 & -3 & -5 \\ -1 & 4 & 5 \\ 1 & -3 & -4 \end{pmatrix}, \quad
+B = \begin{pmatrix} 2 & 2 & 0 \\ -1 & -1 & 0 \\ 1 & 2 & 1 \end{pmatrix}.
+\]
+
+\subsection*{\textit{a)} \normalfont Calculeu les matrius $A \cdot B$ i $B \cdot A$. \hfill\textnormal{[1,5~punts]}}
+
+\pista{És un càlcul directe. Recorda que, en general, $A \cdot B \ne B \cdot A$ (el producte de matrius no és commutatiu), de manera que has de fer els dos productes per separat. Quan tinguis els dos resultats, observa'ls bé: hi descobriràs alguna cosa interessant que connecta directament amb l'apartat b).}
+
+\subsection*{\textit{b)} \normalfont Siguin $C$ i $D$ dues matrius quadrades del mateix ordre que satisfan $C \cdot D = C$ i $D \cdot C = D$. Comproveu que les dues matrius, $C$ i $D$, són idempotents. \hfill\textnormal{[1~punt]}}
+
+\noindent \textit{Nota:} Una matriu quadrada s'anomena idempotent si coincideix amb el seu quadrat.
+
+\pista{Vols comprovar que $C^{2} = C$. Comença escrivint $C^{2} = C \cdot C$. Fixa't ara que $C = C \cdot D$: substitueix l'expressió $C \cdot C$ per una altra expressió que és equivalent, $(C \cdot D) \cdot C$, i observa què passa. Recorda que el producte de matrius és associatiu (encara que no commutatiu), de manera que pots reagrupar els factors com et convingui. Per a $D$, exactament el mateix raonament partint de $D^{2} = D \cdot D$.}
+
+\end{document}

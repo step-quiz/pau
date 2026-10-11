@@ -1,0 +1,63 @@
+% =====================================================================
+%  pista.sty — Preàmbul comú de totes les pistes (pistes/src/<id>.tex)
+%  Un canvi aquí afecta les 62 pistes: recompileu-les totes després.
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pista}[2026/10/09 Pistes PAU Matematiques]
+
+% ====== Paquets bàsics ======
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[catalan]{babel}
+\RequirePackage{amsmath, amssymb, amsthm}
+\RequirePackage{xcolor}
+\RequirePackage[margin=2.3cm,headheight=22pt]{geometry}
+\RequirePackage{parskip}
+\RequirePackage{enumitem}
+\RequirePackage{mdframed}
+\RequirePackage{titlesec}
+\RequirePackage{eurosym}     % per a la comanda \euro
+\RequirePackage{fancyhdr}
+
+% Identificador del PDF fix (depèn només del nom del fitxer): recompilar una
+% pista sense canvis dona exactament el mateix PDF.
+\ifdefined\pdftrailerid \pdftrailerid{\jobname}\fi
+
+% ====== Color blau personalitzat ======
+\definecolor{blauPista}{RGB}{0, 70, 160}
+
+% ====== Estil de la caixa de pista ======
+\newmdenv[
+  linecolor=blauPista,
+  linewidth=0.8pt,
+  topline=false, bottomline=false, rightline=false,
+  leftmargin=0pt, rightmargin=0pt,
+  innerleftmargin=10pt, innerrightmargin=6pt,
+  innertopmargin=4pt, innerbottommargin=4pt,
+  skipabove=6pt, skipbelow=6pt
+]{pistabox}
+
+% ====== Comanda per a les pistes ======
+\newcommand{\pista}[1]{%
+  \begin{pistabox}
+  \textcolor{blauPista}{\textbf{Pista.}} \textcolor{blauPista}{#1}
+  \end{pistabox}
+}
+
+% ====== Format de títols ======
+\titleformat{\section}{\large\bfseries\color{blauPista}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.6em}{}
+
+% ====== Capçalera uniforme (sense número de pàgina) ======
+% Ús: \pistainfo{Catalunya 2024}{Convocatòria de juny}{Sèrie 1}
+\newcommand{\pistainfo}[3]{%
+  \fancyhead[L]{\footnotesize\textcolor{blauPista}{\textbf{PAU de Matemàtiques --- Pistes}}}%
+  \fancyhead[R]{\footnotesize\textcolor{blauPista}{#1 · #2 · #3}}%
+}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{blauPista}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt}
+
+\endinput

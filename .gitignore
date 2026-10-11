@@ -1,0 +1,8 @@
+# Fitxers auxiliars de LaTeX (si es compila una pista a mà dins pistes/src/)
+pistes/src/*.aux
+pistes/src/*.log
+pistes/src/*.out
+pistes/src/*.synctex.gz
+pistes/src/*.fls
+pistes/src/*.fdb_latexmk
+pistes/src/*.pdf

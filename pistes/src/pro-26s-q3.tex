@@ -1,0 +1,29 @@
+% Pista pro-26s-q3 · Probabilitat
+% Procedència: PAU Catalunya 2026 · Convocatòria de setembre · Sèrie 2 · Exercici 3
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2026}{Convocatòria de setembre}{Sèrie 2}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 3}}
+
+\noindent Es vol construir un parc eòlic al Solsonès format per 10 aerogeneradors. L'empresa que els construirà està dissenyant les pales segons l'esquema següent, on $x$ i $f(x)$ estan mesurats en metres (el dibuix no està a escala):
+
+\noindent\textit{(A la figura: $g(x) = 8x$ i $f(x) = 2x^{3}$; la part ombrejada és tota la regió compresa entre les dues gràfiques.)}
+
+\noindent S'ha calculat que cadascun dels 10 aerogeneradors tindrà una potència de $100\,\text{MW}$. Degut a diversos factors, cadascun té una probabilitat del $10\,\%$ d'estar aturat, independentment de la resta d'aerogeneradors.
+
+\subsection*{3.1. \normalfont Quina és la probabilitat que s'arribi als $1\,000\,\text{MW}$ de potència total al parc? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Anomena $X$ el nombre d'aerogeneradors en funcionament: com que són 10 i cadascun funciona o no independentment dels altres, $X$ segueix una distribució binomial. Compte: el $10\,\%$ és la probabilitat d'estar \emph{aturat}; la de funcionar és la complementària. Pensa quants aerogeneradors han de funcionar per arribar als $1\,000\,\text{MW}$ i calcula la probabilitat d'aquest únic cas.}
+
+\subsection*{3.2. \normalfont Quina és la probabilitat que la potència total del parc superi els $150\,\text{MW}$? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Cada aerogenerador aporta $100\,\text{MW}$ o res: tradueix «superar els $150\,\text{MW}$» a una condició sobre $X$ (quin és el nombre mínim d'aerogeneradors en funcionament?). Sumar tots els casos favorables seria llarguíssim: passa a l'esdeveniment contrari, que només té dos casos. En el cas en què en funciona exactament un, recorda que pot ser qualsevol dels 10 (el coeficient binomial). Escriu les probabilitats petites amb potències de 10 perquè la calculadora no les arrodoneixi a zero.}
+
+\subsection*{3.3. \normalfont Calculeu l'àrea de les pales d'un d'aquests aerogeneradors (part ombrejada al gràfic). \hfill\textnormal{[1~punt]}}
+
+\pista{Resol $f(x) = g(x)$ per trobar els punts de tall de les dues gràfiques: seran els límits d'integració. A cada interval entre punts de tall, integra «la funció de dalt menys la de baix» (comprova quina és amb un valor intermedi). Compte: si integres $g - f$ d'un extrem a l'altre d'una sola vegada, les dues regions es compensen; separa la integral pel punt de tall del mig, o aprofita que les dues funcions són senars (simètriques respecte de l'origen) per calcular una sola regió i multiplicar per 2. Recorda les unitats ($\text{m}^{2}$).}
+
+\end{document}

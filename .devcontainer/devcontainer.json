@@ -1,0 +1,30 @@
+{
+  // Codespaces per editar i compilar les pistes (pistes/src/*.tex).
+  // En crear el Codespace s'instal·la TeX Live (uns minuts, només la primera vegada).
+  "name": "pau3 · pistes LaTeX",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "postCreateCommand": "bash .devcontainer/install-latex.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["James-Yu.latex-workshop"],
+      "settings": {
+        // En desar un .tex es compila i el PDF es mostra en una pestanya al costat.
+        "latex-workshop.latex.autoBuild.run": "onSave",
+        "latex-workshop.view.pdf.viewer": "tab",
+        // Fitxers auxiliars (.aux, .log...) fora del repositori.
+        "latex-workshop.latex.outDir": "%TMPDIR%/pistes/%DOCFILE%",
+        "latex-workshop.latex.recipe.default": "pdflatex",
+        "latex-workshop.latex.recipes": [
+          { "name": "pdflatex", "tools": ["pdflatex"] }
+        ],
+        "latex-workshop.latex.tools": [
+          {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-output-directory=%OUTDIR%", "%DOC%"]
+          }
+        ]
+      }
+    }
+  }
+}

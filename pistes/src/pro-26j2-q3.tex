@@ -1,0 +1,28 @@
+% Pista pro-26j2-q3 · Probabilitat
+% Procedència: PAU Catalunya 2026 · Convocatòria de juny · Sèrie 5 · Exercici 3
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2026}{Convocatòria de juny}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 3}}
+
+\noindent En una ciutat s'ha estudiat la relació entre els hàbits de lectura i la pràctica d'esport en l'alumnat de batxillerat. Es desprèn que el $60\,\%$ llegeixen com a mínim dos llibres al mes, dels quals el $70\,\%$ practiquen algun esport un mínim de quatre hores a la setmana. També s'observa que, d'entre els que no llegeixen un mínim de dos llibres al mes, el $50\,\%$ fan menys de quatre hores setmanals d'esport.
+
+\subsection*{3.1. \normalfont Quina és la probabilitat que un alumne o alumna triat a l'atzar faci esport almenys quatre hores setmanals? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Un diagrama d'arbre t'ajudarà a organitzar la informació: hi ha dos camins que porten a «fer esport almenys 4h», segons si l'alumne llegeix almenys dos llibres al mes o no. Aplica el teorema de la probabilitat total, combinant la probabilitat de cada branca de lectura amb la probabilitat condicionada de fer esport dins d'aquesta branca.}
+
+\subsection*{3.2. \normalfont Si sabem que aquest alumne o alumna fa esport menys de quatre hores setmanals, quina probabilitat hi ha que llegeixi almenys dos llibres al mes? \hfill\textnormal{[0,75~punts]}}
+
+\pista{És una probabilitat condicionada «en sentit invers» respecte de les dades que et donen directament (que parlaven de fer esport \emph{sabent} els hàbits de lectura): és un cas clar per aplicar el teorema de Bayes. Al numerador hi haurà d'aparèixer la probabilitat de «llegir almenys dos llibres i fer poc esport», i al denominador, la probabilitat de «fer poc esport» (que pots obtenir com a complementari del resultat de l'apartat anterior).}
+
+\vspace{0.6em}
+\noindent L'Alba és una estudiant de batxillerat que ha anat anotant durant tot el curs quantes hores dedicava a la setmana a llegir ($x$, entre 1 i 6) i quantes a fer esport ($y$). Ha observat que la relació $y = 7 - x + \ln(2x - 1)$ s'ajusta força bé a les dades que ha anotat.
+
+\subsection*{3.3. \normalfont Calculeu, segons aquest model, quin és el màxim i el mínim d'hores per setmana que l'Alba ha dedicat a practicar esport. \hfill\textnormal{[1~punt]}}
+
+\pista{Es tracta de trobar els extrems absoluts d'una funció contínua en un interval tancat $[1, 6]$: cal comparar els valors de la funció als punts crítics interiors amb els valors als dos extrems de l'interval. Deriva la funció, iguala la derivada a zero i comprova que només hi ha un punt crític dins de l'interval. Avalua la funció en aquest punt crític i també als extrems $x = 1$ i $x = 6$: el més gran d'aquests tres valors serà el màxim absolut, i el més petit, el mínim absolut.}
+
+\end{document}

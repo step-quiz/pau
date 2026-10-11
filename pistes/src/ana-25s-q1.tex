@@ -1,0 +1,27 @@
+% Pista ana-25s-q1 · Anàlisi
+% Procedència: PAU Catalunya 2025 · Convocatòria de setembre · Sèrie 3 · Exercici 1
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de setembre}{Sèrie 3}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 1}}
+
+\noindent Una família vol comprar un terreny per a fer-s'hi una casa envoltada de penya-segats amb vistes al mar. En aquella zona de la costa, els penya-segats segueixen les rectes $y = 0$ i $y = 3x$. A més, la família vol que el terreny sigui triangular i que el tercer costat del triangle passi pel punt $P = (1, 1)$, tal com es pot veure en la figura.
+
+\noindent\textit{(A la figura: el terreny és el triangle del primer quadrant limitat per l'eix $OX$, la recta $y = 3x$ i la recta $r$, que passa per $P$ i és decreixent.)}
+
+\subsection*{\textit{a)} \normalfont Plantegeu l'equació de la recta $r$ que defineix el tercer costat del triangle en funció del seu pendent $m$, i comproveu que l'àrea del terreny ve donada per
+\[
+A(m) = \dfrac{3}{2} \cdot \dfrac{m^{2} - 2m + 1}{m^{2} - 3m}.
+\]
+\hfill\textnormal{[1~punt]}}
+
+\pista{L'equació de la recta $r$ et ve donada pel punt $P$ i el pendent $m$ (forma punt-pendent). Un cop tinguis $r$, troba els dos punts de tall d'aquesta recta amb les rectes dels penya-segats, $y = 0$ i $y = 3x$. Amb això, obtindràs dos vèrtexs del triangle, i el tercer és el $(0,0)$. Finalment, com que un costat del triangle és sobre l'eix $OX$, pren-lo com a base: l'alçada és l'ordenada del vèrtex que és sobre $y = 3x$. Calcula l'àrea amb $\dfrac{\text{base} \cdot \text{alçada}}{2}$ i simplifica el resultat.}
+
+\subsection*{\textit{b)} \normalfont Calculeu el valor de $m$ que fa que l'àrea d'aquest terreny (i, per tant, el seu preu) sigui mínima. Quin és el valor d'aquesta àrea? \hfill\textnormal{[1,5~punts]}}
+
+\pista{És un problema d'optimització: deriva $A(m)$ i resol $A'(m) = 0$. Obtindràs dos valors candidats: descarta el que no tingui sentit geomètric (fixa't en la figura: quin signe ha de tenir el pendent de $r$?). Comprova que el valor triat és efectivament un mínim i substitueix-lo a $A(m)$. D'aquesta manera, trobaràs l'àrea mínima.}
+
+\end{document}

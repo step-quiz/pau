@@ -1,0 +1,25 @@
+% Pista ana-24j-q5 · Anàlisi
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny · Sèrie 1 · Qüestió 5
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 5}}
+
+\noindent Volem construir un petit cobert de fusta de $6\,\text{m}^{3}$ de volum, en forma de prisma rectangular, adossat a la paret lateral d'una casa, per a guardar-hi llenya. Només cal construir, per tant, el sostre i tres parets (la paret del fons del cobert és la de la casa a la qual està adossat). A més, volem que el cobert mesuri el triple d'amplària que de fondària. Cada metre quadrat de paret té un cost de construcció de $30\,\text{\euro}$ i el sostre costa $50\,\text{\euro}$ per metre quadrat. Un cop construït el cobert, afegir-hi una porta té un cost fix de $35\,\text{\euro}$.
+
+\subsection*{\textit{a)} \normalfont Comproveu que el cost de construcció del cobert ve donat per la funció
+\[
+C(x) = \dfrac{300}{x} + 150x^{2} + 35,
+\]
+on $x$ és la fondària del cobert en metres. \hfill\textnormal{[1,25~punts]}}
+
+\pista{Introdueix les variables: fondària $x$, amplària $3x$ (per la condició de l'enunciat) i altura $h$ (desconeguda de moment). Utilitza la condició del volum ($6\,\text{m}^{3}$) per a expressar $h$ en funció d'$x$. Després, suma els costos de les quatre superfícies que cal construir: les dues parets laterals, la paret frontal i el sostre. No oblidis de sumar-hi, al final, el cost fix de la porta. Simplifica i arribaràs a l'expressió demanada.}
+
+\subsection*{\textit{b)} \normalfont Calculeu quines han de ser les dimensions del cobert per tal que el cost de construcció sigui mínim i justifiqueu la resposta. Quin és aquest cost? \hfill\textnormal{[1,25~punts]}}
+
+\pista{És un problema d'optimització: deriva $C(x)$, resol l'equació $C'(x) = 0$ i comprova que el valor d'$x$ trobat és efectivament un mínim. A partir d'aquí, recupera l'altura $h$ amb la condició del volum, calcula l'amplària com $3x$ i finalment avalua $C(x)$ per obtenir el cost mínim. Ves amb compte de respondre TOTES les parts de la pregunta: les \emph{dimensions} (totes tres) i el \emph{cost} mínim.}
+
+\end{document}

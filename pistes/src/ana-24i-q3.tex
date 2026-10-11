@@ -1,0 +1,25 @@
+% Pista ana-24i-q3 · Anàlisi
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny (incidències) · Sèrie 5 · Qüestió 3
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny (incidències)}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 3}}
+
+\noindent Considereu les paràboles $y = f_{a}(x)$, amb $f_{a}(x) = ax^{2} + 2x + 5 - a$, on $a$ és un paràmetre real.
+
+\subsection*{\textit{a)} \normalfont Determineu el valor del paràmetre $a$ per al qual la recta tangent a $y = f_{a}(x)$ en el punt d'abscissa $x = 1$ passa pel punt $(2, 13)$. \hfill\textnormal{[1~punt]}}
+
+\pista{Calcula primer $f_{a}(1)$: observa que, en simplificar, el paràmetre $a$ desapareix i obtens la segona coordenada del punt de tangència que estàs buscant. A continuació, calcula $f_{a}'(1)$ (aquí $a$ sí que hi surt) i escriu l'equació de la recta tangent amb la forma punt-pendent, $y - f_{a}(1) = f_{a}'(1)(x - 1)$. Imposa, finalment, que la recta passi pel punt $(2, 13)$ i d'aquesta manera trobaràs el valor d'$a$.}
+
+\subsection*{\textit{b)} \normalfont Calculeu els punts de tall de les paràboles $y = f_{1}(x)$ i $y = f_{3}(x)$. \hfill\textnormal{[0,5~punts]}}
+
+\pista{Escriu $f_{1}(x)$ i $f_{3}(x)$ substituint $a = 1$ i $a = 3$ (compte: no oblidis el terme independent, que també depèn del paràmetre $a$) i iguala $f_{1}(x) = f_{3}(x)$ per trobar les abscisses dels punts de tall. Un cop tinguis els valors de $x$, substitueix-los a qualsevol de les equacions de les paràboles (la que et resulti més còmoda), per a obtenir les ordenades corresponents dels punts que et demanen. Recorda que la teva resposta final ha de ser escriure els punts.}
+
+\subsection*{\textit{c)} \normalfont Calculeu l'àrea de la regió situada entre les dues paràboles $y = f_{1}(x)$ i $y = f_{3}(x)$. \hfill\textnormal{[1~punt]}}
+
+\pista{L'àrea entre dues corbes és la integral definida de la diferència de les dues funcions (la de «dalt» menys la de «baix»), entre les abscisses dels punts de tall (que tens de l'apartat anterior). Per a decidir quina paràbola està per sobre, avalua-les totes dues en algun punt intermedi dels extrems d'integració: veuràs ràpidament quina té el valor més gran. Una altra manera és calcular el valor absolut de la integral definida: recorda que una àrea no pot ser negativa.}
+
+\end{document}

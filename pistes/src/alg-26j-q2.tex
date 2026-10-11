@@ -1,0 +1,32 @@
+% Pista alg-26j-q2 · Àlgebra
+% Procedència: PAU Catalunya 2026 · Convocatòria de juny · Sèrie 1 · Exercici 2
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2026}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 2}}
+
+\noindent Considereu el sistema d'equacions lineals següent, que està format per tres plans a l'espai i depèn del paràmetre real $m$:
+\[
+\left.\begin{array}{r}
+x + my + z = 4 \\
+x + 3y + z = 5 \\
+mx + y + z = 4
+\end{array}\right\}.
+\]
+
+\subsection*{2.1. \normalfont Discutiu el sistema per als diferents valors del paràmetre $m$. \hfill\textnormal{[1~punt]}}
+
+\pista{Escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$. Calcula $\det(A)$ i troba els valors del paràmetre $m$ que l'anul·len (t'ha de sortir una equació de segon grau en $m$, amb dues arrels). Per a cadascun d'aquests valors crítics, compara els rangs d'$A$ i d'$A^{'}$ per decidir si el sistema és compatible indeterminat o incompatible. No t'oblidis del cas en què $\det(A) \neq 0$: quin tipus de sistema és?}
+
+\subsection*{2.2. \normalfont Interpreteu geomètricament aquest sistema per a tots els valors del paràmetre $m$ i resoleu-lo, si és possible, per al cas $m = 1$. \hfill\textnormal{[1~punt]}}
+
+\pista{Cada equació representa un pla a l'espai, així que estàs estudiant la posició relativa de tres plans. Per a cadascun dels tres tipus de sistema que han sortit a la discussió de l'apartat anterior, pensa què tenen en comú els tres plans (quants punts i, si n'hi ha infinits, quina figura formen). En el cas incompatible, fixa't si, per algun valor, dos dels plans són paral·lels. Per al cas $m = 1$, comprova primer a quin d'aquests tres casos correspon, i si és compatible indeterminat, allibera una variable (per exemple $z = \lambda$) per expressar la resta de les incògnites en funció d'ella.}
+
+\subsection*{2.3. \normalfont Per a $m = 1$, és possible afegir una quarta equació de manera que el sistema resultant sigui compatible determinat i tingui com a solució $(x, y, z) = \left(3, \dfrac{1}{2}, \dfrac{1}{2}\right)$? Raoneu la resposta. \hfill\textnormal{[0,5~punts]}}
+
+\pista{Comprova primer que el punt $\bigl(3, \frac{1}{2}, \frac{1}{2}\bigr)$ és, efectivament, una de les infinites solucions que has trobat a l'apartat anterior per a $m = 1$ (hauries de poder-lo obtenir donant un valor concret al paràmetre $\lambda$). Després, pensa quines dues condicions ha de complir la quarta equació perquè aquest punt sigui l'única solució: una té a veure amb el punt, i l'altra, amb el rang de la matriu de coeficients del nou sistema, que ara té quatre files. Proposa una equació ben senzilla (per exemple, fixant directament el valor d'una de les incògnites; compte, però, que no totes serveixen) i comprova que es compleixen aquestes dues condicions.}
+
+\end{document}

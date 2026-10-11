@@ -1,0 +1,25 @@
+% Pista ana-24i-q1 · Anàlisi
+% Procedència: PAU Catalunya 2024 · Convocatòria de juny (incidències) · Sèrie 5 · Qüestió 1
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2024}{Convocatòria de juny (incidències)}{Sèrie 5}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Qüestió 1}}
+
+\noindent Considereu la funció $f(x) = -2 + 10\,(x-1)\ln x$, definida per a $x > 0$.
+
+\subsection*{\textit{a)} \normalfont Comproveu que $f(x)$ té una arrel a l'interval $[1, 1{,}5]$ i busqueu un interval d'una dècima de longitud que també contingui aquesta mateixa arrel. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Aquí has d'aplicar el Teorema de Bolzano: si $f$ és contínua en l'interval i canvia de signe entre els extrems, llavors hi ha alguna arrel. Calcula $f(1)$ i $f(1{,}5)$ i comprova-ho. Per a trobar l'interval d'amplitud $0{,}1$ que conté l'arrel, prova valors intermedis ($1{,}1$, $1{,}2$, etc.) fins a localitzar un canvi de signe.}
+
+\subsection*{\textit{b)} \normalfont Sense calcular els punts crítics, justifiqueu que $f(x)$ és decreixent a l'interval $(0, 1)$ i creixent a $(1, +\infty)$. Quins màxims i mínims té aquesta funció? \hfill\textnormal{[1~punt]}}
+
+\pista{«Sense calcular els punts crítics» vol dir que no has de resoldre l'equació $f'(x)=0$, però sí que pots derivar. Calcula $f'(x)$ i estudia'n el signe a $(0,1)$ i a $(1,+\infty)$: quin signe tenen $\ln x$ i $x-1$ a cada interval? Per a trobar extrems relatius, estudia el creixement i decreixement de la funció i troba on hi ha el mínim. A més, has de decidir si hi ha algun màxim o no n'hi ha.}
+
+\subsection*{\textit{c)} \normalfont Calculeu $\displaystyle \lim_{x \to 0^{+}} f(x)$ i $\displaystyle \lim_{x \to +\infty} f(x)$, i feu un esbós de la gràfica d'aquesta funció. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Els dos límits es redueixen al comportament del producte $(x-1)\ln x$ (la constant $-2$ és irrellevant). Quan $x \to 0^{+}$, el factor $(x-1)$ tendeix a $-1$ i $\ln x$ tendeix a $-\infty$: d'aquí pots deduir el límit directament, sense eines avançades. Quan $x \to +\infty$, els dos factors tendeixen a $+\infty$. Per a l'esbós, combina aquests dos límits amb el creixement i el mínim de l'apartat b) i amb l'arrel localitzada a l'apartat a). Fixa't en el signe de $f(1)$: quantes vegades talla la gràfica l'eix d'abscisses?}
+
+\end{document}

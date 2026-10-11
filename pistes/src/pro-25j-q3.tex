@@ -1,0 +1,27 @@
+% Pista pro-25j-q3 · Probabilitat
+% Procedència: PAU Catalunya 2025 · Convocatòria de juny · Sèrie 1 · Exercici 3
+\documentclass[11pt,a4paper]{article}
+\usepackage{pista}
+\pistainfo{Catalunya 2025}{Convocatòria de juny}{Sèrie 1}
+
+\begin{document}
+
+\section*{\textcolor{blauPista}{Exercici 3}}
+
+\noindent Una empresa produeix dos tipus de peces, de ferro i d'acer. El $60\,\%$ de la producció total correspon a peces de ferro i la resta són d'acer. Sabem que el $95\,\%$ de les peces de ferro produïdes no tenen cap defecte, mentre que el $3\,\%$ de les peces d'acer són defectuoses.
+
+\subsection*{\textit{a)} \normalfont Si agafem una peça a l'atzar, quina és la probabilitat que sigui defectuosa? \hfill\textnormal{[0,75~punts]}}
+
+\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten a «defectuosa». Aplica el teorema de la probabilitat total; ves amb compte amb el $95\,\%$ del ferro, que és el de \emph{no} defectuoses.}
+
+\subsection*{\textit{b)} \normalfont L'empresa aviat diversificarà la producció i començarà a produir també peces de titani, que es vendran en paquets de 5. Si la probabilitat que una peça de titani sigui defectuosa és un valor desconegut $p$, i cada peça és defectuosa independentment de les altres, comproveu que l'expressió que ens dona la probabilitat que en un paquet de 5 peces n'hi hagi exactament 4 de defectuoses (en funció de $p$) és $f(p) = 5(p^{4} - p^{5})$. \hfill\textnormal{[0,75~punts]}}
+
+\pista{Tens una variable binomial $X \sim B(5, p)$. Escriu $P(X = 4)$ amb la fórmula de la binomial i desenvolupa el factor $(1-p)$ per arribar a l'expressió demanada.}
+
+\subsection*{\textit{c)} \normalfont Considereu la funció $f(p)$ de l'apartat anterior. Determineu el valor màxim que pren $f(p)$ quan $p \geq 0$. \hfill\textnormal{[1~punt]}}
+
+\pista{És un problema d'optimització: deriva $f(p)$, i resol l'equació $f'(p)=0$. Compte: com que $p$ és una probabilitat, només ens interessen valors a l'interval $[0, 1]$, perquè la probabilitat no pot prendre altres valors. No oblidis comprovar que el candidat és màxim, com volem, i no mínim.}
+
+\vspace{0.6em}
+
+\end{document}
