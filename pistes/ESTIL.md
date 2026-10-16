@@ -40,7 +40,7 @@ Criteris per revisar i escriure les pistes (`pistes/src/<id>.tex`). Decisions ap
 
 - Orientativa: de 2 a 6 línies per apartat. Si una pista necessita més espai, probablement està resolent l'exercici.
 
-## 7. Format estructurat (aprovat el 16/10/2026; aplicat a probabilitat i àlgebra)
+## 7. Format estructurat (aprovat el 16/10/2026; aplicat a probabilitat, àlgebra i geometria)
 
 Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/2026, `pista.sty` posa el text amb `\color`, i dins de `\pista{…}` es poden fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize`.
 
@@ -54,6 +54,9 @@ Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/202
   - *Bayes*: «És un cas clar del teorema de Bayes…», anomenar els esdeveniments i dir en llista què coneixes ($P(\ldots \mid \ldots)$) i què et demanen.
   - *Binomial*: definir $X$ (què compta i $X \sim B(n, p)$) i escriure la probabilitat demanada en una línia a part.
   - *Discussió d'un sistema* (àlgebra): «Discuteix el sistema amb el teorema de Rouché-Frobenius:» i sempre la mateixa llista: escriu $A$ i $A^{'}$; calcula $\det(A)$ i els valors que l'anul·len; compara rangs per a cada valor; no oblidis $\det(A) \neq 0$.
+  - *Distància d'un punt a un pla* (geometria): la fórmula en una línia a part, $d(P, \pi) = \dfrac{|Ax_{0} + By_{0} + Cz_{0} + D|}{\sqrt{A^{2} + B^{2} + C^{2}}}$, i en paràgraf propi «\textbf{Atenció:} la fórmula demana el pla en la forma $Ax + By + Cz + D = 0$».
+  - *Perpendicular comuna* (geometria): rètols \textit{Direcció} ($\vec{v}_{1} \times \vec{v}_{2}$) i \textit{Un punt}; punts genèrics de cada recta amb paràmetres diferents i les dues condicions $\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{1} = 0$, $\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{2} = 0$ en una línia a part.
+  - *Pla paral·lel a una distància donada* (geometria): sempre la mateixa llista: la forma del pla paral·lel ($\ldots + D' = 0$); la condició de distància dona un valor absolut amb dues solucions; una és el pla que ja tens i l'altra, la que et convé.
   - *Apartats amb diverses parts*: cada part amb un rètol en cursiva (\textit{Discutir.}, \textit{Resoldre per a $k = 0$.}).
   - Les dreceres, en paràgraf propi amb \textbf{Drecera:} o \textbf{Consell:}; els paranys, amb \textbf{Atenció:}.
 - Cada pista continua cabent en **una sola pàgina** (comprovar-ho en compilar).

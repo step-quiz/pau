@@ -12,10 +12,31 @@
 
 \subsection*{\textit{a)} \normalfont Calculeu l'equació paramètrica de la recta que talla perpendicularment les rectes $r_{1}$ i $r_{2}$. \hfill\textnormal{[1,75~punts]}}
 
-\pista{Comença extraient la informació bàsica: identifica un vector director i un punt de cada recta a partir de les equacions contínues que et donen. La recta perpendicular comuna que busques té dues característiques que la determinen: la \emph{direcció} (ha de ser perpendicular alhora a $\vec{v}_{1}$ i a $\vec{v}_{2}$) i \emph{el fet que talla} les dues rectes. Per a la direcció, quina operació entre dos vectors et dona directament un vector perpendicular als dos? I per trobar el punt, una manera és la següent: parametritza un punt genèric $P_{1}$ sobre $r_{1}$ (amb un paràmetre $t$) i un punt genèric $P_{2}$ sobre $r_{2}$ (amb un paràmetre diferent $s$), i imposa que el vector $\overrightarrow{P_{1} P_{2}}$ sigui perpendicular alhora a $\vec{v}_{1}$ i a $\vec{v}_{2}$ (és a dir, hauràs de calcular dos productes escalars i igualar-los a zero). Et quedarà un sistema de dues equacions amb dues incògnites; resol-lo i obtindràs els valors de $t$ i $s$ que et donen els punts $P_{1}$ i $P_{2}$. La recta que els uneix és, precisament, la perpendicular comuna que busques.}
+\pista{Comença identificant un vector director i un punt de cada recta a partir de les equacions contínues.
+
+\medskip
+La perpendicular comuna queda determinada per dues coses:
+\begin{itemize}
+\item la \textit{direcció}: perpendicular alhora a $\vec{v}_{1}$ i a $\vec{v}_{2}$ (quina operació entre dos vectors ho fa directament?);
+\item el fet que \textit{talla} les dues rectes.
+\end{itemize}
+Per trobar els punts de tall:
+\begin{itemize}
+\item pren un punt genèric $P_{1}$ de $r_{1}$ (paràmetre $t$) i un punt genèric $P_{2}$ de $r_{2}$ (un paràmetre diferent, $s$);
+\item imposa que $\overrightarrow{P_{1} P_{2}}$ sigui perpendicular alhora a $\vec{v}_{1}$ i a $\vec{v}_{2}$:
+\[
+\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{1} = 0, \qquad \overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{2} = 0;
+\]
+\item resol aquest sistema de dues equacions amb dues incògnites per obtenir $t$ i $s$, i per tant $P_{1}$ i $P_{2}$.
+\end{itemize}
+La recta que uneix $P_{1}$ i $P_{2}$ és la perpendicular comuna.}
 
 \subsection*{\textit{b)} \normalfont Calculeu la distància entre $r_{1}$ i $r_{2}$. \hfill\textnormal{[0,75~punts]}}
 
-\pista{La distància entre les dues rectes és, exactament, la longitud del segment de la perpendicular comuna que va de $P_{1}$ a $P_{2}$, és a dir, el mòdul del vector $\overrightarrow{P_{1} P_{2}}$. Com que els punts $P_{1}$ i $P_{2}$ ja els has trobat a l'apartat anterior, només et cal calcular aquest mòdul.}
+\pista{La distància entre les dues rectes és la longitud del segment de perpendicular comuna que va de $P_{1}$ a $P_{2}$:
+\[
+d(r_{1}, r_{2}) = \left|\overrightarrow{P_{1} P_{2}}\right|
+\]
+Els punts $P_{1}$ i $P_{2}$ ja els has trobat a l'apartat anterior: només et cal calcular aquest mòdul.}
 
 \end{document}

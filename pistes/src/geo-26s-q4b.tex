@@ -14,10 +14,29 @@
 
 \subsection*{4.1. \normalfont Quines són les coordenades del quart vèrtex de la tapa? Calculeu les longituds dels dos costats de la tapa. \hfill\textnormal{[1~punt]}}
 
-\pista{Fixa't que els dos costats surten d'$A$: $B$ i $C$ són els veïns d'$A$, i el quart vèrtex $D$ és l'oposat a $A$. Per arribar a $D$, surt de $B$ i aplica-hi el mateix desplaçament que porta d'$A$ a $C$: $D = B + \vec{AC}$. L'error habitual és tractar $BC$ com un costat (per exemple, fent $A + \vec{BC}$), quan en realitat és una diagonal. Si vols, comprova que $\vec{AB} \cdot \vec{AC} = 0$ (angle recte). Les longituds dels costats són els mòduls $|\vec{AB}|$ i $|\vec{AC}|$.}
+\pista{Els dos costats surten d'$A$: $B$ i $C$ són els veïns d'$A$, i el quart vèrtex $D$ és l'oposat a $A$.
+\begin{itemize}
+\item Per arribar a $D$, surt de $B$ i aplica-hi el mateix desplaçament que porta d'$A$ a $C$:
+\[
+D = B + \vec{AC}
+\]
+\item Si vols, comprova que $\vec{AB} \cdot \vec{AC} = 0$ (angle recte).
+\item Les longituds dels costats són $|\vec{AB}|$ i $|\vec{AC}|$.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} l'error habitual és tractar $BC$ com un costat (per exemple, fent $A + \vec{BC}$), quan en realitat és una diagonal.}
 
 \subsection*{4.2. \normalfont Sabent que els altres quatre vèrtexs de la capsa estan situats al pla $\pi: -4x + 3z = 24$, calculeu les coordenades d'un d'aquests vèrtexs (qualsevol) i l'alçària de la capsa. \hfill\textnormal{[1,5~punts]}}
 
-\pista{La capsa és un prisma recte: la base és paral·lela a la tapa i cada vèrtex de la base és la projecció ortogonal d'un vèrtex de la tapa sobre $\pi$. Si vols, comprova que $\pi$ és paral·lel a la tapa ($\vec{AB} \times \vec{AC}$ ha de ser proporcional a $\vec{n}_\pi = (-4, 0, 3)$). Aleshores l'alçària és la distància d'un vèrtex de la tapa, per exemple $A$, al pla $\pi$ (escriu-lo abans com $-4x + 3z - 24 = 0$). Per al vèrtex, projecta $A$ ortogonalment sobre $\pi$: recta per $A$ amb vector director $\vec{n}_\pi$, i interseca-la amb $\pi$. Compte: un punt qualsevol de $\pi$ no serveix.}
+\pista{La capsa és un prisma recte: la base és paral·lela a la tapa, i cada vèrtex de la base és la projecció ortogonal d'un vèrtex de la tapa sobre $\pi$.
+\begin{itemize}
+\item Si vols, comprova que $\pi$ és paral·lel a la tapa: $\vec{AB} \times \vec{AC}$ ha de ser proporcional a $\vec{n}_\pi = (-4, 0, 3)$.
+\item \textit{Alçària:} és la distància d'un vèrtex de la tapa, per exemple $A$, al pla $\pi$ (escriu-lo abans com $-4x + 3z - 24 = 0$).
+\item \textit{Un vèrtex:} projecta $A$ ortogonalment sobre $\pi$. Pren la recta per $A$ amb vector director $\vec{n}_\pi$ i interseca-la amb $\pi$.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} un punt qualsevol de $\pi$ no serveix.}
 
 \end{document}

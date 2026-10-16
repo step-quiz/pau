@@ -12,14 +12,34 @@
 
 \subsection*{\textit{a)} \normalfont Calculeu l'equació del pla $\pi$ que és perpendicular a la recta $AB$ i que passa pel punt mitjà entre $A$ i $B$. Justifiqueu que aquest pla està format, precisament, pels punts $P = (x, y, z)$ que estan a igual distància de $A$ que de $B$, és a dir, $d(P, A) = d(P, B)$. \hfill\textnormal{[1~punt]}}
 
-\pista{El vector normal de $\pi$ és, precisament, $\vec{AB}$: calcula'l, troba el punt mitjà entre $A$ i $B$, i escriu l'equació del pla en la forma $ax + by + cz + d = 0$. Per a la justificació, planteja l'equació $d(P, A) = d(P, B)$ o, per evitar les arrels quadrades, directament pots plantejar aquesta altra equació: $d(P, A)^{2} = d(P, B)^{2}$. Desenvolupa i simplifica: veuràs com apareix exactament la mateixa equació del pla.}
+\pista{El vector normal de $\pi$ és, precisament, $\vec{AB}$.
+\begin{itemize}
+\item Calcula $\vec{AB}$ i el punt mitjà entre $A$ i $B$.
+\item Escriu l'equació del pla en la forma $ax + by + cz + d = 0$.
+\end{itemize}
+\textit{Justificació.} Planteja $d(P, A) = d(P, B)$ o, per evitar les arrels quadrades, directament
+\[
+d(P, A)^{2} = d(P, B)^{2}.
+\]
+Desenvolupa i simplifica: veuràs com apareix exactament la mateixa equació del pla.}
 
 \subsection*{\textit{b)} \normalfont Calculeu les distàncies de $A$ i de $B$ al pla $\pi$ i comproveu que són iguals. És casualitat? Raoneu la resposta. \hfill\textnormal{[0,75~punts]}}
 
-\pista{Aplica la fórmula de la distància d'un punt a un pla als dos casos. I sobre si és casualitat: recorda com has construït $\pi$ a l'apartat \textit{a)} (perpendicular a $AB$ i pel seu punt mitjà). Sobre quin punt de $\pi$ es projecten ortogonalment $A$ i $B$?}
+\pista{Aplica la fórmula de la distància d'un punt a un pla als dos punts.
+
+\medskip
+\textit{És casualitat?} Recorda com has construït $\pi$ a l'apartat \textit{a)}: perpendicular a $AB$ i pel seu punt mitjà. Sobre quin punt de $\pi$ es projecten ortogonalment $A$ i $B$?}
 
 \subsection*{\textit{c)} \normalfont Sigui $C = (-7, 6, 3)$. El triangle $ABC$ és isòsceles? Calculeu la seva àrea. \hfill\textnormal{[0,75~punts]}}
 
-\pista{Un triangle és isòsceles quan té dos costats iguals. Abans de calcular res, comprova si $C$ pertany al pla $\pi$ de l'apartat \textit{a)}: què en dedueixes sobre $d(C, A)$ i $d(C, B)$? (També pots calcular les longituds $|\vec{AB}|$, $|\vec{AC}|$ i $|\vec{BC}|$ i comparar-les.) Per a l'àrea, en l'espai tridimensional la via més còmoda és la fórmula vectorial $\dfrac{1}{2}|\vec{AB} \times \vec{AC}|$ (la meitat del mòdul del producte vectorial de dos costats del triangle).}
+\pista{Un triangle és isòsceles quan té dos costats iguals.
+\begin{itemize}
+\item \textit{Drecera:} abans de calcular res, comprova si $C$ pertany al pla $\pi$ de l'apartat \textit{a)}. Què en dedueixes sobre $d(C, A)$ i $d(C, B)$?
+\item També pots calcular $|\vec{AB}|$, $|\vec{AC}|$ i $|\vec{BC}|$ i comparar-les.
+\end{itemize}
+Per a l'àrea, a l'espai la via més còmoda és la meitat del mòdul del producte vectorial de dos costats:
+\[
+\text{Àrea} = \frac{1}{2}\left|\vec{AB} \times \vec{AC}\right|
+\]}
 
 \end{document}
