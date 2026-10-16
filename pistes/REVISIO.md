@@ -6,7 +6,7 @@ Seguiment de la revisió de les 67 pistes (`data/<id>-p.pdf`). Font de cada pist
 **Autor**: `David` (escrita a mà pel professor: només es corregeixen errors) · `IA` · `?` (per confirmar).  
 **Estat**: `pendent` → `proposta` (la IA ha proposat canvis) → `fet` (revisada; amb o sense canvis).
 
-**Revisió del 16/10/2026** (Claude, totes les propostes aprovades pel David): 67 pistes contrastades amb l'enunciat i la pauta; 66 pistes de 43 exercicis amb canvis (indicats amb «rev. 16/10/2026» a les notes). Els canvis es copien des de l'editor de pistes (`pistes/editor/`). El mateix dia, `pista.sty` passa de `\textcolor{…}{#1}` a `\color`, perquè dins de `\pista{…}` es puguin fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize` (les 67 pistes surten idèntiques). Pendent: format més estructurat, proposat primer per al bloc de probabilitat.
+**Revisió del 16/10/2026** (Claude, totes les propostes aprovades pel David): 67 pistes contrastades amb l'enunciat i la pauta; 66 pistes de 43 exercicis amb canvis (indicats amb «rev. 16/10/2026» a les notes). Els canvis es copien des de l'editor de pistes (`pistes/editor/`). El mateix dia, `pista.sty` passa de `\textcolor{…}{#1}` a `\color`, perquè dins de `\pista{…}` es puguin fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize` (les 67 pistes surten idèntiques). Format més estructurat (ESTIL §7): aplicat al bloc de probabilitat; pendent als altres blocs.
 
 
 ## Geometria (11)
@@ -86,12 +86,12 @@ Seguiment de la revisió de les 67 pistes (`data/<id>-p.pdf`). Font de cada pist
 
 | Lot | ID | Procedència | Font | Autor | Estat | Notes |
 |---|---|---|---|---|---|---|
-| P1 | `pro-24i-q4` | 2024 juny inc. S5 Q4 | A | ? | fet | cometes «»; parèntesi de c) · **rev. 16/10/2026:** b) notació $P(C\mid R)$; «teorema» en minúscula |
-| P1 | `pro-24j-q4` | 2024 juny S1 Q4 | A | ? | fet | b.2) més curta (la frase «tu has de resposta…» era incorrecta); cometes «» · **rev. 16/10/2026:** a.2), b.2) $P(\text{diferents})$, $P(X\ge2)$ (la $p$ tenia dos significats) |
-| P1 | `pro-24s-q4` | 2024 setembre S3 Q4 | A | ? | fet | a) i c) sense to oral; $P(X=0)$ en lloc de $Prob$; cometes «» · **rev. 16/10/2026:** a) $P(X\ge1)$; c) notació $P(A\mid\overline{H})$; «teorema» en minúscula |
-| P1 | `pro-25i-q3` | 2025 juny inc. S4 Ex 3 | A | ? | fet | «ves»; cometes «» · **rev. 16/10/2026:** b) notació $P(C\mid\overline{B})$; «teorema» en minúscula |
-| P1 | `pro-25j-q3` | 2025 juny S1 Ex 3 | A | ? | fet | «ves»; cometes «» · **rev. 16/10/2026:** b) fórmula de la binomial |
-| P1 | `pro-25s-q3ab` | 2025 setembre S3 Ex 3 | A | ? | fet | separada d'`ana-25s-q3c` (abans eren la mateixa pàgina); cometes «» · **rev. 16/10/2026:** b) notació $P(I\mid S)$; «teorema» en minúscula |
-| P1 | `pro-26j-q3` | 2026 juny S1 Ex 3 | B | ? | fet | apartats N.1, N.2… (numeració oficial); 3.3 sense partir per la meitat; guions llargs; cometes «» |
-| P1 | `pro-26j2-q3` | 2026 juny S5 Ex 3 | B | ? | fet | apartats N.1, N.2… (numeració oficial); cometes «» |
-| P1 | `pro-26s-q3` | 2026 setembre S2 Ex 3 | IA | IA | fet | pista nova (setembre 2026); sense canvis |
+| P1 | `pro-24i-q4` | 2024 juny inc. S5 Q4 | A | ? | fet | cometes «»; parèntesi de c) · **rev. 16/10/2026:** b) notació $P(C\mid R)$; «teorema» en minúscula; format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-24j-q4` | 2024 juny S1 Q4 | A | ? | fet | b.2) més curta (la frase «tu has de resposta…» era incorrecta); cometes «» · **rev. 16/10/2026:** a.2), b.2) $P(\text{diferents})$, $P(X\ge2)$ (la $p$ tenia dos significats); format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-24s-q4` | 2024 setembre S3 Q4 | A | ? | fet | a) i c) sense to oral; $P(X=0)$ en lloc de $Prob$; cometes «» · **rev. 16/10/2026:** a) $P(X\ge1)$; c) notació $P(A\mid\overline{H})$; «teorema» en minúscula; format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-25i-q3` | 2025 juny inc. S4 Ex 3 | A | ? | fet | «ves»; cometes «» · **rev. 16/10/2026:** b) notació $P(C\mid\overline{B})$; «teorema» en minúscula; format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-25j-q3` | 2025 juny S1 Ex 3 | A | ? | fet | «ves»; cometes «» · **rev. 16/10/2026:** b) fórmula de la binomial; format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-25s-q3ab` | 2025 setembre S3 Ex 3 | A | ? | fet | separada d'`ana-25s-q3c` (abans eren la mateixa pàgina); cometes «» · **rev. 16/10/2026:** b) notació $P(I\mid S)$; «teorema» en minúscula; format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-26j-q3` | 2026 juny S1 Ex 3 | B | ? | fet | apartats N.1, N.2… (numeració oficial); 3.3 sense partir per la meitat; guions llargs; cometes «» · **rev. 16/10/2026:** format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-26j2-q3` | 2026 juny S5 Ex 3 | B | ? | fet | apartats N.1, N.2… (numeració oficial); cometes «» · **rev. 16/10/2026:** format estructurat (llistes, Atenció en paràgraf propi) |
+| P1 | `pro-26s-q3` | 2026 setembre S2 Ex 3 | IA | IA | fet | pista nova (setembre 2026); sense canvis · **rev. 16/10/2026:** format estructurat (llistes, Atenció en paràgraf propi) |

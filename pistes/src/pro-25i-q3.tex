@@ -12,11 +12,27 @@
 
 \subsection*{\textit{a)} \normalfont Quina és la probabilitat que un missatge sigui enviat pel filtre a la carpeta de correu brossa? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten un missatge a acabar a la carpeta de brossa: o bé era efectivament brossa i el filtre l'ha classificat bé, o bé no ho era però el filtre s'ha equivocat. Aplica el teorema de la probabilitat total, i ves amb compte perquè et donen el $90\,\%$ dels missatges bons que \emph{no} van a la brossa: el que et cal és el percentatge que sí que hi va.}
+\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten un missatge a la carpeta de brossa:
+\begin{itemize}
+\item era brossa \emph{i} el filtre l'hi envia;
+\item no era brossa, \emph{però} el filtre s'equivoca i l'hi envia.
+\end{itemize}
+Aplica el teorema de la probabilitat total.
+
+\medskip
+\textbf{Atenció:} el $90\,\%$ és dels missatges bons que \emph{no} van a la brossa; a l'arbre et cal el percentatge que sí que hi va.}
 
 \subsection*{\textit{b)} \normalfont Un dia, aquest usuari obre la carpeta de correu brossa. Quin percentatge de missatges que no són correu brossa hi trobarà? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Aquest és un exemple clar on has d'aplicar el teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen. Si anomenes $B$ = «és correu brossa» i $C$ = «el filtre l'envia a la carpeta de brossa», tu coneixes $P(C \mid \overline{B})$ («va a la carpeta \emph{sabent que} no és brossa»), però et demanen $P(\overline{B} \mid C)$ («no és brossa \emph{sabent que} és a la carpeta»).}
+\pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
+
+\medskip
+Anomena $B$ = «és correu brossa» i $C$ = «el filtre l'envia a la carpeta de brossa».
+\begin{itemize}
+\item Coneixes $P(C \mid \overline{B})$: «va a la carpeta \emph{sabent que} no és brossa».
+\item Et demanen $P(\overline{B} \mid C)$: «no és brossa \emph{sabent que} és a la carpeta».
+\end{itemize}
+El denominador, $P(C)$, és el resultat de l'apartat \textit{a)}.}
 
 \vspace{0.6em}
 \noindent En un servidor de correu electrònic determinat, la probabilitat de rebre com a mínim dos correus en menys de $t$ minuts ve donada per la funció
@@ -27,6 +43,13 @@ on $A$ és una constant real.
 
 \subsection*{\textit{c)} \normalfont Sabent que la probabilitat de rebre com a mínim dos correus en menys de dos minuts és $1 - e^{-1}$, trobeu el valor de $A$. \hfill\textnormal{[1~punt]}}
 
-\pista{Primer resol la integral definida (per trobar una funció primitiva, és bastant directe). Obtindràs $F(t)$ com una expressió que depèn de $t$ i d'$A$. Després, escriu l'equació $F(2) = 1 - e^{-1}$ i aïlla $A$.}
+\pista{Ho pots fer en dos passos:
+\begin{itemize}
+\item calcula la integral definida per obtenir $F(t)$ en funció de $t$ i d'$A$;
+\item imposa $F(2) = 1 - e^{-1}$ i aïlla $A$.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} en buscar la primitiva de $e^{-0{,}5x}$, vigila el coeficient que hi apareix.}
 
 \end{document}

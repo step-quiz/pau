@@ -12,14 +12,36 @@
 
 \subsection*{\textit{a)} \normalfont Quina és la probabilitat que la solució d'un problema respost seguint aquest mètode sigui correcta? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten a una resposta correcta: o bé la Rut ha pensat la solució i és correcta, o bé l'ha copiat i és correcta. Aplica el teorema de la probabilitat total. Ves amb compte amb les probabilitats inicials: com que el dau és equilibrat, l'esdeveniment «com a màxim 4» té probabilitat $\dfrac{4}{6}$ i, en canvi, l'esdeveniment «5 o 6» té probabilitat $\dfrac{2}{6}$.}
+\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a una resposta correcta:
+\begin{itemize}
+\item la Rut pensa la solució \emph{i} és correcta;
+\item la Rut la copia d'Internet \emph{i} és correcta.
+\end{itemize}
+Aplica el teorema de la probabilitat total: multiplica al llarg de cada camí i suma els dos camins.
+
+\medskip
+\textbf{Atenció:} les probabilitats de la primera branca surten del dau: $P(\text{com a màxim } 4) = \dfrac{4}{6}$ i $P(5 \text{ o } 6) = \dfrac{2}{6}$.}
 
 \subsection*{\textit{b)} \normalfont Quina és la probabilitat que un problema l'hagi resolt la Rut si sabem que la solució és correcta? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Aquest és un exemple clar on has d'aplicar el teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen. Si anomenes $R$ = «l'ha resolt la Rut» i $C$ = «la solució és correcta», tu coneixes $P(C \mid R)$ («és correcta \emph{sabent que} l'ha resolt ella»), però et demanen $P(R \mid C)$ («l'ha resolt ella \emph{sabent que} és correcta»).}
+\pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
+
+\medskip
+Anomena $R$ = «l'ha resolt la Rut» i $C$ = «la solució és correcta».
+\begin{itemize}
+\item Coneixes $P(C \mid R)$: «és correcta \emph{sabent que} l'ha resolt ella».
+\item Et demanen $P(R \mid C)$: «l'ha resolt ella \emph{sabent que} és correcta».
+\end{itemize}
+El denominador, $P(C)$, és el resultat de l'apartat \textit{a)}.}
 
 \subsection*{\textit{c)} \normalfont Demà la Rut ha d'entregar 5 problemes de matemàtiques. Quina és la probabilitat que n'hi hagi almenys 4 de correctes? \hfill\textnormal{[1~punt]}}
 
-\pista{Aquí tens una variable binomial $X \sim B(5, p)$, on $p$ és la probabilitat que un problema qualsevol sigui correcte, que has calculat a l'apartat \textit{a)}. L'esdeveniment «almenys 4 correctes» equival a «exactament 4 o exactament 5»: calcula $P(X = 4)$, calcula $P(X = 5)$ i suma els dos resultats.}
+\pista{Sigui $X$ el nombre de problemes correctes dels 5. Aleshores $X \sim B(5, p)$, on $p = P(C)$ és el resultat de l'apartat \textit{a)}.
+
+\medskip
+«Almenys 4 correctes» vol dir «exactament 4 o exactament 5»:
+\[
+P(X \ge 4) = P(X = 4) + P(X = 5).
+\]}
 
 \end{document}

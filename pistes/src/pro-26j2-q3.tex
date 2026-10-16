@@ -12,17 +12,37 @@
 
 \subsection*{3.1. \normalfont Quina és la probabilitat que un alumne o alumna triat a l'atzar faci esport almenys quatre hores setmanals? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Un diagrama d'arbre t'ajudarà a organitzar la informació: hi ha dos camins que porten a «fer esport almenys 4h», segons si l'alumne llegeix almenys dos llibres al mes o no. Aplica el teorema de la probabilitat total, combinant la probabilitat de cada branca de lectura amb la probabilitat condicionada de fer esport dins d'aquesta branca.}
+\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a «fer esport almenys 4\,h»:
+\begin{itemize}
+\item llegeix almenys dos llibres al mes \emph{i} fa esport almenys 4\,h;
+\item no en llegeix tants \emph{i} fa esport almenys 4\,h.
+\end{itemize}
+Aplica el teorema de la probabilitat total.
+
+\medskip
+\textbf{Atenció:} per a la segona branca, l'enunciat et dona el percentatge dels qui fan \emph{menys} de 4\,h; et cal el complementari.}
 
 \subsection*{3.2. \normalfont Si sabem que aquest alumne o alumna fa esport menys de quatre hores setmanals, quina probabilitat hi ha que llegeixi almenys dos llibres al mes? \hfill\textnormal{[0,75~punts]}}
 
-\pista{És una probabilitat condicionada «en sentit invers» respecte de les dades que et donen directament (que parlaven de fer esport \emph{sabent} els hàbits de lectura): és un cas clar per aplicar el teorema de Bayes. Al numerador hi haurà d'aparèixer la probabilitat de «llegir almenys dos llibres i fer poc esport», i al denominador, la probabilitat de «fer poc esport» (que pots obtenir com a complementari del resultat de l'apartat anterior).}
+\pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
+
+\medskip
+Anomena $L$ = «llegeix almenys dos llibres al mes» i $E$ = «fa esport almenys 4\,h». Et demanen $P(L \mid \overline{E})$:
+\begin{itemize}
+\item al numerador hi va $P(L \cap \overline{E})$: «llegeix molt \emph{i} fa poc esport»;
+\item al denominador, $P(\overline{E}) = 1 - P(E)$, amb $P(E)$ de l'apartat 3.1.
+\end{itemize}}
 
 \vspace{0.6em}
 \noindent L'Alba és una estudiant de batxillerat que ha anat anotant durant tot el curs quantes hores dedicava a la setmana a llegir ($x$, entre 1 i 6) i quantes a fer esport ($y$). Ha observat que la relació $y = 7 - x + \ln(2x - 1)$ s'ajusta força bé a les dades que ha anotat.
 
 \subsection*{3.3. \normalfont Calculeu, segons aquest model, quin és el màxim i el mínim d'hores per setmana que l'Alba ha dedicat a practicar esport. \hfill\textnormal{[1~punt]}}
 
-\pista{Es tracta de trobar els extrems absoluts d'una funció contínua en un interval tancat $[1, 6]$: cal comparar els valors de la funció als punts crítics interiors amb els valors als dos extrems de l'interval. Deriva la funció, iguala la derivada a zero i comprova que només hi ha un punt crític dins de l'interval. Avalua la funció en aquest punt crític i també als extrems $x = 1$ i $x = 6$: el més gran d'aquests tres valors serà el màxim absolut, i el més petit, el mínim absolut.}
+\pista{Busques els extrems \emph{absoluts} d'una funció contínua a l'interval tancat $[1, 6]$:
+\begin{itemize}
+\item deriva, iguala a zero i comprova que només hi ha un punt crític dins de l'interval;
+\item avalua la funció en aquest punt i als dos extrems, $x = 1$ i $x = 6$;
+\item el valor més gran és el màxim absolut, i el més petit, el mínim absolut.
+\end{itemize}}
 
 \end{document}

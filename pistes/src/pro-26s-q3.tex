@@ -16,14 +16,39 @@
 
 \subsection*{3.1. \normalfont Quina és la probabilitat que s'arribi als $1\,000\,\text{MW}$ de potència total al parc? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Anomena $X$ el nombre d'aerogeneradors en funcionament: com que són 10 i cadascun funciona o no independentment dels altres, $X$ segueix una distribució binomial. Compte: el $10\,\%$ és la probabilitat d'estar \emph{aturat}; la de funcionar és la complementària. Pensa quants aerogeneradors han de funcionar per arribar als $1\,000\,\text{MW}$ i calcula la probabilitat d'aquest únic cas.}
+\pista{Anomena $X$ el nombre d'aerogeneradors en funcionament. Com que són 10 i cadascun funciona o no independentment dels altres, $X$ segueix una distribució binomial.
+\begin{itemize}
+\item Quants aerogeneradors han de funcionar per arribar als $1\,000\,\text{MW}$?
+\item Calcula la probabilitat d'aquest únic cas.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} el $10\,\%$ és la probabilitat d'estar \emph{aturat}; la de funcionar és la complementària.}
 
 \subsection*{3.2. \normalfont Quina és la probabilitat que la potència total del parc superi els $150\,\text{MW}$? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Cada aerogenerador aporta $100\,\text{MW}$ o res: tradueix «superar els $150\,\text{MW}$» a una condició sobre $X$ (quin és el nombre mínim d'aerogeneradors en funcionament?). Sumar tots els casos favorables seria llarguíssim: passa a l'esdeveniment contrari, que només té dos casos. En el cas en què en funciona exactament un, recorda que pot ser qualsevol dels 10 (el coeficient binomial). Escriu les probabilitats petites amb potències de 10 perquè la calculadora no les arrodoneixi a zero.}
+\pista{Cada aerogenerador aporta $100\,\text{MW}$ o res.
+\begin{itemize}
+\item Tradueix «superar els $150\,\text{MW}$» a una condició sobre $X$: quin és el nombre mínim d'aerogeneradors en funcionament?
+\item Sumar tots els casos favorables seria llarguíssim: passa a l'esdeveniment contrari, que només té dos casos.
+\item Quan en funciona exactament un, pot ser qualsevol dels 10 (el coeficient binomial).
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} escriu les probabilitats petites amb potències de 10 perquè la calculadora no les arrodoneixi a zero.}
 
 \subsection*{3.3. \normalfont Calculeu l'àrea de les pales d'un d'aquests aerogeneradors (part ombrejada al gràfic). \hfill\textnormal{[1~punt]}}
 
-\pista{Resol $f(x) = g(x)$ per trobar els punts de tall de les dues gràfiques: seran els límits d'integració. A cada interval entre punts de tall, integra «la funció de dalt menys la de baix» (comprova quina és amb un valor intermedi). Compte: si integres $g - f$ d'un extrem a l'altre d'una sola vegada, les dues regions es compensen; separa la integral pel punt de tall del mig, o aprofita que les dues funcions són senars (simètriques respecte de l'origen) per calcular una sola regió i multiplicar per 2. Recorda les unitats ($\text{m}^{2}$).}
+\pista{Calcula l'àrea en dos passos:
+\begin{itemize}
+\item resol $f(x) = g(x)$: els punts de tall són els límits d'integració;
+\item a cada interval entre punts de tall, integra «la de dalt menys la de baix» (comprova quina és amb un valor intermedi).
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} si integres $g - f$ d'un extrem a l'altre d'una sola vegada, les dues regions es compensen. Separa la integral pel punt de tall del mig, o aprofita que les dues funcions són senars (simètriques respecte de l'origen): calcula una sola regió i multiplica per 2.
+
+\medskip
+Recorda les unitats ($\text{m}^{2}$).}
 
 \end{document}

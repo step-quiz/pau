@@ -12,15 +12,32 @@
 
 \subsection*{\textit{a)} \normalfont Si agafem una peça a l'atzar, quina és la probabilitat que sigui defectuosa? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten a «defectuosa». Aplica el teorema de la probabilitat total; ves amb compte amb el $95\,\%$ del ferro, que és el de \emph{no} defectuoses.}
+\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a «defectuosa»:
+\begin{itemize}
+\item la peça és de ferro \emph{i} és defectuosa;
+\item la peça és d'acer \emph{i} és defectuosa.
+\end{itemize}
+Aplica el teorema de la probabilitat total.
+
+\medskip
+\textbf{Atenció:} el $95\,\%$ del ferro és el de peces \emph{no} defectuoses.}
 
 \subsection*{\textit{b)} \normalfont L'empresa aviat diversificarà la producció i començarà a produir també peces de titani, que es vendran en paquets de 5. Si la probabilitat que una peça de titani sigui defectuosa és un valor desconegut $p$, i cada peça és defectuosa independentment de les altres, comproveu que l'expressió que ens dona la probabilitat que en un paquet de 5 peces n'hi hagi exactament 4 de defectuoses (en funció de $p$) és $f(p) = 5(p^{4} - p^{5})$. \hfill\textnormal{[0,75~punts]}}
 
-\pista{Tens una variable binomial $X \sim B(5, p)$. Escriu $P(X = 4)$ amb la fórmula de la binomial, $P(X = k) = \binom{n}{k}\, p^{k}\, (1 - p)^{n - k}$, i desenvolupa el factor $(1-p)$ per arribar a l'expressió demanada.}
+\pista{Sigui $X$ el nombre de peces defectuoses del paquet: $X \sim B(5, p)$. Fes servir la fórmula de la binomial,
+\[
+P(X = k) = \binom{n}{k}\, p^{k}\, (1 - p)^{n - k},
+\]
+amb $n = 5$ i $k = 4$, i desenvolupa el factor $(1 - p)$ per arribar a l'expressió demanada.}
 
 \subsection*{\textit{c)} \normalfont Considereu la funció $f(p)$ de l'apartat anterior. Determineu el valor màxim que pren $f(p)$ quan $p \geq 0$. \hfill\textnormal{[1~punt]}}
 
-\pista{És un problema d'optimització: deriva $f(p)$, i resol l'equació $f'(p)=0$. Compte: com que $p$ és una probabilitat, només ens interessen valors a l'interval $[0, 1]$, perquè la probabilitat no pot prendre altres valors. No oblidis comprovar que el candidat és màxim, com volem, i no mínim.}
+\pista{És un problema d'optimització:
+\begin{itemize}
+\item deriva $f(p)$ i resol $f'(p) = 0$;
+\item queda't amb els valors de l'interval $[0, 1]$, perquè una probabilitat no en pot prendre d'altres;
+\item comprova que el candidat és un màxim i no un mínim.
+\end{itemize}}
 
 \vspace{0.6em}
 

@@ -40,7 +40,22 @@ Criteris per revisar i escriure les pistes (`pistes/src/<id>.tex`). Decisions ap
 
 - Orientativa: de 2 a 6 línies per apartat. Si una pista necessita més espai, probablement està resolent l'exercici.
 
-## 7. Format de resposta del David a les propostes
+## 7. Format estructurat (aprovat el 16/10/2026; aplicat primer al bloc de probabilitat)
+
+Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/2026, `pista.sty` posa el text amb `\color`, i dins de `\pista{…}` es poden fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize`.
+
+- Una **primera frase curta** amb la idea clau de l'apartat.
+- Els **passos en una llista** (`itemize`), un pas per punt i frases curtes.
+- Les **fórmules clau en una línia a part**: `\[ … \]`.
+- L'avís, en un **paràgraf propi**: línia en blanc, `\medskip` i `\textbf{Atenció:}` en negreta.
+- **Línies en blanc** entre blocs (amb `\medskip` si cal més aire).
+- Patrons fixos per als apartats que es repeteixen:
+  - *Probabilitat total*: «Fes un diagrama d'arbre. Hi ha dos camins que porten a…» i els dos camins en llista.
+  - *Bayes*: «És un cas clar del teorema de Bayes…», anomenar els esdeveniments i dir en llista què coneixes ($P(\ldots \mid \ldots)$) i què et demanen.
+  - *Binomial*: definir $X$ (què compta i $X \sim B(n, p)$) i escriure la probabilitat demanada en una línia a part.
+- Cada pista continua cabent en **una sola pàgina** (comprovar-ho en compilar).
+
+## 8. Format de resposta del David a les propostes
 
 Una línia per apartat (o per exercici sencer):
 

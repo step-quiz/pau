@@ -12,14 +12,35 @@
 
 \subsection*{\textit{a)} \normalfont Si escollim 4 persones a l'atzar, quina és la probabilitat que almenys una d'elles pateixi arrítmies? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Aquí tens una variable binomial $X \sim B(4, 0{,}2)$, on $0{,}2$ és la probabilitat que una persona qualsevol pateixi arrítmies. Quan et demanen «almenys una», és més còmode treballar amb el succés contrari, «cap d'elles»: la resposta serà $P(X \ge 1) = 1 - P(X = 0)$.}
+\pista{Sigui $X$ el nombre de persones amb arrítmia entre les 4: $X \sim B(4;\, 0{,}2)$.
+
+\medskip
+Per a «almenys una», passa al contrari, «cap d'elles»:
+\[
+P(X \ge 1) = 1 - P(X = 0).
+\]}
 
 \subsection*{\textit{b)} \normalfont Quina és la probabilitat que una persona escollida a l'atzar obtingui un diagnòstic positiu d'arrítmia? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Un diagrama d'arbre t'ajudarà a visualitzar els dos camins que porten a un diagnòstic positiu: o bé la persona pateix arrítmia i el Holter la detecta, o bé no la pateix però el Holter dona un fals positiu. Aplica el teorema de la probabilitat total.}
+\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a un diagnòstic positiu:
+\begin{itemize}
+\item pateix arrítmia \emph{i} el Holter la detecta;
+\item no en pateix, \emph{però} el Holter dona un fals positiu.
+\end{itemize}
+Aplica el teorema de la probabilitat total.}
 
 \subsection*{\textit{c)} \normalfont Si una persona obté un diagnòstic negatiu a la prova del Holter, quina és la probabilitat que realment pateixi arrítmies? \hfill\textnormal{[1~punt]}}
 
-\pista{Aquest és un exemple clar on has d'aplicar el teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen. Si anomenes $A$ = «pateix arrítmia» i $H$ = «el Holter dona positiu», tu coneixes $P(\overline{H} \mid A)$ («dona negatiu \emph{sabent que} pateix arrítmia», el complementari del $95\,\%$ de detecció), però et demanen $P(A \mid \overline{H})$. Fixa't que els apartats estan relacionats: $P(\overline{H}) = 1 - P(H)$, i $P(H)$ l'has calculada a l'apartat \textit{b)}.}
+\pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
+
+\medskip
+Anomena $A$ = «pateix arrítmia» i $H$ = «el Holter dona positiu».
+\begin{itemize}
+\item Coneixes $P(\overline{H} \mid A)$: «dona negatiu \emph{sabent que} pateix arrítmia», el complementari del $95\,\%$.
+\item Et demanen $P(A \mid \overline{H})$: «pateix arrítmia \emph{sabent que} ha donat negatiu».
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} al denominador hi va $P(\overline{H}) = 1 - P(H)$, i $P(H)$ és el resultat de l'apartat \textit{b)}.}
 
 \end{document}
