@@ -42,11 +42,15 @@
 \pista{Calcula l'àrea en dos passos:
 \begin{itemize}
 \item resol $f(x) = g(x)$: els punts de tall són els límits d'integració;
-\item a cada interval entre punts de tall, integra «la de dalt menys la de baix» (comprova quina és amb un valor intermedi).
+\item a cada interval entre dos punts de tall consecutius, calcula el valor absolut de la integral de la diferència,
+\[
+\left| \int_{x_{i}}^{x_{i+1}} \bigl(f(x) - g(x)\bigr)\,dx \right|,
+\]
+i suma els resultats.
 \end{itemize}
 
 \medskip
-\textbf{Atenció:} si integres $g - f$ d'un extrem a l'altre d'una sola vegada, les dues regions es compensen. Separa la integral pel punt de tall del mig, o aprofita que les dues funcions són senars (simètriques respecte de l'origen): calcula una sola regió i multiplica per 2.
+\textbf{Atenció:} si integres d'un extrem a l'altre d'una sola vegada, les dues regions es compensen. Separa la integral pel punt de tall del mig, o aprofita que les dues funcions són senars (simètriques respecte de l'origen): calcula una sola regió i multiplica per 2.
 
 \medskip
 Recorda les unitats ($\text{m}^{2}$).}

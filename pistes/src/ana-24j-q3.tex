@@ -12,10 +12,25 @@
 
 \subsection*{\textit{a)} \normalfont A partir de l'expressió de $f(x)$, calculeu les coordenades dels punts $P$, $Q$ i $R$ indicats a la figura. Calculeu també l'equació de la recta $PR$. \hfill\textnormal{[1,25~punts]}}
 
-\pista{Observa la figura amb cura: $P$ i $Q$ estan sobre la recta horitzontal $y = 5$, mentre que $R$ es troba sobre l'eix d'abscisses (és a dir, a alçada $y = 0$) i sembla que té la mateixa abscissa que $Q$. Per a trobar $P$ i $Q$, resol l'equació $f(x) = 5$: obtindràs tres solucions; mira a la figura quina correspon a $P$ i quina a $Q$. Un cop tens els punts $P$ i $R$, troba l'equació de la recta que passa per aquests dos punts (per exemple, expressa-la com a equació punt-pendent).}
+\pista{Observa la figura amb cura:
+\begin{itemize}
+\item $P$ i $Q$ són sobre la recta horitzontal $y = 5$;
+\item $R$ és sobre l'eix d'abscisses ($y = 0$) i sembla que té la mateixa abscissa que $Q$.
+\end{itemize}
+\textit{Els punts.} Resol $f(x) = 5$: obtindràs tres solucions. Mira a la figura quina correspon a $P$ i quina a $Q$.
+
+\medskip
+\textit{La recta $PR$.} Amb els punts $P$ i $R$, escriu l'equació de la recta que hi passa (per exemple, en la forma punt-pendent).}
 
 \subsection*{\textit{b)} \normalfont Calculeu la superfície del terreny. \hfill\textnormal{[1,25~punts]}}
 
-\pista{La regió ombrejada està delimitada per dalt per la corba $y = f(x)$ i per baix per la recta $PR$. L'àrea és la integral definida de la diferència entre les dues funcions (la de «dalt» menys la de «baix»), entre les abscisses de $P$ i de $Q$, que ja tens de l'apartat \textit{a)}.}
+\pista{La regió ombrejada està limitada per la corba $y = f(x)$ i per la recta $PR$, entre les abscisses de $P$ i de $Q$, que ja tens de l'apartat \textit{a)}.
+
+\medskip
+L'àrea és el valor absolut de la integral de la diferència:
+\[
+\text{Àrea} = \left| \int_{x_{P}}^{x_{Q}} \bigl(f(x) - y_{PR}(x)\bigr)\,dx \right|
+\]
+on $y_{PR}(x)$ és l'equació de la recta $PR$.}
 
 \end{document}

@@ -12,14 +12,39 @@
 
 \subsection*{1.1. \normalfont En quants punts es tallen les gràfiques d'aquestes dues funcions? Calculeu-los tots. \hfill\textnormal{[0,75~punts]}}
 
-\pista{Planteja l'equació $f(x) = g(x)$ i multiplica ambdós costats per $(x + 1)$ per eliminar el denominador (compte: $x = -1$ queda fora del domini de $g$, però comprovaràs que no és cap de les solucions que trobis). T'ha de quedar una equació cúbica: pots treure factor comú $x$, i llavors hauràs de resoldre una equació de segon grau. Per acabar, digues quants punts de tall hi ha i calcula l'ordenada de cadascun.}
+\pista{Planteja l'equació $f(x) = g(x)$.
+\begin{itemize}
+\item Multiplica els dos membres per $(x + 1)$ per eliminar el denominador.
+\item T'ha de quedar una equació cúbica: treu factor comú $x$ i resol l'equació de segon grau que queda.
+\item Digues quants punts de tall hi ha i calcula l'ordenada de cadascun.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} $x = -1$ queda fora del domini de $g$; comprova que no és cap de les solucions que trobis.}
 
 \subsection*{1.2. \normalfont Calculeu l'àrea de la regió situada entre les dues corbes des de $x = 1$ fins a $x = 3$. \hfill\textnormal{[1~punt]}}
 
-\pista{Primer necessites saber quina de les dues funcions està per damunt de l'altra en aquest interval (per exemple, avaluant-les totes dues en un punt intermedi, com $x = 2$). L'àrea que et demanen és la integral definida de la diferència ---la de dalt menys la de baix--- entre $x = 1$ i $x = 3$; per integrar el terme $\dfrac{8}{x + 1}$, recorda que la seva primitiva és $8\ln|x + 1|$.}
+\pista{Fixa't que $x = 1$ i $x = 3$ són dos dels punts de tall que has trobat a l'apartat 1.1. L'àrea és el valor absolut de la integral de la diferència:
+\[
+\text{Àrea} = \left| \int_{1}^{3} \bigl(f(x) - g(x)\bigr)\,dx \right|
+\]
+Per integrar el terme $\dfrac{8}{x + 1}$, recorda que la seva primitiva és $8\ln|x + 1|$.}
 
 \subsection*{1.3. \normalfont Comproveu que $f(x)$ té les arrels als punts d'abscissa $x = 0$ i $x = 5$, i que l'ordenada del vèrtex de la paràbola $y = f(x)$ és $y = 6{,}25$. Justifiqueu que $y = f(x)$ és l'única paràbola que existeix amb aquestes dues propietats. \hfill\textnormal{[0,75~punts]}}
 
-\pista{Les dues primeres comprovacions són directes: avalua $f$ en $x = 0$ i $x = 5$, i troba l'abscissa del vèrtex amb la fórmula $x = -b/(2a)$ (o observant que el vèrtex sempre està al punt mig de les arrels). Per a la justificació: qualsevol paràbola amb arrels a 0 i a 5 s'ha de poder escriure com $y = ax(x - 5)$, per a algun valor de $a$. Imposa que aquesta expressió, avaluada al punt mig de les arrels, doni exactament $6{,}25$: obtindràs una equació que et permetrà trobar el valor de $a$ de manera única. Per acabar, comprova que amb aquest valor de $a$ obtens precisament $y = f(x)$.}
+\pista{\textit{Les comprovacions} són directes:
+\begin{itemize}
+\item avalua $f$ en $x = 0$ i en $x = 5$;
+\item troba l'abscissa del vèrtex amb $x = -\dfrac{b}{2a}$ (o observant que el vèrtex sempre és al punt mitjà de les arrels).
+\end{itemize}
+\textit{La unicitat.} Qualsevol paràbola amb arrels a 0 i a 5 es pot escriure com
+\[
+y = a\,x\,(x - 5)
+\]
+per a algun valor de $a$.
+\begin{itemize}
+\item Imposa que, avaluada al punt mitjà de les arrels, doni exactament $6{,}25$: obtindràs un únic valor de $a$.
+\item Comprova que amb aquest valor obtens precisament $y = f(x)$.
+\end{itemize}}
 
 \end{document}

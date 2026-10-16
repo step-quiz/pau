@@ -40,7 +40,7 @@ Criteris per revisar i escriure les pistes (`pistes/src/<id>.tex`). Decisions ap
 
 - Orientativa: de 2 a 6 línies per apartat. Si una pista necessita més espai, probablement està resolent l'exercici.
 
-## 7. Format estructurat (aprovat el 16/10/2026; aplicat a probabilitat, àlgebra i geometria)
+## 7. Format estructurat (aprovat el 16/10/2026; aplicat a tots els blocs)
 
 Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/2026, `pista.sty` posa el text amb `\color`, i dins de `\pista{…}` es poden fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize`.
 
@@ -57,6 +57,21 @@ Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/202
   - *Distància d'un punt a un pla* (geometria): la fórmula en una línia a part, $d(P, \pi) = \dfrac{|Ax_{0} + By_{0} + Cz_{0} + D|}{\sqrt{A^{2} + B^{2} + C^{2}}}$, i en paràgraf propi «\textbf{Atenció:} la fórmula demana el pla en la forma $Ax + By + Cz + D = 0$».
   - *Perpendicular comuna* (geometria): rètols \textit{Direcció} ($\vec{v}_{1} \times \vec{v}_{2}$) i \textit{Un punt}; punts genèrics de cada recta amb paràmetres diferents i les dues condicions $\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{1} = 0$, $\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{2} = 0$ en una línia a part.
   - *Pla paral·lel a una distància donada* (geometria): sempre la mateixa llista: la forma del pla paral·lel ($\ldots + D' = 0$); la condició de distància dona un valor absolut amb dues solucions; una és el pla que ja tens i l'altra, la que et convé.
+  - *Optimització* (anàlisi): «És un problema d'optimització.» i sempre la mateixa llista amb rètols en cursiva: \textit{Variables} (i dibuix), \textit{Condició} (per quedar-se amb una sola variable), \textit{Funció a optimitzar}, \textit{Optimitza} (derivar, igualar a zero, comprovar que és màxim o mínim). El domini amb sentit i «respon totes les parts de la pregunta» van en un paràgraf \textbf{Atenció:} propi.
+  - *Àrea entre corbes* (anàlisi; mètode del David): els límits d'integració són punts de tall (entre les corbes, de la corba amb l'eix, de la corba amb una recta…) o les rectes verticals que limiten la regió, i l'àrea és el valor absolut de la integral de la diferència, en una línia a part: $\text{Àrea} = \left| \int_{x_{1}}^{x_{2}} \bigl(f(x) - g(x)\bigr)\,dx \right|$. **Mai no es demana decidir quina corba queda per sobre.** Si hi ha més de dos punts de tall, un valor absolut per a cada interval entre punts de tall consecutius, i se sumen.
+  - *Recta tangent* (anàlisi): la fórmula $y - f(a) = f'(a)\,(x - a)$ sempre en una línia a part, ja amb el punt de l'exercici (amb $a < 0$, escriure $(x + |a|)$, mai $(x - -2)$).
+  - *Bolzano* (anàlisi): la funció auxiliar $g(x) = f(x) - k$ en una línia a part; continuïtat; signes als extrems.
+  - *Estudi d'una funció* (anàlisi; passos del David), sempre en aquest ordre i amb aquests noms:
+    1. \textit{Domini i asímptotes verticals.}
+    2. \textit{Límits a l'infinit} ($+\infty$, $-\infty$ o un nombre real, que dona una asímptota horitzontal; també hi pot haver asímptota obliqua).
+    3. \textit{Talls amb els eixos.}
+    4. \textit{Creixement, decreixement i extrems relatius.}
+    5. \textit{Concavitat i punts d'inflexió.}
+    6. \textit{Taula de valors} (opcional).
+    7. \textit{Esbós de la gràfica.}
+
+    Si l'apartat demana l'esbós, la llista sencera numerada (`enumerate`), amb «Ho tens de l'apartat…» per als passos ja fets. Si només en demana una part (per exemple, domini i talls), només aquests passos, en el mateix ordre i amb els mateixos noms. Excepció: l'esbós d'una funció a trossos senzilla (`ana-26j-q1`), on n'hi ha prou de dibuixar cada tros al seu interval.
+  - *Condicions → equacions* (trobar paràmetres): una condició de l'enunciat per punt de la llista.
   - *Apartats amb diverses parts*: cada part amb un rètol en cursiva (\textit{Discutir.}, \textit{Resoldre per a $k = 0$.}).
   - Les dreceres, en paràgraf propi amb \textbf{Drecera:} o \textbf{Consell:}; els paranys, amb \textbf{Atenció:}.
 - Cada pista continua cabent en **una sola pàgina** (comprovar-ho en compilar).

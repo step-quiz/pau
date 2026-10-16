@@ -16,15 +16,35 @@ f(x) = \dfrac{x^2 - 2x}{x - 1}.
 
 \subsection*{\textit{a)} \normalfont Determineu els talls de la corba $y = f(x)$ amb els eixos de coordenades, i les equacions de les seves possibles asímptotes verticals, horitzontals i obliqües. \hfill\textnormal{[1~punt]}}
 
-\pista{Troba les arrels del polinomi numerador, per trobar els punts de tall amb l'eix d'abscisses; en canvi, el punt de tall amb l'eix d'ordenades és més immediat, perquè només cal avaluar $f(0)$. Per a les asímptotes verticals, mira on s'anul·la el denominador i comprova que el límit de $f$ hi és infinit. Per a les altres, compara el grau del numerador i del denominador: quan el grau del polinomi numerador és 1 unitat superior al grau del polinomi denominador, llavors sempre hi haurà una asímptota obliqua, $y = mx + n$, amb $m = \lim_{x\to\infty} \frac{f(x)}{x}$ i $n = \lim_{x\to\infty} \bigl(f(x) - mx\bigr)$.}
+\pista{Segueix l'ordre de l'estudi d'una funció:
+\begin{itemize}
+\item \textit{Domini i asímptotes verticals.} Mira on s'anul·la el denominador i comprova que el límit de $f$ hi és infinit.
+\item \textit{Límits a l'infinit.} Compara el grau del numerador i del denominador. Quan el del numerador és una unitat més gran, no hi ha asímptota horitzontal, sinó una asímptota obliqua $y = mx + n$, amb
+\[
+m = \lim_{x\to\infty} \frac{f(x)}{x}, \qquad n = \lim_{x\to\infty} \bigl(f(x) - mx\bigr).
+\]
+\item \textit{Talls amb els eixos.} Amb l'eix d'abscisses, troba les arrels del numerador. Amb l'eix d'ordenades, és immediat: només cal avaluar $f(0)$.
+\end{itemize}}
 
 \subsection*{\textit{b)} \normalfont Calculeu les equacions de les rectes tangents a la corba $y = f(x)$ en els punts $x = 0$ i $x = 2$. Aquestes dues rectes són paral·leles? Justifiqueu la resposta. \hfill\textnormal{[1~punt]}}
 
-\pista{Recorda la fórmula $y - f(a) = f'(a)(x - a)$. Per derivar $f(x)$, aplica la regla del quocient. Dues rectes són paral·leles si i només si tenen el mateix pendent: compara $f'(0)$ i $f'(2)$.}
+\pista{Fes servir la fórmula de la recta tangent:
+\[
+y - f(a) = f'(a)\,(x - a)
+\]
+\begin{itemize}
+\item Per derivar $f(x)$, aplica la regla del quocient.
+\item Calcula les dues tangents, amb $a = 0$ i amb $a = 2$.
+\item Dues rectes són paral·leles si i només si tenen el mateix pendent: compara $f'(0)$ i $f'(2)$.
+\end{itemize}}
 
 \subsection*{\textit{c)} \normalfont Hi ha algun punt on la recta tangent a $f(x)$ tingui pendent 1? En cas afirmatiu, trobeu-lo. \hfill\textnormal{[0,5~punts]}}
 
-\pista{El pendent de la tangent en un punt és la derivada en aquell punt. Planteja l'equació $f'(x) = 1$ i analitza si té solució dins el domini.}
+\pista{El pendent de la tangent en un punt és la derivada en aquell punt.
+\begin{itemize}
+\item Planteja l'equació $f'(x) = 1$.
+\item Analitza si té solució dins del domini.
+\end{itemize}}
 
 \vspace{0.6em}
 

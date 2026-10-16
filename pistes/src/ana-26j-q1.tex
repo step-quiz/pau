@@ -16,14 +16,35 @@ on $m$ és un paràmetre real.
 
 \subsection*{1.1. \normalfont Determineu els valors de $m$ que fan que la funció $f(x)$ sigui contínua en tot el seu domini. Justifiqueu la resposta. \hfill\textnormal{[1~punt]}}
 
-\pista{Cadascun dels tres trossos ja és continu dins del seu propi interval (són funcions elementals), així que només cal vigilar els dos punts de contacte, $x = 0$ i $x = 2$. A cadascun d'ells, iguala el límit per l'esquerra, el límit per la dreta i el valor de la funció en aquell punt (fixa't en les desigualtats per saber quin tros dona $f(0)$ i quin dona $f(2)$). T'apareixeran dues condicions sobre $m$: resol-les per separat i queda't només amb els valors que en compleixen totes dues alhora.}
+\pista{Cada tros ja és continu dins del seu interval (són funcions elementals). Només cal vigilar els dos punts on canvia l'expressió, $x = 0$ i $x = 2$.
+\begin{itemize}
+\item A cadascun, iguala el límit per l'esquerra, el límit per la dreta i el valor de la funció en aquell punt.
+\item Fixa't en les desigualtats per saber quin tros dona $f(0)$ i quin dona $f(2)$.
+\end{itemize}
+T'apareixeran dues condicions sobre $m$: resol-les per separat i queda't només amb els valors que compleixen totes dues alhora.}
 
 \subsection*{1.2. \normalfont Feu un esbós de la gràfica de $y = f(x)$ per al cas $m = -2$, i calculeu l'àrea delimitada per aquesta gràfica, l'eix $OX$ i les rectes $x = -1$ i $x = 3$. \hfill\textnormal{[1~punt]}}
 
-\pista{Amb $m = -2$, el tros del mig és $(x - 2)^{2} + 1$, una paràbola amb el vèrtex desplaçat; identifica'l per fer l'esbós (o calcula'l amb la fórmula del vèrtex). Un cop vegis que la funció és sempre positiva a l'interval $[-1, 3]$, l'àrea que et demanen és, simplement, la integral definida de $f(x)$ entre $-1$ i $3$; com que $f$ ve definida a trossos, hauràs de descompondre aquesta integral en tres integrals més petites (una per cada tram on canvia l'expressió de $f$) i sumar-ne els resultats.}
+\pista{\textit{L'esbós.} Amb $m = -2$, el tros del mig és $(x - 2)^{2} + 1$, una paràbola amb el vèrtex desplaçat: identifica'l (o calcula'l amb la fórmula del vèrtex). Dibuixa cada tros al seu interval.
+
+\medskip
+\textit{L'àrea.} La funció és sempre positiva a $[-1, 3]$, i per tant no talla l'eix d'abscisses: l'àrea és
+\[
+\text{Àrea} = \int_{-1}^{3} f(x)\,dx.
+\]
+Com que $f$ és definida a trossos, descompon la integral en tres integrals, una per a cada tram on canvia l'expressió, i suma'n els resultats.}
 
 \subsection*{1.3. \normalfont Per a $m = -2$, trobeu un punt on la recta tangent a $y = f(x)$ sigui paral·lela a $y = -2x$. Calculeu l'equació d'aquesta recta tangent. \hfill\textnormal{[0,5~punts]}}
 
-\pista{Pensa en la forma de la gràfica que has fet a l'apartat anterior: el primer tram és creixent (exponencial) i el tercer és constant (pendent zero), de manera que l'única banda on la funció pot tenir pendent negatiu és al tram parabòlic del mig. Deriva aquest tram i iguala la derivada a $-2$ (el pendent de la recta donada). Un cop trobat el punt, aplica la fórmula punt-pendent per obtenir l'equació de la tangent.}
+\pista{Pensa en la forma de la gràfica de l'apartat anterior:
+\begin{itemize}
+\item el primer tram és creixent (exponencial);
+\item el tercer és constant (pendent zero);
+\item per tant, l'única banda on la funció pot tenir pendent negatiu és el tram parabòlic del mig.
+\end{itemize}
+Deriva aquest tram i iguala la derivada a $-2$, el pendent de la recta donada. Amb el punt trobat, aplica la fórmula de la recta tangent:
+\[
+y - f(a) = f'(a)\,(x - a)
+\]}
 
 \end{document}

@@ -14,7 +14,26 @@
 
 \noindent La vela té dues parts separades per la recta $y = 9$. Per a construir-la, s'empra un teixit de niló a la part superior, que costa $50\,\text{\euro}/\text{u}^{2}$, i un teixit de polièster a la part inferior, que costa $70\,\text{\euro}/\text{u}^{2}$. Calculeu el cost total del material que es necessita per a construir aquesta vela. \hfill\textnormal{[2,5~punts]}
 
-\pista{Primer troba on la paràbola talla la recta $y = 9$ i l'eix d'abscisses (de cada equació, queda't amb la solució positiva): seran els límits d'integració. Planteja cada àrea com una integral definida respecte de $x$, i recorda que la regió inferior té una part rectangular (fins al tall amb $y = 9$) i una altra limitada per la corba (des d'aquest punt fins al tall amb l'eix d'abscisses). Per a la regió superior, calcula l'àrea total sota la paràbola i resta-hi la de la regió inferior. El cost final és la suma de cada àrea multiplicada pel preu corresponent.}
+\pista{Primer troba els punts de tall que faran de límits d'integració (de cada equació, queda't amb la solució positiva):
+\begin{itemize}
+\item la paràbola amb la recta $y = 9$: resol $f(x) = 9$; anomena $x_{1}$ la solució;
+\item la paràbola amb l'eix d'abscisses: resol $f(x) = 0$; anomena $x_{2}$ la solució.
+\end{itemize}
+\textit{Part superior (niló):} és entre la paràbola i la recta $y = 9$, des de l'eix d'ordenades fins a $x_{1}$:
+\[
+A_{\text{sup}} = \left| \int_{0}^{x_{1}} \bigl(f(x) - 9\bigr)\,dx \right|
+\]
+\textit{Part inferior (polièster):} té dues peces:
+\begin{itemize}
+\item un rectangle, de base $x_{1}$ i alçada $9$;
+\item la regió entre la paràbola i l'eix d'abscisses, des de $x_{1}$ fins a $x_{2}$: $\left| \int_{x_{1}}^{x_{2}} f(x)\,dx \right|$.
+\end{itemize}
+
+\medskip
+\textbf{Drecera:} també pots calcular l'àrea de tota la vela, $\left| \int_{0}^{x_{2}} f(x)\,dx \right|$, i obtenir una de les dues parts per resta.
+
+\medskip
+El cost final és la suma de cada àrea multiplicada pel preu corresponent.}
 
 \vspace{0.6em}
 

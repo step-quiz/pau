@@ -12,14 +12,40 @@
 
 \subsection*{1.1. \normalfont Estudieu-ne el domini i els intervals de creixement i decreixement, així com els possibles màxims i mínims locals. \hfill\textnormal{[1~punt]}}
 
-\pista{Per al domini, mira si el denominador $x^{2} + 1$ es pot anul·lar per algun valor real. Després deriva amb la regla del quocient i simplifica el numerador amb cura: és on és més fàcil equivocar-se de signe. Com que el denominador de $f'(x)$ és un quadrat (i no s'anul·la), el signe de $f'$ depèn només del numerador. Troba'n els zeros, fes una taula de signes i decideix on $f$ creix i on decreix; a cada canvi de monotonia hi haurà un màxim o un mínim local. Dona'n també l'ordenada, calculant-la a $f(x)$ (no a $f'(x)$).}
+\pista{Segueix l'ordre de l'estudi d'una funció. Aquí et demanen dos passos:
+\begin{itemize}
+\item \textit{Domini.} Mira si el denominador $x^{2} + 1$ es pot anul·lar per a algun valor real.
+\item \textit{Creixement, decreixement i extrems relatius.} Deriva amb la regla del quocient i simplifica el numerador amb cura (és on és més fàcil equivocar-se de signe). El denominador de $f'(x)$ és un quadrat i no s'anul·la: el signe de $f'$ depèn només del numerador. Troba'n els zeros i fes una taula de signes.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} dona també l'ordenada dels extrems, calculant-la a $f(x)$ (no a $f'(x)$).}
 
 \subsection*{1.2. \normalfont Calculeu les equacions de totes les asímptotes d'aquesta funció (si en té) i dibuixeu un esbós de la seva gràfica. \hfill\textnormal{[0,75~punts]}}
 
-\pista{Per a les asímptotes verticals, recorda què has vist del denominador en estudiar el domini. Per a les horitzontals, calcula $\lim\limits_{x\to+\infty} f(x)$ i $\lim\limits_{x\to-\infty} f(x)$ (divideix el numerador i el denominador per $x^{2}$). Si n'hi ha d'horitzontals a totes dues bandes, ja no en pot haver d'obliqües. Per a l'esbós, combina-ho amb l'apartat anterior: el punt de tall amb els eixos, el signe de $f$ (pensa quin signe té el denominador) i els extrems locals. Recorda que una gràfica sí que pot tallar una asímptota horitzontal: només cal que s'hi acosti quan $x \to \pm\infty$.}
+\pista{Segueix els passos de l'estudi d'una funció.
+\begin{enumerate}
+\item \textit{Domini i asímptotes verticals.} Recorda què has vist del denominador a l'apartat 1.1.
+\item \textit{Límits a l'infinit.} Calcula $\lim\limits_{x\to+\infty} f(x)$ i $\lim\limits_{x\to-\infty} f(x)$ (divideix el numerador i el denominador per $x^{2}$). Si hi ha asímptota horitzontal a totes dues bandes, ja no n'hi pot haver d'obliqües.
+\item \textit{Talls amb els eixos.} Troba el punt de tall i estudia el signe de $f$: quin signe té el denominador?
+\item \textit{Creixement, decreixement i extrems relatius.} Ho tens de l'apartat 1.1.
+\item \textit{Concavitat i punts d'inflexió.} Calcula $f''(x)$ i estudia'n el signe.
+\item \textit{Taula de valors} (opcional): uns quants punts t'ajudaran a situar la corba.
+\item \textit{Esbós de la gràfica.} Combina-ho tot.
+\end{enumerate}
+
+\medskip
+\textbf{Atenció:} una gràfica sí que pot tallar una asímptota horitzontal: només cal que s'hi acosti quan $x \to \pm\infty$.}
 
 \subsection*{1.3. \normalfont Calculeu l'equació de la recta normal (és a dir, la recta perpendicular a la tangent) a la corba $y = f(x)$ en el punt d'abscissa $x = 2$. \hfill\textnormal{[0,75~punts]}}
 
-\pista{Calcula primer el punt de la corba, $\bigl(2, f(2)\bigr)$, i el pendent de la tangent, $f'(2)$, aprofitant la derivada de l'apartat 1.1. La normal és perpendicular a la tangent, de manera que el seu pendent és $m = -\dfrac{1}{f'(2)}$: cal invertir el valor \emph{i} canviar-li el signe (l'error típic és fer només una de les dues coses, o fer servir directament $f'(2)$). Acaba amb l'equació punt-pendent $y - f(2) = m\,(x - 2)$.}
+\pista{La normal és la recta perpendicular a la tangent.
+\begin{itemize}
+\item Calcula el punt $\bigl(2, f(2)\bigr)$ i el pendent de la tangent, $f'(2)$, amb la derivada de l'apartat 1.1.
+\item El pendent de la normal és $m = -\dfrac{1}{f'(2)}$, i la normal és $y - f(2) = m\,(x - 2)$.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} cal invertir el valor \emph{i} canviar-li el signe. L'error típic és fer només una de les dues coses, o fer servir directament $f'(2)$.}
 
 \end{document}

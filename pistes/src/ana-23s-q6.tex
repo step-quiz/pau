@@ -14,10 +14,30 @@
 
 \subsection*{\textit{a)} \normalfont Expresseu l'altura del trapezi en funció de la longitud $x$ de la base inferior. \hfill\textnormal{[0,5~punts]}}
 
-\pista{Com que el trapezi és isòsceles, les dues «parts» que sobresurten de la base superior respecte a la base inferior són iguals i mesuren, cadascuna d'elles, $\dfrac{3x - x}{2}$. Simplifica aquesta fracció: veuràs que cadascuna de les parts mesura $x$. Si dibuixes l'altura del trapezi (la distància vertical entre les dues bases), formes un triangle rectangle on els catets són l'altura $h$ i $x$, i la hipotenusa és el costat lateral del trapezi (que mesura 10 mm). A partir d'aquí, l'altura $h$ surt directament aplicant el teorema de Pitàgores i aïllant.}
+\pista{Com que el trapezi és isòsceles, les dues parts que sobresurten de la base superior respecte de la inferior són iguals:
+\[
+\frac{3x - x}{2} = x
+\]
+Dibuixa l'altura $h$ del trapezi. Formes un triangle rectangle amb:
+\begin{itemize}
+\item catets: l'altura $h$ i $x$;
+\item hipotenusa: el costat lateral, de 10 mm.
+\end{itemize}
+Aplica el teorema de Pitàgores i aïlla $h$.}
 
 \subsection*{\textit{b)} \normalfont Calculeu la longitud de la base inferior del trapezi de manera que l'àrea de la peça sigui màxima i trobeu el valor d'aquesta àrea màxima. \hfill\textnormal{[2~punts]}}
 
-\pista{És un problema d'optimització: el primer pas és escriure l'àrea del trapezi en funció d'una sola variable. Recorda que l'àrea d'un trapezi és $A = \dfrac{(\text{base superior} + \text{base inferior}) \cdot h}{2}$. Substitueix-hi els valors de l'enunciat ($3x$ i $x$) i l'altura $h$ que has trobat a l'apartat \textit{a)}, i obtindràs $A(x)$. A partir d'aquí, deriva i resol $A'(x) = 0$; queda't només amb la solució que tingui sentit en el problema i comprova que correspon a un màxim. Recorda que la teva resposta final ha d'incloure les \emph{dues} dades que et demanen: la longitud de la base inferior \emph{i} el valor de l'àrea màxima.}
+\pista{És un problema d'optimització: primer has d'escriure l'àrea en funció d'una sola variable.
+\[
+A = \frac{(\text{base superior} + \text{base inferior}) \cdot h}{2}
+\]
+\begin{itemize}
+\item Substitueix-hi les bases $3x$ i $x$, i l'altura $h$ de l'apartat \textit{a)}: obtindràs $A(x)$.
+\item Deriva i resol $A'(x) = 0$.
+\item Queda't només amb la solució que tingui sentit en el problema i comprova que és un màxim.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} la resposta final ha d'incloure les \emph{dues} dades: la longitud de la base inferior \emph{i} el valor de l'àrea màxima.}
 
 \end{document}

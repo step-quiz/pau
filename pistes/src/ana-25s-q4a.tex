@@ -14,10 +14,24 @@
 
 \subsection*{\textit{a)} \normalfont Raoneu a quina funció correspon cada gràfica i calculeu les coordenades dels punts $B$ i $C$ assenyalats a la figura (tenint en compte que $A$ és l'origen de coordenades). \hfill\textnormal{[1~punt]}}
 
-\pista{Avalua les dues funcions a $x = 0$: una d'elles passa per l'origen $A$ i l'altra per $B$, això t'indica directament quina correspon a cada costat del vitrall. El punt $C$ és la intersecció de les dues corbes: iguala $3\sin(x/4) = 3\cos(x/4)$ i resol l'equació treballant en radiants; de totes les solucions, queda't amb la del punt $C$ de la figura. Després, substitueix-la en una de les dues funcions per obtenir la segona coordenada del punt $C$.}
+\pista{\textit{Quina funció és cada gràfica?} Avalua les dues funcions a $x = 0$: una passa per l'origen $A$ i l'altra, per $B$.
+
+\medskip
+\textit{El punt $C$} és la intersecció de les dues corbes.
+\begin{itemize}
+\item Iguala $3\sin(x/4) = 3\cos(x/4)$ i resol l'equació treballant en radiants.
+\item De totes les solucions, queda't amb la del punt $C$ de la figura.
+\item Substitueix-la en una de les dues funcions per obtenir l'ordenada de $C$.
+\end{itemize}}
 
 \subsection*{\textit{b)} \normalfont Calculeu el preu del vitrall sabent que costa 750\,\euro/m$^{2}$. \hfill\textnormal{[1,5~punts]}}
 
-\pista{L'àrea d'una regió entre dues corbes és la integral definida de la diferència de les dues funcions (la de «dalt» menys la de «baix»). Els extrems de la integral són les coordenades $x$ dels punts $A$ i $C$ de l'apartat anterior. Quan calculis la primitiva, ves amb compte amb el coeficient que hi apareix. No t'aturis a l'àrea: per obtenir el preu del vitrall, multiplica-la pel que costa cada $\text{m}^{2}$.}
+\pista{L'àrea és el valor absolut de la integral de la diferència de les dues funcions, entre les abscisses de $A$ i de $C$ de l'apartat anterior:
+\[
+\text{Àrea} = \left| \int_{x_{A}}^{x_{C}} \Bigl(3\cos\frac{x}{4} - 3\sin\frac{x}{4}\Bigr)\,dx \right|
+\]
+
+\medskip
+\textbf{Atenció:} quan calculis la primitiva, vigila el coeficient que hi apareix. I no t'aturis a l'àrea: per obtenir el preu, multiplica-la pel que costa cada $\text{m}^{2}$.}
 
 \end{document}
