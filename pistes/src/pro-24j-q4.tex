@@ -18,7 +18,7 @@
 
 \noindent \textit{a.2)} Calculeu la probabilitat que les dues boles siguin diferents. \hfill \textnormal{[0,75~punts]}
 
-\pista{Molt sovint, quan et demanen la probabilitat de «les dues diferents», és més còmode calcular el complementari: la probabilitat de «les dues iguals». Identifica quines lletres apareixen repetides (només n'hi ha dues que es repeteixen) i suma les probabilitats de cada parella coincident, tenint en compte que és sense reemplaçament. Per obtenir la resposta final $p$, recorda que tu has estat buscant la probabilitat $q$ de l'esdeveniment contrari. Per tant, hauràs de calcular $p=1-q$.}
+\pista{Molt sovint, quan et demanen la probabilitat de «les dues diferents», és més còmode calcular el complementari: la probabilitat de «les dues iguals». Identifica quines lletres apareixen repetides (només n'hi ha dues que es repeteixen) i suma les probabilitats de cada parella coincident, tenint en compte que és sense reemplaçament. Recorda que així has calculat la probabilitat de l'esdeveniment contrari: la resposta és $P(\text{diferents}) = 1 - P(\text{iguals})$.}
 
 \subsection*{\textit{b)} \normalfont L'Andreu torna a posar totes les boles a la bossa i en treu cinc a l'atzar, una darrere l'altra, però ara amb reemplaçament (és a dir, ara sí que retorna a la bossa cada bola extreta abans d'agafar la següent).}
 
@@ -28,6 +28,6 @@
 
 \noindent \textit{b.2)} Calculeu la probabilitat que hagi tret almenys dues A. \hfill \textnormal{[0,75~punts]}
 
-\pista{Aquí tens una variable binomial $X \sim B(5, p)$, on $p$ és la probabilitat que una extracció sigui A. L'esdeveniment «almenys dues A» és el contrari de «cap A o exactament una A»: calcula $q = P(X = 0) + P(X = 1)$, i la resposta serà $p = 1 - q$. És molt menys feina que sumar $P(X = 2) + P(X = 3) + P(X = 4) + P(X = 5)$.}
+\pista{Aquí tens una variable binomial $X \sim B(5, p)$, on $p$ és la probabilitat que una extracció sigui A. L'esdeveniment «almenys dues A» és el contrari de «cap A o exactament una A»: la resposta serà $P(X \ge 2) = 1 - \bigl[P(X = 0) + P(X = 1)\bigr]$. És molt menys feina que sumar $P(X = 2) + P(X = 3) + P(X = 4) + P(X = 5)$.}
 
 \end{document}

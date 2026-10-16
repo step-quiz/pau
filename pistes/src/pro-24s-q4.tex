@@ -12,7 +12,7 @@
 
 \subsection*{\textit{a)} \normalfont Si escollim 4 persones a l'atzar, quina és la probabilitat que almenys una d'elles pateixi arrítmies? \hfill\textnormal{[0,75~punts]}}
 
-\pista{Aquí tens una variable binomial $X \sim B(4, 0{,}2)$, on $0{,}2$ és la probabilitat que una persona qualsevol pateixi arrítmies. Quan et demanen «almenys una», és més còmode treballar amb el succés contrari, «cap d'elles»: calcula $q = P(X = 0)$, i la resposta serà $p = 1 - q$.}
+\pista{Aquí tens una variable binomial $X \sim B(4, 0{,}2)$, on $0{,}2$ és la probabilitat que una persona qualsevol pateixi arrítmies. Quan et demanen «almenys una», és més còmode treballar amb el succés contrari, «cap d'elles»: la resposta serà $P(X \ge 1) = 1 - P(X = 0)$.}
 
 \subsection*{\textit{b)} \normalfont Quina és la probabilitat que una persona escollida a l'atzar obtingui un diagnòstic positiu d'arrítmia? \hfill\textnormal{[0,75~punts]}}
 
@@ -20,6 +20,6 @@
 
 \subsection*{\textit{c)} \normalfont Si una persona obté un diagnòstic negatiu a la prova del Holter, quina és la probabilitat que realment pateixi arrítmies? \hfill\textnormal{[1~punt]}}
 
-\pista{Aquest és un exemple clar on has d'aplicar el Teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen: tu coneixes la probabilitat de «donar negatiu \emph{sabent que} pateix arrítmia» (que és el complementari del $95\,\%$ de detecció), però et demanen la probabilitat de «patir arrítmia \emph{sabent que} ha donat negatiu». Fixa't que els apartats estan relacionats: la probabilitat de «donar negatiu» és la complementària de la que has calculat a l'apartat b).}
+\pista{Aquest és un exemple clar on has d'aplicar el teorema de Bayes, perquè et demanen una probabilitat condicionada en sentit \emph{invers} respecte de la informació que et donen. Si anomenes $A$ = «pateix arrítmia» i $H$ = «el Holter dona positiu», tu coneixes $P(\overline{H} \mid A)$ («dona negatiu \emph{sabent que} pateix arrítmia», el complementari del $95\,\%$ de detecció), però et demanen $P(A \mid \overline{H})$. Fixa't que els apartats estan relacionats: $P(\overline{H}) = 1 - P(H)$, i $P(H)$ l'has calculada a l'apartat \textit{b)}.}
 
 \end{document}

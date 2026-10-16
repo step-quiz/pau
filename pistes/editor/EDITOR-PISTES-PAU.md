@@ -2,7 +2,7 @@
 
 > **Per a qui és aquest document.** Per a una IA Claude que arriba sense cap context i ha de mantenir
 > o ampliar l'artifact «Editor de pistes PAU», i per al professor (David) que hi treballa.
-> Estat a **16 d'octubre de 2026**. L'usuari parla **català**: respon-li sempre en català.
+> Estat a **16 d'octubre de 2026** (tarda). L'usuari parla **català**: respon-li sempre en català.
 
 ## 1. Què és
 
@@ -50,8 +50,9 @@ repositori públic **`step-quiz/pau`** (`pistes/src/<id>.tex`), com a alternativ
    - **Dreceres** (tecla `?` o botó *Dreceres*): Ctrl+M `$ $` · Alt+V `\vec` · Alt+Q `\dfrac` · Alt+P `\pi` · Alt+L `\lambda` ·
      Alt+M `\mu` · Alt+. `\cdot` · Alt+X `\times` · Alt+S Sarrus · Alt+↓/↑ pista següent/anterior (canvia d'exercici) ·
      Ctrl+Retorn `\\[\smallskipamount]` + salt de línia (línia nova amb un petit espai; **no copia**: l'usuari prefereix el botó Copia) ·
-     `/` cerca. Dins de `\pista{…}` **una línia en blanc no compila** (`\textcolor` no admet `\par`), i `\smallskip` sol no fa saltar de línia:
-     per això Ctrl+Retorn escriu `\\[\smallskipamount]` (provat amb pdflatex, decisió de l'usuari 16/10/2026). Les Alt usen `e.code` (tecla física) i ignoren AltGr (= Ctrl+Alt), que al teclat català fa `@ # [ ] { }`.
+     `/` cerca. Des del 16/10/2026, `pista.sty` posa el text amb `\color` (abans `\textcolor{…}{#1}`): dins de `\pista{…}` ja
+     es poden fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize`. Ctrl+Retorn continua escrivint `\\[\smallskipamount]`
+     (salt de línia amb un espai petit, sense canviar de paràgraf). Les Alt usen `e.code` (tecla física) i ignoren AltGr (= Ctrl+Alt), que al teclat català fa `@ # [ ] { }`.
    - **Avisos:** en vermell, claus `{ }` que no quadren i `$` sense tancar; en taronja, cometes rectes, «anem a», «donat que»,
      «en base a» i pista de més de 700 caràcters (~6 línies).
 4. Els canvis **es desen sols** (0,7 s després de teclejar). Es poden tancar la pàgina i continuar un altre dia.
@@ -165,3 +166,14 @@ preguntes de comprensió, exemples concrets, l'«Atenció:» per al parany) és 
 > Llegeix `pistes/editor/EDITOR-PISTES-PAU.md` del repositori `step-quiz/pau`. Treballem amb l'artifact «Editor de pistes PAU»
 > (https://claude.ai/artifact/YVXdVe71WsDE9seJecf4xu). Respon en català. Abans de fer res, comprova que pots llegir
 > l'artifact i la col·lecció `pistes`, i digues-me què veus.
+
+## 9. Revisió del 16/10/2026
+
+- Les 67 pistes revisades bloc a bloc (àlgebra, geometria, anàlisi, probabilitat) amb pàgines d'informe (artifacts «Revisió pistes …»),
+  amb diferències, PDF compilat i botons ok/no. El David les va acceptar totes.
+- Les 66 pistes acceptades es van deixar com a **esborranys** a la col·lecció `pistes` de l'editor (un document per pista). Quan
+  el David les ha copiat i fet commit, s'esborren seguint el procediment A (punts 3 i 5).
+- **Format més estructurat** (proposta, primer només per a probabilitat): frase inicial curta, passos en `itemize`, fórmules
+  clau en línia a part, `\textbf{Atenció:}` en paràgraf propi amb `\medskip`, línies en blanc entre blocs. Patrons fixos per a
+  probabilitat total (arbre i dos camins), Bayes (anomenar els esdeveniments; «coneixes $P(\ldots\mid\ldots)$, et demanen …») i binomial.
+  Necessita el `pista.sty` nou.

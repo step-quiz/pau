@@ -40,7 +40,7 @@
 % ====== Comanda per a les pistes ======
 \newcommand{\pista}[1]{%
   \begin{pistabox}
-  \textcolor{blauPista}{\textbf{Pista.}} \textcolor{blauPista}{#1}
+  \color{blauPista}\textbf{Pista.} #1%   (\color i no \textcolor: així dins de la pista s'hi poden fer servir línies en blanc, \medskip, \bigskip i itemize)
   \end{pistabox}
 }
 
