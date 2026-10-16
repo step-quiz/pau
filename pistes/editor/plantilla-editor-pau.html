@@ -1,0 +1,583 @@
+<title>Editor de pistes PAU</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<style>
+/* Layout: llista d'exercicis PAU a l'esquerra; a la dreta, una barra d'eines fixa i, per cada apartat, l'enunciat plegat i la pista en LaTeX. */
+:root{
+  --bg:#f2f5f4; --panel:#ffffff; --line:#d6dedb; --fg:#172220; --mute:#566763;
+  --accent:#0d6b5f; --accent-soft:#dff1ed; --accent-fg:#ffffff;
+  --mod:#b45309; --mod-soft:#fdf0dc; --ok:#17794a; --bad:#b42318; --shadow:rgba(20,40,36,.16);
+  --f-ui:"IBM Plex Sans",system-ui,sans-serif; --f-text:"Newsreader",Georgia,serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1514; --panel:#161e1c; --line:#28332f; --fg:#e4ece9; --mute:#93a5a0;
+  --accent:#5fd0bd; --accent-soft:#17332e; --accent-fg:#06211c;
+  --mod:#f0a94e; --mod-soft:#33260f; --ok:#58c58f; --bad:#ff8a80; --shadow:rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1514; --panel:#161e1c; --line:#28332f; --fg:#e4ece9; --mute:#93a5a0;
+  --accent:#5fd0bd; --accent-soft:#17332e; --accent-fg:#06211c;
+  --mod:#f0a94e; --mod-soft:#33260f; --ok:#58c58f; --bad:#ff8a80; --shadow:rgba(0,0,0,.5); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--f-ui);padding-inline:16px;padding-block:14px}
+button,input,textarea{font:inherit;color:inherit}
+.app{max-width:1250px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+header{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+h1{font:500 22px/1.2 var(--f-text);margin:0}
+h1 small{font:400 12px var(--f-mono);color:var(--mute);margin-left:8px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:6px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{font:12px var(--f-mono);color:var(--mute)} .status b{color:var(--mod);font-weight:500}
+.help{font-size:13px;color:var(--mute);margin:0}
+kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--bg);color:var(--fg);white-space:nowrap}
+.grid{display:grid;grid-template-columns:minmax(240px,300px) minmax(0,1fr);gap:12px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.side{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
+.tools{padding:10px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+.tools input{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:none;border-radius:99px;padding:2px 10px;font-size:12px;cursor:pointer;color:var(--mute)}
+.chip[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.list{overflow:auto;max-height:72vh;padding:4px 0}
+@media (max-width:760px){.list{max-height:38vh}}
+.ug{padding:8px 12px 3px;font:500 11px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);position:sticky;top:0;background:var(--panel)}
+.it{display:flex;gap:8px;align-items:baseline;width:100%;text-align:left;border:0;background:none;padding:6px 12px;cursor:pointer;border-left:3px solid transparent}
+.it:hover{background:var(--bg)} .it[aria-current=true]{background:var(--accent-soft);border-left-color:var(--accent)}
+.it .n{font:500 12px var(--f-mono);color:var(--accent);white-space:nowrap}
+.it .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mute);font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;align-self:center;background:var(--mod)}
+.main{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
+/* Barra d'eines: una sola, fixa a dalt; escriu a la pista on hi ha (o hi havia) el cursor. */
+.tb{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line);border-radius:8px 8px 0 0;padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.tg{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.tl{font:500 10px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-right:2px}
+.tb .btn{font-family:var(--f-mono);padding:3px 8px;font-size:12.5px}
+.tb .btn.wd{font-family:var(--f-ui)}
+.tgt{margin-left:auto;font:12px var(--f-mono);color:var(--mute);white-space:nowrap}
+.tgt b{color:var(--accent);font-weight:500}
+.dd{position:relative}
+.menu{position:absolute;top:calc(100% + 4px);left:0;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px;box-shadow:0 8px 24px var(--shadow);display:grid;gap:4px}
+.menu[hidden]{display:none}
+.menu.sym{grid-template-columns:repeat(4,auto);width:max-content}
+.menu.fr{min-width:220px}
+.menu .btn{text-align:left;white-space:nowrap}
+.menu .btn small{color:var(--mute);margin-left:6px;font-size:11px}
+@media (max-width:760px){.tb{position:static}}
+@media (max-width:520px){.tgt{margin-left:0}}
+.body{padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.key{font:500 12px var(--f-mono);color:var(--accent)}
+.body h2{font:500 20px/1.3 var(--f-text);margin:0;text-wrap:balance}
+.top{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:flex-start}
+.ap{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.aph{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;font-weight:600}
+.tag{border:1px solid var(--mod);color:var(--mod);border-radius:4px;padding:0 6px;font:12px var(--f-mono);font-weight:400}
+textarea{width:100%;min-height:120px;resize:vertical;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font:14px/1.55 var(--f-mono);field-sizing:content}
+textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.cnt{font:12px var(--f-mono);color:var(--mute)}
+.warns{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.warn{color:var(--bad);font-size:12px} .soft{color:var(--mod);font-size:12px}
+details{border:1px solid var(--line);border-radius:6px;padding:6px 12px}
+summary{cursor:pointer;color:var(--mute);font-size:13px}
+details pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 var(--f-mono);color:var(--mute);margin:8px 0 0}
+.empty{padding:32px 16px;text-align:center;color:var(--mute)}
+dialog{border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);max-width:min(760px,92vw);width:100%}
+dialog::backdrop{background:var(--shadow)}
+dialog h3{font:500 18px/1.3 var(--f-text);margin:0 0 6px}
+dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 var(--f-mono);max-height:55vh;overflow:auto;background:var(--bg);padding:10px;border-radius:6px}
+.dlg{display:flex;flex-direction:column;gap:10px}
+.sarrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start}
+@media (max-width:560px){.sarrow{grid-template-columns:minmax(0,1fr)}}
+#sarIn{min-height:96px}
+.mx{border-collapse:collapse;font:13px var(--f-mono);border-left:2px solid var(--fg);border-right:2px solid var(--fg);border-radius:4px}
+.mx td{padding:3px 10px;text-align:center;white-space:nowrap}
+.mxw{overflow-x:auto}
+.keys{width:100%;border-collapse:collapse;font-size:13px}
+.keys td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.keys td:first-child{white-space:nowrap;width:1%}
+.keys code{font:12px var(--f-mono)}
+</style>
+
+<div class="app">
+  <header>
+    <h1>Editor de pistes PAU<small>pistes/src/*.tex</small></h1>
+    <div class="bar"><span class="status" id="status">Carregant…</span><button class="btn" type="button" id="helpBtn">Dreceres <kbd>?</kbd></button></div>
+  </header>
+  <p class="help">Edita només el text de dins de <code>\pista{…}</code>. La barra escriu a la pista on tens el cursor. Prem <b>Copia</b> (o <kbd>Ctrl</kbd>+<kbd>Retorn</kbd>): copia el fitxer .tex sencer. Després l'enganxes a GitHub amb Ctrl+A i Ctrl+V.</p>
+  <div class="grid">
+    <aside class="side">
+      <div class="tools">
+        <input type="search" id="q" placeholder="Cerca per codi o text…  ( / )" aria-label="Cerca">
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="list" id="list"></div>
+    </aside>
+    <section class="main">
+      <div class="tb" id="tb" role="toolbar" aria-label="Insereix LaTeX">
+        <div class="tg"><span class="tl">Fórmula</span>
+          <button class="btn" type="button" data-sn="math" title="Fórmula  (Ctrl+M)">$ $</button>
+          <button class="btn" type="button" data-sn="sup" title="Exponent">^{ }</button>
+          <button class="btn" type="button" data-sn="sub" title="Subíndex">_{ }</button>
+          <button class="btn" type="button" data-sn="frac" title="Fracció  (Alt+Q)">\dfrac</button>
+          <button class="btn" type="button" data-sn="sqrt" title="Arrel">\sqrt</button>
+          <div class="dd"><button class="btn" type="button" data-dd="sym" aria-expanded="false">Símbols ▾</button>
+            <div class="menu sym" id="dd-sym" hidden></div></div>
+        </div>
+        <div class="tg"><span class="tl">Àlgebra</span>
+          <button class="btn" type="button" data-sn="vec" title="Vector  (Alt+V)">\vec</button>
+          <button class="btn" type="button" data-sn="det" title="Determinant">\det</button>
+          <button class="btn" type="button" data-sn="m2" title="Matriu 2×2">2×2</button>
+          <button class="btn" type="button" data-sn="m3" title="Matriu 3×3">3×3</button>
+          <button class="btn wd" type="button" data-sn="sis" title="Sistema de 3 equacions">sistema</button>
+          <button class="btn wd" type="button" data-act="sarrus" title="Determinant pas a pas per la regla de Sarrus  (Alt+S)">Sarrus…</button>
+        </div>
+        <div class="tg"><span class="tl">Anàlisi</span>
+          <button class="btn" type="button" data-sn="lim" title="Límit">\lim</button>
+          <button class="btn" type="button" data-sn="int" title="Integral">\int</button>
+          <button class="btn" type="button" data-sn="ln" title="Logaritme neperià">\ln</button>
+          <button class="btn" type="button" data-sn="fp" title="Derivada">f'(x)</button>
+          <button class="btn" type="button" data-sn="fpp" title="Derivada segona">f''(x)</button>
+        </div>
+        <div class="tg"><div class="dd"><button class="btn wd" type="button" data-dd="fr" aria-expanded="false">Frases ▾</button>
+          <div class="menu fr" id="dd-fr" hidden></div></div></div>
+        <span class="tgt" id="tgt"></span>
+      </div>
+      <div class="body" id="main"></div>
+    </section>
+  </div>
+</div>
+
+<dialog id="dlg"><div class="dlg"><p class="help" id="dlgTxt"></p><pre id="dlgPre"></pre><div class="bar"><button class="btn pri" id="dlgSel" type="button">Selecciona-ho tot</button><button class="btn" id="dlgClose" type="button">Tanca</button></div></div></dialog>
+
+<dialog id="sar" aria-labelledby="sarH"><div class="dlg">
+  <h3 id="sarH">Determinant per la regla de Sarrus</h3>
+  <p class="help">Escriu la matriu per files, una fila per línia. Separa els elements amb espais (o amb <code>&amp;</code>, com en un <code>pmatrix</code>, que també pots enganxar sencer). Admet paràmetres: <code>a</code>, <code>2a-1</code>, <code>\lambda</code>, <code>k^2</code>, <code>1/2</code>, <code>2,5</code>…</p>
+  <div class="sarrow">
+    <textarea id="sarIn" spellcheck="false" aria-label="Files de la matriu"></textarea>
+    <div class="mxw" id="sarGrid"></div>
+  </div>
+  <pre id="sarOut" aria-live="polite"></pre>
+  <span class="warn" id="sarErr"></span>
+  <div class="bar"><button class="btn pri" type="button" id="sarOk">Insereix a la pista</button><button class="btn" type="button" id="sarNo">Cancel·la</button><span class="help">Ctrl+Retorn insereix · Esc tanca</span></div>
+</div></dialog>
+
+<dialog id="keysDlg" aria-labelledby="keysH"><div class="dlg">
+  <h3 id="keysH">Dreceres de teclat</h3>
+  <table class="keys" id="keysTbl"></table>
+  <p class="help">Si tens text seleccionat, els botons i les dreceres l'envolten (p. ex. selecciona <code>AB</code> i prem Alt+V: <code>\vec{AB}</code>). Si el cursor no és dins d'una fórmula, s'hi afegeixen els <code>$ $</code> sols. Ctrl+Z ho desfà.</p>
+  <div class="bar"><button class="btn" type="button" id="keysClose">Tanca</button></div>
+</div></dialog>
+
+<script>
+const FILES = __DATA__;
+const BY = Object.fromEntries(FILES.map(f=>[f.id,f]));
+const AREA = {alg:'Àlgebra',ana:'Anàlisi',geo:'Geometria',pro:'Probabilitat'};
+const $ = id => document.getElementById(id);
+const state = {sel:FILES[0].id, q:'', filter:'totes', edits:{}, act:0};
+let coll=null, timers={};
+const npist = f => (f.segs.length-1)/2;
+const orig = (f,i) => f.segs[2*i+1];
+const ekey = (f,i) => f.id+'_'+i;
+const cur = (f,i) => (ekey(f,i) in state.edits) ? state.edits[ekey(f,i)] : orig(f,i);
+const modP = (f,i) => cur(f,i)!==orig(f,i);
+const modF = f => { for(let i=0;i<npist(f);i++) if(modP(f,i)) return true; return false; };
+const esc = s => s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fileText = f => f.segs.map((s,k)=> k%2 ? cur(f,(k-1)/2) : s).join('');
+const short = f => f.pro.replace(/^PAU Catalunya\s*/,'').replace('Convocatòria de ','').replace('Convocatòria ','');
+
+/* ---------- Fragments de LaTeX: ¦ = forat (el primer rep el text seleccionat; Tab salta al següent). m = va dins d'una fórmula ---------- */
+const SN = {
+  math:{t:'$¦$'},
+  sup:{t:'^{¦}',m:1}, sub:{t:'_{¦}',m:1}, frac:{t:'\\dfrac{¦}{¦}',m:1}, sqrt:{t:'\\sqrt{¦}',m:1},
+  vec:{t:'\\vec{¦}',m:1}, det:{t:'\\det(¦)',m:1},
+  m2:{t:'\\begin{pmatrix} ¦ & ¦ \\\\ ¦ & ¦ \\end{pmatrix}',m:1},
+  m3:{t:'\\begin{pmatrix} ¦ & ¦ & ¦ \\\\ ¦ & ¦ & ¦ \\\\ ¦ & ¦ & ¦ \\end{pmatrix}',m:1},
+  sis:{t:'\\left.\\begin{array}{r}\n¦ \\\\\n¦ \\\\\n¦\n\\end{array}\\right\\}',m:1},
+  lim:{t:'\\lim_{x \\to ¦} ¦',m:1}, int:{t:'\\int ¦',m:1}, ln:{t:'\\ln ¦',m:1},
+  fp:{t:"f'(x)",m:1}, fpp:{t:"f''(x)",m:1},
+};
+const SYM = [['cdot','\\cdot','Alt+.'],['times','\\times','Alt+X'],['neq','\\neq'],['to','\\to'],['infty','\\infty'],['pi','\\pi','Alt+P'],
+  ['lambda','\\lambda','Alt+L'],['mu','\\mu','Alt+M'],['in','\\in'],['le','\\le'],['ge','\\ge'],['pm','\\pm'],['ldots','\\ldots']];
+for(const [k,t] of SYM) SN[k]={t, m:1, sym:1};
+const FR = ['Atenció: ','Observació: ',"Fixa't que ",'Recorda: ',"Resol l'equació ","eix d'ordenades","eix d'abscisses",'pel mètode de Gauss','per la regla de Sarrus'];
+FR.forEach((t,i)=>SN['fr'+i]={t});
+$('dd-sym').innerHTML = SYM.map(([k,t,kb])=>`<button class="btn" type="button" data-sn="${k}"${kb?` title="${kb}"`:''}>${esc(t)}</button>`).join('');
+$('dd-fr').innerHTML = FR.map((t,i)=>`<button class="btn wd" type="button" data-sn="fr${i}">${esc(t.trim())}</button>`).join('');
+
+/* Dreceres: Alt + tecla (física, val per a qualsevol teclat). AltGr (= Ctrl+Alt) no s'hi barreja. */
+const ALT = {KeyV:'vec',KeyQ:'frac',KeyP:'pi',KeyL:'lambda',KeyM:'mu',Period:'cdot',KeyX:'times'};
+const KEYS = [
+  ['Ctrl+M','Fórmula <code>$ $</code>'],['Alt+V','<code>\\vec{ }</code>'],['Alt+Q','<code>\\dfrac{ }{ }</code>'],
+  ['Alt+P','<code>\\pi</code>'],['Alt+L','<code>\\lambda</code>'],['Alt+M','<code>\\mu</code>'],['Alt+.','<code>\\cdot</code>'],['Alt+X','<code>\\times</code>'],
+  ['Alt+S','Determinant per Sarrus'],['Tab','Salta al forat següent (el 2n de <code>\\dfrac{ }{ }</code>, la casella següent d\'una matriu…) i, al final, surt de la fórmula'],
+  ['Alt+↓ / Alt+↑','Pista següent / anterior (passa d\'un exercici a l\'altre)'],['Ctrl+Retorn','Copia el fitxer .tex'],
+  ['/','Cerca un exercici'],['?','Aquesta llista'],['Ctrl+Z','Desfà (també el que escriuen els botons)']];
+$('keysTbl').innerHTML = KEYS.map(([k,d])=>`<tr><td>${k.split(' / ').map(x=>x.split('+').map(y=>`<kbd>${y}</kbd>`).join('+')).join(' / ')}</td><td>${d}</td></tr>`).join('');
+
+function context(f,i){
+  let c=f.segs[2*i];
+  if(i===0){ const k=c.indexOf('\\begin{document}'); if(k>=0) c=c.slice(k+16); }
+  else c=c.replace(/^\}/,'');
+  return c.replace(/\\pista\{$/,'').trim();
+}
+function label(f,i){
+  const c=context(f,i); const m=c.match(/\\(?:sub)?section\*\{([\s\S]*?)\}\s*$/m)||c.match(/\\(?:sub)?section\*\{([^\n]*)/);
+  const t=(m?m[1]:'').replace(/\\(textit|textcolor|normalfont|textnormal)\{?[a-z]*\}?\{?/g,'').replace(/[\\{}$]/g,'').replace(/\s+/g,' ').trim();
+  return t.slice(0,70);
+}
+const LLARG = 700;   // ~6 línies del PDF, comptant el codi LaTeX
+function warns(t){
+  const w=[], s=[]; let d=0; for(let k=0;k<t.length;k++){const c=t[k]; if(c==='\\'){k++;continue;} if(c==='{')d++; if(c==='}'){d--; if(d<0)break;}}
+  if(d!==0) w.push('Les claus { } no quadren: el LaTeX no compilarà');
+  if((t.replace(/\\\$/g,'').match(/\$/g)||[]).length%2) w.push('Falta tancar un $');
+  if(/"|``|''/.test(t.replace(/[A-Za-z]'+\(/g,''))) s.push('Fes servir cometes baixes « »');
+  const fm=[[/\banem a\b/i,'«anem a» → «obtindrem», «calcularem»…'],[/\bdonat que\b/i,'«donat que» → «atès que», «com que»'],[/\ben base a\b/i,'«en base a» → «a partir de»']];
+  for(const [re,m] of fm) if(re.test(t)) s.push(m);
+  if(t.length>LLARG) s.push(`Pista llarga (${t.length} caràcters): l'ESTIL en demana de 2 a 6 línies`);
+  return {w,s};
+}
+
+function chips(){
+  const n=FILES.filter(modF).length;
+  $('chips').innerHTML=[['totes','Totes'],['canvis','Amb canvis ('+n+')']].concat(Object.keys(AREA).map(a=>[a,AREA[a]]))
+    .map(([f,l])=>`<button class="chip" type="button" data-f="${f}" aria-pressed="${state.filter===f}">${l}</button>`).join('');
+  $('status').innerHTML = n ? `<b>${n} fitxer${n>1?'s':''} amb canvis</b>` : 'Cap canvi respecte al repositori';
+}
+function visible(f,q){
+  const pre=f.id.split('-')[0];
+  if(state.filter==='canvis' && !modF(f)) return false;
+  if(AREA[state.filter] && pre!==state.filter) return false;
+  if(q && !(f.id.includes(q) || f.pro.toLowerCase().includes(q) || f.segs.some((s,k)=>k%2&&cur(f,(k-1)/2).toLowerCase().includes(q)))) return false;
+  return true;
+}
+function list(){
+  const q=state.q.trim().toLowerCase(); let h='', last='';
+  for(const f of FILES){
+    if(!visible(f,q)) continue;
+    const pre=f.id.split('-')[0];
+    if(pre!==last){last=pre;h+=`<div class="ug">${AREA[pre]||pre}</div>`;}
+    h+=`<button class="it" type="button" data-k="${f.id}" aria-current="${state.sel===f.id}"><span class="n">${f.id}</span><span class="t">${esc(short(f))}</span>${modF(f)?'<span class="dot" title="Amb canvis"></span>':''}</button>`;
+  }
+  $('list').innerHTML=h||'<div class="empty">Cap exercici amb aquest filtre.</div>';
+}
+function main(){
+  H=null;
+  const f=BY[state.sel]; if(!f){ $('main').innerHTML='<div class="empty">Tria un exercici.</div>'; return; }
+  if(state.act>=npist(f)) state.act=0;
+  let h=`<div class="top"><div><div class="key">${f.id}.tex</div><h2>${esc(f.pro.replace(/^PAU /,''))}</h2></div>
+    <div class="bar"><a class="btn" href="https://github.com/step-quiz/pau/edit/main/pistes/src/${f.id}.tex" target="_blank" rel="noopener">Obre a GitHub ↗</a>
+    <button class="btn pri" type="button" id="cp" title="Ctrl+Retorn">Copia</button></div></div>`;
+  for(let i=0;i<npist(f);i++){
+    h+=`<div class="ap"><div class="aph"><span>Pista ${i+1} de ${npist(f)}</span><span id="tg${i}"></span></div>
+      <details><summary>Enunciat${label(f,i)?': '+esc(label(f,i)):''}</summary><pre>${esc(context(f,i))}</pre></details>
+      <textarea id="ta${i}" data-i="${i}" spellcheck="true" lang="ca" aria-label="Pista ${i+1}"></textarea>
+      <div class="foot"><span class="cnt" id="cn${i}"></span><span class="warns" id="wr${i}"></span><button class="btn" type="button" data-rev="${i}">Torna a l'original</button></div></div>`;
+  }
+  $('main').innerHTML=h;
+  for(let i=0;i<npist(f);i++){ const ta=$('ta'+i); ta.value=cur(f,i); meta(f,i); }
+  target();
+}
+function target(){ const f=BY[state.sel]; $('tgt').innerHTML = f ? `Escriu a: <b>Pista ${state.act+1}</b>` : ''; }
+function meta(f,i){
+  const t=cur(f,i), {w,s}=warns(t);
+  $('tg'+i).innerHTML=modP(f,i)?'<span class="tag">modificada</span>':'';
+  $('cn'+i).textContent=t.length+' caràcters';
+  $('wr'+i).innerHTML=w.map(x=>`<span class="warn">${esc(x)}</span>`).join('')+s.map(x=>`<span class="soft">${esc(x)}</span>`).join('');
+}
+function edit(f,i,t){
+  const k=ekey(f,i); state.edits[k]=t; if(t===orig(f,i)) delete state.edits[k];
+  meta(f,i); chips(); refreshItem(f);
+  clearTimeout(timers[k]); timers[k]=setTimeout(()=>persist(f,i),700);
+}
+function refreshItem(f){
+  const b=document.querySelector(`.it[data-k="${f.id}"]`); if(!b) return;
+  const d=b.querySelector('.dot'); if(d) d.remove();
+  if(modF(f)) b.insertAdjacentHTML('beforeend','<span class="dot" title="Amb canvis"></span>');
+}
+async function persist(f,i){
+  if(!coll) return; const k=ekey(f,i), ref=coll.doc(k), t=state.edits[k];
+  try{ if(t===undefined) await ref.delete(); else await ref.set({id:f.id,idx:i,text:t}); }
+  catch(e){ $('status').textContent='Error en desar: '+(e.message||e.code); }
+}
+
+/* ---------- Inserció (amb historial de desfer) i forats ---------- */
+let H=null;   // forats pendents: {ta, pos:[…], len}
+function inMath(s,pos){   // el cursor és dins de $…$, $$…$$, \(…\) o \[…\]?
+  let m=0;
+  for(let i=0;i<pos;i++){
+    const c=s[i];
+    if(c==='\\'){ const n=s[i+1]; if(n==='['&&!m)m=2; else if(n===']'&&m===2)m=0; else if(n==='('&&!m)m=1; else if(n===')'&&m===1)m=0; i++; continue; }
+    if(c==='$'){ if(s[i+1]==='$'&&m!==1){ m=m===2?0:2; i++; } else if(m!==2) m=m?0:1; }
+  }
+  return m>0;
+}
+function put(ta,a,b,text){
+  ta.focus(); ta.setSelectionRange(a,b);
+  let ok=false; try{ ok=document.execCommand('insertText',false,text); }catch(_){}
+  if(!ok || ta.value.slice(a,a+text.length)!==text){ ta.setRangeText(text,a,b,'end'); ta.dispatchEvent(new Event('input',{bubbles:true})); }
+}
+function activeTA(){ const e=document.activeElement; if(e&&e.matches&&e.matches('textarea[data-i]')) return e; return $('ta'+state.act); }
+function insert(key){
+  const sn=SN[key], ta=activeTA(); if(!sn||!ta) return;
+  const a=ta.selectionStart, b=ta.selectionEnd, sel=ta.value.slice(a,b);
+  let t=sn.t;
+  if(sn.m){ if(!inMath(ta.value,a)) t='$'+t+'$'; else if(sn.sym) t+=' '; }
+  const holes=[]; let out='';
+  for(const ch of t){ if(ch==='¦') holes.push(out.length); else out+=ch; }
+  if(holes.length && holes[holes.length-1]!==out.length) holes.push(out.length);   // l'últim forat: just després del fragment (fora de la fórmula)
+  let caret;
+  if(holes.length){
+    if(sel){ out=out.slice(0,holes[0])+sel+out.slice(holes[0]); for(let k=1;k<holes.length;k++) holes[k]+=sel.length; holes.shift(); caret = holes.length ? holes.shift() : out.length; }
+    else caret=holes.shift();
+  } else caret=out.length;
+  if(H && H.ta!==ta) H=null;
+  put(ta,a,b,out);   // l'esdeveniment input desplaça els forats que ja hi havia (p. ex. el $ final de Ctrl+M)
+  ta.setSelectionRange(a+caret,a+caret);
+  const all=[...new Set([...(H?H.pos:[]), ...holes.map(h=>a+h)])].filter(h=>h>a+caret-1).sort((x,y)=>x-y);
+  H = all.length ? {ta, pos:all, len:ta.value.length} : null;
+}
+function shiftHoles(ta){
+  if(!H||H.ta!==ta) return;
+  const d=ta.value.length-H.len, at = d>0 ? ta.selectionStart-d : ta.selectionStart;
+  H.pos=H.pos.map(h=> h>at ? Math.max(at,h+d) : h); H.len=ta.value.length;
+}
+function nextHole(ta){
+  if(!H||H.ta!==ta) return false;
+  const c=ta.selectionEnd, n=H.pos.find(h=>h>c);
+  if(n===undefined){ H=null; return false; }
+  ta.setSelectionRange(n,n); H.pos=H.pos.filter(h=>h>n); if(!H.pos.length) H=null; return true;
+}
+
+/* ---------- Copia ---------- */
+let ct=null;
+async function copy(){
+  const f=BY[state.sel], txt=fileText(f), b=$('cp');
+  try{ await navigator.clipboard.writeText(txt); b.textContent='Copiat ✓'; clearTimeout(ct); ct=setTimeout(()=>{b.textContent='Copia';},2500); }
+  catch(_){ $('dlgTxt').textContent='El navegador no deixa copiar automàticament. El text ja està seleccionat: prem Ctrl+C.'; $('dlgPre').textContent=txt; $('dlg').showModal(); selAll(); }
+}
+function selAll(){const r=document.createRange();r.selectNodeContents($('dlgPre'));const s=getSelection();s.removeAllRanges();s.addRange(r);}
+
+/* ---------- Navegació entre pistes ---------- */
+function go(dir){
+  const f=BY[state.sel], e=document.activeElement, inTa=e&&e.matches&&e.matches('textarea[data-i]');
+  let i = inTa ? +e.dataset.i + dir : (dir>0 ? 0 : npist(f)-1);
+  if(i<0 || i>=npist(f)){
+    const q=state.q.trim().toLowerCase(), ids=FILES.filter(x=>visible(x,q)).map(x=>x.id);
+    let k=ids.indexOf(f.id); if(k<0) return;
+    k+=dir; if(k<0||k>=ids.length) return;
+    state.sel=ids[k]; list(); main(); i = dir>0 ? 0 : npist(BY[state.sel])-1;
+    const it=document.querySelector(`.it[data-k="${state.sel}"]`); if(it) it.scrollIntoView({block:'nearest'});
+  }
+  const ta=$('ta'+i); if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); ta.scrollIntoView({block:'center'}); }
+}
+
+/* ---------- Sarrus: polinomis amb coeficients racionals ---------- */
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+const R=(n,d=1)=>{ if(d<0){n=-n;d=-d;} const g=gcd(n,d); return [n/g,d/g]; };
+const radd=(x,y)=>R(x[0]*y[1]+y[0]*x[1],x[1]*y[1]), rmul=(x,y)=>R(x[0]*y[0],x[1]*y[1]);
+const P = {
+  c:r=>{ const m=new Map(); if(r[0]) m.set('',r); return m; },
+  v:name=>new Map([[name+'^1',[1,1]]]),
+  add(p,q){ const m=new Map(p); for(const [k,r] of q){ const s=m.has(k)?radd(m.get(k),r):r; if(s[0]) m.set(k,s); else m.delete(k); } return m; },
+  neg(p){ const m=new Map(); for(const [k,r] of p) m.set(k,[-r[0],r[1]]); return m; },
+  mul(p,q){ let m=new Map(); for(const [k1,r1] of p) for(const [k2,r2] of q){ m=P.add(m,new Map([[P.mk(k1,k2),rmul(r1,r2)]])); } return m; },
+  mk(k1,k2){ const e={}; for(const k of [k1,k2]) if(k) for(const part of k.split('*')){ const j=part.lastIndexOf('^'); const v=part.slice(0,j); e[v]=(e[v]||0)+ +part.slice(j+1); }
+    return Object.keys(e).sort().map(v=>v+'^'+e[v]).join('*'); },
+  isConst:p=>[...p.keys()].every(k=>k===''),
+  val:p=>p.get('')||[0,1],
+};
+function lex(s){
+  s=s.replace(/−/g,'-').replace(/·|×/g,'*').replace(/λ/g,'\\lambda ').replace(/μ/g,'\\mu ').replace(/α/g,'\\alpha ').replace(/β/g,'\\beta ');
+  const T=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/\s/.test(c)){i++;continue;}
+    let m;
+    if((m=s.slice(i).match(/^\d+(?:(?:\{,\}|[.,])\d+)?/))){
+      const txt=m[0].replace('{,}','.').replace(',','.'), [ip,fp='']=txt.split('.');
+      T.push({t:'n',r:R(+(ip+fp),10**fp.length)}); i+=m[0].length; continue; }
+    if(c==='\\'){
+      m=s.slice(i).match(/^\\([A-Za-z]+|.)/); i+=m[0].length; const w=m[1];
+      if(w==='cdot'||w==='times') T.push({t:'*'});
+      else if(w==='frac'||w==='dfrac'||w==='tfrac') T.push({t:'frac'});
+      else if(/^[A-Za-z]+$/.test(w) && !/^(left|right|big|Big|bigl|bigr|Bigl|Bigr)$/.test(w)) T.push({t:'v',name:'\\'+w});
+      continue; }
+    if(/[A-Za-z]/.test(c)){ T.push({t:'v',name:c}); i++; continue; }
+    if('+-*/^(){}[]'.includes(c)){ T.push({t:c}); i++; continue; }
+    throw new Error('No entenc el caràcter «'+c+'»');
+  }
+  return T;
+}
+function parse(s){
+  const T=lex(s); let i=0;
+  const peek=()=>T[i]||{t:'end'}, eat=t=>{ if(peek().t!==t) throw new Error(t==='end'?'Sobra alguna cosa al final':'Falta «'+t+'»'); i++; };
+  const CL={'(' :')','{':'}','[':']'};
+  function expr(){
+    let p; if(peek().t==='-'){ i++; p=P.neg(term()); } else { if(peek().t==='+') i++; p=term(); }
+    while(peek().t==='+'||peek().t==='-'){ const o=T[i++].t; const q=term(); p= o==='+'?P.add(p,q):P.add(p,P.neg(q)); }
+    return p;
+  }
+  const starts=t=>t==='n'||t==='v'||t==='('||t==='{'||t==='['||t==='frac';
+  function term(){
+    let p=power();
+    for(;;){
+      const t=peek().t;
+      if(t==='*'){ i++; p=P.mul(p,power()); }
+      else if(t==='/'){ i++; const q=power(); if(!P.isConst(q)) throw new Error('Només sé dividir per nombres'); const r=P.val(q); if(!r[0]) throw new Error('Divisió per zero'); p=P.mul(p,P.c([r[1],r[0]])); }
+      else if(starts(t)) p=P.mul(p,power());
+      else return p;
+    }
+  }
+  function power(){
+    let p=atom();
+    while(peek().t==='^'){ i++; const e=atom(); const r=P.val(e);
+      if(!P.isConst(e)||r[1]!==1||r[0]<0||r[0]>12) throw new Error("L'exponent ha de ser un nombre natural");
+      let q=P.c([1,1]); for(let k=0;k<r[0];k++) q=P.mul(q,p); p=q; }
+    return p;
+  }
+  function atom(){
+    const k=peek();
+    if(k.t==='n'){ i++; return P.c(k.r); }
+    if(k.t==='v'){ i++; return P.v(k.name); }
+    if(k.t==='-'){ i++; return P.neg(power()); }
+    if(CL[k.t]){ i++; const p=expr(); eat(CL[k.t]); return p; }
+    if(k.t==='frac'){ i++; eat('{'); const a=expr(); eat('}'); eat('{'); const b=expr(); eat('}');
+      if(!P.isConst(b)) throw new Error('Només sé dividir per nombres'); const r=P.val(b); if(!r[0]) throw new Error('Divisió per zero');
+      return P.mul(a,P.c([r[1],r[0]])); }
+    throw new Error(k.t==='end'?'Falta un element':'No entenc «'+k.t+'»');
+  }
+  const p=expr(); eat('end'); return p;
+}
+function fmtCoef(r){ return r[1]===1 ? String(r[0]) : `\\frac{${r[0]}}{${r[1]}}`; }
+function fmtVars(k){
+  let s='';
+  for(const part of k.split('*')){ const j=part.lastIndexOf('^'), v=part.slice(0,j), e=+part.slice(j+1);
+    if(s && /^[A-Za-z]/.test(v) && /\\[A-Za-z]+$/.test(s)) s+=' ';
+    s+=v+(e>1?'^'+(e>9?'{'+e+'}':e):''); }
+  return s;
+}
+function terms(p){   // grau total descendent; empat: ordre alfabètic dels paràmetres
+  const ex=k=>{ const e={}; if(k) for(const part of k.split('*')){ const j=part.lastIndexOf('^'); e[part.slice(0,j)]=+part.slice(j+1); } return e; };
+  const vars=[...new Set([...p.keys()].flatMap(k=>Object.keys(ex(k))))].sort();
+  const deg=k=>Object.values(ex(k)).reduce((a,b)=>a+b,0);
+  return [...p.entries()].sort(([a],[b])=>{ const d=deg(b)-deg(a); if(d) return d; const ea=ex(a), eb=ex(b);
+    for(const v of vars){ const x=(eb[v]||0)-(ea[v]||0); if(x) return x; } return 0; });
+}
+function mono(k,r){   // sense signe
+  const a=[Math.abs(r[0]),r[1]];
+  if(!k) return fmtCoef(a);
+  return (a[0]===1&&a[1]===1 ? '' : fmtCoef(a)) + fmtVars(k);
+}
+function fmt(p){
+  const ts=terms(p); if(!ts.length) return '0';
+  return ts.map(([k,r],j)=> (r[0]<0 ? (j?' - ':'-') : (j?' + ':'')) + mono(k,r)).join('');
+}
+function fmtSum(ps){   // [t1 + t2 + t3] respectant cada producte
+  return ps.map((p,j)=>{
+    const ts=terms(p);
+    if(ts.length>1) return (j?' + ':'')+'('+fmt(p)+')';
+    if(ts.length===1 && ts[0][1][0]<0) return (j?' - ':'-')+mono(ts[0][0],ts[0][1]);
+    return (j?' + ':'')+fmt(p);
+  }).join('');
+}
+function splitRow(r){
+  if(r.includes('&')) return r.split('&').map(x=>x.trim());
+  if(r.includes(';')) return r.split(';').map(x=>x.trim());
+  const out=[], bal=s=>{ let d=0; for(const c of s){ if('({['.includes(c))d++; if(')}]'.includes(c))d--; } return d; };
+  for(const tok of r.trim().split(/\s+/)){
+    const last=out[out.length-1];
+    if(last!==undefined && (/^[-+*·×\/^−]$/.test(tok) || /^[*·×\/^)\]}]/.test(tok) || /[-+*·×\/^−(\[{]$/.test(last) || /\\[a-z]*frac$/.test(last) || bal(last)>0)) out[out.length-1]=last+' '+tok;
+    else out.push(tok);
+  }
+  return out;
+}
+function readMatrix(s){
+  s=s.replace(/\\(begin|end)\{[a-zA-Z]*\*?\}/g,'').replace(/\$/g,'').replace(/\\\\/g,'\n');
+  const rows=s.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(rows.length!==3) throw new Error(`Hi ha ${rows.length} fil${rows.length===1?'a':'es'}: n'hi han de ser 3`);
+  const M=rows.map(splitRow);
+  M.forEach((r,k)=>{ if(r.length!==3) throw new Error(`La fila ${k+1} té ${r.length} element${r.length===1?'':'s'}: n'hi han de ser 3`); });
+  return M;
+}
+function sarrus(M){
+  const A=M.map((r,k)=>r.map((x,j)=>{ try{ return parse(x); }catch(e){ throw new Error(`Fila ${k+1}, element ${j+1} («${x}»): ${e.message}`); } }));
+  const prod=ix=>ix.reduce((p,[r,c])=>P.mul(p,A[r][c]),P.c([1,1]));
+  const pos=[[[0,0],[1,1],[2,2]],[[0,1],[1,2],[2,0]],[[0,2],[1,0],[2,1]]].map(prod);
+  const neg=[[[0,2],[1,1],[2,0]],[[0,0],[1,2],[2,1]],[[0,1],[1,0],[2,2]]].map(prod);
+  const S=ps=>ps.reduce(P.add,new Map()), Pp=S(pos), Nn=S(neg);
+  return `$$[${fmtSum(pos)}] - [${fmtSum(neg)}] =$$\n$$= (${fmt(Pp)}) - (${fmt(Nn)}) =$$\n$$= ${fmt(P.add(Pp,P.neg(Nn)))}$$`;
+}
+let sarTA=null, sarSel=[0,0], sarLast='1 a 2\n0 5 a\n4 1 1';
+function sarOpen(){
+  sarTA=activeTA(); if(!sarTA) return; sarSel=[sarTA.selectionStart,sarTA.selectionEnd];
+  $('sarIn').value=sarLast; sarRun(); $('sar').showModal(); $('sarIn').select();
+}
+function sarRun(){
+  const s=$('sarIn').value; sarLast=s; $('sarErr').textContent=''; $('sarOk').disabled=true;
+  let M; try{ M=readMatrix(s); }catch(e){ $('sarGrid').innerHTML=''; $('sarOut').textContent='—'; $('sarErr').textContent=e.message; return; }
+  $('sarGrid').innerHTML='<table class="mx" aria-label="Matriu llegida">'+M.map(r=>'<tr>'+r.map(x=>`<td>${esc(x)}</td>`).join('')+'</tr>').join('')+'</table>';
+  try{ $('sarOut').textContent=sarrus(M); $('sarOk').disabled=false; }catch(e){ $('sarOut').textContent='—'; $('sarErr').textContent=e.message; }
+}
+function sarInsert(){
+  if($('sarOk').disabled) return;
+  const ta=sarTA, [a,b]=sarSel, v=ta.value; let t=$('sarOut').textContent;
+  if(a>0 && v[a-1]!=='\n') t='\n'+t; if(v[b]!=='\n') t+='\n';
+  $('sar').close(); H=null; put(ta,a,b,t);
+}
+
+/* ---------- Esdeveniments ---------- */
+function closeMenus(except){ document.querySelectorAll('[data-dd]').forEach(b=>{ if(b===except) return; b.setAttribute('aria-expanded','false'); $('dd-'+b.dataset.dd).hidden=true; }); }
+document.addEventListener('mousedown',e=>{ if(e.target.closest('#tb .btn')) e.preventDefault(); });
+document.addEventListener('click',e=>{
+  const dd=e.target.closest('[data-dd]');
+  if(dd){ const m=$('dd-'+dd.dataset.dd), open=m.hidden; closeMenus(dd); m.hidden=!open; dd.setAttribute('aria-expanded',String(open)); return; }
+  if(!e.target.closest('.menu')) closeMenus();
+  const sn=e.target.closest('[data-sn]'); if(sn){ closeMenus(); insert(sn.dataset.sn); return; }
+  if(e.target.closest('[data-act="sarrus"]')){ sarOpen(); return; }
+  const it=e.target.closest('.it'); if(it){state.sel=it.dataset.k; state.act=0; list(); main(); if(innerWidth<=760) $('main').scrollIntoView({block:'start'}); return;}
+  const c=e.target.closest('.chip'); if(c){state.filter=c.dataset.f; chips(); list(); return;}
+  const r=e.target.closest('[data-rev]'); if(r){const f=BY[state.sel],i=+r.dataset.rev, ta=$('ta'+i); put(ta,0,ta.value.length,orig(f,i)); return;}
+  if(e.target.id==='cp') copy();
+});
+document.addEventListener('focusin',e=>{ const t=e.target; if(t.matches&&t.matches('textarea[data-i]')){ state.act=+t.dataset.i; target(); } });
+document.addEventListener('input',e=>{ const t=e.target; if(t.matches&&t.matches('textarea[data-i]')){ shiftHoles(t); edit(BY[state.sel],+t.dataset.i,t.value); } });
+document.addEventListener('keydown',e=>{
+  const t=e.target, inTa=t.matches&&t.matches('textarea[data-i]'), field=t.matches&&t.matches('input,textarea,select,[contenteditable]');
+  if($('sar').open){ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); sarInsert(); } return; }
+  if(document.querySelector('dialog[open]')) return;
+  if(e.key==='Escape'){ closeMenus(); H=null; return; }
+  if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); copy(); return; }
+  if(inTa && e.key==='Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey){ e.preventDefault(); nextHole(t); return; }   // sense forats, Tab no fa res (no surt del quadre)
+  if(e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && e.code==='KeyM'){ e.preventDefault(); insert('math'); return; }
+  if(e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey){
+    if(e.code==='ArrowDown'||e.code==='ArrowUp'){ e.preventDefault(); go(e.code==='ArrowDown'?1:-1); return; }
+    if(e.code==='KeyS'){ e.preventDefault(); sarOpen(); return; }
+    if(ALT[e.code]){ e.preventDefault(); insert(ALT[e.code]); return; }
+  }
+  if(!field && !e.ctrlKey && !e.altKey && !e.metaKey){
+    if(e.key==='/'){ e.preventDefault(); $('q').focus(); $('q').select(); return; }
+    if(e.key==='?'){ e.preventDefault(); $('keysDlg').showModal(); return; }
+  }
+});
+$('q').addEventListener('input',e=>{state.q=e.target.value; list();});
+$('q').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const b=document.querySelector('.it'); if(b){ b.click(); const ta=$('ta0'); if(ta) ta.focus(); } } });
+$('dlgSel').addEventListener('click',selAll); $('dlgClose').addEventListener('click',()=>$('dlg').close());
+$('helpBtn').addEventListener('click',()=>$('keysDlg').showModal()); $('keysClose').addEventListener('click',()=>$('keysDlg').close());
+$('sarIn').addEventListener('input',sarRun); $('sarOk').addEventListener('click',sarInsert); $('sarNo').addEventListener('click',()=>$('sar').close());
+$('sar').addEventListener('close',()=>{ if(sarTA && document.activeElement!==sarTA){ sarTA.focus(); } });
+chips(); list(); main();
+
+(async()=>{
+  const db = await (window.claude?.use ? window.claude.use('db') : null);
+  if(!db){ $('status').textContent='Sense desat al núvol: els canvis es perdran en tancar la pàgina'; return; }
+  coll=db.collection('pistes');
+  coll.onSnapshot(snap=>{
+    const ed={};
+    snap.docs.forEach(d=>{const v=d.data(); const f=v&&BY[v.id]; if(f&&Number.isInteger(v.idx)&&v.idx<npist(f)) ed[f.id+'_'+v.idx]=String(v.text??'');});
+    const foc=document.activeElement&&document.activeElement.matches&&document.activeElement.matches('textarea[data-i]');
+    if(foc) for(const k of Object.keys(state.edits)) if(k.startsWith(state.sel+'_')) ed[k]=state.edits[k];
+    state.edits=ed; chips(); list(); if(!foc) main();
+  },e=>{$('status').textContent='Error de connexió: '+(e.message||e.code);});
+})();
+</script>
