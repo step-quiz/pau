@@ -21,7 +21,10 @@ repositori públic **`step-quiz/pau`** (`pistes/src/<id>.tex`), com a alternativ
 ## 2. Com el fa servir l'usuari
 
 1. Tria l'exercici a la llista de l'esquerra (cercador per codi o text; filtres *Totes / Amb canvis / Àlgebra / Anàlisi /
-   Geometria / Probabilitat*).
+   Geometria / Probabilitat*). La llista és estreta (120–150 px) i només mostra el codi (`ana-23s-q2`); la procedència surt
+   en passar-hi el ratolí. **Decisió de l'usuari (16/10/2026):** sense text d'ajuda a dalt, sense la procedència a la capçalera
+   de l'exercici, sense «Escriu a: Pista N» i sense comptador de caràcters. No els tornis a posar.
+   Tampoc vol textos emergents (`title`) als botons: el hover es marca amb fons gris suau (`--hover`) i vora `var(--fg)`.
 2. A la dreta veu, per a cada apartat: l'**enunciat en lectura** (LaTeX cru, plegat) i un **quadre editable** amb la pista.
 3. Una **barra d'eines única**, fixa a dalt (al mòbil no és fixa), escriu a la pista on hi ha (o hi havia) el cursor
    («Escriu a: Pista N»). Si hi ha text seleccionat, l'envolta. Els fragments de fórmula porten els `$ $` sols si el cursor
@@ -46,7 +49,9 @@ repositori públic **`step-quiz/pau`** (`pistes/src/<id>.tex`), com a alternativ
      terme va entre parèntesis. Ordre: grau descendent. Comprovat contra el desenvolupament per adjunts i compilat amb pdflatex.
    - **Dreceres** (tecla `?` o botó *Dreceres*): Ctrl+M `$ $` · Alt+V `\vec` · Alt+Q `\dfrac` · Alt+P `\pi` · Alt+L `\lambda` ·
      Alt+M `\mu` · Alt+. `\cdot` · Alt+X `\times` · Alt+S Sarrus · Alt+↓/↑ pista següent/anterior (canvia d'exercici) ·
-     Ctrl+Retorn Copia · `/` cerca. Les Alt usen `e.code` (tecla física) i ignoren AltGr (= Ctrl+Alt), que al teclat català fa `@ # [ ] { }`.
+     Ctrl+Retorn `\\[\smallskipamount]` + salt de línia (línia nova amb un petit espai; **no copia**: l'usuari prefereix el botó Copia) ·
+     `/` cerca. Dins de `\pista{…}` **una línia en blanc no compila** (`\textcolor` no admet `\par`), i `\smallskip` sol no fa saltar de línia:
+     per això Ctrl+Retorn escriu `\\[\smallskipamount]` (provat amb pdflatex, decisió de l'usuari 16/10/2026). Les Alt usen `e.code` (tecla física) i ignoren AltGr (= Ctrl+Alt), que al teclat català fa `@ # [ ] { }`.
    - **Avisos:** en vermell, claus `{ }` que no quadren i `$` sense tancar; en taronja, cometes rectes, «anem a», «donat que»,
      «en base a» i pista de més de 700 caràcters (~6 línies).
 4. Els canvis **es desen sols** (0,7 s després de teclejar). Es poden tancar la pàgina i continuar un altre dia.

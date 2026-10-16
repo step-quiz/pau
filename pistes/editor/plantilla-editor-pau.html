@@ -5,17 +5,17 @@
 :root{
   --bg:#f2f5f4; --panel:#ffffff; --line:#d6dedb; --fg:#172220; --mute:#566763;
   --accent:#0d6b5f; --accent-soft:#dff1ed; --accent-fg:#ffffff;
-  --mod:#b45309; --mod-soft:#fdf0dc; --ok:#17794a; --bad:#b42318; --shadow:rgba(20,40,36,.16);
+  --mod:#b45309; --mod-soft:#fdf0dc; --ok:#17794a; --bad:#b42318; --shadow:rgba(20,40,36,.16); --hover:#e6e9e8;
   --f-ui:"IBM Plex Sans",system-ui,sans-serif; --f-text:"Newsreader",Georgia,serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0f1514; --panel:#161e1c; --line:#28332f; --fg:#e4ece9; --mute:#93a5a0;
   --accent:#5fd0bd; --accent-soft:#17332e; --accent-fg:#06211c;
-  --mod:#f0a94e; --mod-soft:#33260f; --ok:#58c58f; --bad:#ff8a80; --shadow:rgba(0,0,0,.5); color-scheme:dark}}
+  --mod:#f0a94e; --mod-soft:#33260f; --ok:#58c58f; --bad:#ff8a80; --shadow:rgba(0,0,0,.5); --hover:#2a3532; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1514; --panel:#161e1c; --line:#28332f; --fg:#e4ece9; --mute:#93a5a0;
   --accent:#5fd0bd; --accent-soft:#17332e; --accent-fg:#06211c;
-  --mod:#f0a94e; --mod-soft:#33260f; --ok:#58c58f; --bad:#ff8a80; --shadow:rgba(0,0,0,.5); color-scheme:dark}
+  --mod:#f0a94e; --mod-soft:#33260f; --ok:#58c58f; --bad:#ff8a80; --shadow:rgba(0,0,0,.5); --hover:#2a3532; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--f-ui);padding-inline:16px;padding-block:14px}
 button,input,textarea{font:inherit;color:inherit}
@@ -25,13 +25,14 @@ h1{font:500 22px/1.2 var(--f-text);margin:0}
 h1 small{font:400 12px var(--f-mono);color:var(--mute);margin-left:8px}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:6px 12px;cursor:pointer;text-decoration:none;display:inline-block}
-.btn:hover{border-color:var(--accent)}
+.btn:hover{background:var(--hover);border-color:var(--fg)}
+.btn.pri:hover{background:var(--accent);border-color:var(--fg)}
 .btn.pri{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .status{font:12px var(--f-mono);color:var(--mute)} .status b{color:var(--mod);font-weight:500}
 .help{font-size:13px;color:var(--mute);margin:0}
 kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--bg);color:var(--fg);white-space:nowrap}
-.grid{display:grid;grid-template-columns:minmax(240px,300px) minmax(0,1fr);gap:12px;align-items:start}
+.grid{display:grid;grid-template-columns:minmax(120px,150px) minmax(0,1fr);gap:12px;align-items:start}
 @media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
 .side{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
 .tools{padding:10px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
@@ -44,8 +45,7 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-bottom-width
 .ug{padding:8px 12px 3px;font:500 11px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);position:sticky;top:0;background:var(--panel)}
 .it{display:flex;gap:8px;align-items:baseline;width:100%;text-align:left;border:0;background:none;padding:6px 12px;cursor:pointer;border-left:3px solid transparent}
 .it:hover{background:var(--bg)} .it[aria-current=true]{background:var(--accent-soft);border-left-color:var(--accent)}
-.it .n{font:500 12px var(--f-mono);color:var(--accent);white-space:nowrap}
-.it .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mute);font-size:12px}
+.it .n{flex:1;font:500 12px var(--f-mono);color:var(--accent);white-space:nowrap}
 .dot{width:8px;height:8px;border-radius:50%;flex:none;align-self:center;background:var(--mod)}
 .main{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
 /* Barra d'eines: una sola, fixa a dalt; escriu a la pista on hi ha (o hi havia) el cursor. */
@@ -54,8 +54,6 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-bottom-width
 .tl{font:500 10px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-right:2px}
 .tb .btn{font-family:var(--f-mono);padding:3px 8px;font-size:12.5px}
 .tb .btn.wd{font-family:var(--f-ui)}
-.tgt{margin-left:auto;font:12px var(--f-mono);color:var(--mute);white-space:nowrap}
-.tgt b{color:var(--accent);font-weight:500}
 .dd{position:relative}
 .menu{position:absolute;top:calc(100% + 4px);left:0;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px;box-shadow:0 8px 24px var(--shadow);display:grid;gap:4px}
 .menu[hidden]{display:none}
@@ -64,18 +62,15 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-bottom-width
 .menu .btn{text-align:left;white-space:nowrap}
 .menu .btn small{color:var(--mute);margin-left:6px;font-size:11px}
 @media (max-width:760px){.tb{position:static}}
-@media (max-width:520px){.tgt{margin-left:0}}
 .body{padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
 .key{font:500 12px var(--f-mono);color:var(--accent)}
-.body h2{font:500 20px/1.3 var(--f-text);margin:0;text-wrap:balance}
-.top{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:flex-start}
+.top{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center}
 .ap{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
 .aph{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;font-weight:600}
 .tag{border:1px solid var(--mod);color:var(--mod);border-radius:4px;padding:0 6px;font:12px var(--f-mono);font-weight:400}
 textarea{width:100%;min-height:120px;resize:vertical;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font:14px/1.55 var(--f-mono);field-sizing:content}
 textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 .foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
-.cnt{font:12px var(--f-mono);color:var(--mute)}
 .warns{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
 .warn{color:var(--bad);font-size:12px} .soft{color:var(--mod);font-size:12px}
 details{border:1px solid var(--line);border-radius:6px;padding:6px 12px}
@@ -104,11 +99,10 @@ dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 var(--f-mon
     <h1>Editor de pistes PAU<small>pistes/src/*.tex</small></h1>
     <div class="bar"><span class="status" id="status">Carregant…</span><button class="btn" type="button" id="helpBtn">Dreceres <kbd>?</kbd></button></div>
   </header>
-  <p class="help">Edita només el text de dins de <code>\pista{…}</code>. La barra escriu a la pista on tens el cursor. Prem <b>Copia</b> (o <kbd>Ctrl</kbd>+<kbd>Retorn</kbd>): copia el fitxer .tex sencer. Després l'enganxes a GitHub amb Ctrl+A i Ctrl+V.</p>
   <div class="grid">
     <aside class="side">
       <div class="tools">
-        <input type="search" id="q" placeholder="Cerca per codi o text…  ( / )" aria-label="Cerca">
+        <input type="search" id="q" placeholder="Cerca…  ( / )" aria-label="Cerca">
         <div class="chips" id="chips"></div>
       </div>
       <div class="list" id="list"></div>
@@ -116,32 +110,31 @@ dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 var(--f-mon
     <section class="main">
       <div class="tb" id="tb" role="toolbar" aria-label="Insereix LaTeX">
         <div class="tg"><span class="tl">Fórmula</span>
-          <button class="btn" type="button" data-sn="math" title="Fórmula  (Ctrl+M)">$ $</button>
-          <button class="btn" type="button" data-sn="sup" title="Exponent">^{ }</button>
-          <button class="btn" type="button" data-sn="sub" title="Subíndex">_{ }</button>
-          <button class="btn" type="button" data-sn="frac" title="Fracció  (Alt+Q)">\dfrac</button>
-          <button class="btn" type="button" data-sn="sqrt" title="Arrel">\sqrt</button>
+          <button class="btn" type="button" data-sn="math">$ $</button>
+          <button class="btn" type="button" data-sn="sup">^{ }</button>
+          <button class="btn" type="button" data-sn="sub">_{ }</button>
+          <button class="btn" type="button" data-sn="frac">\dfrac</button>
+          <button class="btn" type="button" data-sn="sqrt">\sqrt</button>
           <div class="dd"><button class="btn" type="button" data-dd="sym" aria-expanded="false">Símbols ▾</button>
             <div class="menu sym" id="dd-sym" hidden></div></div>
         </div>
         <div class="tg"><span class="tl">Àlgebra</span>
-          <button class="btn" type="button" data-sn="vec" title="Vector  (Alt+V)">\vec</button>
-          <button class="btn" type="button" data-sn="det" title="Determinant">\det</button>
-          <button class="btn" type="button" data-sn="m2" title="Matriu 2×2">2×2</button>
-          <button class="btn" type="button" data-sn="m3" title="Matriu 3×3">3×3</button>
-          <button class="btn wd" type="button" data-sn="sis" title="Sistema de 3 equacions">sistema</button>
-          <button class="btn wd" type="button" data-act="sarrus" title="Determinant pas a pas per la regla de Sarrus  (Alt+S)">Sarrus…</button>
+          <button class="btn" type="button" data-sn="vec">\vec</button>
+          <button class="btn" type="button" data-sn="det">\det</button>
+          <button class="btn" type="button" data-sn="m2">2×2</button>
+          <button class="btn" type="button" data-sn="m3">3×3</button>
+          <button class="btn wd" type="button" data-sn="sis">sistema</button>
+          <button class="btn wd" type="button" data-act="sarrus">Sarrus…</button>
         </div>
         <div class="tg"><span class="tl">Anàlisi</span>
-          <button class="btn" type="button" data-sn="lim" title="Límit">\lim</button>
-          <button class="btn" type="button" data-sn="int" title="Integral">\int</button>
-          <button class="btn" type="button" data-sn="ln" title="Logaritme neperià">\ln</button>
-          <button class="btn" type="button" data-sn="fp" title="Derivada">f'(x)</button>
-          <button class="btn" type="button" data-sn="fpp" title="Derivada segona">f''(x)</button>
+          <button class="btn" type="button" data-sn="lim">\lim</button>
+          <button class="btn" type="button" data-sn="int">\int</button>
+          <button class="btn" type="button" data-sn="ln">\ln</button>
+          <button class="btn" type="button" data-sn="fp">f'(x)</button>
+          <button class="btn" type="button" data-sn="fpp">f''(x)</button>
         </div>
         <div class="tg"><div class="dd"><button class="btn wd" type="button" data-dd="fr" aria-expanded="false">Frases ▾</button>
           <div class="menu fr" id="dd-fr" hidden></div></div></div>
-        <span class="tgt" id="tgt"></span>
       </div>
       <div class="body" id="main"></div>
     </section>
@@ -184,7 +177,6 @@ const modP = (f,i) => cur(f,i)!==orig(f,i);
 const modF = f => { for(let i=0;i<npist(f);i++) if(modP(f,i)) return true; return false; };
 const esc = s => s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fileText = f => f.segs.map((s,k)=> k%2 ? cur(f,(k-1)/2) : s).join('');
-const short = f => f.pro.replace(/^PAU Catalunya\s*/,'').replace('Convocatòria de ','').replace('Convocatòria ','');
 
 /* ---------- Fragments de LaTeX: ¦ = forat (el primer rep el text seleccionat; Tab salta al següent). m = va dins d'una fórmula ---------- */
 const SN = {
@@ -202,16 +194,17 @@ const SYM = [['cdot','\\cdot','Alt+.'],['times','\\times','Alt+X'],['neq','\\neq
 for(const [k,t] of SYM) SN[k]={t, m:1, sym:1};
 const FR = ['Atenció: ','Observació: ',"Fixa't que ",'Recorda: ',"Resol l'equació ","eix d'ordenades","eix d'abscisses",'pel mètode de Gauss','per la regla de Sarrus'];
 FR.forEach((t,i)=>SN['fr'+i]={t});
-$('dd-sym').innerHTML = SYM.map(([k,t,kb])=>`<button class="btn" type="button" data-sn="${k}"${kb?` title="${kb}"`:''}>${esc(t)}</button>`).join('');
+$('dd-sym').innerHTML = SYM.map(([k,t,kb])=>`<button class="btn" type="button" data-sn="${k}">${esc(t)}</button>`).join('');
 $('dd-fr').innerHTML = FR.map((t,i)=>`<button class="btn wd" type="button" data-sn="fr${i}">${esc(t.trim())}</button>`).join('');
 
 /* Dreceres: Alt + tecla (física, val per a qualsevol teclat). AltGr (= Ctrl+Alt) no s'hi barreja. */
+const BREAK = '\\\\[\\smallskipamount]\n';
 const ALT = {KeyV:'vec',KeyQ:'frac',KeyP:'pi',KeyL:'lambda',KeyM:'mu',Period:'cdot',KeyX:'times'};
 const KEYS = [
   ['Ctrl+M','Fórmula <code>$ $</code>'],['Alt+V','<code>\\vec{ }</code>'],['Alt+Q','<code>\\dfrac{ }{ }</code>'],
   ['Alt+P','<code>\\pi</code>'],['Alt+L','<code>\\lambda</code>'],['Alt+M','<code>\\mu</code>'],['Alt+.','<code>\\cdot</code>'],['Alt+X','<code>\\times</code>'],
   ['Alt+S','Determinant per Sarrus'],['Tab','Salta al forat següent (el 2n de <code>\\dfrac{ }{ }</code>, la casella següent d\'una matriu…) i, al final, surt de la fórmula'],
-  ['Alt+↓ / Alt+↑','Pista següent / anterior (passa d\'un exercici a l\'altre)'],['Ctrl+Retorn','Copia el fitxer .tex'],
+  ['Alt+↓ / Alt+↑','Pista següent / anterior (passa d\'un exercici a l\'altre)'],['Ctrl+Retorn','Línia nova amb un petit espai: <code>\\\\[\\smallskipamount]</code>'],
   ['/','Cerca un exercici'],['?','Aquesta llista'],['Ctrl+Z','Desfà (també el que escriuen els botons)']];
 $('keysTbl').innerHTML = KEYS.map(([k,d])=>`<tr><td>${k.split(' / ').map(x=>x.split('+').map(y=>`<kbd>${y}</kbd>`).join('+')).join(' / ')}</td><td>${d}</td></tr>`).join('');
 
@@ -257,7 +250,7 @@ function list(){
     if(!visible(f,q)) continue;
     const pre=f.id.split('-')[0];
     if(pre!==last){last=pre;h+=`<div class="ug">${AREA[pre]||pre}</div>`;}
-    h+=`<button class="it" type="button" data-k="${f.id}" aria-current="${state.sel===f.id}"><span class="n">${f.id}</span><span class="t">${esc(short(f))}</span>${modF(f)?'<span class="dot" title="Amb canvis"></span>':''}</button>`;
+    h+=`<button class="it" type="button" data-k="${f.id}" aria-current="${state.sel===f.id}"><span class="n">${f.id}</span>${modF(f)?'<span class="dot"></span>':''}</button>`;
   }
   $('list').innerHTML=h||'<div class="empty">Cap exercici amb aquest filtre.</div>';
 }
@@ -265,24 +258,21 @@ function main(){
   H=null;
   const f=BY[state.sel]; if(!f){ $('main').innerHTML='<div class="empty">Tria un exercici.</div>'; return; }
   if(state.act>=npist(f)) state.act=0;
-  let h=`<div class="top"><div><div class="key">${f.id}.tex</div><h2>${esc(f.pro.replace(/^PAU /,''))}</h2></div>
+  let h=`<div class="top"><div class="key">${f.id}.tex</div>
     <div class="bar"><a class="btn" href="https://github.com/step-quiz/pau/edit/main/pistes/src/${f.id}.tex" target="_blank" rel="noopener">Obre a GitHub ↗</a>
-    <button class="btn pri" type="button" id="cp" title="Ctrl+Retorn">Copia</button></div></div>`;
+    <button class="btn pri" type="button" id="cp">Copia</button></div></div>`;
   for(let i=0;i<npist(f);i++){
     h+=`<div class="ap"><div class="aph"><span>Pista ${i+1} de ${npist(f)}</span><span id="tg${i}"></span></div>
       <details><summary>Enunciat${label(f,i)?': '+esc(label(f,i)):''}</summary><pre>${esc(context(f,i))}</pre></details>
       <textarea id="ta${i}" data-i="${i}" spellcheck="true" lang="ca" aria-label="Pista ${i+1}"></textarea>
-      <div class="foot"><span class="cnt" id="cn${i}"></span><span class="warns" id="wr${i}"></span><button class="btn" type="button" data-rev="${i}">Torna a l'original</button></div></div>`;
+      <div class="foot"><span class="warns" id="wr${i}"></span><button class="btn" type="button" data-rev="${i}">Torna a l'original</button></div></div>`;
   }
   $('main').innerHTML=h;
   for(let i=0;i<npist(f);i++){ const ta=$('ta'+i); ta.value=cur(f,i); meta(f,i); }
-  target();
 }
-function target(){ const f=BY[state.sel]; $('tgt').innerHTML = f ? `Escriu a: <b>Pista ${state.act+1}</b>` : ''; }
 function meta(f,i){
   const t=cur(f,i), {w,s}=warns(t);
   $('tg'+i).innerHTML=modP(f,i)?'<span class="tag">modificada</span>':'';
-  $('cn'+i).textContent=t.length+' caràcters';
   $('wr'+i).innerHTML=w.map(x=>`<span class="warn">${esc(x)}</span>`).join('')+s.map(x=>`<span class="soft">${esc(x)}</span>`).join('');
 }
 function edit(f,i,t){
@@ -293,7 +283,7 @@ function edit(f,i,t){
 function refreshItem(f){
   const b=document.querySelector(`.it[data-k="${f.id}"]`); if(!b) return;
   const d=b.querySelector('.dot'); if(d) d.remove();
-  if(modF(f)) b.insertAdjacentHTML('beforeend','<span class="dot" title="Amb canvis"></span>');
+  if(modF(f)) b.insertAdjacentHTML('beforeend','<span class="dot"></span>');
 }
 async function persist(f,i){
   if(!coll) return; const k=ekey(f,i), ref=coll.doc(k), t=state.edits[k];
@@ -540,14 +530,14 @@ document.addEventListener('click',e=>{
   const r=e.target.closest('[data-rev]'); if(r){const f=BY[state.sel],i=+r.dataset.rev, ta=$('ta'+i); put(ta,0,ta.value.length,orig(f,i)); return;}
   if(e.target.id==='cp') copy();
 });
-document.addEventListener('focusin',e=>{ const t=e.target; if(t.matches&&t.matches('textarea[data-i]')){ state.act=+t.dataset.i; target(); } });
+document.addEventListener('focusin',e=>{ const t=e.target; if(t.matches&&t.matches('textarea[data-i]')){ state.act=+t.dataset.i; } });
 document.addEventListener('input',e=>{ const t=e.target; if(t.matches&&t.matches('textarea[data-i]')){ shiftHoles(t); edit(BY[state.sel],+t.dataset.i,t.value); } });
 document.addEventListener('keydown',e=>{
   const t=e.target, inTa=t.matches&&t.matches('textarea[data-i]'), field=t.matches&&t.matches('input,textarea,select,[contenteditable]');
   if($('sar').open){ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); sarInsert(); } return; }
   if(document.querySelector('dialog[open]')) return;
   if(e.key==='Escape'){ closeMenus(); H=null; return; }
-  if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); copy(); return; }
+  if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ if(inTa){ e.preventDefault(); const a=t.selectionStart; put(t,a,t.selectionEnd,BREAK); } return; }   // línia nova amb un petit espai (compila dins de \pista{})
   if(inTa && e.key==='Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey){ e.preventDefault(); nextHole(t); return; }   // sense forats, Tab no fa res (no surt del quadre)
   if(e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && e.code==='KeyM'){ e.preventDefault(); insert('math'); return; }
   if(e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey){
