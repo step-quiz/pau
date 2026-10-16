@@ -10,7 +10,7 @@
 
 \noindent S'estima que el $20\,\%$ dels habitants d'una regió pateix algun tipus d'arrítmia. Per a diagnosticar-la, hi ha la possibilitat de col·locar al pacient un monitor Holter, que detecta l'arrítmia en un $95\,\%$ dels casos de persones que la pateixen, però que també dona falsos positius, per motius elèctrics, en persones que no pateixen arrítmies en un $0{,}5\,\%$ dels casos.
 
-\subsection*{\textit{a)} \normalfont Si escollim 4 persones a l'atzar, quina és la probabilitat que almenys una d'elles pateixi arrítmies? \hfill\textnormal{[0,75~punts]}}
+\subsection*{\textit{a)} \normalfont Si escollim 4 persones a l'atzar, quina és la probabilitat que almenys una d'elles pateixi arrítmies? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{Sigui $X$ el nombre de persones amb arrítmia entre les 4: $X \sim B(4;\, 0{,}2)$.
 
@@ -20,16 +20,19 @@ Per a «almenys una», passa al contrari, «cap d'elles»:
 P(X \ge 1) = 1 - P(X = 0).
 \]}
 
-\subsection*{\textit{b)} \normalfont Quina és la probabilitat que una persona escollida a l'atzar obtingui un diagnòstic positiu d'arrítmia? \hfill\textnormal{[0,75~punts]}}
+\subsection*{\textit{b)} \normalfont Quina és la probabilitat que una persona escollida a l'atzar obtingui un diagnòstic positiu d'arrítmia? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a un diagnòstic positiu:
 \begin{itemize}
 \item pateix arrítmia \emph{i} el Holter la detecta;
 \item no en pateix, \emph{però} el Holter dona un fals positiu.
 \end{itemize}
-Aplica el teorema de la probabilitat total.}
+Aplica el teorema de la probabilitat total.
 
-\subsection*{\textit{c)} \normalfont Si una persona obté un diagnòstic negatiu a la prova del Holter, quina és la probabilitat que realment pateixi arrítmies? \hfill\textnormal{[1~punt]}}
+\medskip
+\textbf{Atenció:} el $0{,}5\,\%$ de falsos positius és dels qui \emph{no} pateixen arrítmia; vigila en passar-lo a tant per u.}
+
+\subsection*{\textit{c)} \normalfont Si una persona obté un diagnòstic negatiu a la prova del Holter, quina és la probabilitat que realment pateixi arrítmies? \hspace*{\fill}\textnormal{[1~punt]}}
 
 \pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
 

@@ -10,43 +10,43 @@
 
 \noindent L'Ajuntament de Canet de Mar ha aconseguit 24 entrades gratuïtes per a un concert d'un grup de rock català, i ha decidit sortejar-les entre els veïns interessats a assistir-hi. Tots els veïns del poble seguidors d'aquest grup s'apunten al sorteig, i només al $16\,\%$ els toca una entrada. De la resta de seguidors del grup, sis setenes parts intenten comprar una entrada per la web, on la probabilitat d'aconseguir-ne és del $25\,\%$.
 
-\subsection*{3.1. \normalfont Quantes persones d'aquest municipi tenen entrada per al concert? \hfill\textnormal{[0,75~punts]}}
+\subsection*{3.1. \normalfont Quantes persones d'aquest municipi tenen entrada per al concert? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Hi ha dues vies per aconseguir entrada:
+\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a «tenir entrada»:
 \begin{itemize}
-\item el sorteig: $16\,\%$;
-\item la web, que és una probabilitat composta: no tenir sort al sorteig, \emph{i} intentar-ho per la web (sis setenes parts), \emph{i} aconseguir-ho ($25\,\%$).
+\item li toca al sorteig ($16\,\%$);
+\item no li toca al sorteig, \emph{i} ho intenta per la web (sis setenes parts), \emph{i} l'aconsegueix ($25\,\%$).
 \end{itemize}
-Suma les dues vies per obtenir el percentatge de seguidors amb entrada.
+Aplica el teorema de la probabilitat total: obtindràs la proporció de seguidors amb entrada.
 
 \medskip
-Finalment, com que el $16\,\%$ correspon a 24 persones, una regla de tres et dona quantes persones representa aquest percentatge.}
+Finalment, com que el $16\,\%$ són 24 persones, una regla de tres et dona el nombre de persones.}
 
-\subsection*{3.2. \normalfont Si escollim a l'atzar un veí de Canet seguidor d'aquest grup de rock i no té entrada per al concert, quina és la probabilitat que hagués intentat aconseguir-la via web? \hfill\textnormal{[0,75~punts]}}
+\subsection*{3.2. \normalfont Si escollim a l'atzar un veí de Canet seguidor d'aquest grup de rock i no té entrada per al concert, quina és la probabilitat que hagués intentat aconseguir-la via web? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
 
 \medskip
-Necessitaràs:
+Anomena $W$ = «ho intenta per la web» i $E$ = «té entrada».
 \begin{itemize}
-\item $P(\text{no té entrada})$, el complementari del resultat de l'apartat 3.1;
-\item $P(\text{no té entrada} \mid \text{ho intenta per la web})$, el complementari del $25\,\%$ d'èxit a la web;
-\item $P(\text{ho intenta per la web})$, que també has fet servir a 3.1.
-\end{itemize}}
+\item Coneixes $P(\overline{E} \mid W)$: «no té entrada \emph{sabent que} ho intenta per la web», el complementari del $25\,\%$.
+\item Et demanen $P(W \mid \overline{E})$: «ho intenta per la web \emph{sabent que} no té entrada».
+\end{itemize}
+Les probabilitats $P(W)$ i $P(\overline{E}) = 1 - P(E)$ surten de l'apartat 3.1 (proporcions, no persones).}
 
-\vspace{0.6em}
-\noindent El dia del concert, l'equip de so mesura el nivell de decibels generat pels crits entusiastes del públic durant els 5 minuts de durada de la cançó més famosa del grup; es pot aproximar per la funció
+\subsection*{3.3. \normalfont El dia del concert, l'equip de so mesura el nivell de decibels generat pels crits entusiastes del públic durant els 5 minuts de durada de la cançó més famosa del grup; es pot aproximar per la funció següent:}
 \[
 S(t) = -t^{3} + 12t^{2} - 30t + 90, \qquad t \in [0, 5],
 \]
-on $t$ és el temps en minuts i $S(t)$ els decibels. Quan se superen els 100 decibels es considera que el públic està molt entregat i s'activen automàticament uns efectes lumínics especials.
+on $t$ és el temps en minuts i $S(t)$ els decibels. Quan se superen els 100 decibels es considera que el públic està molt entregat i s'activen automàticament uns efectes lumínics especials. S'activaran en algun moment durant aquests cinc minuts? Si la resposta és afirmativa, calculeu en quin minut s'activen, aproximat a les dècimes. \hspace*{\fill}\textnormal{[1~punt]}
 
-\subsection*{3.3. \normalfont S'activaran en algun moment durant aquests cinc minuts? Si la resposta és afirmativa, calculeu en quin minut s'activen, aproximat a les dècimes. \hfill\textnormal{[1~punt]}}
-
-\pista{Reformula la pregunta: vols saber si $S(t) = 100$ en algun moment.
+\pista{Reformula la pregunta: vols saber si s'anul·la en algun moment la funció auxiliar
+\[
+D(t) = S(t) - 100.
+\]
 \begin{itemize}
-\item Defineix $D(t) = S(t) - 100$ i justifica que és contínua (és polinòmica).
-\item Avalua $D(0)$ i $D(5)$: si tenen signes oposats, el teorema de Bolzano garanteix que $D$ s'anul·la a $(0, 5)$.
+\item Justifica que $D$ és contínua (és polinòmica).
+\item Avalua $D(0)$ i $D(5)$: si tenen signes oposats, pel teorema de Bolzano $D$ s'anul·la a $(0, 5)$.
 \item Per aproximar el punt a les dècimes, avalua $D$ en valors intermedis fins a trobar dos valors de $t$, separats una dècima, entre els quals $D$ canviï de signe.
 \end{itemize}}
 

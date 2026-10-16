@@ -22,6 +22,7 @@ Criteris per revisar i escriure les pistes (`pistes/src/<id>.tex`). Decisions ap
 - Una caixa `\pista{...}` per apartat, just després de l'enunciat de l'apartat.
 - Capçalera uniforme: *PAU de Matemàtiques — Pistes* · *Catalunya AAAA · Convocatòria · Sèrie*.
 - Sense número de pàgina. Cada pista ocupa una sola pàgina.
+- La puntuació de l'apartat va al final del seu enunciat amb `\hspace*{\fill}\textnormal{[0,75~punts]}`, no amb `\hfill`: si la puntuació passa a la línia següent, `\hfill` desapareix a principi de línia i la puntuació queda a l'esquerra (aprovat el 16/10/2026).
 
 ## 4. Llengua
 
@@ -29,6 +30,7 @@ Criteris per revisar i escriure les pistes (`pistes/src/<id>.tex`). Decisions ap
 - **Cometes:** cometes baixes «…». Les ``` ``…'' ``` i les `"…"` rectes es canvien a «…» quan es revisa cada pista.
 - **Formes a evitar:** «anem a + infinitiu» per a futur (→ «obtindrem»), «donat que» (→ «atès que», «com que»), «en base a» (→ «a partir de»).
 - **Referències a apartats:** «l'apartat *a)*».
+- **Apòstrof davant de símbols:** segons com es llegeix el nom de la lletra (aprovat el 16/10/2026). S'apostrofa si el nom comença amb so vocàlic: d'$A$, d'$e$, d'$f$ (efa), d'$h$ (hac), d'$l$ (ela), d'$m$ (ema), d'$n$ (ena), d'$r$ (erra), d'$s$ (essa), d'$x$ (ics), d'$y$ (i grega), d'$\alpha$. No s'apostrofa si comença amb consonant: de $B$, de $k$ (ca), de $p$ (pe), de $t$ (te), de $\lambda$, de $\pi$.
 
 ## 5. Notació
 

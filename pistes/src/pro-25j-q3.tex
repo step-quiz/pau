@@ -10,7 +10,7 @@
 
 \noindent Una empresa produeix dos tipus de peces, de ferro i d'acer. El $60\,\%$ de la producció total correspon a peces de ferro i la resta són d'acer. Sabem que el $95\,\%$ de les peces de ferro produïdes no tenen cap defecte, mentre que el $3\,\%$ de les peces d'acer són defectuoses.
 
-\subsection*{\textit{a)} \normalfont Si agafem una peça a l'atzar, quina és la probabilitat que sigui defectuosa? \hfill\textnormal{[0,75~punts]}}
+\subsection*{\textit{a)} \normalfont Si agafem una peça a l'atzar, quina és la probabilitat que sigui defectuosa? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a «defectuosa»:
 \begin{itemize}
@@ -22,7 +22,7 @@ Aplica el teorema de la probabilitat total.
 \medskip
 \textbf{Atenció:} el $95\,\%$ del ferro és el de peces \emph{no} defectuoses.}
 
-\subsection*{\textit{b)} \normalfont L'empresa aviat diversificarà la producció i començarà a produir també peces de titani, que es vendran en paquets de 5. Si la probabilitat que una peça de titani sigui defectuosa és un valor desconegut $p$, i cada peça és defectuosa independentment de les altres, comproveu que l'expressió que ens dona la probabilitat que en un paquet de 5 peces n'hi hagi exactament 4 de defectuoses (en funció de $p$) és $f(p) = 5(p^{4} - p^{5})$. \hfill\textnormal{[0,75~punts]}}
+\subsection*{\textit{b)} \normalfont L'empresa aviat diversificarà la producció i començarà a produir també peces de titani, que es vendran en paquets de 5. Si la probabilitat que una peça de titani sigui defectuosa és un valor desconegut $p$, i cada peça és defectuosa independentment de les altres, comproveu que l'expressió que ens dona la probabilitat que en un paquet de 5 peces n'hi hagi exactament 4 de defectuoses (en funció de $p$) és $f(p) = 5(p^{4} - p^{5})$. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{Sigui $X$ el nombre de peces defectuoses del paquet: $X \sim B(5, p)$. Fes servir la fórmula de la binomial,
 \[
@@ -30,14 +30,17 @@ P(X = k) = \binom{n}{k}\, p^{k}\, (1 - p)^{n - k},
 \]
 amb $n = 5$ i $k = 4$, i desenvolupa el factor $(1 - p)$ per arribar a l'expressió demanada.}
 
-\subsection*{\textit{c)} \normalfont Considereu la funció $f(p)$ de l'apartat anterior. Determineu el valor màxim que pren $f(p)$ quan $p \geq 0$. \hfill\textnormal{[1~punt]}}
+\subsection*{\textit{c)} \normalfont Considereu la funció $f(p)$ de l'apartat anterior. Determineu el valor màxim que pren $f(p)$ quan $p \geq 0$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{És un problema d'optimització:
+\pista{Et demanen el màxim \emph{absolut} de $f(p)$ per a tot $p \ge 0$:
 \begin{itemize}
 \item deriva $f(p)$ i resol $f'(p) = 0$;
-\item queda't amb els valors de l'interval $[0, 1]$, perquè una probabilitat no en pot prendre d'altres;
-\item comprova que el candidat és un màxim i no un mínim.
-\end{itemize}}
+\item estudia el signe de $f'(p)$ per a $p \ge 0$ i dedueix-ne on creix i on decreix $f$;
+\item localitza el màxim absolut i calcula'n el valor.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} que $f''$ sigui negativa en el punt crític només garanteix un màxim relatiu. Per justificar que és el màxim absolut per a tot $p \ge 0$, mira on creix i on decreix $f$.}
 
 \vspace{0.6em}
 

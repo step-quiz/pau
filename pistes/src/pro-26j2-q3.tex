@@ -8,9 +8,13 @@
 
 \section*{\textcolor{blauPista}{Exercici 3}}
 
-\noindent En una ciutat s'ha estudiat la relació entre els hàbits de lectura i la pràctica d'esport en l'alumnat de batxillerat. Es desprèn que el $60\,\%$ llegeixen com a mínim dos llibres al mes, dels quals el $70\,\%$ practiquen algun esport un mínim de quatre hores a la setmana. També s'observa que, d'entre els que no llegeixen un mínim de dos llibres al mes, el $50\,\%$ fan menys de quatre hores setmanals d'esport.
+\noindent En una ciutat s'ha estudiat la relació entre els hàbits de lectura i la pràctica d'esport en l'alumnat de batxillerat. Per a fer-ho, s'han formulat les dues preguntes següents a l'alumnat d'aquesta etapa educativa: «Llegeixes com a mínim dos llibres al mes?» i «Practiques algun esport almenys quatre hores a la setmana?»
 
-\subsection*{3.1. \normalfont Quina és la probabilitat que un alumne o alumna triat a l'atzar faci esport almenys quatre hores setmanals? \hfill\textnormal{[0,75~punts]}}
+\noindent Dels resultats de l'enquesta, es desprèn que el $60\,\%$ llegeixen com a mínim dos llibres al mes, dels quals el $70\,\%$ practiquen algun esport un mínim de quatre hores a la setmana. També s'observa que, d'entre els que no llegeixen un mínim de dos llibres al mes, el $50\,\%$ fan menys de quatre hores setmanals d'esport.
+
+\noindent Si escollim a l'atzar un alumne/a de batxillerat d'aquesta ciutat:
+
+\subsection*{3.1. \normalfont Quina és la probabilitat que faci esport almenys quatre hores setmanals? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a «fer esport almenys 4\,h»:
 \begin{itemize}
@@ -22,27 +26,28 @@ Aplica el teorema de la probabilitat total.
 \medskip
 \textbf{Atenció:} per a la segona branca, l'enunciat et dona el percentatge dels qui fan \emph{menys} de 4\,h; et cal el complementari.}
 
-\subsection*{3.2. \normalfont Si sabem que aquest alumne o alumna fa esport menys de quatre hores setmanals, quina probabilitat hi ha que llegeixi almenys dos llibres al mes? \hfill\textnormal{[0,75~punts]}}
+\subsection*{3.2. \normalfont Si sabem que aquest alumne/a fa esport menys de quatre hores setmanals, quina probabilitat hi ha que llegeixi almenys dos llibres al mes? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
 
 \medskip
-Anomena $L$ = «llegeix almenys dos llibres al mes» i $E$ = «fa esport almenys 4\,h». Et demanen $P(L \mid \overline{E})$:
+Anomena $L$ = «llegeix almenys dos llibres al mes» i $E$ = «fa esport almenys 4\,h».
 \begin{itemize}
-\item al numerador hi va $P(L \cap \overline{E})$: «llegeix molt \emph{i} fa poc esport»;
-\item al denominador, $P(\overline{E}) = 1 - P(E)$, amb $P(E)$ de l'apartat 3.1.
-\end{itemize}}
+\item Coneixes $P(\overline{E} \mid L)$: «fa menys de 4\,h \emph{sabent que} llegeix almenys dos llibres», el complementari del $70\,\%$.
+\item Et demanen $P(L \mid \overline{E})$: «llegeix almenys dos llibres \emph{sabent que} fa menys de 4\,h».
+\end{itemize}
+Al denominador hi va $P(\overline{E}) = 1 - P(E)$, amb $P(E)$ de l'apartat 3.1.}
 
 \vspace{0.6em}
-\noindent L'Alba és una estudiant de batxillerat que ha anat anotant durant tot el curs quantes hores dedicava a la setmana a llegir ($x$, entre 1 i 6) i quantes a fer esport ($y$). Ha observat que la relació $y = 7 - x + \ln(2x - 1)$ s'ajusta força bé a les dades que ha anotat.
+\noindent L'Alba és una estudiant de batxillerat que ha anat anotant durant tot el curs quantes hores dedicava a la setmana a llegir i quantes a fer esport. Per a cada setmana té apuntat un nombre real $x$ que correspon a la quantitat d'hores de lectura i que oscil·la entre 1 i 6, i un nombre real $y$ que correspon a la quantitat d'hores de pràctica esportiva. Ha observat que la relació $y = 7 - x + \ln(2x - 1)$ s'ajusta força bé a les dades que ha anotat.
 
-\subsection*{3.3. \normalfont Calculeu, segons aquest model, quin és el màxim i el mínim d'hores per setmana que l'Alba ha dedicat a practicar esport. \hfill\textnormal{[1~punt]}}
+\subsection*{3.3. \normalfont Calculeu, segons aquest model, quin és el màxim i el mínim d'hores per setmana que l'Alba ha dedicat a practicar esport. \hspace*{\fill}\textnormal{[1~punt]}}
 
 \pista{Busques els extrems \emph{absoluts} d'una funció contínua a l'interval tancat $[1, 6]$:
 \begin{itemize}
 \item deriva, iguala a zero i comprova que només hi ha un punt crític dins de l'interval;
-\item avalua la funció en aquest punt i als dos extrems, $x = 1$ i $x = 6$;
-\item el valor més gran és el màxim absolut, i el més petit, el mínim absolut.
+\item estudia el signe de la derivada per saber on creix i on decreix la funció;
+\item avalua la funció en aquest punt i als dos extrems, $x = 1$ i $x = 6$: el valor més gran és el màxim absolut, i el més petit, el mínim absolut.
 \end{itemize}}
 
 \end{document}
