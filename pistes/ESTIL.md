@@ -40,7 +40,7 @@ Criteris per revisar i escriure les pistes (`pistes/src/<id>.tex`). Decisions ap
 
 - Orientativa: de 2 a 6 línies per apartat. Si una pista necessita més espai, probablement està resolent l'exercici.
 
-## 7. Format estructurat (aprovat el 16/10/2026; aplicat primer al bloc de probabilitat)
+## 7. Format estructurat (aprovat el 16/10/2026; aplicat a probabilitat i àlgebra)
 
 Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/2026, `pista.sty` posa el text amb `\color`, i dins de `\pista{…}` es poden fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize`.
 
@@ -53,6 +53,9 @@ Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/202
   - *Probabilitat total*: «Fes un diagrama d'arbre. Hi ha dos camins que porten a…» i els dos camins en llista.
   - *Bayes*: «És un cas clar del teorema de Bayes…», anomenar els esdeveniments i dir en llista què coneixes ($P(\ldots \mid \ldots)$) i què et demanen.
   - *Binomial*: definir $X$ (què compta i $X \sim B(n, p)$) i escriure la probabilitat demanada en una línia a part.
+  - *Discussió d'un sistema* (àlgebra): «Discuteix el sistema amb el teorema de Rouché-Frobenius:» i sempre la mateixa llista: escriu $A$ i $A^{'}$; calcula $\det(A)$ i els valors que l'anul·len; compara rangs per a cada valor; no oblidis $\det(A) \neq 0$.
+  - *Apartats amb diverses parts*: cada part amb un rètol en cursiva (\textit{Discutir.}, \textit{Resoldre per a $k = 0$.}).
+  - Les dreceres, en paràgraf propi amb \textbf{Drecera:} o \textbf{Consell:}; els paranys, amb \textbf{Atenció:}.
 - Cada pista continua cabent en **una sola pàgina** (comprovar-ho en compilar).
 
 ## 8. Format de resposta del David a les propostes

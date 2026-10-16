@@ -20,14 +20,39 @@ on $k$ és un paràmetre real.
 
 \subsection*{2.1. \normalfont Discutiu el sistema en funció del paràmetre $k$. \hfill\textnormal{[1~punt]}}
 
-\pista{Escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$ i calcula $\det(A)$ (vigila els signes dels termes de Sarrus que porten $k$): t'ha de sortir una expressió de primer grau en $k$, que s'anul·la per a un sol valor. Per a tots els altres valors, aplica el teorema de Rouché-Frobenius. Per al valor crític, no donis per fet que el sistema és incompatible: busca un menor d'ordre 2 no nul d'$A$ i orla'l amb la fila que hi falta i la columna dels termes independents per decidir el rang d'$A^{'}$.}
+\pista{Discuteix el sistema amb el teorema de Rouché-Frobenius:
+\begin{itemize}
+\item escriu $A$ i $A^{'}$ i calcula $\det(A)$: t'ha de sortir una expressió de primer grau en $k$, que s'anul·la per a un sol valor;
+\item per a tots els altres valors, aplica el teorema;
+\item per al valor crític, busca un menor d'ordre 2 no nul d'$A$ i orla'l amb la fila que hi falta i la columna dels termes independents per decidir el rang d'$A^{'}$.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} vigila els signes dels termes de Sarrus que porten $k$, i no donis per fet que per al valor crític el sistema és incompatible.}
 
 \subsection*{2.2. \normalfont Resoleu el sistema per a tots els valors de $k$ i comproveu que, per a $k \neq 1$, la solució no depèn de $k$. \hfill\textnormal{[1~punt]}}
 
-\pista{Hi ha dos casos. Per a $k \neq 1$, aplica Cramer amb $\det(A)$ com a denominador i factoritza els numeradors: pots simplificar el factor que depèn de $k$ precisament perquè $k \neq 1$. La tercera incògnita, treu-la de l'equació més senzilla. Substituint la solució a la primera equació veuràs per què $k$ no hi influeix. No oblidis el cas $k = 1$ (et demanen tots els valors): queda't amb les dues equacions del menor no nul de l'apartat 2.1, pren com a paràmetre $\lambda$ la incògnita que no hi surt (no totes hi serveixen) i expressa les altres dues en funció de $\lambda$.}
+\pista{Hi ha dos casos.
+
+\medskip
+\textit{Cas $k \neq 1$.}
+\begin{itemize}
+\item Aplica Cramer amb $\det(A)$ com a denominador i factoritza els numeradors: pots simplificar el factor que depèn de $k$ precisament perquè $k \neq 1$.
+\item La tercera incògnita, treu-la de l'equació més senzilla.
+\item Substituint la solució a la primera equació veuràs per què $k$ no hi influeix.
+\end{itemize}
+\textit{Cas $k = 1$} (et demanen tots els valors). Queda't amb les dues equacions del menor no nul de l'apartat 2.1, pren com a paràmetre $\lambda$ la incògnita que no hi surt i expressa les altres dues en funció de $\lambda$.
+
+\medskip
+\textbf{Atenció:} no totes les incògnites serveixen de paràmetre.}
 
 \subsection*{2.3. \normalfont Interpreteu geomètricament el resultat dels apartats anteriors. \hfill\textnormal{[0,5~punts]}}
 
-\pista{Cada equació és un pla de l'espai. Fixa't que la segona i la tercera no depenen de $k$: són dos plans fixos que es tallen en una recta $r$, i només el primer pla canvia amb $k$. Tradueix la discussió a posicions relatives: què vol dir, per a tres plans, un sistema compatible determinat? I un de compatible indeterminat amb un grau de llibertat (comprova que no hi ha dos plans coincidents)? Quina relació hi ha, doncs, entre el primer pla i $r$ quan $k = 1$? Finalment, interpreta que el punt solució no depengui de $k$: per on passen tots els plans de la primera equació? Comprova que aquest punt també és sobre $r$.}
+\pista{Cada equació és un pla de l'espai. La segona i la tercera no depenen de $k$: són dos plans fixos que es tallen en una recta $r$, i només el primer pla canvia amb $k$.
+\begin{itemize}
+\item Què vol dir, per a tres plans, un sistema compatible determinat?
+\item I un de compatible indeterminat amb un grau de llibertat? (Comprova que no hi ha dos plans coincidents.) Quina relació hi ha, doncs, entre el primer pla i $r$ quan $k = 1$?
+\item Que el punt solució no depengui de $k$: per on passen tots els plans de la primera equació? Comprova que aquest punt també és sobre $r$.
+\end{itemize}}
 
 \end{document}

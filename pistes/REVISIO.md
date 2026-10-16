@@ -6,7 +6,7 @@ Seguiment de la revisió de les 67 pistes (`data/<id>-p.pdf`). Font de cada pist
 **Autor**: `David` (escrita a mà pel professor: només es corregeixen errors) · `IA` · `?` (per confirmar).  
 **Estat**: `pendent` → `proposta` (la IA ha proposat canvis) → `fet` (revisada; amb o sense canvis).
 
-**Revisió del 16/10/2026** (Claude, totes les propostes aprovades pel David): 67 pistes contrastades amb l'enunciat i la pauta; 66 pistes de 43 exercicis amb canvis (indicats amb «rev. 16/10/2026» a les notes). Els canvis es copien des de l'editor de pistes (`pistes/editor/`). El mateix dia, `pista.sty` passa de `\textcolor{…}{#1}` a `\color`, perquè dins de `\pista{…}` es puguin fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize` (les 67 pistes surten idèntiques). Format més estructurat (ESTIL §7): aplicat al bloc de probabilitat; pendent als altres blocs.
+**Revisió del 16/10/2026** (Claude, totes les propostes aprovades pel David): 67 pistes contrastades amb l'enunciat i la pauta; 66 pistes de 43 exercicis amb canvis (indicats amb «rev. 16/10/2026» a les notes). Els canvis es copien des de l'editor de pistes (`pistes/editor/`). El mateix dia, `pista.sty` passa de `\textcolor{…}{#1}` a `\color`, perquè dins de `\pista{…}` es puguin fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize` (les 67 pistes surten idèntiques). Format més estructurat (ESTIL §7): aplicat als blocs de probabilitat i àlgebra; pendent a geometria i anàlisi.
 
 
 ## Geometria (11)
@@ -29,22 +29,22 @@ Seguiment de la revisió de les 67 pistes (`data/<id>-p.pdf`). Font de cada pist
 
 | Lot | ID | Procedència | Font | Autor | Estat | Notes |
 |---|---|---|---|---|---|---|
-| A1 | `alg-23j-q2` | 2023 juny S1 Q2 | A | ? | fet | b) substituir $C\cdot C$ per $(C\cdot D)\cdot C$ (text del David) · **rev. 16/10/2026:** b) hipòtesis $(\ast)$, $(\ast\ast)$, \underbrace i «Atenció» de no simplificar $C$; cursiva als apartats |
-| A1 | `alg-23j-q4` | 2023 juny S1 Q4 | A | ? | fet | a) cas $\det(A)\neq0$; b) no dona el valor singular ni el tipus, resolució més curta, solució com a punt + vector; cometes «» · **rev. 16/10/2026:** a) drecera de la pauta (sumar les files) i arrels reals |
-| A1 | `alg-23j2-q2` | 2023 juny S5 Q2 | B | ? | fet | abans una sola caixa de pistes; ara una per apartat; a) pas de Gauss corregit ($F_3\to F_3-F_2$) i ja no dona els casos; b) no dona el tipus; clau del sistema a la dreta · **rev. 16/10/2026:** a) matriu esglaonada amb $\ast$ i un pas més de Gauss; b) més curta; cursiva als apartats |
-| A1 | `alg-23j2-q5` | 2023 juny S5 Q5 | B | ? | fet | abans una sola caixa de pistes; ara una per apartat; sense canvis (proposta rebutjada) |
-| A1 | `alg-23s-q1` | 2023 setembre S2 Q1 | A | ? | fet | a) error típic d'elevar cada element; b) $4A = A\cdot(4I)$ per treure factor comú; «dona» · **rev. 16/10/2026:** b) el binomi només val perquè $A$ i $I$ commuten |
-| A1 | `alg-23s-q3` | 2023 setembre S2 Q3 | A | ? | fet | a) ordre i signes en reorganitzar, cas $\det(A)\neq0$; b) no dona el tipus i indica com resoldre · **rev. 16/10/2026:**  |
-| A1 | `alg-24i-q2` | 2024 juny inc. S5 Q2 | A | ? | fet | a) «si i només si», mètode amb tots els passos; b) no dona $X=P^{-1}(2R-Q)$ (resolt també la línia massa llarga) · **rev. 16/10/2026:**  |
-| A1 | `alg-24j-q2` | 2024 juny S1 Q2 | A | ? | fet | a) sense to oral, cas general i $k=0$ sense donar la conclusió; b) més curta (text del David); c) idea de la pauta (relació de la tercera equació amb les altres); cometes · **rev. 16/10/2026:**  |
-| A2 | `alg-24s-q2` | 2024 setembre S3 Q2 | A | ? | fet | a) cas $\det(A)\neq0$; b) no dona el tipus (text del David); c) sense to oral ni el tipus; cometes, parèntesi i «un segon pas» · **rev. 16/10/2026:** a) mirar el sistema abans de calcular rangs |
-| A2 | `alg-25i-q2` | 2025 juny inc. S4 Ex 2 | A | ? | fet | a) cas $\det(A)\neq0$; b) llista completa de posicions relatives (faltava «dos paral·lels tallats per un tercer») i final del David · **rev. 16/10/2026:** b) configuracions del cas compatible indeterminat (dos plans coincidents) |
-| A2 | `alg-25i-q4b` | 2025 juny inc. S4 Ex 4B | A | ? | fet | b) «si i només si»; c) igualar element per element i complir totes les equacions (text del David); «tant» |
-| A2 | `alg-25j-q2` | 2025 juny S1 Ex 2 | A | ? | fet | a) cas $\det(A)\neq0$; b) més curta, sense repassar els tres casos; c) calcular els punts i quants n'hi ha (text del David) · **rev. 16/10/2026:**  |
-| A2 | `alg-25s-q2` | 2025 setembre S3 Ex 2 | A | ? | fet | a) cas $\det(A)\neq0$; b) no dona el tipus i diu com resoldre; c) $z$ no pot ser la variable lliure · **rev. 16/10/2026:**  |
-| A2 | `alg-26j-q2` | 2026 juny S1 Ex 2 | B | ? | fet | apartats N.1, N.2… (numeració oficial); 2.1 cas $\det(A)\neq0$; 2.2 no dona les interpretacions; 2.3 no dona el raonament i avisa que no totes les incògnites serveixen; $A^{'}$ |
-| A2 | `alg-26j2-q2` | 2026 juny S5 Ex 2 | B | ? | fet | apartats N.1, N.2… (numeració oficial); 2.2 no dona que el determinant és sempre 0; 2.3 en preguntes (text del David) |
-| A2 | `alg-26s-q2` | 2026 setembre S2 Ex 2 | IA | IA | fet | pista nova (setembre 2026); 2.2 corregit el cas $k=1$ ($x$ no pot ser el paràmetre); $A^{'}$ en lloc d'$A^{*}$ |
+| A1 | `alg-23j-q2` | 2023 juny S1 Q2 | A | ? | fet | b) substituir $C\cdot C$ per $(C\cdot D)\cdot C$ (text del David) · **rev. 16/10/2026:** b) hipòtesis $(\ast)$, $(\ast\ast)$, \underbrace i «Atenció» de no simplificar $C$; cursiva als apartats; format estructurat |
+| A1 | `alg-23j-q4` | 2023 juny S1 Q4 | A | ? | fet | a) cas $\det(A)\neq0$; b) no dona el valor singular ni el tipus, resolució més curta, solució com a punt + vector; cometes «» · **rev. 16/10/2026:** a) drecera de la pauta (sumar les files) i arrels reals; format estructurat |
+| A1 | `alg-23j2-q2` | 2023 juny S5 Q2 | B | ? | fet | abans una sola caixa de pistes; ara una per apartat; a) pas de Gauss corregit ($F_3\to F_3-F_2$) i ja no dona els casos; b) no dona el tipus; clau del sistema a la dreta · **rev. 16/10/2026:** a) matriu esglaonada amb $\ast$ i un pas més de Gauss; b) més curta; cursiva als apartats; format estructurat |
+| A1 | `alg-23j2-q5` | 2023 juny S5 Q5 | B | ? | fet | abans una sola caixa de pistes; ara una per apartat; sense canvis (proposta rebutjada) · **rev. 16/10/2026:** format estructurat |
+| A1 | `alg-23s-q1` | 2023 setembre S2 Q1 | A | ? | fet | a) error típic d'elevar cada element; b) $4A = A\cdot(4I)$ per treure factor comú; «dona» · **rev. 16/10/2026:** b) el binomi només val perquè $A$ i $I$ commuten; format estructurat |
+| A1 | `alg-23s-q3` | 2023 setembre S2 Q3 | A | ? | fet | a) ordre i signes en reorganitzar, cas $\det(A)\neq0$; b) no dona el tipus i indica com resoldre · **rev. 16/10/2026:**; format estructurat |
+| A1 | `alg-24i-q2` | 2024 juny inc. S5 Q2 | A | ? | fet | a) «si i només si», mètode amb tots els passos; b) no dona $X=P^{-1}(2R-Q)$ (resolt també la línia massa llarga) · **rev. 16/10/2026:**; format estructurat |
+| A1 | `alg-24j-q2` | 2024 juny S1 Q2 | A | ? | fet | a) sense to oral, cas general i $k=0$ sense donar la conclusió; b) més curta (text del David); c) idea de la pauta (relació de la tercera equació amb les altres); cometes · **rev. 16/10/2026:**; format estructurat |
+| A2 | `alg-24s-q2` | 2024 setembre S3 Q2 | A | ? | fet | a) cas $\det(A)\neq0$; b) no dona el tipus (text del David); c) sense to oral ni el tipus; cometes, parèntesi i «un segon pas» · **rev. 16/10/2026:** a) mirar el sistema abans de calcular rangs; format estructurat |
+| A2 | `alg-25i-q2` | 2025 juny inc. S4 Ex 2 | A | ? | fet | a) cas $\det(A)\neq0$; b) llista completa de posicions relatives (faltava «dos paral·lels tallats per un tercer») i final del David · **rev. 16/10/2026:** b) configuracions del cas compatible indeterminat (dos plans coincidents); format estructurat |
+| A2 | `alg-25i-q4b` | 2025 juny inc. S4 Ex 4B | A | ? | fet | b) «si i només si»; c) igualar element per element i complir totes les equacions (text del David); «tant» · **rev. 16/10/2026:** format estructurat |
+| A2 | `alg-25j-q2` | 2025 juny S1 Ex 2 | A | ? | fet | a) cas $\det(A)\neq0$; b) més curta, sense repassar els tres casos; c) calcular els punts i quants n'hi ha (text del David) · **rev. 16/10/2026:**; format estructurat |
+| A2 | `alg-25s-q2` | 2025 setembre S3 Ex 2 | A | ? | fet | a) cas $\det(A)\neq0$; b) no dona el tipus i diu com resoldre; c) $z$ no pot ser la variable lliure · **rev. 16/10/2026:**; format estructurat |
+| A2 | `alg-26j-q2` | 2026 juny S1 Ex 2 | B | ? | fet | apartats N.1, N.2… (numeració oficial); 2.1 cas $\det(A)\neq0$; 2.2 no dona les interpretacions; 2.3 no dona el raonament i avisa que no totes les incògnites serveixen; $A^{'}$ · **rev. 16/10/2026:** format estructurat |
+| A2 | `alg-26j2-q2` | 2026 juny S5 Ex 2 | B | ? | fet | apartats N.1, N.2… (numeració oficial); 2.2 no dona que el determinant és sempre 0; 2.3 en preguntes (text del David) · **rev. 16/10/2026:** format estructurat |
+| A2 | `alg-26s-q2` | 2026 setembre S2 Ex 2 | IA | IA | fet | pista nova (setembre 2026); 2.2 corregit el cas $k=1$ ($x$ no pot ser el paràmetre); $A^{'}$ en lloc d'$A^{*}$ · **rev. 16/10/2026:** format estructurat |
 
 ## Anàlisi (31)
 

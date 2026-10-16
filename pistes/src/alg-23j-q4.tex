@@ -19,10 +19,27 @@ x + 2\lambda y + (2 + \lambda) z = 0 \\
 
 \subsection*{\textit{a)} \normalfont Discutiu el sistema per als diferents valors del paràmetre $\lambda$. \hfill\textnormal{[1,25~punts]}}
 
-\pista{Escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$. Calcula $\det(A)$ i troba els valors del paràmetre $\lambda$ que l'anul·len. Hi ha una drecera: les tres columnes sumen el mateix, així que, si fas $F_{3} \to F_{1} + F_{2} + F_{3}$ (el determinant no canvia), podràs treure un factor comú de la nova tercera fila. Comprova també si el factor que et queda té arrels reals. Què pots dir del sistema quan $\det(A) \ne 0$? I per a cadascun dels valors que l'anul·len, compara els rangs d'$A$ i d'$A^{'}$.}
+\pista{Discuteix el sistema amb el teorema de Rouché-Frobenius:
+\begin{itemize}
+\item escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$;
+\item calcula $\det(A)$ i troba els valors de $\lambda$ que l'anul·len;
+\item per a cadascun d'aquests valors, compara els rangs d'$A$ i d'$A^{'}$;
+\item què pots dir del sistema quan $\det(A) \neq 0$?.
+\end{itemize}
+
+\medskip
+\textbf{Drecera:} les tres columnes sumen el mateix. Si fas $F_{3} \to F_{1} + F_{2} + F_{3}$ (el determinant no canvia), podràs treure un factor comú de la nova tercera fila.
+
+\medskip
+\textbf{Atenció:} comprova si el factor que et queda té arrels reals.}
 
 \subsection*{\textit{b)} \normalfont Per al cas $\lambda = -1$, resoleu el sistema, interpreteu-lo geomètricament i identifiqueu-ne la solució. \hfill\textnormal{[1,25~punts]}}
 
-\pista{Fixa't que aquest apartat et demana tres coses ben diferents en una sola frase: «resoleu», «interpreteu geomètricament» i «identifiqueu-ne la solució». A l'apartat \textit{a)} ja has vist de quin tipus és el sistema per a $\lambda = -1$: indica-ho. Si t'ha sortit compatible indeterminat, queda't amb dues equacions independents, pren una incògnita com a paràmetre (per exemple $z = t$) i expressa les altres dues en funció de $t$. Per a la interpretació geomètrica: cada equació del sistema representa un pla a l'espai, així que estàs estudiant la posició relativa de tres plans. Quina configuració correspon al cas que t'ha sortit (poden coincidir tots, tallar-se en una recta, no tenir cap punt comú\ldots)? Per identificar la solució, separa-la en la part que no depèn de $t$ i la que sí, $(x,y,z) = (\ldots) + t\,(\ldots)$, i interpreta què representa cada part.}
+\pista{Aquest apartat et demana tres coses en una sola frase: «resoleu», «interpreteu geomètricament» i «identifiqueu-ne la solució».
+\begin{itemize}
+\item \textit{Resoldre.} A l'apartat \textit{a)} ja has vist de quin tipus és el sistema per a $\lambda = -1$: indica-ho. Si és compatible indeterminat, queda't amb dues equacions independents, pren una incògnita com a paràmetre (per exemple $z = t$) i expressa les altres dues en funció de $t$.
+\item \textit{Interpretar.} Cada equació és un pla de l'espai: quina posició relativa tenen els tres plans en el cas que t'ha sortit (poden coincidir tots, tallar-se en una recta, no tenir cap punt comú\ldots)?
+\item \textit{Identificar la solució.} Separa-la en la part que no depèn de $t$ i la que sí, $(x,y,z) = (\ldots) + t\,(\ldots)$, i interpreta què representa cada part.
+\end{itemize}}
 
 \end{document}

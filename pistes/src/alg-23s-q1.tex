@@ -16,14 +16,38 @@ B = \begin{pmatrix} 2 & -1 \\ -3 & 2 \end{pmatrix} \quad \text{i la matriu ident
 
 \subsection*{\textit{a)} \normalfont Comproveu que $(A - 2I)^{2} = 3I$. \hfill\textnormal{[0,5~punts]}}
 
-\pista{És un càlcul directe. Comença obtenint la matriu $A - 2I$ (resta element a element), eleva-la al quadrat, i comprova que el resultat coincideix amb $3I$. Recorda que elevar al quadrat una matriu vol dir multiplicar-la per ella mateixa (fila per columna), no elevar al quadrat cada element.}
+\pista{És un càlcul directe:
+\begin{itemize}
+\item obtén la matriu $A - 2I$ (resta element a element);
+\item eleva-la al quadrat;
+\item comprova que el resultat coincideix amb $3I$.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} elevar al quadrat una matriu vol dir multiplicar-la per ella mateixa (fila per columna), no elevar al quadrat cada element.}
 
 \subsection*{\textit{b)} \normalfont Utilitzant la igualtat de l'apartat anterior, trobeu la matriu inversa de la matriu $A$ en funció de les matrius $A$ i $I$, i comproveu que coincideix amb la matriu $B$. \hfill\textnormal{[1,25~punts]}}
 
-\pista{La idea clau d'aquest apartat és la següent: si aconsegueixes manipular la igualtat $(A - 2I)^{2} = 3I$ fins a portar-la a la forma $A \cdot M = I$, on $M$ és una expressió en funció d'$A$ i $I$, llavors aquesta $M$ serà, per definició, la matriu inversa $A^{-1}$. Per fer-ho, comença desenvolupant el quadrat $(A - 2I)^{2}$. El pots desenvolupar com un binomi perquè $A$ i $I$ commuten ($A \cdot I = I \cdot A = A$). Atenció: amb dues matrius qualssevol, $(X + Y)^{2} = X^{2} + XY + YX + Y^{2}$, i només si $XY = YX$ queda $X^{2} + 2XY + Y^{2}$. Apareixerà $A^{2} = A \cdot A$: deixa a l'esquerra els termes amb $A$ i treu $A$ factor comú. Compte: escriu $4A$ com $A \cdot (4I)$, perquè dins del parèntesi no pots restar un nombre a una matriu. Quan tinguis $M$, calcula-la i comprova que dona $B$.}
+\pista{La idea clau: si portes la igualtat $(A - 2I)^{2} = 3I$ a la forma
+\[
+A \cdot M = I,
+\]
+on $M$ és una expressió en funció d'$A$ i $I$, aquesta $M$ és, per definició, la inversa $A^{-1}$.
+\begin{itemize}
+\item Desenvolupa el quadrat $(A - 2I)^{2}$ com un binomi: ho pots fer perquè $A$ i $I$ commuten ($A \cdot I = I \cdot A = A$).
+\item Deixa a l'esquerra els termes amb $A$ i treu $A$ factor comú, escrivint $4A$ com $A \cdot (4I)$: dins del parèntesi no pots restar un nombre a una matriu.
+\item Quan tinguis $M$, calcula-la i comprova que dona $B$.
+\end{itemize}
+
+\medskip
+\textbf{Atenció:} amb dues matrius qualssevol, $(X + Y)^{2} = X^{2} + XY + YX + Y^{2}$; només si $XY = YX$ queda $X^{2} + 2XY + Y^{2}$.}
 
 \subsection*{\textit{c)} \normalfont Calculeu la matriu $X$ que satisfà la igualtat $A \cdot X = B$. \hfill\textnormal{[0,75~punts]}}
 
-\pista{A l'apartat \textit{b)} ja has descobert que $A^{-1} = B$, així que ja tens la inversa d'$A$ feta i no l'has de tornar a calcular. Per aïllar $X$ de la igualtat $A \cdot X = B$, multiplica per $A^{-1}$ a banda i banda, per l'esquerra. Quan substitueixis, veuràs que $X$ es redueix al producte de dues matrius que ja coneixes.}
+\pista{A l'apartat \textit{b)} ja has vist que $A^{-1} = B$: no la tornis a calcular.
+\begin{itemize}
+\item Per aïllar $X$ de $A \cdot X = B$, multiplica per $A^{-1}$ a banda i banda, \emph{per l'esquerra}.
+\item Quan substitueixis, $X$ es redueix al producte de dues matrius que ja coneixes.
+\end{itemize}}
 
 \end{document}
