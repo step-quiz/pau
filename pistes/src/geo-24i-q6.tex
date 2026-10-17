@@ -10,7 +10,7 @@
 
 \noindent Considereu les rectes
 \[
-r: \dfrac{x-5}{4} = \dfrac{y-4}{3} = \dfrac{z-3}{-1} \quad\text{i}\quad s: \begin{cases} x = 4 + 2k \\ y = 3 + k \\ z = -1 \end{cases}
+r: \dfrac{x-5}{4} = \dfrac{y-4}{3} = \dfrac{z-3}{-1} \quad\text{i}\quad s: \begin{cases} x = 4 + 2k \\ y = 3 + k \\ z = -1 \end{cases}.
 \]
 
 \subsection*{\textit{a)} \normalfont Quina és la seva posició relativa? Calculeu l'equació implícita d'un pla $\pi$ que sigui paral·lel a les dues rectes i que passi per l'origen de coordenades. \hspace*{\fill}\textnormal{[1,25~punts]}}
@@ -36,8 +36,12 @@ r: \dfrac{x-5}{4} = \dfrac{y-4}{3} = \dfrac{z-3}{-1} \quad\text{i}\quad s: \begi
 
 \pista{La recta $t$ és la «perpendicular comuna».
 \begin{itemize}
-\item \textit{Direcció:} $\vec{v}_{r} \times \vec{v}_{s}$, que ja has calculat a l'apartat anterior.
-\item \textit{Un punt:} pren un punt genèric de $r$ (paràmetre $\lambda$) i un de $s$ (paràmetre $k$), i imposa que el vector que els uneix sigui perpendicular alhora a $\vec{v}_{r}$ i a $\vec{v}_{s}$. Obtindràs un sistema de dues equacions amb incògnites $\lambda$ i $k$.
+\item \textit{Direcció.} És $\vec{v}_{r} \times \vec{v}_{s}$, que ja has calculat a l'apartat anterior.
+\item \textit{Un punt.} Pren un punt genèric $P_{1}$ d'$r$ (paràmetre $\lambda$) i un punt genèric $P_{2}$ d'$s$ (paràmetre $k$), i imposa que $\overrightarrow{P_{1} P_{2}}$ sigui perpendicular alhora a $\vec{v}_{r}$ i a $\vec{v}_{s}$:
+\[
+\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{r} = 0, \qquad \overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{s} = 0
+\]
+Obtindràs un sistema de dues equacions amb incògnites $\lambda$ i $k$.
 \item Substitueix el valor d'un dels paràmetres a l'equació de la seva recta: tindràs un punt concret de $t$.
 \end{itemize}
 Amb el punt i la direcció, ja pots escriure l'equació que busques.}

@@ -22,13 +22,17 @@ on $k$ és un paràmetre real.
 
 \pista{Discuteix el sistema amb el teorema de Rouché-Frobenius:
 \begin{itemize}
-\item escriu $A$ i $A^{'}$ i calcula $\det(A)$: t'ha de sortir una expressió de primer grau en $k$, que s'anul·la per a un sol valor;
-\item per a tots els altres valors, aplica el teorema;
-\item per al valor crític, busca un menor d'ordre 2 no nul d'$A$ i orla'l amb la fila que hi falta i la columna dels termes independents per decidir el rang d'$A^{'}$.
+\item escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$;
+\item calcula $\det(A)$ i troba els valors de $k$ que l'anul·len;
+\item per a cadascun d'aquests valors, compara els rangs d'$A$ i d'$A^{'}$;
+\item no oblidis el cas $\det(A) \neq 0$.
 \end{itemize}
 
 \medskip
-\textbf{Atenció:} vigila els signes dels termes de Sarrus que porten $k$, i no donis per fet que per al valor crític el sistema és incompatible.}
+\textbf{Consell:} per al rang d'$A^{'}$ en el valor crític, agafa un menor d'ordre 2 no nul d'$A$ i orla'l amb la fila que hi falta i la columna dels termes independents.
+
+\medskip
+\textbf{Atenció:} vigila els signes dels termes de Sarrus que porten $k$.}
 
 \subsection*{2.2. \normalfont Resoleu el sistema per a tots els valors de $k$ i comproveu que, per a $k \neq 1$, la solució no depèn de $k$. \hspace*{\fill}\textnormal{[1~punt]}}
 
@@ -51,7 +55,7 @@ on $k$ és un paràmetre real.
 \pista{Cada equació és un pla de l'espai. La segona i la tercera no depenen de $k$: són dos plans fixos que es tallen en una recta $r$, i només el primer pla canvia amb $k$.
 \begin{itemize}
 \item Què vol dir, per a tres plans, un sistema compatible determinat?
-\item I un de compatible indeterminat amb un grau de llibertat? (Comprova que no hi ha dos plans coincidents.) Quina relació hi ha, doncs, entre el primer pla i $r$ quan $k = 1$?
+\item I un de compatible indeterminat amb un grau de llibertat? (Hi ha dos plans coincidents?) Quina relació hi ha, doncs, entre el primer pla i $r$ quan $k = 1$?
 \item Que el punt solució no depengui de $k$: per on passen tots els plans de la primera equació? Comprova que aquest punt també és sobre $r$.
 \end{itemize}}
 
