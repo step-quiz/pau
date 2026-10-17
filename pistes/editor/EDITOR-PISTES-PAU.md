@@ -25,7 +25,9 @@ repositori públic **`step-quiz/pau`** (`pistes/src/<id>.tex`), com a alternativ
    en passar-hi el ratolí. **Decisió de l'usuari (16/10/2026):** sense text d'ajuda a dalt, sense la procedència a la capçalera
    de l'exercici, sense «Escriu a: Pista N» i sense comptador de caràcters. No els tornis a posar.
    Tampoc vol textos emergents (`title`) als botons: el hover es marca amb fons gris suau (`--hover`) i vora `var(--fg)`.
-2. A la dreta veu, per a cada apartat: l'**enunciat en lectura** (LaTeX cru, plegat) i un **quadre editable** amb la pista.
+2. A la dreta veu, a dalt, l'**enunciat oficial** com a imatge (desplegable «Enunciat oficial», obert per defecte, amb les
+   figures) i, per a cada apartat, la capçalera «Pista N de M · a) Calculeu…» i un **quadre editable** amb la pista.
+   **Decisió de l'usuari (17/10/2026):** l'enunciat en LaTeX cru ja no es mostra; no el tornis a posar.
 3. Una **barra d'eines única**, fixa a dalt (al mòbil no és fixa), escriu a la pista on hi ha (o hi havia) el cursor
    («Escriu a: Pista N»). Si hi ha text seleccionat, l'envolta. Els fragments de fórmula porten els `$ $` sols si el cursor
    no és dins d'una fórmula. Tot es desfà amb Ctrl+Z (s'insereix amb `execCommand('insertText')`).
@@ -63,7 +65,9 @@ repositori públic **`step-quiz/pau`** (`pistes/src/<id>.tex`), com a alternativ
 
 ## 3. Com està fet
 
-Una **sola pàgina HTML autocontinguda** (sense fitxers externs). Les dades van incrustades al codi:
+Una **pàgina HTML** amb les dades incrustades al codi, més **67 imatges** publicades al costat dins del mateix artifact
+(`enunciats/<id>.png`, 1,4 MB en total; cadascuna es carrega quan s'obre l'exercici). Les imatges no es carreguen de GitHub,
+perquè l'artifact viu a claude.ai i té les seves pròpies normes de seguretat. Les dades:
 
 ```js
 const FILES = [ { id:'alg-23j-q2', pro:'PAU Catalunya 2023 · …', area:'Àlgebra', segs:[ … ] }, … ];
@@ -73,7 +77,8 @@ const FILES = [ { id:'alg-23j-q2', pro:'PAU Catalunya 2023 · …', area:'Àlgeb
   pista (l'únic editable)**; `segs[2]` = des de `}` fins al següent `\pista{`; … ; l'últim = la cua. El fitxer es reconstrueix
   concatenant-ho tot (amb les pistes editades). El generador **comprova que els 67 fitxers es reconstrueixen idèntics**
   abans de publicar.
-- L'enunciat de cada apartat és `segs[2i]` sense la capçalera (només per llegir).
+- La capçalera de cada pista surt de l'últim `\subsection*{…}` de `segs[2i]` (funció `label`); si no n'hi ha, de l'última
+  línia de l'enunciat. Es mostra retallada a uns 70 caràcters.
 - **Desat:** capacitat `db` de l'artifact, col·lecció **`pistes`**, un document per pista modificada, id
   `<id>_<índex>` (p. ex. `alg-23j-q2_0`), camps `{ id, idx, text }` (`text` = LaTeX cru de dins de `\pista{}`).
   Si el text torna a ser igual a l'original, el document s'esborra. Una pista sense document = igual que al repositori.
@@ -90,13 +95,18 @@ Aquesta carpeta no dispara la compilació de pistes (`pistes.yml` només mira `p
 |---|---|
 | `pistes/editor/genera-editor-pau.js` | Llegeix `pistes/src/*.tex`, els trenca en `segs`, comprova la reconstrucció i incrusta les dades a la plantilla. |
 | `pistes/editor/plantilla-editor-pau.html` | L'HTML/CSS/JS de la pàgina, amb el marcador `__DATA__` al lloc de les dades. |
+| `pistes/editor/genera-enunciats.py` | Converteix cada `data/<id>-e.pdf` en `enunciats/<id>.png` (100 ppp, grisos, sense marges ni franges blanques llargues). |
 
 Des de l'arrel del repositori (la sortida, `editor-pau.html`, és només per publicar: **no la pugis al repositori**):
 
 ```bash
 node pistes/editor/genera-editor-pau.js pistes/src pistes/editor/plantilla-editor-pau.html editor-pau.html
 # → «67 fitxers, 165 pistes → …/editor-pau.html»
+python3 pistes/editor/genera-enunciats.py data enunciats
+# → «67 enunciats, 1,4 MB → enunciats/»  (cal pdftoppm, Pillow i NumPy)
 ```
+
+Les imatges només cal regenerar-les si canvia o s'afegeix algun `data/<id>-e.pdf` (convocatòria nova).
 
 ## 5. Procediments (per a Claude)
 
@@ -110,7 +120,9 @@ Carrega també la skill `artifact-capabilities` abans de tocar `capabilities`, i
    document amb el `.tex` nou: els que ja són iguals sobren; els que **difereixen poden ser canvis encara no copiats**:
    no els esborris sense dir-ho a l'usuari.
 4. Publica el mateix fitxer (`Artifact` amb el mateix `file_path` → mateix URL; **no passis `icon`**; les `capabilities`
-   `{db:{}}` es conserven).
+   `{db:{}}` es conserven). Les imatges `enunciats/*.png` ja publicades es conserven si no les passes; si n'hi ha de noves o
+   canviades, passa-les a `files` (llista `{path: "enunciats/<id>.png"}` amb `root` a la carpeta que conté `enunciats/`).
+   Comprova-ho amb `Artifact list` i `scope: "files"` (han de sortir 67 PNG + `index.html`).
 5. Esborra els documents ja absorbits (`ArtifactData batch`, `delete` amb `if_version` de cada document).
 
 **B. Deixar esborranys de pistes** (només si l'usuari ho demana; mai directament al repositori)

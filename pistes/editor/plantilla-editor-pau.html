@@ -75,6 +75,9 @@ textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(
 .warn{color:var(--bad);font-size:12px} .soft{color:var(--mod);font-size:12px}
 details{border:1px solid var(--line);border-radius:6px;padding:6px 12px}
 summary{cursor:pointer;color:var(--mute);font-size:13px}
+details.enun{padding:6px 12px 10px}
+details.enun img{display:block;max-width:100%;height:auto;margin-top:8px;background:#fff;border-radius:4px}
+.apl{font-weight:400;color:var(--mute)}
 details pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 var(--f-mono);color:var(--mute);margin:8px 0 0}
 .empty{padding:32px 16px;text-align:center;color:var(--mute)}
 dialog{border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);max-width:min(760px,92vw);width:100%}
@@ -215,9 +218,12 @@ function context(f,i){
   return c.replace(/\\pista\{$/,'').trim();
 }
 function label(f,i){
-  const c=context(f,i); const m=c.match(/\\(?:sub)?section\*\{([\s\S]*?)\}\s*$/m)||c.match(/\\(?:sub)?section\*\{([^\n]*)/);
-  const t=(m?m[1]:'').replace(/\\(textit|textcolor|normalfont|textnormal)\{?[a-z]*\}?\{?/g,'').replace(/[\\{}$]/g,'').replace(/\s+/g,' ').trim();
-  return t.slice(0,70);
+  const c=context(f,i), ms=[...c.matchAll(/\\subsection\*\{([^\n]*)/g)];
+  let t=ms.length? ms[ms.length-1][1] : (c.split('\n').map(l=>l.trim()).filter(l=>l&&!/^\\(pista|\[|\]|end|begin|section)/.test(l)&&!/^\\noindent\\textit\{\(/.test(l)).pop()||'');
+  t=t.replace(/\\begin\{(\w+)\}[\s\S]*?\\end\{\1\}/g,'…').replace(/\\hspace\*\{\\fill\}|\\hfill|\\textnormal\{\[[^\]]*\]\}/g,'')
+    .replace(/\\textit\{([^{}]*)\}/g,'$1').replace(/\\cdot/g,'·').replace(/---/g,'—').replace(/\\[a-zA-Z]+\*?/g,' ')
+    .replace(/[{}$^_]/g,'').replace(/~/g,' ').replace(/\s+/g,' ').replace(/ ([.,:;)])/g,'$1').trim();
+  return t.length>72? t.slice(0,70).trim()+'…' : t;
 }
 const LLARG = 700;   // ~6 línies del PDF, comptant el codi LaTeX
 function warns(t){
@@ -260,10 +266,10 @@ function main(){
   if(state.act>=npist(f)) state.act=0;
   let h=`<div class="top"><div class="key">${f.id}.tex</div>
     <div class="bar"><a class="btn" href="https://github.com/step-quiz/pau/edit/main/pistes/src/${f.id}.tex" target="_blank" rel="noopener">Obre a GitHub ↗</a>
-    <button class="btn pri" type="button" id="cp">Copia</button></div></div>`;
+    <button class="btn pri" type="button" id="cp">Copia</button></div></div>
+    <details class="enun" open><summary>Enunciat oficial</summary><img src="enunciats/${f.id}.png" alt="Enunciat oficial de ${f.id}" loading="lazy"></details>`;
   for(let i=0;i<npist(f);i++){
-    h+=`<div class="ap"><div class="aph"><span>Pista ${i+1} de ${npist(f)}</span><span id="tg${i}"></span></div>
-      <details><summary>Enunciat${label(f,i)?': '+esc(label(f,i)):''}</summary><pre>${esc(context(f,i))}</pre></details>
+    h+=`<div class="ap"><div class="aph"><span>Pista ${i+1} de ${npist(f)}${label(f,i)?' <span class="apl">· '+esc(label(f,i))+'</span>':''}</span><span id="tg${i}"></span></div>
       <textarea id="ta${i}" data-i="${i}" spellcheck="true" lang="ca" aria-label="Pista ${i+1}"></textarea>
       <div class="foot"><span class="warns" id="wr${i}"></span><button class="btn" type="button" data-rev="${i}">Torna a l'original</button></div></div>`;
   }
