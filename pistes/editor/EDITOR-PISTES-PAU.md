@@ -154,7 +154,7 @@ Carrega també la skill `artifact-capabilities` abans de tocar `capabilities`, i
 ## 7. Relació amb l'altre editor
 
 Hi ha un segon artifact, «Editor de pistes» (https://claude.ai/artifact/NzczJWtYP2uPButkugF6pB), per al fitxer `hints.js` del
-repositori `arsocivil/sol3` (pistes en HTML per als alumnes de 2n de Batxillerat). Funciona igual (Copia → Ctrl+A/Ctrl+V a
+repositori `step-quiz/sol` (abans `arsocivil/sol3`) (pistes en HTML per als alumnes de 2n de Batxillerat). Funciona igual (Copia → Ctrl+A/Ctrl+V a
 GitHub; esborranys a la col·lecció `hints`), però copia el fitxer **sencer** `hints.js`. No es barregen: cadascun té el seu
 repositori, el seu format (LaTeX / HTML) i la seva guia d'estil.
 
@@ -169,7 +169,7 @@ i el `CLAUDE.md` de l'arrel hi apunta. N'hi ha prou amb:
 `CLAUDE.md`, `pistes/README.md`, `pistes/ESTIL.md`, `pistes/REVISIO.md`, `pistes/src/pista.sty` i una pista d'exemple
 (`pistes/src/alg-23j-q2.tex`). Els enunciats i les pautes són a `data/<id>-e.pdf` i `data/<id>-s.pdf`.
 
-**Opcional, per imitar la veu del professor:** la secció «Estil de les pistes» del `CLAUDE.md` de `arsocivil/sol3` i les pistes
+**Opcional, per imitar la veu del professor:** la secció «Estil de les pistes» del `CLAUDE.md` de `step-quiz/sol` i les pistes
 de les unitats 7, 8 i 9 de `hints.js`. El format és diferent (HTML en lloc de LaTeX), però la manera d'explicar (el perquè,
 preguntes de comprensió, exemples concrets, l'«Atenció:» per al parany) és la que ell prefereix.
 

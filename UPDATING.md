@@ -40,6 +40,9 @@ pistes/README.md           how David edits a hint by hand
 .devcontainer/install-latex.sh   installs TeX Live + poppler + qpdf (idempotent)
 .github/workflows/pistes.yml     on push to main touching pistes/src/**: rebuild all hints, commit changed PDFs
 .github/workflows/unzip-upload.yml  extracts ZIPs uploaded to _uploads/
+.claude/hooks/session-start.sh   installs TeX Live in Claude Code cloud sessions
+.vscode/tasks.json         VS Code tasks: build the open hint / all hints
+pistes/editor/             the «Editor de pistes PAU» artifact: generator, template and docs
 CLAUDE.md                  short project rules (Catalan)
 ```
 
