@@ -72,7 +72,7 @@ Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/202
     6. \textit{Taula de valors} (opcional).
     7. \textit{Esbós de la gràfica.}
 
-    Si l'apartat demana l'esbós, la llista sencera numerada (`enumerate`), amb «Ho tens de l'apartat…» per als passos ja fets. Si només en demana una part (per exemple, domini i talls), només aquests passos, en el mateix ordre i amb els mateixos noms. Excepcions: l'esbós d'una funció a trossos senzilla (`ana-26j-q1`), on n'hi ha prou de dibuixar cada tros al seu interval, i la representació de paràboles i rectes (`ana-23j2-q1`), on n'hi ha prou amb el vèrtex i els talls amb els eixos.
+    Si l'apartat demana l'esbós, la llista sencera numerada (`enumerate`), amb «Ho tens de l'apartat…» per als passos ja fets. Si només en demana una part (per exemple, domini i talls), només aquests passos, en el mateix ordre i amb els mateixos noms; si demana el domini però no les asímptotes, el primer rètol és només \textit{Domini.} Excepcions: l'esbós d'una funció a trossos senzilla (`ana-26j-q1`), on n'hi ha prou de dibuixar cada tros al seu interval, i la representació de paràboles i rectes (`ana-23j2-q1`), on n'hi ha prou amb el vèrtex i els talls amb els eixos.
   - *Condicions → equacions* (trobar paràmetres): una condició de l'enunciat per punt de la llista.
   - *Apartats amb diverses parts*: cada part amb un rètol en cursiva acabat en punt, no en dos punts (\textit{Discutir.}, \textit{Resoldre per a $k = 0$.}).
   - Les dreceres, en paràgraf propi amb \textbf{Drecera:} o \textbf{Consell:}; els paranys, amb \textbf{Atenció:}.
