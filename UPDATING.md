@@ -288,11 +288,11 @@ unzip -l /path/pau-2027-juny.zip      # check the paths before sending it
 
 Tell David, in Catalan, step by step: open the repository on GitHub → folder `_uploads` → *Add file → Upload files* → drop the ZIP → *Commit changes*. Then wait 1–2 minutes and check the *Actions* tab for green ticks.
 
-**Commits made by a GitHub Action do not trigger other workflows.** The unzip workflow commits the files with the Actions token, so *Compila les pistes* would not run by itself after it. Since 2026-10-18 the unzip workflow **launches it explicitly** when the ZIP touches `pistes/src/`, `pistes/build.py` or `.devcontainer/install-latex.sh`. Still, include the **compiled** `data/*-p.pdf` in the ZIP (build them in the sandbox), so the site is right before the rebuild finishes. The site is published by Cloudflare Pages, which publishes the bot's commits too (there are no GitHub Pages builds in *Actions*).
+**Commits made by a GitHub Action do not trigger other workflows.** The unzip workflow commits the files with the Actions token, so *Compila les pistes* would not run by itself after it. Since 2026-10-18 the unzip workflow **launches it explicitly** when the ZIP touches `pistes/src/`, `pistes/build.py` or `.devcontainer/install-latex.sh`. Still, include the **compiled** `data/*-p.pdf` in the ZIP (build them in the sandbox), so the site is right before the rebuild finishes. The bot's commits are published like any other: on 2026-10-18 *pages-build-deployment* ran (green) for the bot's commit, and Cloudflare Pages publishes every push to `main`.
 
 Browsers may cache old PDFs: tell him to reload with Ctrl+Shift+R.
 
-Repository setting this relies on: **Settings → Actions → General → Workflow permissions → Read and write**.
+Repository settings this relies on: **Settings → Pages → Deploy from a branch → `main` / `(root)`**, and **Settings → Actions → General → Workflow permissions → Read and write**.
 
 ---
 
