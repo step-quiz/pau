@@ -25,7 +25,7 @@ jobs:
   compila:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Instal·la TeX Live
         run: bash .devcontainer/install-latex.sh
