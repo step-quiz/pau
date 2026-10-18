@@ -2,6 +2,10 @@
 
 Material desenvolupat per **David Arso Civil** per al Departament de Matemàtiques de l'INS Miquel Tarradell.
 
+## Per què BY-NC-ND i no BY-NC-SA
+
+La majoria de projectes de Step Quiz fan servir CC BY-NC-SA 4.0 per al contingut. Aquest, com `sol`, fa servir **CC BY-NC-ND 4.0**: és una decisió de l'autor. El material es pot fer servir i compartir tal com és, però no se'n poden difondre versions modificades.
+
 ## Què es pot fer amb aquest material
 
 | | Contingut pedagògic | Codi |
