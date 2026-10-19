@@ -19,10 +19,10 @@
   --hd-bg:    #1e293b;   /* header = slate-800       */
 
   /* Colors de categoria — harmònics amb la paleta cool/slate de step-quiz */
-  --alg:  #c95252;  /* rose-red suau    */
-  --geo:  #0d9488;  /* teal-600         */
+  --alg:  #b33c3c;  /* rose-red (abans #c95252: el text no arribava a 4,5:1) */
+  --geo:  #0f766e;  /* teal-700 (abans teal-600: 3,7:1) */
   --ana:  #7c5cbf;  /* violet suau      */
-  --pro:  #c47d30;  /* amber-600 suau   */
+  --pro:  #9a5b16;  /* ambre fosc (abans #c47d30: 3,3:1) */
 
   --alg-tint: rgba(201,82,82,.07);
   --geo-tint: rgba(13,148,136,.07);
@@ -320,22 +320,22 @@ footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;
 <div class="view active" id="v-cats">
   <p style="font-size:.84rem;color:var(--muted);margin:4px 0 4px;">Selecciona la categoria que vols treballar:</p>
   <div class="cat-grid">
-    <div class="cat-card" data-cat="algebra"      onclick="showCat('algebra')">
+    <div class="cat-card" data-cat="algebra"      role="button" tabindex="0" onclick="showCat(\'algebra\')">
       <div class="num">…</div>
       <h2>Àlgebra</h2>
       <p>Matrius, sistemes lineals amb paràmetre</p>
     </div>
-    <div class="cat-card" data-cat="geometria"    onclick="showCat('geometria')">
+    <div class="cat-card" data-cat="geometria"    role="button" tabindex="0" onclick="showCat(\'geometria\')">
       <div class="num">…</div>
       <h2>Geometria afí i mètrica</h2>
       <p>Rectes i plans, distàncies, perpendiculars</p>
     </div>
-    <div class="cat-card" data-cat="analisi"      onclick="showCat('analisi')">
+    <div class="cat-card" data-cat="analisi"      role="button" tabindex="0" onclick="showCat(\'analisi\')">
       <div class="num">…</div>
       <h2>Anàlisi / Càlcul</h2>
       <p>Funcions, Bolzano, tangents, integrals, optimització</p>
     </div>
-    <div class="cat-card" data-cat="probabilitat" onclick="showCat('probabilitat')">
+    <div class="cat-card" data-cat="probabilitat" role="button" tabindex="0" onclick="showCat(\'probabilitat\')">
       <div class="num">…</div>
       <h2>Probabilitat</h2>
       <p>Probabilitat total, Bayes, binomial B(n,p)</p>
@@ -372,7 +372,7 @@ footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;
 
 <!-- FOOTER — copyright CC BY-NC-ND, com a step-quiz.net -->
 <footer>
-  <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" style="flex-shrink:0;">
+  <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" style="flex-shrink:0;" aria-label="Llicència Creative Commons BY-NC-ND 4.0">
     <img class="cc-img" alt="Llicència Creative Commons BY-NC-ND 4.0"
          src="https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png"
          onerror="this.style.display='none'">
@@ -390,7 +390,15 @@ footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;
    Lògica principal — la configuració ve de config.js
    ═══════════════════════════════════════════════════════════════════ */
 
-const CAT_COLOR = {algebra:'#c95252',geometria:'#0d9488',analisi:'#7c5cbf',probabilitat:'#c47d30'};
+// Teclat: les targetes de categoria (role="button") i els exercicis de la
+// llista (<li> amb tabindex) s'activen amb Enter i amb espai.
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role="button"]:not(button), li[tabindex]')) {
+    e.preventDefault();
+    e.target.click();
+  }
+});
+const CAT_COLOR = {algebra:'#b33c3c',geometria:'#0f766e',analisi:'#7c5cbf',probabilitat:'#9a5b16'};
 const CAT_NAME  = {algebra:'Àlgebra',geometria:'Geometria afí i mètrica',analisi:'Anàlisi / Càlcul',probabilitat:'Probabilitat'};
 
 const EXERS = {
@@ -535,7 +543,7 @@ async function initPdfViewer(vid, path) {
   } catch(e) {
     if (container.isConnected) {
       container.querySelector('.pdf-canvas-wrap').innerHTML =
-        `<div class="pdf-loading" style="color:#c95252">Error al carregar el PDF</div>`;
+        `<div class="pdf-loading" style="color:#b33c3c">Error al carregar el PDF</div>`;
     }
     delete container.dataset.pdf;                      // permet tornar-ho a provar
     delete PDF_STATE[vid];
@@ -653,6 +661,7 @@ function showCat(cat) {
         ${isFet     ? '<span class="ex-fet-tag">✓ Fet</span>'       : ''}
         <span class="ex-arrow">→</span>`;
       li.onclick = () => showExercise(ex);
+      li.tabIndex = 0;
       ul.appendChild(li);
     });
 
