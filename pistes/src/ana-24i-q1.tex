@@ -12,33 +12,29 @@
 
 \subsection*{\textit{a)} \normalfont Comproveu que $f(x)$ té una arrel a l'interval $[1, 1{,}5]$ i busqueu un interval d'una dècima de longitud que també contingui aquesta mateixa arrel. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Aplica el teorema de Bolzano: si $f$ és contínua a l'interval i canvia de signe entre els extrems, hi ha alguna arrel.
-\begin{itemize}
-\item Justifica que $f$ és contínua a $[1, 1{,}5]$: on és contínua $\ln x$?
-\item Calcula $f(1)$ i $f(1{,}5)$ i comprova que tenen signes oposats.
-\item Per trobar un interval de longitud $0{,}1$, prova valors intermedis ($1{,}1$; $1{,}2$; etc.) fins a trobar un canvi de signe entre dos valors consecutius.
-\end{itemize}}
+\pista{En primer lloc, justifica que $f$ és contínua a $[1, 1{,}5]$: la funció $\ln x$ és contínua per a $x > 0$. A continuació, calcula $f(1)$ i $f(1{,}5)$. Si tenen signes oposats, el teorema de Bolzano assegura que $f$ té una arrel en algun valor de l'interval $(1, 1{,}5)$.
+
+\medskip
+Per trobar un interval d'una dècima de longitud, prova valors intermedis amb salts d'una dècima, com ara $f(1{,}1)$, $f(1{,}2)$…, fins que trobis dos valors seguits amb signes oposats.}
 
 \subsection*{\textit{b)} \normalfont Sense calcular els punts crítics, justifiqueu que $f(x)$ és decreixent a l'interval $(0, 1)$ i creixent a $(1, +\infty)$. Quins màxims i mínims té aquesta funció? \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{«Sense calcular els punts crítics» vol dir que no has de resoldre $f'(x) = 0$, però sí que pots derivar.
-\begin{itemize}
-\item Calcula $f'(x)$ i estudia'n el signe a $(0, 1)$ i a $(1, +\infty)$: quin signe tenen $\ln x$ i $x - 1$ a cada interval?
-\item Del creixement i el decreixement, dedueix on hi ha el mínim.
-\item Decideix també si hi ha algun màxim o no n'hi ha.
-\end{itemize}}
+\pista{«Sense calcular els punts crítics» vol dir que no has de resoldre $f'(x) = 0$, però sí que has de derivar. En primer lloc, calcula $f'(x)$ amb la regla del producte:
+\[
+(u \cdot v)' = u' \cdot v + u \cdot v'
+\]
+A continuació, estudia el signe de cada terme de $f'(x)$ a l'interval $(0, 1)$ i a l'interval $(1, +\infty)$. Recorda que $\ln x$ és negatiu si $0 < x < 1$, i positiu si $x > 1$.
+
+\medskip
+Finalment, dedueix-ne on hi ha un mínim, i digues si la funció té algun màxim o no en té.}
 
 \subsection*{\textit{c)} \normalfont Calculeu $\displaystyle \lim_{x \to 0^{+}} f(x)$ i $\displaystyle \lim_{x \to +\infty} f(x)$, i feu un esbós de la gràfica d'aquesta funció. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Segueix els passos de l'estudi d'una funció. Alguns ja els tens dels apartats anteriors.
-\begin{enumerate}
-\item \textit{Domini i asímptotes verticals.} El domini és $x > 0$. Quan $x \to 0^{+}$, $(x - 1) \to -1$ i $\ln x \to -\infty$: dedueix-ne el límit directament, sense eines avançades. Si és infinit, $x = 0$ és una asímptota vertical.
-\item \textit{Límits a l'infinit.} Pel domini, només cal $x \to +\infty$: els dos factors de $(x - 1)\ln x$ tendeixen a $+\infty$. (La constant $-2$ no influeix en cap dels dos límits.)
-\item \textit{Talls amb els eixos.} Amb l'eix d'ordenades no n'hi ha, perquè $x = 0$ no és del domini. Amb l'eix d'abscisses, tens una arrel localitzada a l'apartat \textit{a)}. Fixa't en el signe d'$f(1)$: quantes vegades talla la gràfica l'eix d'abscisses?
-\item \textit{Creixement, decreixement i extrems relatius.} Ho tens de l'apartat \textit{b)}.
-\item \textit{Concavitat i punts d'inflexió.} Calcula $f''(x)$: quin signe té per a $x > 0$?
-\item \textit{Taula de valors} (opcional): uns quants punts t'ajudaran a situar la corba.
-\item \textit{Esbós de la gràfica.} Combina-ho tot.
-\end{enumerate}}
+\pista{Tens gairebé tota la feina feta als apartats \textit{a)} i \textit{b)}. Et falten els dos límits:
+\begin{itemize}
+\item \textit{Quan $x \to 0^{+}$.} El factor $x - 1$ tendeix a $-1$, i $\ln x$ tendeix a $-\infty$. Quin signe té el producte?
+\item \textit{Quan $x \to +\infty$.} Tots dos factors, $x - 1$ i $\ln x$, tendeixen a $+\infty$.
+\end{itemize}
+Per a l'esbós, fes servir aquests dos límits, el mínim de l'apartat \textit{b)} i l'arrel que has localitzat a l'apartat \textit{a)}. No et cal la segona derivada.}
 
 \end{document}

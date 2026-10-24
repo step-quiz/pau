@@ -16,30 +16,23 @@ C(x) = \dfrac{300}{x} + 150x^{2} + 35,
 \]
 on $x$ és la fondària del cobert en metres. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Introdueix les variables:
-\begin{itemize}
-\item fondària $x$;
-\item amplària $3x$ (per la condició de l'enunciat);
-\item altura $h$, desconeguda de moment.
-\end{itemize}
-Fes servir la condició del volum ($6\,\text{m}^{3}$) per expressar $h$ en funció d'$x$.
+\pista{En primer lloc, anomena $h$ l'altura del cobert. L'amplària és $3x$, i el volum d'un prisma es calcula seguint aquesta fórmula:
+\[
+V = a \cdot b \cdot h,
+\]
+on $a$ i $b$ són els costats de la base i $h$ és l'altura. Imposa que el volum valgui $6$ i aïlla $h$.
 
 \medskip
-Després, suma els costos de les quatre superfícies que cal construir: les dues parets laterals, la paret frontal i el sostre. Simplifica i arribaràs a l'expressió demanada.
+A continuació, calcula el cost de cada superfície que cal construir. Per exemple, la paret de davant fa $3x$ d'amplària i $h$ d'altura, i per tant costa $30 \cdot 3x \cdot h$ euros. Fes el mateix amb les dues parets dels costats i amb el sostre, que costa $50\,\text{\euro}$ per metre quadrat.
 
 \medskip
-\textbf{Atenció:} no oblidis sumar-hi, al final, el cost fix de la porta.}
+Finalment, suma-ho tot, amb els $35\,\text{\euro}$ de la porta, i substitueix-hi $h$. Arribaràs a l'expressió $C(x)$ de l'enunciat.}
 
 \subsection*{\textit{b)} \normalfont Calculeu quines han de ser les dimensions del cobert per tal que el cost de construcció sigui mínim i justifiqueu la resposta. Quin és aquest cost? \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{És un problema d'optimització.
-\begin{itemize}
-\item Deriva $C(x)$, resol $C'(x) = 0$ i comprova que el valor d'$x$ trobat és un mínim.
-\item Recupera l'altura $h$ amb la condició del volum, i l'amplària com $3x$.
-\item Avalua $C(x)$ per obtenir el cost mínim.
-\end{itemize}
+\pista{En primer lloc, deriva $C(x)$. Recorda que si escrius $\frac{300}{x}$ en forma de potència, $300\,x^{-1}$, pots derivar-la fàcilment. A continuació, resol $C'(x) = 0$. Per treure la $x$ del denominador, multiplica els dos costats de l'equació per $x^{2}$. Comprova amb el signe de $C''$ que és un mínim.
 
 \medskip
-\textbf{Atenció:} respon \emph{totes} les parts de la pregunta: les \emph{dimensions} (totes tres) i el \emph{cost} mínim.}
+Finalment, tingues en compte que la teva resposta ha d'incloure, d'una banda, les tres mides del cobert; i d'altra banda, el cost total. Per a l'altura $h$, fes servir l'expressió que has trobat a l'apartat \textit{a)}.}
 
 \end{document}

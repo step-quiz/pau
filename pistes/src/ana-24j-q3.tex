@@ -12,25 +12,25 @@
 
 \subsection*{\textit{a)} \normalfont A partir de l'expressió de $f(x)$, calculeu les coordenades dels punts $P$, $Q$ i $R$ indicats a la figura. Calculeu també l'equació de la recta $PR$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Observa la figura amb cura:
-\begin{itemize}
-\item $P$ i $Q$ són sobre la recta horitzontal $y = 5$;
-\item $R$ és sobre l'eix d'abscisses ($y = 0$) i sembla que té la mateixa abscissa que $Q$.
-\end{itemize}
-\textit{Els punts.} Resol $f(x) = 5$: obtindràs tres solucions. Mira a la figura quina correspon a $P$ i quina a $Q$.
+\pista{Fixa't a la figura que els punts $P$ i $Q$ són sobre la recta horitzontal $y = 5$. Per tant, les seves abscisses són solucions de l'equació
+\[
+f(x) = 5
+\]
+Resta $5$ als dos costats: et quedarà una equació sense terme independent, i podràs treure factor comú $x$. Sempre que tens aquesta situació, saps que una solució és $x = 0$, i correspon al punt $(0, 5)$ de la figura. Les altres dues solucions provenen de resoldre una equació de segon grau, i corresponen als punts $P$ i $Q$.
 
 \medskip
-\textit{La recta $PR$.} Amb els punts $P$ i $R$, escriu l'equació de la recta que hi passa (per exemple, en la forma punt-pendent).}
+A continuació, $R$ és sobre l'eix d'abscisses, just a sota de $Q$: té la mateixa abscissa que $Q$, i ordenada $0$. Finalment, calcula el pendent de la recta $PR$:
+\[
+m = \frac{y_{R} - y_{P}}{x_{R} - x_{P}}
+\]
+Després, escriu l'equació de la recta en la forma punt-pendent.}
 
 \subsection*{\textit{b)} \normalfont Calculeu la superfície del terreny. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{La regió ombrejada està limitada per la corba $y = f(x)$ i per la recta $PR$, entre les abscisses de $P$ i de $Q$, que ja tens de l'apartat \textit{a)}.
-
-\medskip
-L'àrea és el valor absolut de la integral de la diferència:
+\pista{Fixa't a la figura que la regió ombrejada comença a $P$, on la corba i la recta es tallen, i acaba al segment vertical $QR$. Per tant, integra des de $x_{P}$ i fins a $x_{Q}$. Això vol dir que has de tenir en compte la primera coordenada del punt $P$ i la primera coordenada del punt $Q$, que ja tens de l'apartat \textit{a)}:
 \[
-\text{Àrea} = \left| \int_{x_{P}}^{x_{Q}} \bigl(f(x) - y_{PR}(x)\bigr)\,dx \right|
+\text{Àrea} = \left| \int_{x_{P}}^{x_{Q}} \bigl(f(x) - r(x)\bigr)\,dx \right|
 \]
-on $y_{PR}(x)$ és l'equació de la recta $PR$.}
+on $r(x)$ és l'equació de la recta $PR$ amb la $y$ aïllada. Fes la resta $f(x) - r(x)$ abans d'integrar. Obtindràs un polinomi de tercer grau, que serà senzill d'integrar.}
 
 \end{document}

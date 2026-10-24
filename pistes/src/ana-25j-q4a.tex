@@ -14,26 +14,21 @@
 
 \noindent La vela té dues parts separades per la recta $y = 9$. Per a construir-la, s'empra un teixit de niló a la part superior, que costa $50\,\text{\euro}/\text{u}^{2}$, i un teixit de polièster a la part inferior, que costa $70\,\text{\euro}/\text{u}^{2}$. Calculeu el cost total del material que es necessita per a construir aquesta vela. \hspace*{\fill}\textnormal{[2,5~punts]}
 
-\pista{Primer troba els punts de tall que faran de límits d'integració (de cada equació, queda't amb la solució positiva):
-\begin{itemize}
-\item la paràbola amb la recta $y = 9$: resol $f(x) = 9$; anomena $x_{1}$ la solució;
-\item la paràbola amb l'eix d'abscisses: resol $f(x) = 0$; anomena $x_{2}$ la solució.
-\end{itemize}
-\textit{Part superior (niló).} És entre la paràbola i la recta $y = 9$, des de l'eix d'ordenades fins a $x_{1}$:
+\pista{En primer lloc, troba els dos punts de tall que necessites: el de la paràbola amb la recta $y = 9$, resolent $f(x) = 9$, i el de la paràbola amb l'eix d'abscisses, resolent $f(x) = 0$. De cada equació, queda't amb la solució positiva, perquè la vela és al primer quadrant. Anomena-les $x_{1}$ i $x_{2}$, respectivament.
+
+\medskip
+A continuació, la part superior és entre la paràbola i la recta $y = 9$, des de l'eix d'ordenades fins a $x_{1}$:
 \[
 A_{\text{sup}} = \left| \int_{0}^{x_{1}} \bigl(f(x) - 9\bigr)\,dx \right|
 \]
-\textit{Part inferior (polièster).} Té dues peces:
-\begin{itemize}
-\item un rectangle, de base $x_{1}$ i altura $9$;
-\item la regió entre la paràbola i l'eix d'abscisses, des d'$x_{1}$ fins a $x_{2}$: $\left| \int_{x_{1}}^{x_{2}} f(x)\,dx \right|$.
-\end{itemize}
+Per a la part inferior, et convé calcular primer l'àrea de tota la vela, entre la paràbola i l'eix d'abscisses:
+\[
+A_{\text{total}} = \left| \int_{0}^{x_{2}} f(x)\,dx \right|
+\]
+Si a l'àrea de tota la vela li restes $A_{\text{sup}}$, obtindràs l'àrea de la part inferior.
 
 \medskip
-\textbf{Drecera:} també pots calcular l'àrea de tota la vela, $\left| \int_{0}^{x_{2}} f(x)\,dx \right|$, i obtenir una de les dues parts per resta.
-
-\medskip
-El cost final és la suma de cada àrea multiplicada pel preu corresponent.}
+Finalment, multiplica cada àrea pel preu del seu teixit i suma els dos resultats.}
 
 \vspace{0.6em}
 

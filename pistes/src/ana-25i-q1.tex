@@ -15,34 +15,33 @@ f(x) = +\sqrt{1 + x^{3}}.
 
 \subsection*{\textit{a)} \normalfont Indiqueu el domini d'aquesta funció i els talls de la corba $y = f(x)$ amb els eixos de coordenades. \hspace*{\fill}\textnormal{[0,5~punts]}}
 
-\pista{Segueix l'ordre de l'estudi d'una funció. Aquí només et demanen dos passos:
+\pista{Aquí només et demanen dos passos de l'estudi d'una funció:
 \begin{itemize}
-\item \textit{Domini.} L'expressió de dins l'arrel quadrada ha de ser no negativa: estudia quins valors d'$x$ compleixen
-\[
-1 + x^{3} \geq 0.
-\]
-\item \textit{Talls amb els eixos.} Amb l'eix d'abscisses, resol $f(x) = 0$. Amb l'eix d'ordenades, només cal avaluar $f(0)$.
-\end{itemize}}
+\item \textit{Domini.} El que hi ha dins de l'arrel quadrada no pot ser negatiu: $1 + x^{3} \geq 0$. Prova-ho amb alguns valors: $x = 0$ compleix la condició, però $x = -2$ no, perquè $1 + (-2)^{3} = -7$. El valor frontera és el que fa $1 + x^{3} = 0$.
+\item \textit{Talls amb els eixos.} Per al tall amb l'eix d'ordenades, calcula $f(0)$. Per al tall amb l'eix d'abscisses, resol $f(x) = 0$: una arrel quadrada val zero només quan el que hi ha a dins val zero.
+\end{itemize}
+Finalment, escriu cada tall com un punt, amb les dues coordenades.}
 
 \subsection*{\textit{b)} \normalfont Resoleu l'equació $f'(x) = 0$ i estudieu les zones de creixement i decreixement de la funció $f(x)$, així com els seus màxims i mínims locals. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Per derivar, tingues present que $f(x)$ és una composició de funcions.
-\begin{itemize}
-\item Resol $f'(x) = 0$.
-\item Estudia el signe d'$f'(x)$ als intervals resultants per classificar els punts trobats.
-\end{itemize}
+\pista{En primer lloc, deriva $f(x)$. Per derivar l'arrel, recorda aquesta regla:
+\[
+\bigl(\sqrt{u}\bigr)' = \frac{u'}{2\sqrt{u}}
+\]
+A continuació, resol $f'(x) = 0$: només cal igualar a zero el numerador.
 
 \medskip
-\textbf{Atenció:} en estudiar el creixement, no t'oblidis dels valors del domini on $f'(x)$ podria no estar definida, especialment a la frontera del domini. I un punt amb $f'(x) = 0$ no sempre és un màxim o un mínim: de vegades és un punt d'inflexió.}
+Finalment, estudia el signe d'$f'(x)$. Per a $x > -1$, el denominador és positiu, perquè és una arrel quadrada. Pot ser negatiu el numerador? D'aquí en pots deduir que $f'(x)$ mai és negativa. Tingues en compte que en un punt on $f'(x) = 0$ només hi ha un màxim o un mínim si $f'$ hi canvia de signe; si no hi canvia, pot ser un punt d'inflexió.}
 
 \subsection*{\textit{c)} \normalfont Trobeu quin ha de ser el valor de $a$ per tal que el punt $(a, 3)$ pertanyi a la gràfica de la funció i calculeu l'equació de la recta tangent a la corba $y = f(x)$ en aquest punt. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Que un punt pertanyi a la gràfica vol dir que les seves coordenades compleixen \mbox{$y = f(x)$}: imposa aquesta condició per trobar $a$.
+\pista{Que el punt $(a, 3)$ pertanyi a la gràfica vol dir que $f(a) = 3$. Per resoldre aquesta equació, eleva els dos costats al quadrat: així desapareix l'arrel.
 
 \medskip
-Després, aplica la fórmula de la recta tangent:
+A continuació, el pendent de la recta tangent que busques és $f'(a)$, i el punt és $(a, 3)$. Per tant:
 \[
-y - f(a) = f'(a)\,(x - a)
-\]}
+y - 3 = f'(a)\,(x - a)
+\]
+Fes servir la derivada de l'apartat \textit{b)} i substitueix-hi el valor d'$a$ que has trobat.}
 
 \end{document}

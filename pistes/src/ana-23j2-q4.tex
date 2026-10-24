@@ -10,14 +10,15 @@
 
 \noindent En una carretera principal hi trobem el poble $A$. A 12 km del poble $A$, hi ha un encreuament $O$ amb una carretera secundària que talla perpendicularment la carretera principal. A 9 km de l'encreuament, a la carretera secundària, hi trobem el poble $B$. Es vol construir una torre de comunicacions $T$ en un punt de la carretera principal situat entre el poble $A$ i l'encreuament $O$. Aquesta torre ha d'estar connectada amb cadascun dels dos pobles en línia recta per cable. Sabem que instal·lar el cable entre la torre $T$ i el poble $B$ té un preu de $250\,\euro/\text{km}$ i, en canvi, instal·lar el cable entre la torre $T$ i el poble $A$ té un preu de $125\,\euro/\text{km}$. Determineu a quina distància de l'encreuament $O$ a la carretera principal cal situar la torre $T$ perquè el preu del cablejat sigui mínim i quin serà el valor d'aquest preu mínim. \hspace*{\fill}\textnormal{[2,5~punts]}
 
-\pista{És un problema d'optimització.
-\begin{itemize}
-\item \textit{Variables.} Fes un dibuix i anomena $x$ la distància de l'encreuament $O$ a la torre $T$.
-\item \textit{Funció a optimitzar.} Expressa en funció d'$x$ la longitud de cada tram de cable (per al tram fins a $B$, fes servir Pitàgores) i multiplica cada longitud pel seu preu: obtindràs el cost $P(x)$.
-\item \textit{Optimitza.} Deriva, iguala a zero i resol: en aïllar l'arrel hauràs d'elevar al quadrat. Comprova amb el signe de $P'$ que el candidat és realment un mínim.
-\end{itemize}
+\pista{Fes un dibuix i prova-ho en primer lloc amb un número inventat. Per exemple, si la torre és a $3\,\text{km}$ de l'encreuament $O$, el cable fins a $A$ fa $12 - 3 = 9\,\text{km}$, i el cable fins a $B$ és la hipotenusa d'un triangle rectangle de catets $3$ i $9$. El cost seria:
+\[
+125 \cdot 9 + 250 \cdot \sqrt{3^{2} + 9^{2}}
+\]
 
 \medskip
-\textbf{Atenció:} queda't amb la solució que compleix $0 < x < 12$, perquè la torre és entre $A$ i $O$, i respon \emph{totes} les parts de la pregunta: la distància d'$O$ a $T$ \emph{i} el preu mínim.}
+Ara fes el mateix amb $x$ en lloc de $3$: obtindràs el cost $P(x)$. A continuació, deriva'l i iguala la derivada a zero. Per aïllar l'arrel, hauràs d'elevar els dos costats al quadrat. Comprova amb el signe de $P'$ que és un mínim.
+
+\medskip
+Finalment, queda't amb la solució entre 0 i 12, perquè la torre és entre $A$ i $O$, i dona la distància d'$O$ a $T$ i el preu mínim.}
 
 \end{document}

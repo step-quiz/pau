@@ -20,30 +20,25 @@ S(r) = 3\pi r^{2} + \dfrac{200}{r}.
 \]
 \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{La superfície total és la suma de les \emph{tres} parts que recobreixen l'ampolla:
-\begin{itemize}
-\item la cara lateral del cilindre;
-\item la tapa inferior;
-\item la mitja esfera de dalt.
-\end{itemize}
-Expressa cada part en funció d'$r$ i $h$. Després, fes servir la condició que el volum del cilindre és $100\,\text{cm}^{3}$ per eliminar $h$ i deixar-ho tot en funció d'$r$.
+\pista{En primer lloc, el volum d'un cilindre es calcula seguint aquesta fórmula:
+\[
+V = \pi r^{2} \cdot h,
+\]
+on $r$ és el radi de la base i $h$ és l'altura. Imposa que el volum valgui $100$ i aïlla $h$.
 
 \medskip
-\textbf{Atenció:} la tapa superior del cilindre no hi és, perquè la cobreix la mitja esfera.}
+A continuació, la superfície de l'ampolla té tres parts: la base del cilindre, que és un cercle; la cara lateral del cilindre; i la mitja esfera de dalt. Fixa't que la tapa de dalt del cilindre no hi és, perquè la cobreix la mitja esfera. La cara lateral, si la desplegues, és un rectangle: la base és la longitud de la circumferència, $2\pi r$, i l'altura és $h$. Per a la mitja esfera, fes servir la fórmula de la \textit{Nota} de l'apartat \textit{b)}, $4\pi r^{2}$, i agafa'n la meitat.
+
+\medskip
+Finalment, suma les tres parts i substitueix-hi $h$. Arribaràs a l'expressió $S(r)$ de l'enunciat.}
 
 \subsection*{\textit{b)} \normalfont Quines dimensions ha de tenir l'ampolla de perfum perquè la superfície total sigui mínima? Quina és la superfície total de l'ampolla en aquest cas? \hspace*{\fill}\textnormal{[1,5~punts]}}
 
 \noindent\textit{Nota:} Recordeu que la superfície d'una esfera ve donada per la fórmula $4\pi r^{2}$, on $r$ és el seu radi.
 
-\pista{És un problema d'optimització.
-\begin{itemize}
-\item Deriva $S(r)$ i resol $S'(r) = 0$.
-\item Comprova que el valor trobat és un mínim (i no un màxim ni un punt d'inflexió).
-\item Obtén $h$ a partir de la dada del volum.
-\item Substitueix a $S(r)$ per obtenir la superfície total mínima.
-\end{itemize}
+\pista{En primer lloc, deriva $S(r)$. Recorda que si escrius $\frac{200}{r}$ en forma de potència, $200\,r^{-1}$, pots derivar-la fàcilment. A continuació, resol $S'(r) = 0$. Per treure la $r$ del denominador, multiplica els dos costats de l'equació per $r^{2}$. Quan arribis a $r^{3}$ igual a un nombre, fes-ne l'arrel cúbica amb la calculadora. Comprova amb el signe d'$S''$ que és un mínim.
 
 \medskip
-\textbf{Atenció:} respon \emph{totes} les parts de la pregunta: les \emph{dimensions} (el radi $r$ \emph{i} l'altura $h$) i la \emph{superfície} total mínima.}
+Finalment, tingues en compte que la teva resposta ha d'incloure, d'una banda, les dues mides de l'ampolla, el radi $r$ i l'altura $h$; i d'altra banda, la superfície total. Per a l'altura $h$, fes servir l'expressió que has trobat a l'apartat \textit{a)}.}
 
 \end{document}

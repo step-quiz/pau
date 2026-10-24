@@ -14,22 +14,24 @@
 
 \subsection*{\textit{a)} \normalfont Determineu el perímetre i l'àrea del decorat que s'ha de construir en funció de $x$ i de $y$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Identifica a la figura cadascuna de les parts del decorat: quines són les dimensions del rectangle i quins són els radis dels dos semicercles?
-\begin{itemize}
-\item \textit{Perímetre.} És la suma dels arcs dels dos semicercles (cadascun és mitja circumferència) més els trams de la vora del rectangle que no queden «tapats» per cap semicercle.
-\item \textit{Àrea.} És l'àrea del rectangle més les àrees dels dos semicercles.
-\end{itemize}}
+\pista{Fixa't que el costat de dalt del rectangle és el diàmetre del semicercle de dalt: per tant, fa $2x$. Quant fa el costat de la dreta del rectangle?
+
+\medskip
+Per trobar el perímetre, has de resseguir la vora del decorat: són dos costats del rectangle i els arcs dels dos semicercles.
+
+Per trobar l'àrea total, hauràs de sumar l'àrea del rectangle i les àrees dels dos semicercles.
+
+Finalment, et recordo les fórmules. Per trobar la longitud d'una circumferència: $P = 2\pi r$, i per trobar l'àrea d'un cercle: $A = \pi r^{2}$. Per a un semicercle, agafa'n la meitat.}
 
 \subsection*{\textit{b)} \normalfont Per a revestir el perímetre del decorat, en Carles té material per a cobrir fins a $10\,\text{m}$. Si el vol gastar tot, quines seran les mides del decorat d'àrea màxima que podrà construir? Quin és el valor d'aquesta àrea? \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{És un problema d'optimització.
-\begin{itemize}
-\item \textit{Condició.} Imposa $P = 10$ i aïlla una de les variables en funció de l'altra.
-\item \textit{Funció a optimitzar.} Substitueix-la a la fórmula de l'àrea: quedarà una funció d'una sola variable.
-\item \textit{Optimitza.} Deriva, resol l'equació derivada igual a zero i comprova que el valor trobat és un màxim.
-\end{itemize}
+\pista{En primer lloc, fes servir que en Carles gasta tot el material: el perímetre de l'apartat \textit{a)} ha de valer $10$:
+\[
+P(x, y) = 10
+\]
+Aïlla la $y$ d'aquesta equació. Et convé treure factor comú $x + y$. A continuació, substitueix-la a l'expressió de l'àrea: obtindràs l'àrea $A(x)$ en funció només de $x$. Tingues en compte que $\pi$ és com qualsevol altre nombre i, per tant, l'has de tractar com una constant qualsevol, com si fos, per exemple, el nombre $5$.
 
 \medskip
-\textbf{Atenció:} respon \emph{totes} les parts de la pregunta: les \emph{mides} (totes dues) i l'\emph{àrea} màxima.}
+Després, deriva $A(x)$ i resol $A'(x) = 0$. Comprova amb el signe d'$A''$ que és un màxim. Finalment, dona les dues mides, $x$ i $y$, i el valor de l'àrea màxima.}
 
 \end{document}

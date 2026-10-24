@@ -16,32 +16,30 @@ definida per a $x > 0$.
 
 \subsection*{\textit{a)} \normalfont Estudieu-ne els màxims i els mínims, i les zones de creixement i de decreixement. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Deriva $f(x)$ amb la regla del quocient.
-\begin{itemize}
-\item Resol $f'(x) = 0$ per trobar els candidats a extrem.
-\item Estudia el signe d'$f'(x)$ als intervals resultants.
-\end{itemize}
-Així classificaràs cada punt crític i, alhora, determinaràs les zones de creixement i de decreixement.}
+\pista{En primer lloc, calcula $f'(x)$ amb la regla de la derivada d'un quocient:
+\[
+\left(\frac{u}{v}\right)' = \frac{u' \cdot v - u \cdot v'}{v^{2}}
+\]
+A continuació, resol $f'(x) = 0$: només cal igualar a zero el numerador. Recorda que $\ln e = 1$.
+
+\medskip
+Finalment, fes una taula de signes de la funció derivada $f'(x)$, però només per a $x > 0$, perquè t'has de restringir al domini d'$f(x)$. El denominador sempre és positiu, perquè és un quadrat. Això vol dir que el signe d'$f'$ depèn només del numerador. On la funció passa de créixer a decréixer hi ha un màxim, i on passa de decréixer a créixer, un mínim.}
 
 \subsection*{\textit{b)} \normalfont Aquesta funció té asímptotes? Feu un esbós de la seva gràfica. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Segueix els passos de l'estudi d'una funció.
-\begin{enumerate}
-\item \textit{Domini i asímptotes verticals.} El domini és $x > 0$. Estudia el límit quan $x \to 0^{+}$: no és una indeterminació.
-\item \textit{Límits a l'infinit.} Pel domini, només cal $x \to +\infty$. Aquest límit sí que és una indeterminació: pots aplicar la regla de L'Hôpital. Si dona un nombre real, hi ha una asímptota horitzontal.
-\item \textit{Talls amb els eixos.} Resol $f(x) = 0$. Amb l'eix d'ordenades no n'hi ha, perquè $x = 0$ no és del domini.
-\item \textit{Creixement, decreixement i extrems relatius.} Ho tens de l'apartat \textit{a)}.
-\item \textit{Concavitat i punts d'inflexió.} Calcula $f''(x)$ i estudia'n el signe.
-\item \textit{Taula de valors} (opcional): uns quants punts t'ajudaran a situar la corba.
-\item \textit{Esbós de la gràfica.} Combina-ho tot.
-\end{enumerate}}
+\pista{Tens gairebé tota la feina feta a l'apartat \textit{a)}. Et falten els límits als dos extrems del domini:
+\begin{itemize}
+\item \textit{Quan $x \to 0^{+}$.} El numerador, $2 \ln x$, tendeix a $-\infty$, i el denominador, $x$, tendeix a $0$ amb valors positius. No és una indeterminació: quin signe té el quocient? Si el límit és $+\infty$ o $-\infty$, hi ha una asímptota vertical a $x = 0$.
+\item \textit{Quan $x \to +\infty$.} El numerador i el denominador tendeixen a $+\infty$, però $x$ creix molt més de pressa que $\ln x$. Prova valors grans: $f(10) \approx 0{,}46$, $f(100) \approx 0{,}092$ i $f(1000) \approx 0{,}014$. Cap a quin valor s'acosten els valors d'$f(x)$? Si el límit és un nombre real (finit), llavors significa que hi ha una asímptota horitzontal.
+\end{itemize}
+Per a l'esbós, fes servir aquests límits, el creixement i el decreixement de l'apartat \textit{a)}, i el punt on la gràfica talla l'eix d'abscisses, que trobaràs resolent $f(x) = 0$. No et cal la segona derivada.}
 
 \subsection*{\textit{c)} \normalfont Calculeu l'equació de la recta tangent a la gràfica de $y = f(x)$ en el punt d'abscissa $x = 1$. \hspace*{\fill}\textnormal{[0,5~punts]}}
 
-\pista{Aplica la fórmula de la recta tangent:
+\pista{El pendent de la recta tangent que busques és $f'(1)$, i el punt és $\bigl(1, f(1)\bigr)$. Per tant:
 \[
 y - f(1) = f'(1)\,(x - 1)
 \]
-Ja tens $f'(x)$ de l'apartat \textit{a)}: només cal avaluar $f(1)$ i $f'(1)$.}
+Ja tens $f'(x)$ de l'apartat \textit{a)}: només cal que calculis $f(1)$ i $f'(1)$, i que els substitueixis a la fórmula. Recorda que $\ln 1 = 0$.}
 
 \end{document}

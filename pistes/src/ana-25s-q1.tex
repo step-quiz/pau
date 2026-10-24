@@ -18,30 +18,33 @@ A(m) = \dfrac{3}{2} \cdot \dfrac{m^{2} - 2m + 1}{m^{2} - 3m}.
 \]
 \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{\textit{La recta $r$.} Passa per $P = (1, 1)$ i té pendent $m$: escriu-la en la forma punt-pendent.
+\pista{En primer lloc, escriu la recta $r$ en la forma punt-pendent:
+\[
+y - y_{0} = m\,(x - x_{0}),
+\]
+on $(x_{0}, y_{0})$ és un punt de la recta, en aquest cas $P$, i $m$ és el pendent.
 
 \medskip
-\textit{Els vèrtexs del triangle.}
-\begin{itemize}
-\item El primer és l'origen, $(0, 0)$.
-\item Els altres dos són els talls d'$r$ amb les rectes dels penya-segats, $y = 0$ i $y = 3x$.
-\end{itemize}
-\textit{L'àrea.} Com que un costat és sobre l'eix d'abscisses, pren-lo com a base. L'altura és l'ordenada del vèrtex que és sobre $y = 3x$:
+A continuació, fixa't a la figura que la base del triangle és sobre l'eix d'abscisses, des de l'origen fins al punt on $r$ talla aquest eix: per trobar-lo, fes $y = 0$ a l'equació d'$r$. L'altura és la segona coordenada del punt on $r$ talla la recta $y = 3x$: per trobar-lo, substitueix $y = 3x$ a l'equació d'$r$. Tots dos punts et quedaran en funció de $m$. No és tan difícil com sembla, perquè cada vegada només has d'aïllar la $x$ d'una equació de primer grau.
+
+\medskip
+Finalment, calcula l'àrea i simplifica-la fins a arribar a l'expressió de l'enunciat:
 \[
-A = \frac{\text{base} \cdot \text{altura}}{2}
-\]
-Simplifica el resultat fins a arribar a l'expressió de l'enunciat.}
+\text{Àrea} = \frac{\text{base} \cdot \text{altura}}{2}
+\]}
 
 \subsection*{\textit{b)} \normalfont Calculeu el valor de $m$ que fa que l'àrea d'aquest terreny (i, per tant, el seu preu) sigui mínima. Quin és el valor d'aquesta àrea? \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{És un problema d'optimització.
-\begin{itemize}
-\item Deriva $A(m)$ i resol $A'(m) = 0$: obtindràs dos valors candidats.
-\item Comprova que el valor triat és un mínim.
-\item Substitueix-lo a $A(m)$ per trobar l'àrea mínima.
-\end{itemize}
+\pista{En primer lloc, deriva $A(m)$ amb la regla de la derivada d'un quocient:
+\[
+\left(\frac{u}{v}\right)' = \frac{u' \cdot v - u \cdot v'}{v^{2}}
+\]
+El $\frac{3}{2}$ multiplica tota la fracció: el pots deixar fora i multiplicar-lo al final. A continuació, resol $A'(m) = 0$: només cal igualar a zero el numerador. Obtindràs dues solucions. Fixa't a la figura que la recta $r$ és decreixent, i per tant el seu pendent ha de ser negatiu: queda't amb la solució que compleix aquesta condició.
 
 \medskip
-\textbf{Atenció:} descarta el candidat que no tingui sentit geomètric. Fixa't en la figura: quin signe ha de tenir el pendent d'$r$? I respon \emph{totes} les parts de la pregunta: el valor d'$m$ \emph{i} l'àrea mínima.}
+Després, comprova que efectivament has obtingut un mínim: pots fer-ho estudiant el signe de la funció $A'$. Com que tens una funció racional i el denominador en aquest cas sempre serà positiu, només cal que estudiïs el signe del numerador.
+
+\medskip
+Finalment, tingues en compte que la teva resposta ha d'incloure, d'una banda, el valor de $m$; i d'altra banda, l'àrea mínima.}
 
 \end{document}

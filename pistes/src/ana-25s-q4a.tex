@@ -14,24 +14,23 @@
 
 \subsection*{\textit{a)} \normalfont Raoneu a quina funció correspon cada gràfica i calculeu les coordenades dels punts $B$ i $C$ assenyalats a la figura (tenint en compte que $A$ és l'origen de coordenades). \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{\textit{Quina funció és cada gràfica?} Avalua les dues funcions a $x = 0$: una passa per l'origen $A$ i l'altra, per $B$.
+\pista{En primer lloc, calcula el valor de cada funció a $x = 0$. La funció que compleixi $h(0) = 0$ significa que la seva gràfica passa pel punt $A = (0, 0)$, és a dir, l'origen. L'altra funció passarà pel punt $B$, i això també et permet conèixer les coordenades del punt $B$.
 
 \medskip
-\textit{El punt $C$.} És la intersecció de les dues corbes.
-\begin{itemize}
-\item Iguala $3\sin(x/4) = 3\cos(x/4)$ i resol l'equació treballant en radiants.
-\item De totes les solucions, queda't amb la del punt $C$ de la figura.
-\item Substitueix-la en una de les dues funcions per obtenir l'ordenada de $C$.
-\end{itemize}}
+A continuació, el punt $C$ és on es tallen les dues gràfiques: iguala $3\sin(x/4) = 3\cos(x/4)$. Per resoldre aquesta equació, divideix els dos costats per $3\cos(x/4)$: obtindràs una equació amb la tangent. Treballa en radiants, i recorda que l'angle de $\frac{\pi}{4}$ radiants té tangent $1$. De totes les solucions, queda't amb la primera a la dreta de l'eix d'ordenades, que és la del punt $C$ de la figura.
+
+\medskip
+Finalment, substitueix aquest valor en una de les dues funcions per obtenir la segona coordenada de $C$.}
 
 \subsection*{\textit{b)} \normalfont Calculeu el preu del vitrall sabent que costa 750\,\euro/m$^{2}$. \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{L'àrea és el valor absolut de la integral de la diferència de les dues funcions, entre les abscisses d'$A$ i de $C$ de l'apartat anterior:
+\pista{Integra des de l'abscissa d'$A$ fins a l'abscissa de $C$, que ja tens de l'apartat \textit{a)}:
 \[
 \text{Àrea} = \left| \int_{x_{A}}^{x_{C}} \Bigl(3\cos\frac{x}{4} - 3\sin\frac{x}{4}\Bigr)\,dx \right|
 \]
+Per trobar la primitiva, vigila el coeficient que hi apareix. Per exemple, una primitiva de $\cos\frac{x}{4}$ és $4\sin\frac{x}{4}$: comprova-ho derivant. Fes el mateix amb el sinus. Per avaluar-la, posa la calculadora en radiants.
 
 \medskip
-\textbf{Atenció:} quan calculis la primitiva, vigila el coeficient que hi apareix. I no t'aturis a l'àrea: per obtenir el preu, multiplica-la pel que costa cada $\text{m}^{2}$.}
+Finalment, la teva resposta ha de ser un preu: multiplica l'àrea pels $750\,\text{\euro}$ que costa cada metre quadrat.}
 
 \end{document}

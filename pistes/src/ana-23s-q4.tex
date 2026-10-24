@@ -12,28 +12,20 @@
 
 \subsection*{\textit{a)} \normalfont Justifiqueu que $f(x) = 2$ té una solució en l'interval $(-1, 0)$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{És una aplicació del teorema de Bolzano. Aquest teorema estudia equacions del tipus $g(x) = 0$, i aquí tens $f(x) = 2$.
-\begin{itemize}
-\item Defineix una funció auxiliar:
+\pista{Reformula la pregunta: vols saber si s'anul·la la funció auxiliar
 \[
 g(x) = f(x) - 2
 \]
-Així, «$f(x) = 2$» i «$g(x) = 0$» són exactament la mateixa condició.
-\item Comprova que $g$ és contínua a $[-1, 0]$: és suma d'una funció lineal i d'una exponencial, totes dues contínues.
-\item Avalua $g(-1)$ i $g(0)$.
-\end{itemize}
-Si tenen signes oposats, el teorema garanteix que hi ha un punt de l'interval on $g$ s'anul·la, és a dir, on $f$ val 2.}
+En primer lloc, justifica que $g$ és contínua a $[-1, 0]$: és la suma d'una funció polinòmica i d'una exponencial, totes dues contínues. A continuació, calcula $g(-1)$ i $g(0)$. Si tenen signes oposats, el teorema de Bolzano assegura que $g$ s'anul·la en algun valor de l'interval $(-1, 0)$, és a dir, que en aquest valor $f(x) = 2$.}
 
 \subsection*{\textit{b)} \normalfont Sigui la funció $h(x) = -3x^{2} + e^{2x^{3} - 1}$. Calculeu l'àrea de la regió compresa entre les gràfiques de les funcions $f(x)$ i $h(x)$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{L'àrea és el valor absolut de la integral de la diferència de les dues funcions, entre els punts de tall.
-\begin{itemize}
-\item Abans de res, calcula $f(x) - h(x)$ i simplifica-la: la integral et quedarà senzilla.
-\item Els límits d'integració són els punts de tall: resol $f(x) - h(x) = 0$.
-\item Calcula
+\pista{En primer lloc, calcula la diferència $f(x) - h(x)$ i simplifica-la. No és tan difícil com sembla, perquè les dues exponencials s'anul·len.
+
+\medskip
+A continuació, resol $f(x) - h(x) = 0$: les solucions et marquen precisament l'interval sobre el qual integres. Finalment, calcula l'àrea amb el valor absolut de la integral:
 \[
 \text{Àrea} = \left| \int_{x_{1}}^{x_{2}} \bigl(f(x) - h(x)\bigr)\,dx \right|
-\]
-\end{itemize}}
+\]}
 
 \end{document}

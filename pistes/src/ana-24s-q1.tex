@@ -12,23 +12,19 @@
 
 \subsection*{\textit{a)} \normalfont Justifiqueu que la seva gràfica talla l'eix de les abscisses en un punt de l'interval $[-2, 0]$. Doneu un interval de longitud $0{,}5$ on es trobi aquest punt de tall. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Aplica el teorema de Bolzano: si $f$ és contínua a l'interval i canvia de signe entre els extrems, hi ha alguna arrel.
-\begin{itemize}
-\item Justifica que $f$ és contínua a $[-2, 0]$ (és polinòmica).
-\item Calcula $f(-2)$ i $f(0)$ i comprova que tenen signes oposats.
-\item Per localitzar un interval de longitud $0{,}5$, prova valors intermedis ($-1{,}5$; $-1$; $-0{,}5$) fins a trobar un canvi de signe entre dos valors consecutius.
-\end{itemize}}
+\pista{Que la gràfica talli l'eix d'abscisses vol dir que $f(x) = 0$. En primer lloc, justifica que $f$ és contínua a $[-2, 0]$, perquè és polinòmica. A continuació, calcula $f(-2)$ i $f(0)$. Per a $f(-2)$ no et cal el valor exacte, perquè només en necessites el signe. Si tenen signes oposats, el teorema de Bolzano assegura que $f$ s'anul·la en algun valor de l'interval $(-2, 0)$.
+
+\medskip
+Per trobar un interval de longitud $0{,}5$, prova valors amb salts de $0{,}5$, com ara $f(-1{,}5)$, $f(-1)$…, fins que trobis dos valors seguits amb signes oposats.}
 
 \subsection*{\textit{b)} \normalfont Estudieu les zones de creixement i de decreixement, i els màxims i els mínims de $y = f(x)$. Quants punts de tall té exactament la gràfica d'aquesta funció amb l'eix de les abscisses? Justifiqueu la resposta. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Calcula $f'(x)$ i analitza'n el signe.
-\begin{itemize}
-\item Observa que $f'(x)$ és una suma de monomis de grau parell amb coeficients positius: quin signe pot tenir?
-\item Dedueix-ne el creixement i si hi ha màxims o mínims.
-\item Combina-ho amb l'apartat \textit{a)} per justificar quants punts de tall té la gràfica amb l'eix d'abscisses.
-\end{itemize}
+\pista{En primer lloc, calcula $f'(x)$. Fixa't que tots els exponents que hi surten són parells. Pot ser negativa una potència d'exponent parell, com ara $x^{2}$? D'aquí en pots deduir que $f'(x)$ mai és negativa i, per tant, tindràs informació valuosa sobre $f(x)$.
 
 \medskip
-\textbf{Atenció:} un punt amb $f'(x) = 0$ no sempre és un màxim o un mínim: mira si $f'$ hi canvia de signe.}
+A continuació, tingues en compte que $f'(0) = 0$. Per saber si a $x = 0$ hi ha un màxim o un mínim, mira si $f'$ hi canvia de signe.
+
+\medskip
+Finalment, combina-ho amb l'apartat \textit{a)}: si una funció és sempre creixent, quantes vegades pot tallar l'eix d'abscisses?}
 
 \end{document}

@@ -10,16 +10,12 @@
 
 \noindent L'alcalde d'un poble de Catalunya encarrega a l'arquitecte municipal el disseny d'un parc infantil que es construirà en un terreny públic. Per a complir la normativa vigent, en el parc hi ha d'haver dos espais ben delimitats: un per a una boca de reg ---el qual, segons l'arquitecte, ha de tenir forma circular---, i un altre per a una caseta on es guardin les eines de manteniment ---el qual ha de tenir forma quadrada. Per motius estètics, l'arquitecte vol delimitar cadascun d'aquests dos espais amb una barana de forja. Sabent que les dues baranes mesuren exactament $10\,\text{m}$ de longitud en total, quina mida ha de tenir la barana de cada espai per tal que la suma de les superfícies dels dos espais sigui la més petita possible? Quina és aquesta superfície mínima? \hspace*{\fill}\textnormal{[2,5~punts]}
 
-\pista{És un problema d'optimització.
-\begin{itemize}
-\item \textit{Variables.} Anomena $x$ la longitud de barana del tancat circular; per al quadrat en queden $10 - x$.
-\item \textit{El cercle.} $x$ és el perímetre de la circumferència ($2\pi r$): escriu el radi en funció d'$x$ i, amb ell, l'àrea del cercle.
-\item \textit{El quadrat.} $10 - x$ és el seu perímetre: escriu-ne el costat i l'àrea en funció d'$x$.
-\item \textit{Funció a optimitzar.} Suma les dues àrees: obtindràs $A(x)$.
-\item \textit{Optimitza.} Deriva $A(x)$, resol $A'(x) = 0$ i comprova (per exemple, amb la segona derivada) que el punt trobat és un mínim.
-\end{itemize}
+\pista{Prova-ho en primer lloc amb un número inventat. Per exemple, si fas servir $2\,\text{m}$ de barana per al cercle, per al quadrat en queden $10 - 2 = 8\,\text{m}$. Llavors, el quadrat té un costat de $\frac{8}{4} = 2\,\text{m}$, i la seva àrea és $2^{2} = 4\,\text{m}^{2}$. La circumferència fa $2\,\text{m}$: per tant, $2\pi r = 2$, el radi és $r = \frac{2}{2\pi}$, i l'àrea del cercle és $\pi r^{2}$.
 
 \medskip
-\textbf{Atenció:} respon les dues preguntes: la longitud de cada tros de barana \emph{i} el valor de l'àrea mínima.}
+Ara fes el mateix amb $x$ en lloc de $2$: obtindràs la suma de les dues àrees, $A(x)$. A continuació, deriva-la i resol $A'(x) = 0$. Recorda que $\pi$ és com qualsevol altre nombre: tracta'l com una constant. Comprova que és un mínim fent servir la segona derivada $A''$.
+
+\medskip
+Finalment, tingues en compte que la teva resposta ha d'incloure, d'una banda, la longitud de cada tros de barana; i d'altra banda, la superfície mínima.}
 
 \end{document}
