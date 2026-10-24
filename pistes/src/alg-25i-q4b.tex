@@ -15,31 +15,27 @@ A = \begin{pmatrix} a & 0 \\ 1 & a^{2} \end{pmatrix}, \text{ on } a \text{ és u
 
 \subsection*{\textit{a)} \normalfont Trobeu els valors de $a$ que fan que les matrius $A$ i $B$ commutin. (Dues matrius $A$ i $B$ commuten si $AB = BA$.) \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Calcula els dos productes $AB$ i $BA$ i iguala'ls element per element.
-\begin{itemize}
-\item De les quatre igualtats, algunes seran trivialment certes.
-\item Les altres et donaran una equació d'on deduiràs el valor o els valors d'$a$.
-\end{itemize}
+\pista{En primer lloc, calcula els dos productes, $A \cdot B$ i $B \cdot A$. Obtindràs dues matrius que depenen del paràmetre $a$.
 
 \medskip
-\textbf{Atenció:} en el producte de matrius l'ordre dels factors importa; en general, $AB \neq BA$.}
+A continuació, iguala la matriu $A \cdot B$ amb la matriu $B \cdot A$, element per element, i obtindràs quatre equacions. No és tan difícil com sembla, perquè algunes d'aquestes equacions es compleixen sempre. Finalment, resol les que quedin.}
 
 \subsection*{\textit{b)} \normalfont Trobeu els valors de $a$ per als quals la matriu $A$ és invertible. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Calcula $\det(A)$ en funció d'$a$.
+\pista{Calcula el determinant de la matriu $A$, que dependrà del paràmetre $a$. Si el determinant és diferent de zero, significa que la matriu $A$ és invertible.
 
 \medskip
-Recorda: una matriu és invertible si i només si el seu determinant és no nul.}
+Per tant, busca per a quins valors d'$a$ el determinant s'anul·la. La teva resposta són, precisament, tots els altres valors. Per exemple, si el valor que anul·la el determinant fos $a = 3$, llavors tu hauries d'escriure que la resposta és $a \neq 3$.}
 
 \subsection*{\textit{c)} \normalfont Trobeu els valors de $a$ per als quals $A^{-1} = A$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Evita la inversa: multiplica els dos membres d'$A^{-1} = A$ per la matriu $A$.
-\begin{itemize}
-\item Obtindràs una equació sense la inversa, més fàcil de treballar.
-\item Iguala les dues matrius element per element.
-\end{itemize}
+\pista{En lloc de calcular la inversa, multiplica els dos costats de la igualtat $A^{-1} = A$ per la matriu $A$. Com que $A \cdot A^{-1} = I$, obtindràs una igualtat sense inverses:
+\[
+A \cdot A = I
+\]
+A continuació, calcula $A \cdot A$ i iguala-la amb la matriu identitat $I$, element per element.
 
 \medskip
-\textbf{Atenció:} t'hi sortiran diverses equacions, i el paràmetre $a$ les ha de complir \emph{totes} alhora.}
+\textbf{Atenció:} obtindràs diverses equacions, i és important que el valor d'$a$ les compleixi totes alhora.}
 
 \end{document}

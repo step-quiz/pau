@@ -1,93 +1,223 @@
-# Guia d'estil de les pistes
+# Hint style guide
 
-Criteris per revisar i escriure les pistes (`pistes/src/<id>.tex`). Decisions aprovades pel David el 2026-10-09.
+Rules for writing and reviewing the hints (`pistes/src/<id>.tex`, compiled to `data/<id>-p.pdf`).
 
-## 1. Principis
+- **Audience.** The AI that writes or reviews hints, and David, who approves the rules. Hints are written in **Catalan**; this guide is in English.
+- **Scope.** This is the single source of truth for hint *content*. `UPDATING.md` covers adding new exam sessions and points here.
+- **Version.** Rewritten on 2026-10-24, after the pedagogical pilot and algebra lots 1–2, and extended with algebra lots 3–6 (the whole algebra block). The previous Catalan version (2026-10-09, amended 16–17/10) is in the git history. Notes in `REVISIO.md` dated before 2026-10-24 that cite «ESTIL §7» refer to that version. Its fixed templates are retired by §7 below: the structured format, the Rouché–Frobenius list and the optimisation labels.
 
-1. **Intervenció mínima.** Si una pista ja funciona, no es reescriu. A les pistes escrites pel David (columna *Autor* de `REVISIO.md`) només es corregeixen errors 🔴, llevat que ell demani una altra cosa.
-2. **Una pista orienta, no resol.** Diu *què* cal fer i *per què*, i assenyala el pas on és fàcil equivocar-se. No dona resultats numèrics intermedis ni finals.
-3. **Coherència amb la pauta oficial** (`data/<id>-s.pdf`). La pista porta cap a un mètode que la pauta accepta i no se salta passos que la pauta puntua per separat.
-4. **Fidelitat a l'enunciat.** L'enunciat que es reprodueix al PDF de la pista és el de la PAU i no es modifica.
+## 1. Principles
 
-## 2. Classificació de les propostes de revisió
+1. **Reader model.** A student opens a hint only after reading the statement and failing to start, or after getting stuck. A student who can solve the exercise never reads it. So every sentence must remove a specific obstacle. Anything else is extra load on a reader who is already overloaded.
+2. **Cognitive load means inferences, not words.** A compressed sentence («Fes Gauss», «resol de baix a dalt») makes the student unpack it. A longer, explicit sentence can be lighter. Minimise the number of things the student has to infer, not the length.
+3. **A hint unblocks; it does not solve.** It never gives:
+   - a final result;
+   - the function to optimise;
+   - the conclusion the statement asks the student to prove;
+   - an intermediate result that the pauta scores.
 
-| Marca | Tipus | Exemples |
+   The exception is a minimal worked example (one row, one element, one term) that shows the move and leaves the rest to the student.
+4. **Coherence with the official solution** (`data/<id>-s.pdf`). The hint leads to a method the pauta accepts. It never contradicts the pauta. It does not make the student lose a step the pauta scores separately (§7.5).
+5. **Fidelity to the statement.** The statement reproduced in the hint PDF is the official one, verbatim. `UPDATING.md` §5 explains how to handle figures and notes.
+6. **David's words are final.** When David suggests a wording during review, use it verbatim. Deviate only to fix a mathematical inaccuracy or a typographic defect, change as little as possible, and say so in the reply. Precedent: `alg-23j-q4` a), where «En el càlcul,» was added so that $(2+\lambda)^3$ is not read as the whole determinant.
+7. **Hints written by David.** If *Autor = David* in `REVISIO.md`, correct errors only, unless David says otherwise. If a hint contains text marked «text del David», keep his move.
+
+## 2. Classifying review proposals
+
+| Mark | Type | Examples |
 |---|---|---|
-| 🔴 | Error | Matemàtic (un vector mal escrit, un signe), tipogràfic, una pista que porta a un camí equivocat |
-| 🟠 | Pedagògic | La pista revela massa, és massa vaga o no lliga amb el mètode de la pauta |
-| 🟡 | Llengua i estil | Castellanismes, persona verbal, cometes, coherència de notació |
+| 🔴 | Error | Mathematical (a wrong vector, a sign), typographical, a hint that leads down a wrong path |
+| 🟠 | Pedagogical | One of the failure modes below |
+| 🟡 | Language and style | §4, §5 |
 
-## 3. Format (ja implementat a `pista.sty`)
+Pedagogical failure modes. Each 🟠 proposal names one; the review page shows it as *tipus*.
 
-- Una caixa `\pista{...}` per apartat, just després de l'enunciat de l'apartat.
-- Capçalera uniforme: *PAU de Matemàtiques — Pistes* · *Catalunya AAAA · Convocatòria · Sèrie*.
-- Sense número de pàgina. Cada pista ocupa una sola pàgina.
-- La puntuació de l'apartat va al final del seu enunciat amb `\hspace*{\fill}\textnormal{[0,75~punts]}`, no amb `\hfill`: si la puntuació passa a la línia següent, `\hfill` desapareix a principi de línia i la puntuació queda a l'esquerra (aprovat el 16/10/2026).
+| Mode (label on the review page) | Symptom | Before (rejected) |
+|---|---|---|
+| Guess the secret (*Endevinar el secret*) | A vague instruction or a riddle. An abstract question that needs two or more inferences. | «hi descobriràs alguna cosa interessant»; «Quina figura de l'espai té una equació d'aquesta forma?» |
+| Parroting the theory (*Repetir la teoria*) | A generic recipe or a theorem statement that is the same in every exercise, instead of the step that blocks this one | The 4-item Rouché–Frobenius list; «en general $A \cdot B \neq B \cdot A$»; «És un cas clar del teorema de Bayes» |
+| Creating another problem (*Crear un altre problema*) | Asks for work that neither the question nor the pauta needs | $f''$ for a sketch the pauta draws without concavity (`ana-26s-q1` 1.2); a shortcut that leads to a quadratic whose roots must then be checked (`alg-23j-q4` a)) |
+| Too much information (*Massa informació*) | Several warnings, labels such as $(\ast)$, optional alternatives, more than one obstacle per hint | `ana-23j-q5` a) before 2026-10-24: four labelled steps and two warnings |
 
-## 4. Llengua
+## 3. Format (implemented in `pista.sty`)
 
-- **Persona verbal:** segona persona del singular («Calcula», «Fixa't»).
-- **Cometes:** cometes baixes «…». Les ``` ``…'' ``` i les `"…"` rectes es canvien a «…» quan es revisa cada pista.
-- **Formes a evitar:** «anem a + infinitiu» per a futur (→ «obtindrem»), «donat que» (→ «atès que», «com que»), «en base a» (→ «a partir de»).
-- **Referències a apartats:** «l'apartat *a)*».
-- **Apòstrof davant de símbols:** segons com es llegeix el nom de la lletra (aprovat el 16/10/2026). S'apostrofa si el nom comença amb so vocàlic: d'$A$, d'$e$, d'$f$ (efa), d'$h$ (hac), d'$l$ (ela), d'$m$ (ema), d'$n$ (ena), d'$r$ (erra), d'$s$ (essa), d'$x$ (ics), d'$y$ (i grega), d'$\alpha$. No s'apostrofa si comença amb consonant: de $B$, de $k$ (ca), de $p$ (pe), de $t$ (te), de $\lambda$, de $\pi$.
+- One `\pista{...}` box per part, right after the statement of that part.
+- Uniform header: *PAU de Matemàtiques — Pistes* · *Catalunya AAAA · Convocatòria · Sèrie*.
+- No page number. **Every hint PDF is a single page.**
+- The score of a part goes at the end of its statement as `\hspace*{\fill}\textnormal{[0,75~punts]}`, not `\hfill`. If the score wraps to the next line, `\hfill` disappears at the start of the line and the score ends up on the left.
 
-## 5. Notació
+## 4. Language (Catalan)
 
-- Vectors: `\vec{PQ}`, `\vec{n}`. Producte vectorial: `\times`. Producte escalar: `\cdot`.
-- Decimals amb coma: `2{,}5`. Percentatges: `16\,\%`. Unitats amb espai fi: `10\,\text{m}`, `2{,}5\,\euro/\text{m}`.
-- Matrius amb `pmatrix`. Sistemes d'equacions amb `\left.\begin{array}{r} … \end{array}\right\}`.
+- **Grammatical person:** second person singular («Calcula», «Fixa't»). No first person plural («podem», «hem vist a classe»).
+- **Quotes:** «…». Never ``` ``…'' ``` or `"…"`.
+- **Spelling:** «dona» (not «dóna»), «ves» (not «vés»).
+- **Forms to avoid:** «anem a» + infinitive for the future (→ «obtindràs»); «donat que» (→ «atès que», «com que»); «en base a» (→ «a partir de»).
+- **Oral filler and irony to avoid:** «No et preocupis», «observa amb atenció», «M'explico», capitals for emphasis. «Com sempre» is allowed only in the fixed sentence of §7.6.
+- **References to parts:** «l'apartat *a)*», «l'apartat 3.1».
+- **Ordinals for equations:** «la 1a equació», «la 3a equació» (feminine abbreviations).
+- **Apostrophe before symbols:** follow how the letter's name is pronounced. Apostrophise if the name starts with a vowel sound: d'$A$, d'$e$, d'$f$ (efa), d'$h$ (hac), d'$l$ (ela), d'$m$ (ema), d'$n$ (ena), d'$r$ (erra), d'$s$ (essa), d'$x$ (ics), d'$y$ (i grega), d'$\alpha$. Do not apostrophise if it starts with a consonant: de $B$, de $k$ (ca), de $p$ (pe), de $t$ (te), de $\lambda$, de $\pi$.
+- **Punctuation:** em dashes (`---…---`) for asides. No comma before «i».
 
-## 6. Llargada
+## 5. Notation and layout
 
-- Orientativa: de 2 a 6 línies per apartat. Si una pista necessita més espai, probablement està resolent l'exercici.
+- Vectors: `\vec{PQ}`, `\vec{n}`. Cross product: `\times`. Dot product: `\cdot`.
+- Decimal comma: `2{,}5`. Percentages: `16\,\%`. Units with a thin space: `10\,\text{m}`, `2{,}5\,\euro/\text{m}`.
+- Matrices: `pmatrix`. Augmented matrix: `A^{'}`. Systems: `\left.\begin{array}{r} … \end{array}\right\}`.
+- **In hint text, matrices go in display math** (`\[ … \]`), not inline in running text: an inline `pmatrix` breaks the line spacing. Statements keep the official layout.
+- A short equality must not split at its relation symbol. Wrap it in `\mbox{$z = t$}`, then check that the build reports no `línia massa llarga`. If it does, reword the sentence or use display math instead.
 
-## 7. Format estructurat (aprovat el 16/10/2026; aplicat a tots els blocs)
+## 6. Length and shape
 
-Paràgrafs llargs no: més estructura i més canvis de línia. Des del 16/10/2026, `pista.sty` posa el text amb `\color`, i dins de `\pista{…}` es poden fer servir línies en blanc, `\medskip`, `\bigskip` i `itemize`.
+- **One obstacle per hint.** Two only if the part asks for two independent things (for example, «resoleu» and «interpreteu geomètricament»).
+- Usually two or three short paragraphs separated by `\medskip`. The PDF must stay on one page.
+- **Default to prose with sequence markers** (§7.3). Use `itemize` only for parallel items the student must treat separately (vertical and horizontal asymptotes), never for a generic recipe.
+- **Display math** (`\[ … \]`) for the one formula or equation the student has to write or check.
+- The editor warns above 700 characters. Treat that as a signal to look for compression or for a second obstacle, not as a hard limit.
 
-- Una **primera frase curta** amb la idea clau de l'apartat.
-- Els **passos en una llista** (`itemize`), un pas per punt i frases curtes.
-- Les **fórmules clau en una línia a part**: `\[ … \]`.
-- L'avís, en un **paràgraf propi**: línia en blanc, `\medskip` i `\textbf{Atenció:}` en negreta.
-- **Línies en blanc** entre blocs (amb `\medskip` si cal més aire).
-- Patrons fixos per als apartats que es repeteixen:
-  - *Probabilitat total*: «Fes un diagrama d'arbre. Hi ha dos camins que porten a…» i els dos camins en llista.
-  - *Bayes*: «És un cas clar del teorema de Bayes…», anomenar els esdeveniments i dir en llista què coneixes ($P(\ldots \mid \ldots)$) i què et demanen.
-  - *Binomial*: definir $X$ (què compta i $X \sim B(n, p)$) i escriure la probabilitat demanada en una línia a part.
-  - *Discussió d'un sistema* (àlgebra): «Discuteix el sistema amb el teorema de Rouché-Frobenius:» i sempre la mateixa llista: escriu $A$ i $A^{'}$; calcula $\det(A)$ i els valors que l'anul·len; compara rangs per a cada valor; no oblidis $\det(A) \neq 0$.
-  - *Distància d'un punt a un pla* (geometria): la fórmula en una línia a part, $d(P, \pi) = \dfrac{|Ax_{0} + By_{0} + Cz_{0} + D|}{\sqrt{A^{2} + B^{2} + C^{2}}}$. Si el pla ve amb el terme independent a l'altre costat de la igualtat, en paràgraf propi «\textbf{Atenció:} la fórmula demana el pla en la forma $Ax + By + Cz + D = 0$»; si ja surt en aquesta forma d'un pas anterior, no cal. Si l'exercici ja fa servir $A$, $B$, $C$ per a punts, els coeficients van en minúscula ($ax + by + cz + d$).
-  - *Perpendicular comuna* (geometria): rètols \textit{Direcció.} ($\vec{v}_{1} \times \vec{v}_{2}$) i \textit{Un punt.}; punts genèrics de cada recta amb paràmetres diferents i les dues condicions $\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{1} = 0$, $\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{2} = 0$ en una línia a part.
-  - *Pla paral·lel a una distància donada* (geometria): sempre la mateixa llista: la forma del pla paral·lel ($\ldots + D' = 0$); la condició de distància dona un valor absolut amb dues solucions; una és el pla que ja tens i l'altra, la que et convé.
-  - *Optimització* (anàlisi): «És un problema d'optimització.» i sempre la mateixa llista amb rètols en cursiva: \textit{Variables} (i dibuix), \textit{Condició} (per quedar-se amb una sola variable), \textit{Funció a optimitzar}, \textit{Optimitza} (derivar, igualar a zero, comprovar que és màxim o mínim). El domini amb sentit i «respon totes les parts de la pregunta» van en un paràgraf \textbf{Atenció:} propi. Cada rètol és per a un pas que es fa en aquell apartat: si un pas ja és fet (a l'enunciat o en un apartat anterior) o no cal, se'n treu el rètol. Si la funció ja està construïda, o si l'apartat repeteix el procés de l'anterior amb una dada nova, la llista va sense rètols. Si la funció es construeix per parts (per exemple, l'àrea de dues figures), cada part pot tenir el seu rètol abans de \textit{Funció a optimitzar} (`ana-26j-q4a`: \textit{El cercle.} i \textit{El quadrat.}).
-  - *Àrea entre corbes* (anàlisi; mètode del David): els límits d'integració són punts de tall (entre les corbes, de la corba amb l'eix, de la corba amb una recta…) o les rectes verticals que limiten la regió, i l'àrea és el valor absolut de la integral de la diferència, en una línia a part: $\text{Àrea} = \left| \int_{x_{1}}^{x_{2}} \bigl(f(x) - g(x)\bigr)\,dx \right|$. **Mai no es demana decidir quina corba queda per sobre.** Si hi ha més de dos punts de tall, un valor absolut per a cada interval entre punts de tall consecutius, i se sumen.
-  - *Recta tangent* (anàlisi): la fórmula $y - f(a) = f'(a)\,(x - a)$ sempre en una línia a part, ja amb el punt de l'exercici (amb $a < 0$, escriure $(x + |a|)$, mai $(x - -2)$).
-  - *Bolzano* (anàlisi): la funció auxiliar $g(x) = f(x) - k$ en una línia a part; continuïtat; signes als extrems.
-  - *Estudi d'una funció* (anàlisi; passos del David), sempre en aquest ordre i amb aquests noms:
-    1. \textit{Domini i asímptotes verticals.}
-    2. \textit{Límits a l'infinit} ($+\infty$, $-\infty$ o un nombre real, que dona una asímptota horitzontal; també hi pot haver asímptota obliqua).
-    3. \textit{Talls amb els eixos.}
-    4. \textit{Creixement, decreixement i extrems relatius.}
-    5. \textit{Concavitat i punts d'inflexió.}
-    6. \textit{Taula de valors} (opcional).
-    7. \textit{Esbós de la gràfica.}
+## 7. Writing a hint
 
-    Si l'apartat demana l'esbós, la llista sencera numerada (`enumerate`), amb «Ho tens de l'apartat…» per als passos ja fets. Si només en demana una part (per exemple, domini i talls), només aquests passos, en el mateix ordre i amb els mateixos noms; si demana el domini però no les asímptotes, el primer rètol és només \textit{Domini.} Excepcions: l'esbós d'una funció a trossos senzilla (`ana-26j-q1`), on n'hi ha prou de dibuixar cada tros al seu interval, i la representació de paràboles i rectes (`ana-23j2-q1`), on n'hi ha prou amb el vèrtex i els talls amb els eixos.
-  - *Condicions → equacions* (trobar paràmetres): una condició de l'enunciat per punt de la llista.
-  - *Apartats amb diverses parts*: cada part amb un rètol en cursiva acabat en punt, no en dos punts (\textit{Discutir.}, \textit{Resoldre per a $k = 0$.}).
-  - Les dreceres, en paràgraf propi amb \textbf{Drecera:} o \textbf{Consell:}; els paranys, amb \textbf{Atenció:}.
-- Cada pista continua cabent en **una sola pàgina** (comprovar-ho en compilar).
+### 7.1 Procedure
 
-## 8. Format de resposta del David a les propostes
+1. Read the statement (`-e.pdf`), the pauta (`-s.pdf`) and the current hint. Solve the part yourself.
+2. **Name the obstacle**: the first point where a student who has read the statement is most likely to stop. Typical obstacles:
+   - translating the words of the statement into mathematics;
+   - a non-standard presentation: unknowns out of order or missing, terms on both sides, a continuous equation such as $x - 1 = y = -z$;
+   - the first move of a proof;
+   - a heavy computation with parameters;
+   - reading a result, for example a parametric solution as a line.
+3. Pick **one move** from §7.2 that removes that obstacle.
+4. Phrase it according to §7.3. Add a warning only under §7.4.
+5. **Check cross-references between the parts of the exercise.** If part b) says «els punts $P_1$ i $P_2$ ja els has trobat», the hint for part a) must name them (`geo-23s-q5`). If a later hint refers to an earlier one, the earlier one must still say what is referred to.
+6. Build, look at the PNG (one page, no split formulas), and put the hint on the review page (§8).
 
-Una línia per apartat (o per exercici sencer):
+### 7.2 Moves that work (approved examples)
 
-```
-geo-25j-q4b.a  ok
-geo-24j-q6.b   no
-geo-24s-q6.c   ok, però més curta i sense donar la fórmula
-geo-23s-q5     reescriu-la: que primer pensin en el vector perpendicular comú
-geo-24i-q6     meva
-```
+| Move | Example |
+|---|---|
+| A concrete first step with the exercise's own objects | `geo-23s-q5` a): «A $r_{1}$, iguala cada membre a $\lambda$: $x - 1 = \lambda$, $y = \lambda$, $-z = \lambda$» |
+| A minimal worked example, then «Fes el mateix» | `alg-25j-q2` a): the first row of $A^{'}$. `alg-23s-q3` a): the first equation reorganised. `alg-23j-q2` a): one element of $A \cdot B$ |
+| An invented value that shows the form of the answer | `alg-25i-q4b` b): «La teva resposta són, precisament, tots els altres valors. Per exemple, si el valor que anul·la el determinant fos $a = 3$, llavors tu hauries d'escriure que la resposta és $a \neq 3$» |
+| An example with invented numbers, announced as invented | `ana-23j-q5` a): «Prova-ho en primer lloc amb un número inventat. Per exemple, si el costat paral·lel al mur fa $2\,\text{m}$…» |
+| Numerical probing that makes a limit visible | `ana-26s-q1` 1.2: $f(10) \approx 0{,}5$, $f(100) \approx 0{,}05$ |
+| An obvious self-check, only when the main computation is error-prone and the check is much cheaper | `alg-23j-q4` a): evaluate at $\lambda = 0$. Not for a $2 \times 2$ inverse: David removed that check in `alg-23j2-q5` a) |
+| Showing the object instead of describing it | `alg-23s-q1` a): $2I = \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix}$ and $3I$ written as matrices, not «un 2 a cada element de la diagonal» |
+| The classroom method, with its steps named | `alg-23j2-q5` a): «Segueix els passos habituals: calcula el determinant, troba la transposada, troba l'adjunta, i divideix-ho tot pel determinant» |
+| A closed question that lists the possible answers | `alg-23j-q4` b): «Creus que es tallen en un punt, en una recta, o bé que són tots tres plans coincidents?» |
+| The target state before the action, stated so it can be counted | `alg-23j2-q2` a): «has d'aconseguir dos zeros a la primera columna» |
+| Reasoning on a picture the student already has | `pro-26j-q3` 3.2: the tree from 3.1, «Hi ha dues maneres de quedar-se sense entrada» |
+| A direct procedure instead of an analogy that holds only under conditions | `alg-23s-q1` b): «fent directament el producte $(A - 2I) \cdot (A - 2I)$», not «com si fos $(a - 2)^{2}$» |
+| Naming the theorem last, after the concrete move | `pro-26j-q3` 3.2: «(Això és el teorema de Bayes.)» |
+| Reminding a basic formula, on its own line | Barrow's rule, the area of a triangle, the tangent line (§7.6) |
 
-`meva` vol dir que la pista és del David: es marca *Autor = David* i només s'hi corregeixen errors.
+### 7.3 Phrasing rules (from David's edits, 2026-10-24)
+
+1. **Full names, no jargon verbs.** Write «Esglaona la matriu ampliada, aplicant el mètode de Gauss» and «calcula el seu determinant, aplicant la regla de Sarrus». Avoid «Fes Gauss», «per Sarrus», and «$\det(A)$» in running text where words fit. Methods are named in words; objects are shown (§7.2). Use the precise verb for the operation: «multiplica… per $A^{-1}$ a l'esquerra», not «posant $A^{-1}$ a l'esquerra». A terse tag such as «fila per columna» is fine next to concrete numbers (`alg-23s-q1` a)), but not on its own with symbolic matrices (removed in `alg-23j2-q5` b)).
+2. **Introduce every symbol the statement does not define.** Write «la matriu $A$», not bare «$A$», when the statement only gives a system. Prefer «la matriu $M$» to a bare symbol in running text even when the statement defines it: «un menor d'ordre 2 de la matriu $M$», «el rang de la matriu $M^{'}$» (`alg-26j2-q2` 2.3). Name concrete objects instead of abstract nouns: «obtindràs una equació amb les variables $y$ i $z$», not «una relació entre $y$ i $z$» (`alg-26s-q2` 2.2).
+3. **Point at the object; do not describe where it is.** Use classroom vocabulary rather than a circumlocution: «el terme independent de la 3a equació», not «el nombre de la dreta». Repeat the noun instead of an ellipsis: «la 2a equació i la 3a equació», not «la 2a i la 3a». State the order of a subtraction explicitly: «resta la 1a equació menys la 2a equació», not «resta la 2a de la 1a». Write implicit products explicitly when the hint refers to them: «la condició $x \cdot y = 10$».
+   - «en $(D \cdot C)$», not «dins del nou parèntesi».
+   - «començant per la 3a equació, després la 2a equació i finalment la 1a equació», not «de baix a dalt… i així fins a la primera».
+   - Name what the student is working with: *equacions* when solving, not *files*.
+   - Name the exact object: $A^{'}$, not $A$, when the row belongs to the augmented matrix.
+4. **Sequence markers, one step per sentence:** «En primer lloc», «A continuació», «Després», «Finalment». Mark contrasts with «En canvi» and consequences with «llavors». Keep the subject explicit: «Si el determinant és diferent de zero, significa que la matriu $A$ és invertible», not «Si no val zero, …».
+5. **Ask questions the way a teacher would.** When the reason for a step is visible in the statement, give the step and ask for the reason instead of explaining it: «Et convé començar amb $F_{2} \to F_{2} + 2F_{1}$, veus per quin motiu?» (`alg-25i-q2` a)). State consequences with «llavors» and the subject repeated: «…també ho són, llavors els dos plans són coincidents». «Creus que el denominador s'anul·la per algun valor?», not «Passa mai?». Prefer closed questions with the options listed (§7.2).
+6. **Reassure the student** about a trivial step, with one word: «escriu simplement $z = t$ (és un paràmetre lliure)». Reassure also when a step looks harder than it is, and say why: «No és tan difícil com sembla, perquè algunes d'aquestes equacions surten repetides» (`alg-23j2-q5` b)).
+7. **Parentheses** may hold a name or a reassurance of a few words. They never carry a method, a condition or a step: write those as a sentence of their own. Precedent `geo-23s-q5` a): «Si vols imposar que un vector és perpendicular a un altre vector, escriu el seu producte escalar i fes una equació igualant a zero.»
+8. **No term the stuck student may not know.** Say the operation instead: «Els que no en tenen són la resta, és a dir, 1 menys aquesta proporció», not «el complementari».
+9. **Do not reveal the result of an earlier part** (a classification, a number of solutions, a value). Use a conditional: «Si el sistema és compatible indeterminat, …», «Si amb algun dels dos valors et queda una fila tota de zeros, …».
+
+### 7.4 Warnings (`\textbf{Atenció:}`)
+
+- **Default: no warning.** Most warnings David has seen were removed. Kept so far: three. Removed: «no pots deduir $D = I$» (`alg-23j-q2` b)), the side of $P^{-1}$ (`alg-24i-q2` b)), «$p$ també apareix a la dreta de la 1a equació» (`alg-25j-q2` b)).
+- Keep a warning only if the trap lies **on the path the hint itself proposes**:
+  - `alg-23s-q1` b): when factoring out $A$, $4A$ becomes $A \cdot 4I$;
+  - `alg-23j2-q2` a): one special case needs an extra Gauss step;
+  - `alg-23s-q3` a): signs when moving terms, «sobretot a la tercera equació».
+- **Remove warnings about errors on other paths.** In `alg-23j-q2` b), «no pots deduir $D = I$ simplificant la $C$» was removed because it was too much information (David).
+- **If the instruction already prevents the error, give no warning**, even when the pauta penalises the error heavily. «Multiplica-la per ella mateixa, fila per columna» makes «no elevis cada element al quadrat» redundant. «Multiplica els dos costats per $P^{-1}$ a l'esquerra» makes a warning about the side redundant, although the pauta gives 0 for the wrong side (`alg-24i-q2` b)). «Substitueix $p = -1$ a les tres equacions» covers the parameter in the independent term (`alg-25j-q2` b)).
+- At most one warning per hint.
+
+### 7.5 Steps the pauta scores
+
+The steps the pauta scores separately are a checklist for the author, not content for the hint. Mention a scored step only if a stuck student is likely to leave it out, and do it in one clause along the path:
+
+- the case $\det \neq 0$: «i la resta de valors, tots junts»;
+- every quantity asked for: «Al final, dona les dues dimensions i el cost»;
+- the objects asked for, not only the parameters: «escriu les matrius, no només els valors d'$a$ i $b$»;
+- a symmetric second proof: «escriu-ho sencer: es puntua a part».
+
+The hint may also say how many solutions to expect, and that some must be discarded by the figure, the context or the domain, as long as this does not reveal the result of an earlier part (§7.3.9).
+
+### 7.6 Method conventions (David's methods; still binding)
+
+- **Discussing a linear system.** The hint deals with the specific obstacle of the exercise: building $A$ and $A^{'}$, the determinant with parameters, or Gauss with a parameter. It ends with the fixed sentence:
+  > «Llavors, discuteix el sistema com sempre: cada valor de ⟨paràmetre⟩ que anul·la el determinant d'$A$ s'estudia a part, i la resta de valors es tracten tots en un sol cas, perquè el sistema és determinat i té solució única.»
+
+  With Gauss, the same ending follows «Estudia'ls d'un en un, …» (`alg-23j2-q2` a)). The 4-item Rouché–Frobenius list is retired.
+- **Solving a system with a unique solution.** Do not impose a technique David may not teach (Cramer): «resol-lo aplicant la tècnica que et vagi millor» (`alg-24j-q2` a)).
+- **Solving a system with infinitely many solutions (compatible indeterminat).** Say which two equations to keep, written in full («fes servir la 2a equació i la 3a equació»), and choose the free unknown so that the others come out directly (`alg-24j-q2` b), `alg-25j-q2` b)). Keep two independent equations, write «simplement $z = t$ (és un paràmetre lliure)», and solve for the other unknowns. Check which unknown can be free: in `alg-26s-q2`, $x$ is fixed when $k = 1$.
+- **Area between curves.** Write $\text{Àrea} = \left| \int_{x_{1}}^{x_{2}} \bigl(f(x) - g(x)\bigr)\,dx \right|$ on its own line, with one absolute value per interval between consecutive intersection points. Never ask which curve is on top.
+- **Tangent line.** Write $y - f(a) = f'(a)\,(x - a)$ on its own line, already with the exercise's point. If $a < 0$, write $(x + |a|)$, never $(x - -2)$.
+- **Studying a function.** Use David's seven steps, with these names and in this order:
+  1. *Domini i asímptotes verticals*;
+  2. *Límits a l'infinit*;
+  3. *Talls amb els eixos*;
+  4. *Creixement, decreixement i extrems relatius*;
+  5. *Concavitat i punts d'inflexió*;
+  6. *Taula de valors* (optional);
+  7. *Esbós de la gràfica*.
+
+  Use only the steps the part asks for and the pauta uses, and reuse earlier parts explicitly («Tens gairebé tota la feina feta a l'apartat 1.1»). Never add a step the pauta does not use: `ana-26s-q1` 1.2 leaves out concavity. Two exceptions: a simple piecewise function (`ana-26j-q1`) and parabolas and lines (`ana-23j2-q1`).
+- **Bolzano.** Write the auxiliary function $g(x) = f(x) - k$ on its own line. Then continuity, and the signs at the endpoints. If an approximation is asked for, evaluate intermediate values.
+- **Optimisation.** The obstacle is usually building the function. Prefer an example with invented numbers (§7.2) to the label list *Variables / Condició / Funció a optimitzar / Optimitza*, which is retired. End by naming every quantity the question asks for.
+- **Geometry.**
+  - *Common perpendicular:* generic points $P_{1} \in r_{1}$ and $P_{2} \in r_{2}$, with different parameters, and two dot products equal to zero, as in the pautas. Use the cross product only if the pauta uses it.
+  - *Distance from a point to a plane:* the formula on its own line. Use lowercase coefficients ($ax + by + cz + d$) when $A$, $B$, $C$ name points. Warn about the form $\ldots = 0$ only if the plane is given in another form.
+  - *Parallel plane at a given distance:* the plane $\ldots + D' = 0$; the absolute value gives two solutions; keep the one the question needs.
+- **Probability.**
+  - Read conditional probabilities on the tree the student drew in the previous part.
+  - Write Bayes as a fraction in words: $\dfrac{P(\text{web i sense entrada})}{P(\text{sense entrada})}$.
+  - Total probability is the sum over the branches.
+  - Binomial: say what $X$ counts, and $X \sim B(n, p)$.
+
+  These conventions will be revisited when the probability block is reviewed.
+- **One method per hint.** Never offer an optional alternative («o, si ho prefereixes, …»).
+- **Shortcuts.** A shortcut that comes from looking at *this* exercise may be the single method. Example (approved): in `alg-23s-q3` b), the 1st and 3rd equations have the same $y$ and $z$ terms, so subtracting them gives $x$. A general memorised rule that replaces the method taught in class is not used. Example (rejected): the short rule for the inverse of a $2 \times 2$ matrix in `alg-23j2-q5` a).
+
+### 7.7 Reference set
+
+The hints reviewed under this guide are the few-shot examples for the next ones. `REVISIO.md` marks them «rev. 2026-10-24 (pilot)» or «(àlgebra, lot N)».
+
+- Pilot: `alg-25j-q2` a), `ana-23j-q5` a), `ana-26s-q1` 1.2, `geo-23s-q5` a), `pro-26j-q3` 3.2, `alg-23s-q1` b).
+- Algebra lot 1: `alg-23j-q2`, `alg-23j-q4` and `alg-23j2-q2`, all parts.
+- Algebra lot 2: `alg-23j2-q5` a) and b), `alg-23s-q1` a) and c), `alg-23s-q3` a) and b).
+- Algebra lot 3: `alg-24i-q2` a) and b), `alg-24j-q2` a), b) and c), `alg-25j-q2` b) and c).
+- Algebra lot 6: `alg-26j2-q2` and `alg-26s-q2`, all parts. `alg-26s-q2` 2.2 uses an exercise-specific shortcut instead of the pauta's Cramer (approved).
+- Algebra lot 5: `alg-25i-q4b`, `alg-25s-q2` and `alg-26j-q2`, all parts.
+- Algebra lot 4: `alg-24s-q2` and `alg-25i-q2`, all parts. Note the exercise-specific shortcut in `alg-24s-q2` b) and c) (subtracting two equations with the same $x$ and $z$ terms).
+
+## 8. Review workflow
+
+- **Lots of six hints**, in the order of `REVISIO.md`, with whole exercises when possible.
+- **Review page.** For each hint, the artifact «Revisió de pistes PAU» shows:
+  - the obstacle (*On s'encalla*);
+  - the move (*Què fa la proposta*);
+  - the hint before and after, as rendered by the real build.
+
+  The *before* image always comes from the committed version.
+- **David's answer**, one line per hint:
+
+  ```
+  alg-23j-q2.a   ok
+  alg-23j-q2.b   ok, (1) … (2) …
+  geo-24s-q6.c   no
+  geo-24i-q6     meva
+  ```
+
+  - `ok`: approved.
+  - `ok, <text>`: approved with that change, using his wording verbatim (§1.6).
+  - `no`: keep the current hint.
+  - `meva`: the hint is David's. Set *Autor = David*; from then on, correct errors only.
+- **Changes accumulate** in the working copy until David asks for a ZIP. Paths in the ZIP are relative to the repository root. The ZIP contains the `.tex` files, the compiled `-p.pdf` files and `REVISIO.md`. Before packaging:
+  - every hint must build with no warnings;
+  - every approved hint must be present in the working copy.
+- **`REVISIO.md`.** Add one note per hint: «**rev. YYYY-MM-DD (lot):** …». Mark David's wording as «(text del David)».

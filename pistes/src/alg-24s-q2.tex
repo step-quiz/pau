@@ -19,32 +19,26 @@ x + y + 2z = m
 
 \subsection*{\textit{a)} \normalfont Discutiu el sistema segons el valor del paràmetre $m$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Discuteix el sistema amb el teorema de Rouché-Frobenius:
-\begin{itemize}
-\item escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$;
-\item calcula $\det(A)$ i troba els valors d'$m$ que l'anul·len;
-\item per a cadascun d'aquests valors, compara els rangs d'$A$ i d'$A^{'}$;
-\item no oblidis el cas $\det(A) \neq 0$.
-\end{itemize}
+\pista{Escriu la matriu $A$ i la matriu ampliada $A^{'}$, i calcula el determinant d'$A$, aplicant la regla de Sarrus. Igualant-lo a zero, obtindràs una equació de segon grau amb la variable $m$.
 
 \medskip
-\textbf{Consell:} abans de calcular cap rang, substitueix el valor al sistema i mira'l: de vegades salta a la vista que dues equacions no es poden complir alhora.}
+Llavors, discuteix el sistema com sempre: cada valor d'$m$ que anul·la el determinant d'$A$ s'estudia a part, i la resta de valors es tracten tots en un sol cas, perquè el sistema és determinat i té solució única.
+
+\medskip
+\textbf{Consell:} quan substitueixis cadascun dels valors que has trobat d'$m$, mira primer les equacions que queden. Si dues equacions tenen exactament els mateixos coeficients, compara'n el terme independent.}
 
 \subsection*{\textit{b)} \normalfont Trobeu la solució del sistema per a $m = 0$. \hspace*{\fill}\textnormal{[0,5~punts]}}
 
-\pista{Substitueix $m = 0$ al sistema.
-\begin{itemize}
-\item Abans de resoldre'l, mira a quin cas de la discussió de l'apartat \textit{a)} correspon: quantes solucions tindrà?
-\item Després resol-lo, per exemple, per Gauss.
-\end{itemize}}
+\pista{Mira en quin dels casos de la discussió de l'apartat \textit{a)} és $m = 0$: així sabràs si el sistema té solució, i quantes en té.
+
+\medskip
+A continuació, substitueix $m = 0$ a les tres equacions. Fixa't en la 2a equació i la 3a equació: tenen els mateixos termes amb $x$ i amb $z$. Si restes la 3a equació menys la 2a equació, obtindràs directament el valor de $y$. Finalment, troba $x$ amb la 1a equació, i $z$ amb la 2a equació.}
 
 \subsection*{\textit{c)} \normalfont Per a $m = 2$, doneu una solució $(x, y, z)$ del sistema que, a més a més, compleixi $x = 5y$. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Per a $m = 2$, parteix de la discussió de l'apartat \textit{a)}:
-\begin{itemize}
-\item queda't amb les equacions independents;
-\item pren una incògnita com a paràmetre (per exemple $z = \lambda$) i expressa les altres dues en funció de $\lambda$;
-\item imposa la condició $x = 5y$: obtindràs el valor de $\lambda$ i, amb ell, els valors d'$x$, $y$ i $z$.
-\end{itemize}}
+\pista{Substitueix $m = 2$ a les tres equacions. Fixa't en la 2a equació i la 3a equació: tenen els mateixos termes amb $x$ i amb $z$. Si restes la 2a equació menys la 3a equació, obtindràs directament el valor de $y$.
+
+\medskip
+A continuació, la condició $x = 5y$ et dona el valor de $x$. Finalment, troba $z$ amb la 1a equació.}
 
 \end{document}

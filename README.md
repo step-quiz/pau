@@ -20,7 +20,7 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 | `CLAUDE.md` | Regles curtes del projecte i flux de revisió de pistes |
 | `UPDATING.md` | Com afegir una convocatòria nova (en anglès) |
 | `pistes/README.md` | Com editar una pista a mà |
-| `pistes/ESTIL.md` | Guia d'estil de les pistes |
+| `pistes/ESTIL.md` | Guia d'estil de les pistes (en anglès) |
 | `pistes/REVISIO.md` | Seguiment de la revisió, una fila per pista |
 | `pistes/editor/EDITOR-PISTES-PAU.md` | L'artifact «Editor de pistes PAU» i els seus scripts |
 

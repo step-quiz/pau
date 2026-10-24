@@ -8,7 +8,7 @@ Cada exercici té una pista en LaTeX a `src/<id>.tex`, que es compila a `../data
 | `src/<id>.tex` | Una pista per exercici. `<id>` és el mateix nom que fa servir la web (`alg-23j-q2`, …). |
 | `build.py` | Compila les pistes i copia els PDF a `data/`. |
 | `REVISIO.md` | Estat de la revisió de cada pista. |
-| `ESTIL.md` | Criteris d'estil per escriure i revisar pistes. |
+| `ESTIL.md` | Criteris d'estil per escriure i revisar pistes (en anglès). |
 
 ## Com es modifica una pista (tres maneres)
 

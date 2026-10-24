@@ -16,32 +16,26 @@ B = \begin{pmatrix} 2 & 2 & 0 \\ -1 & -1 & 0 \\ 1 & 2 & 1 \end{pmatrix}.
 
 \subsection*{\textit{a)} \normalfont Calculeu les matrius $A \cdot B$ i $B \cdot A$. \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{És un càlcul directe: fes els dos productes per separat.
+\pista{Cada element d'$A \cdot B$ surt de multiplicar una fila d'$A$ per una columna de $B$, terme a terme, i sumar. Per exemple, l'element de la fila 1 i la columna 1 és
+\[
+2 \cdot 2 + (-3) \cdot (-1) + (-5) \cdot 1 = 2
+\]
+Fes així els nou elements, i després el mateix per a $B \cdot A$.
 
 \medskip
-\textbf{Atenció:} en general, $A \cdot B \neq B \cdot A$ (el producte de matrius no és commutatiu).
-
-\medskip
-Quan tinguis els dos resultats, observa'ls bé: hi descobriràs alguna cosa interessant que connecta directament amb l'apartat següent.}
+Quan tinguis els dos resultats, compara'ls amb les matrius $A$ i $B$ de l'enunciat.}
 
 \subsection*{\textit{b)} \normalfont Siguin $C$ i $D$ dues matrius quadrades del mateix ordre que satisfan $C \cdot D = C$ i $D \cdot C = D$. Comproveu que les dues matrius, $C$ i $D$, són idempotents. \hspace*{\fill}\textnormal{[1~punt]}}
 
 \noindent \textit{Nota:} Una matriu quadrada s'anomena idempotent si coincideix amb el seu quadrat.
 
-\pista{Vols comprovar que $C^{2} = C$. Anomena les dues hipòtesis per poder citar-les a cada pas:
+\pista{Vols veure que $C \cdot C = C$. Comença substituint la primera $C$ per $C \cdot D$, que és el mateix, perquè ho diu l'enunciat:
 \[
-C \cdot D = C \quad (\ast) \qquad\qquad D \cdot C = D \quad (\ast\ast)
+C^{2} = C \cdot C = (C \cdot D) \cdot C = C \cdot (D \cdot C)
 \]
-\begin{itemize}
-\item Escriu $C^{2} = C \cdot C$ i substitueix el primer factor $C$ per una expressió equivalent:
-\[
-C^{2} = \underbrace{C}_{(\ast)} \cdot\, C = (C \cdot D) \cdot C = \ldots
-\]
-\item Reagrupa els factors (el producte de matrius és associatiu, encara que no sigui commutatiu) i observa quina hipòtesi pots aplicar.
-\item Per a $D$, el mateix raonament partint de $D^{2} = D \cdot D$: escriu-lo sencer, perquè es puntua a part.
-\end{itemize}
+Quina igualtat de l'enunciat pots fer servir en $(D \cdot C)$?
 
 \medskip
-\textbf{Atenció:} de $C \cdot D = C$ no pots deduir $D = I$ «simplificant» la $C$. Només es pot fer si $C$ és invertible, i l'enunciat no ho diu.}
+Per a $D$, fes el mateix començant per $D \cdot D$, i escriu-ho sencer: es puntua a part.}
 
 \end{document}

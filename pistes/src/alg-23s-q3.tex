@@ -20,29 +20,26 @@ en què $m$ és un nombre real.
 
 \subsection*{\textit{a)} \normalfont Discutiu el sistema segons els valors del paràmetre $m$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Abans de res, reorganitza el sistema: les incògnites a l'esquerra, en l'ordre $x$, $y$, $z$, i les constants a la dreta.
+\pista{Abans de calcular res, passa totes les incògnites a l'esquerra, en l'ordre $x$, $y$, $z$, i els nombres a la dreta. Per exemple, la primera equació, $2x + y = 1 + z$, queda així:
+\[
+2x + y - z = 1
+\]
+Fes el mateix amb les altres dues. A continuació, escriu la matriu $A$ i la matriu ampliada $A^{'}$.
 
 \medskip
-Discuteix el sistema amb el teorema de Rouché-Frobenius:
-\begin{itemize}
-\item escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$;
-\item calcula $\det(A)$ i troba els valors d'$m$ que l'anul·len;
-\item per a cadascun d'aquests valors, compara els rangs d'$A$ i d'$A^{'}$;
-\item no oblidis el cas $\det(A) \neq 0$.
-\end{itemize}
+\textbf{Atenció:} quan un terme passa a l'altre costat, canvia de signe. Vigila-ho sobretot a la tercera equació.
 
 \medskip
-\textbf{Atenció:} vigila els signes quan canviïs termes de costat.}
+Llavors, discuteix el sistema com sempre: cada valor d'$m$ que anul·la el determinant d'$A$ s'estudia a part, i la resta de valors es tracten tots en un sol cas, perquè el sistema és determinat i té solució única.}
 
 \subsection*{\textit{b)} \normalfont Resoleu el sistema, si té solució, per al cas $m = 1$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Substitueix $m = 1$ al sistema reorganitzat.
-\begin{itemize}
-\item Abans de resoldre'l, mira a quin cas de la discussió de l'apartat \textit{a)} correspon: quantes solucions tindrà?
-\item Després resol-lo per Gauss.
-\end{itemize}
+\pista{En primer lloc, mira a la discussió de l'apartat \textit{a)} en quin cas és $m = 1$. Així sabràs si el sistema té solució, i quantes en té.
 
 \medskip
-\textbf{Drecera:} la primera i la tercera equacions tenen els mateixos coeficients d'$y$ i de $z$, o els oposats, segons com hagis passat els termes de costat. Si les restes o les sumes, obtens directament una de les incògnites.}
+A continuació, substitueix $m = 1$ al sistema que has reorganitzat. Fixa't en la 1a i la 3a equació: els termes amb $y$ i amb $z$ són iguals o bé oposats. Si són iguals, resta-les; si són oposats, suma-les. En tots dos casos desapareixen la $y$ i la $z$, i obtindràs directament el valor de $x$.
+
+\medskip
+Finalment, substitueix aquest valor a la 1a i a la 2a equació: et quedarà un sistema de dues equacions amb $y$ i $z$.}
 
 \end{document}

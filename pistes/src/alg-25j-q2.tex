@@ -19,30 +19,25 @@ x - y = 3
 
 \subsection*{\textit{a)} \normalfont Discutiu el sistema per als diferents valors del paràmetre $p$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Discuteix el sistema amb el teorema de Rouché-Frobenius:
-\begin{itemize}
-\item escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$;
-\item calcula $\det(A)$ i troba els valors de $p$ que l'anul·len;
-\item per a cadascun d'aquests valors, compara els rangs d'$A$ i d'$A^{'}$;
-\item no oblidis el cas $\det(A) \neq 0$.
-\end{itemize}}
+\pista{Abans de calcular res, escriu $A$ i $A^{'}$ amb les incògnites en l'ordre $x$, $y$, $z$. On falta una incògnita, hi va un $0$. Per exemple, la primera equació, $y - z = p + 3$, dona la primera fila d'$A^{'}$:
+\[
+\left(\begin{array}{ccc|c} 0 & 1 & -1 & p + 3 \end{array}\right)
+\]
+Llavors, discuteix el sistema com sempre: cada valor de $p$ que anul·la el determinant d'$A$ s'estudia a part, i la resta de valors es tracten tots en un sol cas, perquè el sistema és determinat i té solució única.}
 
 \subsection*{\textit{b)} \normalfont Resoleu el sistema per al cas $p = -1$. \hspace*{\fill}\textnormal{[0,5~punts]}}
 
-\pista{Substitueix $p = -1$ i recorda què has trobat a l'apartat \textit{a)} per a aquest valor. Si és compatible indeterminat:
-\begin{itemize}
-\item queda't amb dues equacions independents;
-\item pren una incògnita com a paràmetre (per exemple $z = \lambda$) i expressa les altres dues en funció de $\lambda$.
-\end{itemize}}
+\pista{Substitueix $p = -1$ a les tres equacions.
+
+\medskip
+Mira què t'ha sortit a l'apartat \textit{a)} per a $p = -1$. Si el sistema és compatible indeterminat, en tens prou amb dues equacions: fes servir la 1a i la 3a. A continuació, escriu simplement \mbox{$y = t$} (és un paràmetre lliure), i finalment aïlla $z$ de la 1a equació i $x$ de la 3a.}
 
 \subsection*{\textit{c)} \normalfont Per al cas $p = -1$, hi ha alguna solució que compleixi, a més, $xy = 10$? En cas afirmatiu, indiqueu quantes n'hi ha i trobeu-les totes. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Combina la solució de l'apartat \textit{b)} amb la condició nova:
-\begin{itemize}
-\item substitueix les expressions paramètriques d'$x$ i $y$ a $xy = 10$;
-\item resol l'equació de segon grau que en surt;
-\item per a cada valor del paràmetre, calcula la solució completa $(x, y, z)$ i digues quantes n'hi ha.
-\end{itemize}}
+\pista{En primer lloc, substitueix les expressions d'$x$ i d'$y$ que has trobat a l'apartat \textit{b)} a la condició $x \cdot y = 10$. Obtindràs una equació de segon grau amb la variable $t$.
+
+\medskip
+Un cop hagis resolt aquesta equació, per a cada valor obtingut de $t$, calcula la solució completa $(x, y, z)$, i digues quantes n'hi ha.}
 
 \vspace{0.6em}
 

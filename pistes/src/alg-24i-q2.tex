@@ -17,25 +17,19 @@ R = \begin{pmatrix} 1 & 2 & 3 \\ 1 & 1 & 1 \\ 3 & 2 & 1 \end{pmatrix}.
 
 \subsection*{\textit{a)} \normalfont Decidiu si la matriu $P$ és invertible i, en cas de ser-ho, calculeu la seva inversa. Expliqueu detalladament el procediment seguit. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Una matriu és invertible si i només si el seu determinant és no nul.
-\begin{itemize}
-\item Calcula $\det(P)$ per decidir si $P$ és invertible.
-\item Si ho és, calcula la inversa pel mètode amb què tinguis més pràctica (adjunts o Gauss).
-\end{itemize}
+\pista{En primer lloc, calcula el determinant de la matriu $P$, aplicant la regla de Sarrus. Si no val zero, la matriu $P$ és invertible.
 
 \medskip
-\textbf{Atenció:} escriu-ne tots els passos. L'enunciat ho demana explícitament i, a la correcció, un resultat sense procediment no puntua.}
+A continuació, calcula la inversa amb els passos habituals: troba la transposada, troba l'adjunta, i divideix-ho tot pel determinant.
+
+\medskip
+Escriu tots aquests passos: l'enunciat demana que expliquis el procediment, i un resultat sense procediment no puntua.}
 
 \subsection*{\textit{b)} \normalfont Calculeu una matriu $X$ de 3 files i 3 columnes que compleixi $PX + Q = 2R$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Aïlla $X$ de l'equació matricial:
-\begin{itemize}
-\item passa $Q$ a l'altre membre;
-\item multiplica els dos membres per $P^{-1}$;
-\item per als càlculs, aprofita la $P^{-1}$ de l'apartat \textit{a)}.
-\end{itemize}
+\pista{En primer lloc, passa la matriu $Q$ a l'altre costat de la igualtat.
 
 \medskip
-\textbf{Atenció:} per l'esquerra o per la dreta? Com que el producte de matrius no és commutatiu, fixa't a quin costat d'$X$ hi ha la $P$.}
+A continuació, multiplica els dos costats per $P^{-1}$ a l'esquerra. Així, a l'esquerra quedarà $P^{-1} \cdot P \cdot X = X$. La matriu $P^{-1}$ ja la tens de l'apartat \textit{a)}.}
 
 \end{document}

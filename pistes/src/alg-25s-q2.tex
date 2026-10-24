@@ -19,34 +19,23 @@ my - z = m
 
 \subsection*{\textit{a)} \normalfont Discutiu el sistema per als diferents valors del paràmetre $m$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Discuteix el sistema amb el teorema de Rouché-Frobenius:
-\begin{itemize}
-\item escriu la matriu de coeficients $A$ i la matriu ampliada $A^{'}$;
-\item calcula $\det(A)$ i troba els valors d'$m$ que l'anul·len;
-\item per a cadascun d'aquests valors, compara els rangs d'$A$ i d'$A^{'}$;
-\item no oblidis el cas $\det(A) \neq 0$.
-\end{itemize}}
+\pista{Escriu la matriu $A$ i la matriu ampliada $A^{'}$. Fixa't que a la 2a equació no hi ha $y$, i a la 3a equació no hi ha $x$: en aquestes posicions hi va un $0$. A continuació, calcula el determinant d'$A$, aplicant la regla de Sarrus.
+
+\medskip
+Llavors, discuteix el sistema com sempre: cada valor d'$m$ que anul·la el determinant d'$A$ s'estudia a part, i la resta de valors es tracten tots en un sol cas, perquè el sistema és determinat i té solució única.}
 
 \subsection*{\textit{b)} \normalfont Resoleu el sistema per a $m = 1$. \hspace*{\fill}\textnormal{[0,5~punts]}}
 
-\pista{Substitueix $m = 1$. Segons la discussió de l'apartat \textit{a)}, quin tipus de sistema obtens?
+\pista{Mira en quin dels casos de la discussió de l'apartat \textit{a)} és $m = 1$: així sabràs si el sistema té solució, i quantes en té.
 
 \medskip
-Per resoldre'l:
-\begin{itemize}
-\item aïlla $x$ de la segona equació i $y$ de la tercera, en funció de $z$;
-\item substitueix-les a la primera.
-\end{itemize}}
+A continuació, substitueix $m = 1$ a les tres equacions. Aïlla $x$ de la 2a equació i $y$ de la 3a equació, totes dues en funció de $z$. Finalment, substitueix aquestes expressions a la 1a equació: et quedarà una equació amb només la $z$.}
 
 \subsection*{\textit{c)} \normalfont Resoleu el sistema quan aquest tingui infinites solucions. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{De l'apartat \textit{a)} ja saps quin valor del paràmetre fa que el sistema sigui compatible indeterminat.
-\begin{itemize}
-\item Fixa aquest valor.
-\item Resol el sistema amb una variable lliure (per exemple $y = \lambda$) i expressa la resta de variables en funció de $\lambda$.
-\end{itemize}
+\pista{Mira l'apartat \textit{a)}: per a quin valor d'$m$ el sistema té infinites solucions? Substitueix aquest valor a les tres equacions. Fixa't que la 2a equació i la 3a equació et donen directament el valor de $z$.
 
 \medskip
-\textbf{Atenció:} amb aquest valor, les dues últimes equacions ja determinen $z$, de manera que $z$ no pot ser la variable lliure.}
+A continuació, escriu simplement \mbox{$y = t$} (és un paràmetre lliure), i finalment aïlla $x$ de la 1a equació.}
 
 \end{document}

@@ -34,7 +34,7 @@ data/                      <id>-e.pdf, <id>-p.pdf, <id>-s.pdf for every exercise
 pistes/src/<id>.tex        LaTeX source of each hint
 pistes/src/pista.sty       shared preamble (box style, header, determinism)
 pistes/build.py            compiles hints -> data/<id>-p.pdf (and optional PNG previews)
-pistes/ESTIL.md            style guide for hints (Catalan) - MUST follow
+pistes/ESTIL.md            style guide for hints (English; hints in Catalan) - MUST follow
 pistes/REVISIO.md          review tracker: one row per hint (lot, id, origin, source, author, status, notes)
 pistes/README.md           how David edits a hint by hand
 .devcontainer/install-latex.sh   installs TeX Live + poppler + qpdf (idempotent)
@@ -199,29 +199,9 @@ Copy the structure of a recent hint (`pistes/src/ana-26s-q1.tex`, `alg-26j-q2.te
   Describe only what the figure shows. Do not add deductions the pauta scores. Precedents: `ana-24s-q3`, `ana-25i-q4a`, `pro-26s-q3`.
 - Notation: `pistes/ESTIL.md` §5 (decimal comma `2{,}5`, `16\,\%`, units `10\,\text{m}`, `\euro`, vectors `\vec{}`, systems with `\left.\begin{array}{r}…\end{array}\right\}`, augmented matrix `A^{'}`).
 
-### Hint content: what David has accepted and rejected
+### Hint content
 
-Read `pistes/ESTIL.md` first. The lessons below come from the full review of all 67 hints in October 2026 (about 140 proposals decided by David).
-
-**A good hint**
-
-- Is written in second person singular («Calcula», «Fixa't»), in Catalan, 2–6 lines per part.
-- Says **what** to do and **why**, and points at the step where students typically fail.
-- **Never gives** a numerical result, an intermediate result the pauta scores, the function to optimise, or the conclusion the statement asks the student to prove. Use «Escriu…», «Expressa…» or a question instead.
-- **Mentions every step the pauta scores separately**: for example the vertical asymptote, the classification of extrema, how many cuts with the axis, both coordinates of a point, the units.
-- Follows a method the pauta accepts. **One method only**: no optional alternatives, no tricks or shortcuts. David removed «partir l'interval per la meitat» several times, and «compara els graus» when the pauta divides by x².
-- May say **how many solutions** to expect and that some must be discarded (by the figure, the context or the domain).
-- May remind a basic formula (area of a triangle, Barrow's rule, the tangent line).
-- Warns about typical errors exactly where they happen: L'Hôpital where there is no indeterminacy; f'(x)=0 does not always give an extremum; a parameter also appears in the independent term; radians, not degrees; do not divide by x and lose x=0.
-
-**Avoid**
-
-- Oral filler and irony («No et preocupis», «observa amb atenció», «M'explico», «Com sempre», «molt agradable», CAPITALS for emphasis), first person plural («podem», «hem estudiat a classe»), symbols used but not defined, and claims that contradict the pauta (for example «no pots derivar» when the pauta derives).
-- Typography: « » quotes (never ``…'' or "…"), «dona» (not «dóna»), «ves» (not «vés»), em dashes `---…---` for asides, no comma before «i».
-
-**Layout**
-
-- Avoid inline formulas that break across lines. Prefer a short rewording or display math `\[ … \]`. `\mbox{$…$}` can push the line into the margin; the build reports `línia massa llarga`.
+Follow `pistes/ESTIL.md`, the single source of truth for hint content. It was rewritten on 2026-10-24 and replaces the list of lessons that used to be here (October 2026 review). Its reference set (ESTIL §7.7) gives approved examples to imitate. Hints for a new session are drafts until David approves them on the review page (ESTIL §8).
 
 ### Build and check
 

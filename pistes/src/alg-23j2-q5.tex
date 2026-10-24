@@ -12,19 +12,23 @@
 
 \subsection*{\textit{a)} \normalfont Calculeu $\begin{pmatrix} 2 & 3 \\ 3 & 2 \end{pmatrix} \cdot \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}^{-1}$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Necessites la inversa d'una matriu $2 \times 2$. Recorda la regla ràpida:
+\pista{En primer lloc, calcula la inversa de la segona matriu:
 \[
-\begin{pmatrix} a & b \\ c & d \end{pmatrix}^{-1} = \frac{1}{ad - bc}\begin{pmatrix} d & -b \\ -c & a \end{pmatrix}.
+\begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}
 \]
-Calcula primer aquesta inversa i després fes el producte de matrius en l'ordre indicat.}
+Segueix els passos habituals: calcula el determinant, troba la transposada, troba l'adjunta, i divideix-ho tot pel determinant.
+
+\medskip
+Finalment, fes el producte: la primera matriu a l'esquerra i la inversa a la dreta.}
 
 \subsection*{\textit{b)} \normalfont Trobeu totes les matrius de la família $\mathcal{S}$, és a dir, de la forma $A = \begin{pmatrix} a & b \\ b & a \end{pmatrix}$, que verifiquin la igualtat $A^{2} = I$, en què $I$ és la matriu identitat d'ordre 2. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{No facis cap cas particular: treballa amb la matriu genèrica de la família.
-\begin{itemize}
-\item Eleva-la al quadrat simbòlicament.
-\item Imposa que el resultat sigui $I$ i iguala entrada a entrada: et sortiran dues condicions senzilles sobre $a$ i $b$ (una de producte i una de suma de quadrats).
-\item Resol-les amb cura: de la condició del producte surten dos casos, i els has d'estudiar tots dos per no perdre cap matriu.
-\end{itemize}}
+\pista{En primer lloc, escriu la matriu $A$ amb les lletres $a$ i $b$, i calcula $A^{2} = A \cdot A$. Obtindràs una matriu que depèn d'uns paràmetres $a$ i $b$.
+
+\medskip
+A continuació, iguala la matriu obtinguda amb la matriu identitat $I$, i obtindràs quatre equacions. No és tan difícil com sembla, perquè algunes d'aquestes equacions surten repetides.
+
+\medskip
+Finalment, resol-les. Si una equació diu que un producte val zero, algun dels factors ha de valer zero: estudia cada possibilitat per separat. Al final, escriu les matrius, no només els valors d'$a$ i $b$.}
 
 \end{document}
