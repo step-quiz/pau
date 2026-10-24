@@ -15,35 +15,28 @@ r: \dfrac{x-5}{4} = \dfrac{y-4}{3} = \dfrac{z-3}{-1} \quad\text{i}\quad s: \begi
 
 \subsection*{\textit{a)} \normalfont Quina és la seva posició relativa? Calculeu l'equació implícita d'un pla $\pi$ que sigui paral·lel a les dues rectes i que passi per l'origen de coordenades. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Dedueix els vectors directors $\vec{v}_{r}$ i $\vec{v}_{s}$ i un punt de cada recta ($P \in r$, $Q \in s$).
+\pista{Aquest apartat et demana dues coses.
 
 \medskip
-\textit{Posició relativa.}
-\begin{itemize}
-\item Si els directors són proporcionals, les rectes són paral·leles (o coincidents).
-\item Si no ho són, es tallen o s'encreuen. Per a distingir-ho, calcula el determinant format per $\vec{v}_{r}$, $\vec{v}_{s}$ i $\vec{PQ}$.
-\end{itemize}
-\textit{El pla $\pi$.}
-\begin{itemize}
-\item El vector normal ha de ser perpendicular als dos directors:
+\textit{Posició relativa.} Escriu un vector director i un punt de cada recta. Fixa't que a $s$ la $z$ no depèn de $k$, i per això la 3a coordenada del seu vector director és $0$. Si els vectors directors són paral·lels (o sigui, amb coordenades proporcionals), llavors les rectes són paral·leles o bé coincidents. En canvi, si no ho són, calcula el determinant format pels dos vectors directors i el vector que va del punt de $r$ al punt de $s$. Si aquest determinant val zero, les rectes es tallen; si no, s'encreuen.
+
+\medskip
+\textit{El pla $\pi$.} Els dos vectors directors de les rectes són vectors directors del pla, i el pla passa per l'origen. Per tant, iguala a zero aquest determinant:
 \[
-\vec{n}_{\pi} = \vec{v}_{r} \times \vec{v}_{s}
-\]
-\item Com que el pla passa per l'origen, el terme independent de l'equació general és $D = 0$.
-\end{itemize}}
+\begin{vmatrix} x - 0 & y - 0 & z - 0 \\ \ldots & \ldots & \ldots \\ \ldots & \ldots & \ldots \end{vmatrix} = 0
+\]}
 
 \subsection*{\textit{b)} \normalfont Calculeu l'equació de la recta $t$ que talla les dues rectes $r$ i $s$ perpendicularment. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{La recta $t$ és la «perpendicular comuna».
-\begin{itemize}
-\item \textit{Direcció.} És $\vec{v}_{r} \times \vec{v}_{s}$, que ja has calculat a l'apartat anterior.
-\item \textit{Un punt.} Pren un punt genèric $P_{1}$ d'$r$ (paràmetre $\lambda$) i un punt genèric $P_{2}$ d'$s$ (paràmetre $k$), i imposa que $\overrightarrow{P_{1} P_{2}}$ sigui perpendicular alhora a $\vec{v}_{r}$ i a $\vec{v}_{s}$:
-\[
-\overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{r} = 0, \qquad \overrightarrow{P_{1} P_{2}} \cdot \vec{v}_{s} = 0
-\]
-Obtindràs un sistema de dues equacions amb incògnites $\lambda$ i $k$.
-\item Substitueix el valor d'un dels paràmetres a l'equació de la seva recta: tindràs un punt concret de $t$.
-\end{itemize}
-Amb el punt i la direcció, ja pots escriure l'equació que busques.}
+\pista{Comença escrivint cada recta amb un paràmetre. A $r$, iguala cada fracció a $\lambda$ i aïlla $x$, $y$, $z$: tens un punt qualsevol $P_{1}$ de $r$. La recta $s$ ja ve escrita amb el paràmetre $k$: tens un punt qualsevol $P_{2}$ de $s$.
+
+\medskip
+La recta $t$ uneix un punt $P_{1}$ de $r$ i un punt $P_{2}$ de $s$. Escriu el vector que els uneix i imposa que sigui perpendicular a cada vector director: tindràs dues equacions per a $\lambda$ i $k$.
+
+\medskip
+Si vols imposar que un vector és perpendicular a un altre vector, escriu el seu producte escalar i fes una equació igualant a zero.
+
+\medskip
+Finalment, amb els valors de $\lambda$ i $k$ tindràs els punts $P_{1}$ i $P_{2}$: la recta $t$ és la que passa per tots dos.}
 
 \end{document}

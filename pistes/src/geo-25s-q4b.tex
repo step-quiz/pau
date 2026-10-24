@@ -12,36 +12,36 @@
 
 \subsection*{\textit{a)} \normalfont Comproveu que la distància del punt $P$ al pla $\pi$ és $\dfrac{\sqrt{6}}{2}$. \hspace*{\fill}\textnormal{[0,5~punts]}}
 
-\pista{Aplica directament la fórmula de la distància d'un punt a un pla:
+\pista{En primer lloc, escriu el pla en la forma \mbox{$Ax + By + Cz + D = 0$}, passant el $5$ a l'altre costat:
+\[
+2x - y + z - 5 = 0
+\]
+A continuació, aplica la fórmula de la distància d'un punt $(x_{0}, y_{0}, z_{0})$ a un pla:
 \[
 d(P, \pi) = \frac{|Ax_{0} + By_{0} + Cz_{0} + D|}{\sqrt{A^{2} + B^{2} + C^{2}}}
 \]
-
-\medskip
-\textbf{Atenció:} la fórmula demana el pla en la forma $Ax + By + Cz + D = 0$: escriu-lo abans com $2x - y + z - 5 = 0$.
-
-\medskip
-Si el resultat et surt amb una arrel al denominador, racionalitza'l: ha de donar $\dfrac{\sqrt{6}}{2}$.}
+Si et surt una arrel al denominador, racionalitza la fracció: multiplica el numerador i el denominador per aquesta arrel.}
 
 \subsection*{\textit{b)} \normalfont Trobeu l'equació general d'un pla $\pi_{1}$ paral·lel a $\pi$ i que passi pel punt $P$. Quina és la distància entre $\pi_{1}$ i $\pi$? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Dos plans paral·lels tenen el mateix vector normal.
+\pista{Aquest apartat et demana dues coses.
 
 \medskip
-\textit{El pla $\pi_{1}$.}
-\begin{itemize}
-\item L'equació de $\pi_{1}$ és \mbox{$2x - y + z + D = 0$}.
-\item Imposa que el pla passi per $P$ per trobar $D$.
-\end{itemize}
-\textit{La distància.} Ja l'has calculada a l'apartat \textit{a)}. Justifica per què: quin punt de $\pi_{1}$ coneixes?}
+\textit{El pla $\pi_{1}$.} Com que el pla $\pi_{1}$ és paral·lel a $\pi$, té el mateix vector normal. Per tant, la seva equació és d'aquesta forma:
+\[
+2x - y + z + D = 0
+\]
+Troba $D$ fent que el pla passi pel punt $P$.
+
+\medskip
+\textit{La distància.} Com que els plans són paral·lels, la distància entre $\pi_{1}$ i $\pi$ és la distància de qualsevol punt de $\pi_{1}$ al pla $\pi$. Quin punt de $\pi_{1}$ coneixes, i quina distància a $\pi$ ja has calculat?}
 
 \subsection*{\textit{c)} \normalfont Trobeu l'equació general d'un segon pla $\pi_{2}$, diferent de $\pi_{1}$, que és paral·lel a $\pi$ i que estigui a una distància $\dfrac{\sqrt{6}}{2}$ de $\pi$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Com a l'apartat anterior, $\pi_{2}$ té la forma $2x - y + z + D = 0$.
-\begin{itemize}
-\item Imposa que la distància entre $\pi$ i $\pi_{2}$ sigui $\dfrac{\sqrt{6}}{2}$; per exemple, pren un punt qualsevol de $\pi$ i calcula'n la distància a $\pi_{2}$.
-\item Obtindràs una equació amb un valor absolut, que té dues solucions.
-\item Una correspon a $\pi_{1}$; l'altra és la que et convé.
-\end{itemize}}
+\pista{Fes un dibuix: els plans $\pi_{1}$ i $\pi_{2}$ són a la mateixa distància de $\pi$, un a cada costat. Com a l'apartat \textit{b)}, el pla $\pi_{2}$ té aquesta forma:
+\[
+2x - y + z + D = 0
+\]
+A continuació, agafa un punt qualsevol de $\pi$. Per exemple, si fas $x = 0$ i $y = 0$ a l'equació de $\pi$, obtindràs un punt fàcil. Finalment, imposa que la distància d'aquest punt al pla $\pi_{2}$ sigui $\dfrac{\sqrt{6}}{2}$: obtindràs una equació amb un valor absolut. Recorda que una equació com $|X| = 5$ vol dir que $X = 5$ o bé $X = -5$. Una de les dues solucions és el pla $\pi_{1}$ de l'apartat \textit{b)}, i l'altra és el pla $\pi_{2}$ que busques.}
 
 \end{document}

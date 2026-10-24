@@ -12,23 +12,17 @@
 
 \subsection*{\textit{a)} \normalfont Quina és la probabilitat que pateixi sesamoïditis? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a patir sesamoïditis:
-\begin{itemize}
-\item practica esports d'impacte \emph{i} té la lesió;
-\item no en practica \emph{i} també té la lesió.
-\end{itemize}
-Aplica el teorema de la probabilitat total.}
+\pista{Fes un diagrama d'arbre. A la primera branca hi ha si l'esportista practica esports d'impacte o no; a la segona, si té la lesió o no.
+
+\medskip
+Hi ha dues maneres d'arribar a tenir la lesió: practica esports d'impacte i té la lesió, o no en practica i també la té. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats. Això és el teorema de la probabilitat total.}
 
 \subsection*{\textit{b)} \normalfont Si l'esportista escollit té una lesió per sesamoïditis, quina és la probabilitat que practiqui esports d'impacte? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
-
-\medskip
-Anomena $I$ = «practica esports d'impacte» i $S$ = «té sesamoïditis».
-\begin{itemize}
-\item Coneixes $P(S \mid I)$: «té la lesió \emph{sabent que} practica esports d'impacte».
-\item Et demanen $P(I \mid S)$: «practica esports d'impacte \emph{sabent que} té la lesió».
-\end{itemize}
-El denominador, $P(S)$, és el resultat de l'apartat \textit{a)}.}
+\pista{Torna a l'arbre de l'apartat \textit{a)}. Saps que l'esportista té la lesió: queda't només amb els camins que acaben en «té la lesió». Et demanen quina part d'aquesta probabilitat ve del camí en què practica esports d'impacte:
+\[
+\frac{P(\text{practica esports d'impacte i té la lesió})}{P(\text{té la lesió})}
+\]
+El denominador és el resultat de l'apartat \textit{a)}. Això és el teorema de Bayes.}
 
 \end{document}

@@ -12,27 +12,18 @@
 
 \subsection*{\textit{a)} \normalfont Quina és la probabilitat que un missatge sigui enviat pel filtre a la carpeta de correu brossa? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten un missatge a la carpeta de brossa:
-\begin{itemize}
-\item era brossa \emph{i} el filtre l'hi envia;
-\item no era brossa, \emph{però} el filtre s'equivoca i l'hi envia.
-\end{itemize}
-Aplica el teorema de la probabilitat total.
+\pista{Fes un diagrama d'arbre. A la primera branca hi ha si el missatge és brossa o no; a la segona, si el filtre l'envia a la carpeta de brossa o no. Fixa't que el $90\,\%$ és dels missatges bons que es queden a la safata d'entrada. Un $90\,\%$ es tradueix en $p = 0{,}9$. Per tant, el $10\,\%$ dels missatges bons van a la carpeta de brossa.
 
 \medskip
-\textbf{Atenció:} el $90\,\%$ és dels missatges bons que \emph{no} van a la brossa; a l'arbre et cal el percentatge que sí que hi va.}
+Hi ha dues maneres d'arribar a la carpeta de brossa: el missatge és brossa i el filtre l'hi envia, o el missatge és bo però el filtre s'equivoca i l'hi envia. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats. Això és el teorema de la probabilitat total.}
 
 \subsection*{\textit{b)} \normalfont Un dia, aquest usuari obre la carpeta de correu brossa. Quin percentatge de missatges que no són correu brossa hi trobarà? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
-
-\medskip
-Anomena $B$ = «és correu brossa» i $C$ = «el filtre l'envia a la carpeta de brossa».
-\begin{itemize}
-\item Coneixes $P(C \mid \overline{B})$: «va a la carpeta \emph{sabent que} no és brossa».
-\item Et demanen $P(\overline{B} \mid C)$: «no és brossa \emph{sabent que} és a la carpeta».
-\end{itemize}
-El denominador, $P(C)$, és el resultat de l'apartat \textit{a)}.}
+\pista{Torna a l'arbre de l'apartat \textit{a)}. Saps que el missatge és a la carpeta de brossa: queda't només amb els camins que acaben en «carpeta de brossa». Et demanen quina part d'aquesta probabilitat ve del camí en què el missatge és bo:
+\[
+\frac{P(\text{és bo i va a la carpeta de brossa})}{P(\text{va a la carpeta de brossa})}
+\]
+El denominador és el resultat de l'apartat \textit{a)}. Dona la resposta en percentatge, com demana l'enunciat. Això és el teorema de Bayes.}
 
 \vspace{0.6em}
 \noindent En un servidor de correu electrònic determinat, la probabilitat de rebre com a mínim dos correus en menys de $t$ minuts ve donada per la funció
@@ -43,13 +34,13 @@ on $A$ és una constant real.
 
 \subsection*{\textit{c)} \normalfont Sabent que la probabilitat de rebre com a mínim dos correus en menys de dos minuts és $1 - e^{-1}$, trobeu el valor de $A$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Ho pots fer en dos passos:
-\begin{itemize}
-\item calcula la integral definida per obtenir $F(t)$ en funció de $t$ i d'$A$;
-\item imposa $F(2) = 1 - e^{-1}$ i aïlla $A$.
-\end{itemize}
+\pista{En primer lloc, calcula la integral definida, aplicant la regla de Barrow. Recorda aquesta primitiva:
+\[
+\int e^{kx}\,dx = \frac{1}{k}\,e^{kx} + C
+\]
+Aquí, $k = -0{,}5$. Obtindràs $F(t)$ en funció de $t$ i d'$A$.
 
 \medskip
-\textbf{Atenció:} en buscar la primitiva d'$e^{-0{,}5x}$, vigila el coeficient que hi apareix.}
+A continuació, imposa que $F(2) = 1 - e^{-1}$: obtindràs una equació amb la variable $A$. No és tan difícil com sembla, perquè el factor $1 - e^{-1}$ apareix als dos costats.}
 
 \end{document}

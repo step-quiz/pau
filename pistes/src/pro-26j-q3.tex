@@ -12,15 +12,13 @@
 
 \subsection*{3.1. \normalfont Quantes persones d'aquest municipi tenen entrada per al concert? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a «tenir entrada»:
-\begin{itemize}
-\item li toca al sorteig ($16\,\%$);
-\item no li toca al sorteig, \emph{i} ho intenta per la web (sis setenes parts), \emph{i} l'aconsegueix ($25\,\%$).
-\end{itemize}
-Aplica el teorema de la probabilitat total: obtindràs la proporció de seguidors amb entrada.
+\pista{Fes un diagrama d'arbre. A la primera branca hi ha si li toca l'entrada al sorteig o no. Si no li toca, a la segona branca hi ha si ho intenta per la web o no; i si ho intenta, a la tercera branca, si aconsegueix l'entrada o no. Fixa't que «sis setenes parts» es tradueix en $p = \frac{6}{7}$.
 
 \medskip
-Finalment, com que el $16\,\%$ són 24 persones, una regla de tres et dona el nombre de persones.}
+Hi ha dues maneres d'acabar amb entrada: li toca al sorteig, o no li toca, ho intenta per la web i l'aconsegueix. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats. Això és el teorema de la probabilitat total.
+
+\medskip
+Finalment, per passar de proporció a persones, fixa't que el $16\,\%$ correspon a les 24 persones a qui toca l'entrada al sorteig. Fes una regla de tres.}
 
 \subsection*{3.2. \normalfont Si escollim a l'atzar un veí de Canet seguidor d'aquest grup de rock i no té entrada per al concert, quina és la probabilitat que hagués intentat aconseguir-la via web? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
@@ -28,7 +26,7 @@ Finalment, com que el $16\,\%$ són 24 persones, una regla de tres et dona el no
 \[
 \frac{P(\text{web i sense entrada})}{P(\text{sense entrada})}
 \]
-El denominador ja el tens gairebé fet: a l'apartat 3.1 has trobat la proporció de seguidors amb entrada. Els que no en tenen són la resta, és a dir, $1$ menys aquesta proporció. (Això és el teorema de Bayes.)}
+El denominador ja el tens gairebé fet: a l'apartat 3.1 has trobat la proporció de seguidors amb entrada. Els que no en tenen són la resta, és a dir, $1$ menys aquesta proporció. Això és el teorema de Bayes.}
 
 \subsection*{3.3. \normalfont El dia del concert, l'equip de so mesura el nivell de decibels generat pels crits entusiastes del públic durant els 5 minuts de durada de la cançó més famosa del grup; es pot aproximar per la funció següent:}
 \[
@@ -36,14 +34,13 @@ S(t) = -t^{3} + 12t^{2} - 30t + 90, \qquad t \in [0, 5],
 \]
 on $t$ és el temps en minuts i $S(t)$ els decibels. Quan se superen els 100 decibels es considera que el públic està molt entregat i s'activen automàticament uns efectes lumínics especials. S'activaran en algun moment durant aquests cinc minuts? Si la resposta és afirmativa, calculeu en quin minut s'activen, aproximat a les dècimes. \hspace*{\fill}\textnormal{[1~punt]}
 
-\pista{Reformula la pregunta: vols saber si s'anul·la en algun moment la funció auxiliar
+\pista{Reformula la pregunta: vols saber si en algun moment la funció auxiliar
 \[
-D(t) = S(t) - 100.
+D(t) = S(t) - 100
 \]
-\begin{itemize}
-\item Justifica que $D$ és contínua (és polinòmica).
-\item Avalua $D(0)$ i $D(5)$: si tenen signes oposats, pel teorema de Bolzano $D$ s'anul·la a $(0, 5)$.
-\item Per aproximar el punt a les dècimes, avalua $D$ en valors intermedis fins a trobar dos valors de $t$, separats una dècima, entre els quals $D$ canviï de signe.
-\end{itemize}}
+val zero. En primer lloc, justifica que $D$ és contínua, perquè és polinòmica. A continuació, calcula $D(0)$ i $D(5)$: si tenen signes oposats, el teorema de Bolzano assegura que $D$ s'anul·la en algun valor de l'interval $(0, 5)$.
+
+\medskip
+Per trobar el minut aproximat a les dècimes, prova primer amb valors enters de $t$: $D(1)$, $D(2)$, … fins que trobis dos valors seguits amb signes oposats. Després, fes el mateix entre aquests dos valors, amb salts d'una dècima.}
 
 \end{document}

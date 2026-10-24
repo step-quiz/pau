@@ -12,26 +12,24 @@
 
 \subsection*{\textit{a)} \normalfont Estudieu la posició relativa per als diferents valors del paràmetre $m$. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Treu de cada recta un vector director i un punt.
-\begin{itemize}
-\item D'$r$: passa-la a forma contínua. Vigila, perquè surten alguns signes negatius.
-\item D'$s$ (intersecció de dos plans): el vector director és el producte vectorial dels dos vectors normals.
-\end{itemize}
-Compara els dos vectors directors. Si són proporcionals, les rectes només poden ser paral·leles o coincidents: ho decideixes mirant si un punt d'una pertany a l'altra.
+\pista{En primer lloc, escriu cada recta amb un paràmetre. En el cas de la recta $r$, iguala cada membre a $t$:
+\[
+x = t, \qquad -y = t, \qquad z + m = t
+\]
+i aïlla $x$, $y$, $z$. La recta $s$ ve donada per dues equacions: escriu simplement \mbox{$x = t$} (és un paràmetre lliure), i aïlla $y$ de la 1a equació i $z$ de la 2a equació.
 
 \medskip
-\textbf{Atenció:} comprova si la condició de coincidència es pot complir per a algun valor d'$m$, és a dir, si totes les igualtats es poden complir alhora.}
+A continuació, compara els dos vectors directors. Si els vectors són paral·lels (o sigui, amb coordenades proporcionals), llavors les rectes són paral·leles o bé coincidents. Per decidir-ho, agafa un punt de $s$ i comprova si és de la recta $r$. Creus que hi ha algun valor de $m$ que ho faci possible?}
 
 \subsection*{\textit{b)} \normalfont Calculeu $m$ perquè la distància entre les rectes $r$ i $s$ sigui de $\sqrt{2}$ unitats. \hspace*{\fill}\textnormal{[1,25~punts]}}
 
-\pista{Si a l'apartat \textit{a)} t'han sortit paral·leles, fes servir la fórmula de la distància entre rectes paral·leles, amb $P \in r$, $Q \in s$ i $\vec{v}$ el vector director comú:
+\pista{Si a l'apartat \textit{a)} t'han sortit rectes paral·leles, fes servir aquesta fórmula, amb un punt $P$ de la recta $r$, un punt $Q$ de la recta $s$ i el vector director $\vec{v}$:
 \[
 d(r, s) = \frac{|\vec{v} \times \vec{PQ}|}{|\vec{v}|}
 \]
-\begin{itemize}
-\item Et quedarà una expressió que depèn d'$m$: iguala-la a $\sqrt{2}$.
-\item Eleva al quadrat per a treure l'arrel.
-\item Resol l'equació de segon grau en $m$: sortiran dos valors.
-\end{itemize}}
+Com que el punt $P$ depèn de $m$, obtindràs una expressió amb la variable $m$.
+
+\medskip
+A continuació, iguala aquesta expressió a $\sqrt{2}$. Obtindràs una equació que sembla difícil però no ho és tant, perquè si eleves els dos costats al quadrat, llavors et quedarà una equació de segon grau amb la variable $m$.}
 
 \end{document}

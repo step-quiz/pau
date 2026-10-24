@@ -12,35 +12,34 @@
 
 \subsection*{\textit{a)} \normalfont Trobeu l'equació general ($Ax + By + Cz + D = 0$) del pla $\pi_{3}$, que és perpendicular a $\pi_{1}$ i $\pi_{2}$, i que passa pel punt $P = (4, 1, 2)$. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Dos plans són perpendiculars quan ho són els seus vectors normals.
-\begin{itemize}
-\item El vector normal $\vec{n}_{3}$ de $\pi_{3}$ ha de ser perpendicular alhora a $\vec{n}_{1}$ i a $\vec{n}_{2}$. Quina operació entre dos vectors et dona directament un vector perpendicular als dos?
-\item Amb $\vec{n}_{3} = (A, B, C)$, escriu $\pi_{3}: Ax + By + Cz + D = 0$.
-\item Troba $D$ substituint-hi les coordenades de $P$.
-\end{itemize}}
+\pista{En primer lloc, escriu el vector normal de cada pla, llegint els coeficients de $x$, $y$ i $z$ de la seva equació. Fixa't que a $\pi_{1}$ no hi ha $z$, i a $\pi_{2}$ no hi ha $y$: en aquestes posicions hi va un $0$. Per exemple, el vector normal de $\pi_{1}$ és $\vec{n}_{1} = (1, 1, 0)$.
+
+\medskip
+Com que el pla $\pi_{3}$ és perpendicular a $\pi_{1}$ i a $\pi_{2}$, aquests dos vectors normals són vectors directors de $\pi_{3}$. A continuació, escriu l'equació del pla que passa pel punt $P$ amb aquests dos vectors directors, igualant a zero aquest determinant:
+\[
+\begin{vmatrix} x - 4 & y - 1 & z - 2 \\ \ldots & \ldots & \ldots \\ \ldots & \ldots & \ldots \end{vmatrix} = 0
+\]
+Finalment, desenvolupa'l i escriu el pla en la forma \mbox{$Ax + By + Cz + D = 0$}.}
 
 \subsection*{\textit{b)} \normalfont Sigui $r$ la recta d'intersecció de $\pi_{1}$ i $\pi_{2}$. Calculeu l'equació vectorial de la recta $r$. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{La recta $r$ és continguda alhora en tots dos plans.
-\begin{itemize}
-\item \textit{Direcció.} Ha de ser perpendicular alhora a $\vec{n}_{1}$ i a $\vec{n}_{2}$: és la mateixa que has trobat a l'apartat \textit{a)} per a $\vec{n}_{3}$. Ja la tens!
-\item \textit{Un punt.} Troba una solució del sistema format per les equacions dels dos plans: per exemple, fes $z = 0$ i resol per a $x$ i $y$.
-\end{itemize}
-Amb un punt i un vector director, l'equació vectorial és immediata.}
+\pista{La recta $r$ és la solució del sistema format per les equacions dels dos plans: dues equacions amb tres incògnites. Escriu simplement \mbox{$x = t$} (és un paràmetre lliure), i aïlla $y$ de la 1a equació i $z$ de la 2a equació.
+
+\medskip
+A continuació, escriu la solució separant la part que no depèn de $t$:
+\[
+(x, y, z) = (\ldots) + t\,(\ldots)
+\]
+Aquesta és l'equació vectorial de la recta $r$.}
 
 \subsection*{\textit{c)} \normalfont Calculeu el punt $Q$ de la recta $r$ que és més a prop del punt $P$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{El punt d'$r$ més proper a $P$ és el peu de la perpendicular des de $P$ a la recta.
+\pista{El punt $Q$ que busques és el peu de la perpendicular des de $P$ a la recta $r$.
 
 \medskip
-\textbf{Drecera:} el pla $\pi_{3}$ de l'apartat \textit{a)} passa per $P$ i és perpendicular a $r$. Per tant, $Q$ és la intersecció d'$r$ amb $\pi_{3}$.
-\begin{itemize}
-\item Escriu un punt genèric $Q$ d'$r$ amb el paràmetre $t$ (equació vectorial de l'apartat \textit{b)}).
-\item Escriu $\vec{PQ}$ en funció de $t$ i imposa que $Q$ sigui de $\pi_{3}$; com que $\vec{v}_{r}$ és normal a $\pi_{3}$, és el mateix que
-\[
-\vec{PQ} \cdot \vec{v}_{r} = 0.
-\]
-\item Resol l'equació en $t$ i substitueix el valor a la parametrització d'$r$ per obtenir les coordenades de $Q$.
-\end{itemize}}
+Compara el vector normal del pla $\pi_{3}$ de l'apartat \textit{a)} amb el vector director de la recta $r$. Comprovaràs que són paral·lels, perquè tenen les coordenades proporcionals. Això vol dir que el pla $\pi_{3}$ és perpendicular a la recta $r$. Com que el pla $\pi_{3}$ també passa per $P$, el punt $Q$ és on la recta $r$ talla el pla $\pi_{3}$.
+
+\medskip
+Per trobar-lo, substitueix el punt genèric de $r$ de l'apartat \textit{b)} a l'equació de $\pi_{3}$. Obtindràs una equació amb la variable $t$. Un cop l'hagis resolta, substitueix el valor de $t$ a l'equació de $r$.}
 
 \end{document}

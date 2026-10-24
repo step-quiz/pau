@@ -4,7 +4,7 @@ Rules for writing and reviewing the hints (`pistes/src/<id>.tex`, compiled to `d
 
 - **Audience.** The AI that writes or reviews hints, and David, who approves the rules. Hints are written in **Catalan**; this guide is in English.
 - **Scope.** This is the single source of truth for hint *content*. `UPDATING.md` covers adding new exam sessions and points here.
-- **Version.** Rewritten on 2026-10-24, after the pedagogical pilot and algebra lots 1–2, and extended with algebra lots 3–6 (the whole algebra block). The previous Catalan version (2026-10-09, amended 16–17/10) is in the git history. Notes in `REVISIO.md` dated before 2026-10-24 that cite «ESTIL §7» refer to that version. Its fixed templates are retired by §7 below: the structured format, the Rouché–Frobenius list and the optimisation labels.
+- **Version.** Rewritten on 2026-10-24, after the pedagogical pilot and algebra lots 1–2, and extended with algebra lots 3–6, geometry lots 7–9 and probability lots 10–12 (the whole algebra, geometry and probability blocks). The previous Catalan version (2026-10-09, amended 16–17/10) is in the git history. Notes in `REVISIO.md` dated before 2026-10-24 that cite «ESTIL §7» refer to that version. Its fixed templates are retired by §7 below: the structured format, the Rouché–Frobenius list and the optimisation labels.
 
 ## 1. Principles
 
@@ -55,12 +55,13 @@ Pedagogical failure modes. Each 🟠 proposal names one; the review page shows i
 - **Oral filler and irony to avoid:** «No et preocupis», «observa amb atenció», «M'explico», capitals for emphasis. «Com sempre» is allowed only in the fixed sentence of §7.6.
 - **References to parts:** «l'apartat *a)*», «l'apartat 3.1».
 - **Ordinals for equations:** «la 1a equació», «la 3a equació» (feminine abbreviations).
+- **Vocabulary:** «altura» everywhere (triangle, rectangle, prism, tetrahedron, box), never «alçària» or «alçada»; when the statement uses another word, the statement keeps it. «respectivament» when two lists are matched («són, respectivament, els mòduls dels vectors…»).
 - **Apostrophe before symbols:** follow how the letter's name is pronounced. Apostrophise if the name starts with a vowel sound: d'$A$, d'$e$, d'$f$ (efa), d'$h$ (hac), d'$l$ (ela), d'$m$ (ema), d'$n$ (ena), d'$r$ (erra), d'$s$ (essa), d'$x$ (ics), d'$y$ (i grega), d'$\alpha$. Do not apostrophise if it starts with a consonant: de $B$, de $k$ (ca), de $p$ (pe), de $t$ (te), de $\lambda$, de $\pi$.
 - **Punctuation:** em dashes (`---…---`) for asides. No comma before «i».
 
 ## 5. Notation and layout
 
-- Vectors: `\vec{PQ}`, `\vec{n}`. Cross product: `\times`. Dot product: `\cdot`.
+- Vectors: `\vec{PQ}`, `\vec{n}`. Cross product: `\times`. Dot product: `\cdot`. Since 2026-10-24, `pista.sty` makes `\vec` with two or more letters (`\vec{AB}`) an `\overrightarrow`, so the arrow spans the whole name; one letter (`\vec{n}`, `\vec{v}_{r}`) keeps the usual accent. Always write `\vec{…}`: never `\overrightarrow` by hand, and keep subscripts outside (`\vec{v}_{r}`).
 - Decimal comma: `2{,}5`. Percentages: `16\,\%`. Units with a thin space: `10\,\text{m}`, `2{,}5\,\euro/\text{m}`.
 - Matrices: `pmatrix`. Augmented matrix: `A^{'}`. Systems: `\left.\begin{array}{r} … \end{array}\right\}`.
 - **In hint text, matrices go in display math** (`\[ … \]`), not inline in running text: an inline `pmatrix` breaks the line spacing. Statements keep the official layout.
@@ -106,12 +107,12 @@ Pedagogical failure modes. Each 🟠 proposal names one; the review page shows i
 | The target state before the action, stated so it can be counted | `alg-23j2-q2` a): «has d'aconseguir dos zeros a la primera columna» |
 | Reasoning on a picture the student already has | `pro-26j-q3` 3.2: the tree from 3.1, «Hi ha dues maneres de quedar-se sense entrada» |
 | A direct procedure instead of an analogy that holds only under conditions | `alg-23s-q1` b): «fent directament el producte $(A - 2I) \cdot (A - 2I)$», not «com si fos $(a - 2)^{2}$» |
-| Naming the theorem last, after the concrete move | `pro-26j-q3` 3.2: «(Això és el teorema de Bayes.)» |
+| Naming the theorem last, after the concrete move, as a sentence without parentheses | `pro-26j-q3` 3.2: «Això és el teorema de Bayes.» |
 | Reminding a basic formula, on its own line | Barrow's rule, the area of a triangle, the tangent line (§7.6) |
 
 ### 7.3 Phrasing rules (from David's edits, 2026-10-24)
 
-1. **Full names, no jargon verbs.** Write «Esglaona la matriu ampliada, aplicant el mètode de Gauss» and «calcula el seu determinant, aplicant la regla de Sarrus». Avoid «Fes Gauss», «per Sarrus», and «$\det(A)$» in running text where words fit. Methods are named in words; objects are shown (§7.2). Use the precise verb for the operation: «multiplica… per $A^{-1}$ a l'esquerra», not «posant $A^{-1}$ a l'esquerra». A terse tag such as «fila per columna» is fine next to concrete numbers (`alg-23s-q1` a)), but not on its own with symbolic matrices (removed in `alg-23j2-q5` b)).
+1. **Full names, no jargon verbs.** Write «Esglaona la matriu ampliada, aplicant el mètode de Gauss» and «calcula el seu determinant, aplicant la regla de Sarrus». Avoid «Fes Gauss», «per Sarrus», and «$\det(A)$» in running text where words fit. Methods are named in words; objects and formulas are shown in mathematical notation: $\text{Àrea} = \frac{\text{base} \cdot \text{alçada}}{2}$, not «fes base per alçada dividit per 2» (`geo-24j-q6` c)). Use the precise mathematical verb: «el punt $C$ pertany al pla $\pi$», not «és del pla». Tie the result to the goal: «obtindràs el punt d'intersecció que estaves buscant». Use the precise verb for the operation: «multiplica… per $A^{-1}$ a l'esquerra», not «posant $A^{-1}$ a l'esquerra». A terse tag such as «fila per columna» is fine next to concrete numbers (`alg-23s-q1` a)), but not on its own with symbolic matrices (removed in `alg-23j2-q5` b)).
 2. **Introduce every symbol the statement does not define.** Write «la matriu $A$», not bare «$A$», when the statement only gives a system. Prefer «la matriu $M$» to a bare symbol in running text even when the statement defines it: «un menor d'ordre 2 de la matriu $M$», «el rang de la matriu $M^{'}$» (`alg-26j2-q2` 2.3). Name concrete objects instead of abstract nouns: «obtindràs una equació amb les variables $y$ i $z$», not «una relació entre $y$ i $z$» (`alg-26s-q2` 2.2).
 3. **Point at the object; do not describe where it is.** Use classroom vocabulary rather than a circumlocution: «el terme independent de la 3a equació», not «el nombre de la dreta». Repeat the noun instead of an ellipsis: «la 2a equació i la 3a equació», not «la 2a i la 3a». State the order of a subtraction explicitly: «resta la 1a equació menys la 2a equació», not «resta la 2a de la 1a». Write implicit products explicitly when the hint refers to them: «la condició $x \cdot y = 10$».
    - «en $(D \cdot C)$», not «dins del nou parèntesi».
@@ -121,9 +122,12 @@ Pedagogical failure modes. Each 🟠 proposal names one; the review page shows i
 4. **Sequence markers, one step per sentence:** «En primer lloc», «A continuació», «Després», «Finalment». Mark contrasts with «En canvi» and consequences with «llavors». Keep the subject explicit: «Si el determinant és diferent de zero, significa que la matriu $A$ és invertible», not «Si no val zero, …».
 5. **Ask questions the way a teacher would.** When the reason for a step is visible in the statement, give the step and ask for the reason instead of explaining it: «Et convé començar amb $F_{2} \to F_{2} + 2F_{1}$, veus per quin motiu?» (`alg-25i-q2` a)). State consequences with «llavors» and the subject repeated: «…també ho són, llavors els dos plans són coincidents». «Creus que el denominador s'anul·la per algun valor?», not «Passa mai?». Prefer closed questions with the options listed (§7.2).
 6. **Reassure the student** about a trivial step, with one word: «escriu simplement $z = t$ (és un paràmetre lliure)». Reassure also when a step looks harder than it is, and say why: «No és tan difícil com sembla, perquè algunes d'aquestes equacions surten repetides» (`alg-23j2-q5` b)).
-7. **Parentheses** may hold a name or a reassurance of a few words. They never carry a method, a condition or a step: write those as a sentence of their own. Precedent `geo-23s-q5` a): «Si vols imposar que un vector és perpendicular a un altre vector, escriu el seu producte escalar i fes una equació igualant a zero.»
+7. **Parentheses** may hold a name, a reassurance, or a short clarification introduced by «o sigui» («Si els vectors són paral·lels (o sigui, amb coordenades proporcionals), …»). They never carry a method, a condition or a step: write those as a sentence of their own. Precedent `geo-23s-q5` a): «Si vols imposar que un vector és perpendicular a un altre vector, escriu el seu producte escalar i fes una equació igualant a zero.»
 8. **No term the stuck student may not know.** Say the operation instead: «Els que no en tenen són la resta, és a dir, 1 menys aquesta proporció», not «el complementari».
 9. **Do not reveal the result of an earlier part** (a classification, a number of solutions, a value). Use a conditional: «Si el sistema és compatible indeterminat, …», «Si amb algun dels dos valors et queda una fila tota de zeros, …».
+10. **When you ask the student to compare, say what they will find** and what it means: «Comprovaràs que són paral·lels, perquè tenen les coordenades proporcionals. Això vol dir que el pla $\pi_{3}$ és perpendicular a la recta $r$» (`geo-23j-q6` c)). A bare «Què observes?» is a riddle.
+11. **A conditional covers every case.** If the hint says what happens when the vectors are proportional, it also says what to do when they are not, even if the second case is the one that applies (`geo-24i-q6` a)). Dropping a branch both reveals the result and leaves the reasoning incomplete.
+12. **Keep the general form visible**, even when it is trivial: the first row of the plane determinant through the origin is $x - 0$, $y - 0$, $z - 0$, as for any other point (`geo-24i-q6` a)).
 
 ### 7.4 Warnings (`\textbf{Atenció:}`)
 
@@ -167,19 +171,17 @@ The hint may also say how many solutions to expect, and that some must be discar
   7. *Esbós de la gràfica*.
 
   Use only the steps the part asks for and the pauta uses, and reuse earlier parts explicitly («Tens gairebé tota la feina feta a l'apartat 1.1»). Never add a step the pauta does not use: `ana-26s-q1` 1.2 leaves out concavity. Two exceptions: a simple piecewise function (`ana-26j-q1`) and parabolas and lines (`ana-23j2-q1`).
-- **Bolzano.** Write the auxiliary function $g(x) = f(x) - k$ on its own line. Then continuity, and the signs at the endpoints. If an approximation is asked for, evaluate intermediate values.
+- **Bolzano.** Write the auxiliary function $g(x) = f(x) - k$ on its own line. Then continuity, and the signs at the endpoints; the conclusion with the interval: «s'anul·la en algun valor de l'interval $(0, 5)$» (`pro-26j-q3` 3.3). If an approximation is asked for, first try integer values until two consecutive ones change sign, then steps of one tenth between them.
 - **Optimisation.** The obstacle is usually building the function. Prefer an example with invented numbers (§7.2) to the label list *Variables / Condició / Funció a optimitzar / Optimitza*, which is retired. End by naming every quantity the question asks for.
 - **Geometry.**
   - *Common perpendicular:* generic points $P_{1} \in r_{1}$ and $P_{2} \in r_{2}$, with different parameters, and two dot products equal to zero, as in the pautas. Use the cross product only if the pauta uses it.
   - *Distance from a point to a plane:* the formula on its own line. Use lowercase coefficients ($ax + by + cz + d$) when $A$, $B$, $C$ name points. Warn about the form $\ldots = 0$ only if the plane is given in another form.
   - *Parallel plane at a given distance:* the plane $\ldots + D' = 0$; the absolute value gives two solutions; keep the one the question needs.
-- **Probability.**
-  - Read conditional probabilities on the tree the student drew in the previous part.
-  - Write Bayes as a fraction in words: $\dfrac{P(\text{web i sense entrada})}{P(\text{sense entrada})}$.
-  - Total probability is the sum over the branches.
-  - Binomial: say what $X$ counts, and $X \sim B(n, p)$.
-
-  These conventions will be revisited when the probability block is reviewed.
+- **Probability** (approved in lot 10).
+  - *Total probability:* «Fes un diagrama d'arbre.» First put the probabilities on the branches, where the obstacle is (the die: «com a màxim 4 vol dir… 4 resultats de 6»; a percentage that belongs to the other branch, converted to «tant per u»). Then the paths in words («Hi ha dues maneres d'arribar a…: … o …»), «Multiplica les probabilitats al llarg de cada camí i suma els dos resultats», and «Això és el teorema de la probabilitat total.» at the end, as a sentence, without parentheses. When a percentage goes on a branch, say how it becomes a probability: «Un $90\,\%$ es tradueix en $p = 0{,}9$», «Recorda que el $95\,\%$ ens permet dir que $p = 0{,}95$» (`pro-25i-q3` a), `pro-25j-q3` a)).
+  - *Bayes:* «Torna a l'arbre de l'apartat …. Saps que …: queda't només amb els camins que acaben en «…». Et demanen quina part d'aquesta probabilitat ve del camí en què …», the fraction in words on its own line, the denominator from the previous part (with «1 menys…» when it is the complement), and «Això és el teorema de Bayes.» at the end, as a sentence, without parentheses (David). If a branch probability is a complement, say it: «la probabilitat que el Holter doni negatiu és $1 - 0{,}95$».
+  - *Binomial:* why it is binomial (each trial, the same $p$), what $X$ counts, $X \sim B(n, p)$; translate «almenys…» on its own line, as a sum or as the complement when that is shorter; and the formula on its own line: «Recorda la fórmula de la binomial: $P(X = k) = \binom{n}{k}\, p^{k}\, (1 - p)^{n - k}$».
+  - *Laplace:* count the cases instead of combining events: $P = \frac{\text{casos favorables}}{\text{casos possibles}}$ (`pro-24j-q4` a1).
 - **One method per hint.** Never offer an optional alternative («o, si ho prefereixes, …»).
 - **Shortcuts.** A shortcut that comes from looking at *this* exercise may be the single method. Example (approved): in `alg-23s-q3` b), the 1st and 3rd equations have the same $y$ and $z$ terms, so subtracting them gives $x$. A general memorised rule that replaces the method taught in class is not used. Example (rejected): the short rule for the inverse of a $2 \times 2$ matrix in `alg-23j2-q5` a).
 
@@ -191,6 +193,12 @@ The hints reviewed under this guide are the few-shot examples for the next ones.
 - Algebra lot 1: `alg-23j-q2`, `alg-23j-q4` and `alg-23j2-q2`, all parts.
 - Algebra lot 2: `alg-23j2-q5` a) and b), `alg-23s-q1` a) and c), `alg-23s-q3` a) and b).
 - Algebra lot 3: `alg-24i-q2` a) and b), `alg-24j-q2` a), b) and c), `alg-25j-q2` b) and c).
+- Geometry lot 7: `geo-23j-q6`, `geo-23j2-q3`, `geo-23s-q5` b) and `geo-24i-q6`. Shared methods with algebra: a line given by two planes is solved with $x = t$; a plane through a point with two direction vectors uses the determinant.
+- Probability lot 12: `pro-26j-q3` 3.1 and 3.3, `pro-26j2-q3`, `pro-26s-q3`. The whole probability block is reviewed.
+- Probability lot 11: `pro-24j-q4` a2 (second version: a worked example with the A), `pro-25i-q3`, `pro-25j-q3`, `pro-25s-q3ab`.
+- Probability lot 10: `pro-24i-q4`, `pro-24j-q4` (a1, b1, b2) and `pro-24s-q4`. Rejected: the first rewrite of `pro-24j-q4` a2 (a chain of abstract steps: «busca quines lletres… per a cadascuna… finalment suma»).
+- Geometry lot 9: `geo-25s-q4b`, `geo-26j-q4b` 4.1 and 4.2, `geo-26j2-q4b`, `geo-26s-q4b`. Rejected: a rewrite of `geo-26j-q4b` 4.3 (too contrived); the original hint stays. Every geometry hint now finds a plane with the determinant.
+- Geometry lot 8: `geo-24j-q6`, `geo-24s-q6` and `geo-25j-q4b`, all parts.
 - Algebra lot 6: `alg-26j2-q2` and `alg-26s-q2`, all parts. `alg-26s-q2` 2.2 uses an exercise-specific shortcut instead of the pauta's Cramer (approved).
 - Algebra lot 5: `alg-25i-q4b`, `alg-25s-q2` and `alg-26j-q2`, all parts.
 - Algebra lot 4: `alg-24s-q2` and `alg-25i-q2`, all parts. Note the exercise-specific shortcut in `alg-24s-q2` b) and c) (subtracting two equations with the same $x$ and $z$ terms).

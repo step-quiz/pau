@@ -12,44 +12,39 @@
 
 \subsection*{\textit{a)} \normalfont Calculeu l'equació del pla $\pi$ que és perpendicular a la recta $AB$ i que passa pel punt mitjà entre $A$ i $B$. Justifiqueu que aquest pla està format, precisament, pels punts $P = (x, y, z)$ que estan a igual distància de $A$ que de $B$, és a dir, $d(P, A) = d(P, B)$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{El vector normal de $\pi$ és, precisament, $\vec{AB}$.
+\pista{Aquest apartat et demana dues coses.
 
 \medskip
-\textit{El pla $\pi$.}
-\begin{itemize}
-\item Calcula $\vec{AB}$ i el punt mitjà entre $A$ i $B$.
-\item Escriu l'equació del pla en la forma $ax + by + cz + d = 0$.
-\end{itemize}
-\textit{Justificació.} Planteja $d(P, A) = d(P, B)$ o, per evitar les arrels quadrades, directament
+\textit{El pla $\pi$.} Com que el pla és perpendicular a la recta $AB$, el seu vector normal és precisament el vector $\vec{AB}$. En primer lloc, calcula $\vec{AB}$ i el punt mitjà entre $A$ i $B$. A continuació, escriu el pla en la forma \mbox{$ax + by + cz + d = 0$}, amb $(a, b, c) = \vec{AB}$, i troba $d$ fent que el pla passi pel punt mitjà.
+
+\medskip
+\textit{Justificació.} Escriu $d(P, A) = d(P, B)$ amb $P = (x, y, z)$. Per no haver de treballar amb arrels quadrades, eleva els dos costats al quadrat:
 \[
-d(P, A)^{2} = d(P, B)^{2}.
+d(P, A)^{2} = d(P, B)^{2}
 \]
-Desenvolupa i simplifica: veuràs com apareix exactament la mateixa equació del pla.}
+Desenvolupa els quadrats i simplifica. No és tan difícil com sembla, perquè els termes $x^{2}$, $y^{2}$ i $z^{2}$ s'anul·len. Comprovaràs que obtens la mateixa equació del pla $\pi$.}
 
 \subsection*{\textit{b)} \normalfont Calculeu les distàncies de $A$ i de $B$ al pla $\pi$ i comproveu que són iguals. És casualitat? Raoneu la resposta. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Aquest apartat té dues parts.
+\pista{Aquest apartat et demana dues coses.
 
 \medskip
-\textit{Les distàncies.} Aplica a $A$ i a $B$ la fórmula de la distància d'un punt $X = (x_{0}, y_{0}, z_{0})$ a un pla, amb el pla escrit en la forma $ax + by + cz + d = 0$ de l'apartat \textit{a)}:
+\textit{Les distàncies.} Aplica a $A$ i a $B$ la fórmula de la distància d'un punt $X = (x_{0}, y_{0}, z_{0})$ a un pla, amb el pla de l'apartat \textit{a)} en la forma \mbox{$ax + by + cz + d = 0$}:
 \[
 d(X, \pi) = \dfrac{|a x_{0} + b y_{0} + c z_{0} + d|}{\sqrt{a^{2} + b^{2} + c^{2}}}
 \]
 
 \medskip
-\textit{És casualitat?} Recorda com has construït $\pi$ a l'apartat \textit{a)}: perpendicular a $AB$ i pel seu punt mitjà. Sobre quin punt de $\pi$ es projecten ortogonalment $A$ i $B$?}
+\textit{És casualitat?} Recorda com has construït el pla $\pi$: és perpendicular a la recta $AB$ i passa pel punt mitjà de $A$ i $B$. Fes-ne un dibuix: el pla talla el segment $AB$ just pel mig, i formant un angle recte. Què pots dir, llavors, de les distàncies de $A$ i de $B$ al pla?}
 
 \subsection*{\textit{c)} \normalfont Sigui $C = (-7, 6, 3)$. El triangle $ABC$ és isòsceles? Calculeu la seva àrea. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Un triangle és isòsceles quan té dos costats iguals: pots calcular $|\vec{AB}|$, $|\vec{AC}|$ i $|\vec{BC}|$ i comparar-les.
+\pista{En primer lloc, comprova si el punt $C$ pertany al pla $\pi$ de l'apartat \textit{a)}. Si ho és, què en dedueixes sobre les distàncies de $C$ a $A$ i de $C$ a $B$? Recorda què has justificat a l'apartat \textit{a)}. En canvi, si no ho és, calcula les longituds dels tres costats i compara-les.
 
 \medskip
-\textbf{Drecera:} abans de calcular res, comprova si $C$ pertany al pla $\pi$ de l'apartat \textit{a)}. Què en dedueixes sobre $d(C, A)$ i $d(C, B)$?
-
-\medskip
-Per a l'àrea, pots fer base per alçada: si el triangle és isòsceles, l'alçada sobre $AB$ va de $C$ al punt mitjà de l'apartat \textit{a)}. També pots fer servir la meitat del mòdul del producte vectorial de dos costats:
+A continuació, calcula l'àrea amb el costat $AB$ com a base. Si el triangle és isòsceles, l'altura sobre $AB$ va de $C$ al punt mitjà $M$ de $A$ i $B$. Per tant:
 \[
-\text{Àrea} = \frac{1}{2}\left|\vec{AB} \times \vec{AC}\right|
+\text{Àrea} = \frac{\text{base} \cdot \text{altura}}{2} = \frac{|\vec{AB}| \cdot d(C, M)}{2}
 \]}
 
 \end{document}

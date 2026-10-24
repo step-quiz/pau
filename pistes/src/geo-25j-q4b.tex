@@ -12,24 +12,20 @@
 
 \subsection*{\textit{a)} \normalfont Calculeu l'equació del pla $\pi'$ que és perpendicular a $\pi$ i conté els punts $P = (1, -1, 2)$ i $Q = (3, -3, 6)$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Obtindràs l'equació general del pla a partir d'un punt i dos vectors directors.
-\begin{itemize}
-\item El punt: $P$.
-\item Un vector director: $\vec{PQ}$.
-\item L'altre: com que els plans són perpendiculars, el vector normal de $\pi$, $\vec{n} = (1, 1, 0)$, és un vector director de $\pi'$.
-\end{itemize}
-Finalment, calcula el determinant que té per columnes $(x-1,\, y+1,\, z-2)$, $\vec{PQ}$ i $\vec{n}$.
+\pista{Com que el pla $\pi'$ és perpendicular a $\pi$, el vector normal de $\pi$, $\vec{n} = (1, 1, 0)$, és un vector director de $\pi'$. Fixa't que a l'equació de $\pi$ no hi ha $z$, i per això la 3a coordenada de $\vec{n}$ és $0$. L'altre vector director de $\pi'$ és $\vec{PQ}$.
 
 \medskip
-\textbf{Atenció:} et demanen una equació: no n'hi ha prou de calcular el determinant, has d'escriure $\det(\dots) = 0$.}
+A continuació, escriu l'equació del pla que passa pel punt $P$ amb aquests dos vectors directors, igualant a zero aquest determinant:
+\[
+\begin{vmatrix} x - 1 & y + 1 & z - 2 \\ \ldots & \ldots & \ldots \\ \ldots & \ldots & \ldots \end{vmatrix} = 0
+\]
+Finalment, desenvolupa'l i simplifica l'equació que obtinguis.}
 
 \subsection*{\textit{b)} \normalfont Calculeu l'equació paramètrica de la recta continguda en $\pi'$ i que conté els punts de $\pi'$ a la mateixa distància de $P$ que de $Q$. \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{El conjunt de punts que són a la mateixa distància de $P$ i de $Q$ és un pla: el \textit{pla mediador} del segment $PQ$.
-\begin{itemize}
-\item Passa pel punt mitjà entre $P$ i $Q$.
-\item És perpendicular a $\vec{PQ}$.
-\end{itemize}
-La recta que et demanen és la intersecció del pla mediador amb $\pi'$: resol el sistema format per les dues equacions i expressa la solució en forma paramètrica.}
+\pista{Els punts que són a la mateixa distància de $P$ i de $Q$ sempre formen un pla. Per trobar aquest pla, cal saber que és un pla perpendicular al segment $PQ$ que passa pel seu punt mitjà. Per tant, el seu vector normal és $\vec{PQ}$.
+
+\medskip
+A continuació, la recta que busques és la intersecció d'aquest pla amb el pla $\pi'$ de l'apartat \textit{a)}. Resol el sistema format per les dues equacions: escriu simplement \mbox{$y = t$} (és un paràmetre lliure), i aïlla $x$ i $z$ en funció de $t$.}
 
 \end{document}

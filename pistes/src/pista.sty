@@ -3,7 +3,7 @@
 %  Un canvi aquí afecta totes les pistes: recompileu-les totes després.
 % =====================================================================
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{pista}[2026/10/09 Pistes PAU Matematiques]
+\ProvidesPackage{pista}[2026/10/24 Pistes PAU Matematiques]
 
 % ====== Paquets bàsics ======
 \RequirePackage[utf8]{inputenc}
@@ -22,6 +22,15 @@
 % Identificador del PDF fix (depèn només del nom del fitxer): recompilar una
 % pista sense canvis dona exactament el mateix PDF.
 \ifdefined\pdftrailerid \pdftrailerid{\jobname}\fi
+
+% ====== Vectors ======
+% \vec amb una sola lletra (\vec{n}, \vec{v}) es queda com sempre; amb dues
+% lletres o més (\vec{AB}, \vec{PQ}) fa \overrightarrow, perquè la fletxa vagi
+% d'una lletra a l'altra.
+\let\pista@vecaccent\vec
+\renewcommand{\vec}[1]{\pista@vec#1\@nil}
+\def\pista@vec#1#2\@nil{%
+  \ifx\relax#2\relax\pista@vecaccent{#1}\else\overrightarrow{#1#2}\fi}
 
 % ====== Color blau personalitzat ======
 \definecolor{blauPista}{RGB}{0, 70, 160}

@@ -16,43 +16,31 @@
 
 \subsection*{3.1. \normalfont Quina és la probabilitat que s'arribi als $1\,000\,\text{MW}$ de potència total al parc? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Anomena $X$ el nombre d'aerogeneradors en funcionament. Com que són 10 i cadascun funciona o no independentment dels altres, $X \sim B(10, p)$, on $p$ és la probabilitat que funcioni cada aerogenerador.
-\begin{itemize}
-\item Quants aerogeneradors han de funcionar per arribar als $1\,000\,\text{MW}$?
-\item Calcula la probabilitat d'aquest únic cas.
-\end{itemize}
+\pista{Anomena $X$ el nombre d'aerogeneradors que funcionen. Cadascun funciona o no, independentment dels altres i amb la mateixa probabilitat: per tant, $X \sim B(10, p)$. Fixa't que el $10\,\%$ és la probabilitat d'estar aturat: un $10\,\%$ es tradueix en $0{,}1$, i la probabilitat de funcionar és $p = 1 - 0{,}1$.
 
 \medskip
-\textbf{Atenció:} el $10\,\%$ és la probabilitat d'estar \emph{aturat}; la de funcionar és la complementària.}
+Quants aerogeneradors han de funcionar per arribar als $1\,000\,\text{MW}$? Calcula la probabilitat d'aquest únic cas.}
 
 \subsection*{3.2. \normalfont Quina és la probabilitat que la potència total del parc superi els $150\,\text{MW}$? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Cada aerogenerador aporta $100\,\text{MW}$ o res.
-\begin{itemize}
-\item Tradueix «superar els $150\,\text{MW}$» a una condició sobre $X$: quin és el nombre mínim d'aerogeneradors en funcionament?
-\item Sumar tots els casos favorables seria llarguíssim: passa a l'esdeveniment contrari, que només té dos casos.
-\item Quan en funciona exactament un, pot ser qualsevol dels 10 (el coeficient binomial).
-\end{itemize}
+\pista{Cada aerogenerador aporta $100\,\text{MW}$ o res. En primer lloc, tradueix «superar els $150\,\text{MW}$» a una condició sobre $X$: quants aerogeneradors han de funcionar, com a mínim?
 
 \medskip
-\textbf{Atenció:} les probabilitats del contrari són molt petites: escriu-les en notació científica i no arrodoneixis el resultat final.}
+A continuació, passa al contrari: és molt més curt, perquè només té dos casos. Recorda la fórmula de la binomial:
+\[
+P(X = k) = \binom{n}{k}\, p^{k}\, (1 - p)^{n - k}
+\]
+Les probabilitats d'aquests dos casos són molt petites: escriu-les en notació científica i no arrodoneixis el resultat final.}
 
 \subsection*{3.3. \normalfont Calculeu l'àrea de les pales d'un d'aquests aerogeneradors (part ombrejada al gràfic). \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Calcula l'àrea en dos passos:
-\begin{itemize}
-\item resol $f(x) = g(x)$: els punts de tall són els límits d'integració;
-\item a cada interval entre dos punts de tall consecutius, calcula el valor absolut de la integral de la diferència,
+\pista{En primer lloc, resol $f(x) = g(x)$: els punts de tall són els límits d'integració. Et convé treure factor comú.
+
+\medskip
+A continuació, a cada interval entre dos punts de tall seguits, calcula el valor absolut de la integral de la diferència:
 \[
-\left| \int_{x_{i}}^{x_{i+1}} \bigl(f(x) - g(x)\bigr)\,dx \right|,
+\text{Àrea} = \left| \int_{x_{1}}^{x_{2}} \bigl(f(x) - g(x)\bigr)\,dx \right|
 \]
-i suma els resultats (recorda les unitats, $\text{m}^{2}$).
-\end{itemize}
-
-\medskip
-\textbf{Atenció:} si integres d'un extrem a l'altre d'una sola vegada, les dues regions es compensen.
-
-\medskip
-\textbf{Drecera:} les dues funcions són senars (simètriques respecte de l'origen): calcula una sola regió i multiplica per 2.}
+Finalment, suma els resultats de tots els intervals. Les unitats són $\text{m}^{2}$.}
 
 \end{document}

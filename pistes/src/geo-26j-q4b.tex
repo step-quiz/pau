@@ -12,26 +12,22 @@
 
 \subsection*{4.1. \normalfont Calculeu l'equació del pla que conté els punts $P$, $Q$ i $R$. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Troba dos vectors continguts al pla, per exemple $\vec{PQ}$ i $\vec{PR}$.
-\begin{itemize}
-\item El vector normal del pla és el seu producte vectorial:
+\pista{Els vectors $\vec{PQ}$ i $\vec{PR}$ són vectors directors del pla. En primer lloc, calcula'ls. A continuació, escriu l'equació del pla que passa pel punt $P$ amb aquests dos vectors directors, igualant a zero aquest determinant:
 \[
-\vec{n} = \vec{PQ} \times \vec{PR}
+\begin{vmatrix} x - 1 & y - 0 & z + 1 \\ \ldots & \ldots & \ldots \\ \ldots & \ldots & \ldots \end{vmatrix} = 0
 \]
-\item Amb $\vec{n} = (A, B, C)$, escriu $Ax + By + Cz + D = 0$.
-\item Troba $D$ substituint-hi les coordenades d'un dels tres punts (per exemple, $R$).
-\end{itemize}}
+Finalment, desenvolupa'l i escriu el pla en la forma \mbox{$Ax + By + Cz + D = 0$}.}
 
 \subsection*{4.2. \normalfont Comproveu que l'àrea del triangle $\Delta PQR$ és $\dfrac{3\sqrt{5}}{2}\,u^{2}$. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{L'àrea del triangle és la meitat del mòdul del producte vectorial de dos costats:
+\pista{Fes servir aquesta fórmula, amb els vectors $\vec{PQ}$ i $\vec{PR}$ de l'apartat 4.1:
 \[
 \text{Àrea} = \frac{1}{2}\left|\vec{PQ} \times \vec{PR}\right|
 \]
-Aquest producte vectorial ja el tens de l'apartat anterior.
+En primer lloc, calcula el producte vectorial. A continuació, calcula'n el mòdul i multiplica'l per $\frac{1}{2}$.
 
 \medskip
-\textbf{Consell:} també pots fer base per alçada, que és més llarg però igualment vàlid. Pren $PQ$ com a base i calcula'n la longitud; l'alçada és la distància d'$R$ a la recta $PQ$.}
+Si et surt una arrel que no coincideix a primera vista amb la de l'enunciat, treu-ne els factors que són quadrats perfectes. Per exemple, $\sqrt{12} = \sqrt{4 \cdot 3} = 2\sqrt{3}$.}
 
 \subsection*{4.3. \normalfont Determineu les condicions que han de complir les coordenades d'un quart punt $S = (x, y, z)$ per tal que $P$, $Q$, $R$ i $S$ formin un tetraedre de volum 1. (El volum del tetraedre format pels punts $P$, $Q$, $R$ i $S$ és: $\text{volum}(PQRS) = \dfrac{\text{àrea}(\Delta PQR) \cdot \text{altura}}{3}$.) \hspace*{\fill}\textnormal{[1~punt]}}
 

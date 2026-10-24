@@ -12,30 +12,28 @@
 
 \subsection*{4.1. \normalfont Quina distància ha recorregut el sensor? \hspace*{\fill}\textnormal{[0,5~punts]}}
 
-\pista{El desplaçament del sensor és, simplement, el mòdul del vector $\vec{AB}$.}
+\pista{La distància que ha recorregut el sensor és el mòdul del vector $\vec{AB}$. Recorda que el mòdul d'un vector $\vec{v} = (v_{1}, v_{2}, v_{3})$ es calcula així:
+\[
+|\vec{v}| = \sqrt{v_{1}^{2} + v_{2}^{2} + v_{3}^{2}}
+\]
+Les unitats són centímetres.}
 
 \subsection*{4.2. \normalfont En acabar el moviment, a quina distància de la superfície es troba el sensor? \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{El pla $\pi$ et ve en forma vectorial: abans de res, passa'l a la forma general $Ax + By + Cz + D = 0$.
-\begin{itemize}
-\item Vector normal: el producte vectorial dels dos vectors directors, $(1, 1, 0) \times (0, 0, 1)$.
-\item Imposa que el pla passi pel punt $(6, 1, 1)$ per trobar $D$.
-\end{itemize}
-Després aplica la fórmula de la distància d'un punt a un pla al punt $B$, que és on acaba el sensor:
+\pista{El pla $\pi$ et ve donat amb un punt i dos vectors directors. En primer lloc, passa'l a la forma \mbox{$ax + by + cz + d = 0$}, igualant a zero aquest determinant, on a les altres dues files hi van els dos vectors directors:
 \[
-d(P, \pi) = \dfrac{|Ax_{0} + By_{0} + Cz_{0} + D|}{\sqrt{A^{2} + B^{2} + C^{2}}}
+\begin{vmatrix} x - 6 & y - 1 & z - 1 \\ \ldots & \ldots & \ldots \\ \ldots & \ldots & \ldots \end{vmatrix} = 0
+\]
+A continuació, aplica la fórmula de la distància d'un punt $(x_{0}, y_{0}, z_{0})$ a un pla al punt $B$, que és on acaba el sensor:
+\[
+d(B, \pi) = \frac{|a x_{0} + b y_{0} + c z_{0} + d|}{\sqrt{a^{2} + b^{2} + c^{2}}}
 \]}
 
 \subsection*{4.3. \normalfont Si el sensor seguís movent-se en la mateixa línia recta i en el mateix sentit, en quin punt xocaria amb la superfície? \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{El «xoc» és el punt d'intersecció de la recta $AB$ amb el pla $\pi$.
-\begin{itemize}
-\item Escriu l'equació paramètrica de la recta que passa per $A$ amb vector director $\vec{AB}$.
-\item Substitueix-la a l'equació general del pla (la de l'apartat anterior) i resol per trobar el paràmetre.
-\item Amb aquest valor, calcula les coordenades del punt.
-\end{itemize}
+\pista{El punt on xocaria és la intersecció de la recta $AB$ amb el pla $\pi$. En primer lloc, escriu la recta en forma paramètrica, amb el punt $A$ i el vector director $\vec{AB}$. Fixa't que quan $\lambda = 0$ obtens el punt $A$, i que quan $\lambda = 1$ obtens el punt $B$.
 
 \medskip
-\textbf{Atenció:} comprova que el valor del paràmetre correspon a un punt situat més enllà de $B$, perquè el sensor continua en el mateix sentit.}
+A continuació, substitueix les expressions de $x$, $y$ i $z$ a l'equació del pla de l'apartat 4.2: obtindràs una equació amb la variable $\lambda$. Un cop l'hagis resolta, substitueix el valor de $\lambda$ a l'equació de la recta. Com que el sensor continua endavant, el valor de $\lambda$ ha de ser més gran que 1.}
 
 \end{document}

@@ -14,29 +14,26 @@
 
 \subsection*{4.1. \normalfont Quines són les coordenades del quart vèrtex de la tapa? Calculeu les longituds dels dos costats de la tapa. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Els dos costats surten d'$A$: $B$ i $C$ són els veïns d'$A$, i el quart vèrtex $D$ és l'oposat a $A$.
-\begin{itemize}
-\item Per arribar a $D$, surt de $B$ i aplica-hi el mateix desplaçament que porta d'$A$ a $C$:
+\pista{Els dos costats de la tapa surten del vèrtex $A$: un va fins a $B$, i l'altre fins a $C$. Per tant, el quart vèrtex $D$ és el que queda davant d'$A$. Fes un dibuix del rectangle.
+
+\medskip
+Per arribar a $D$, surt de $B$ i aplica-hi el mateix desplaçament que porta d'$A$ a $C$:
 \[
 D = B + \vec{AC}
 \]
-\item Si vols, comprova que $\vec{AB} \cdot \vec{AC} = 0$ (angle recte).
-\item Les longituds dels costats són $|\vec{AB}|$ i $|\vec{AC}|$.
-\end{itemize}
-
-\medskip
-\textbf{Atenció:} l'error habitual és tractar $BC$ com un costat (per exemple, fent $A + \vec{BC}$), quan en realitat és una diagonal.}
+Finalment, les longituds dels dos costats són, respectivament, els mòduls dels vectors $\vec{AB}$ i $\vec{AC}$.}
 
 \subsection*{4.2. \normalfont Sabent que els altres quatre vèrtexs de la capsa estan situats al pla $\pi: -4x + 3z = 24$, calculeu les coordenades d'un d'aquests vèrtexs (qualsevol) i l'alçària de la capsa. \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{La capsa és un prisma recte: la base és paral·lela a la tapa, i cada vèrtex de la base és la projecció ortogonal d'un vèrtex de la tapa sobre $\pi$.
-\begin{itemize}
-\item Si vols, comprova que $\pi$ és paral·lel a la tapa: $\vec{AB} \times \vec{AC}$ ha de ser proporcional a \mbox{$\vec{n}_{\pi} = (-4, 0, 3)$}.
-\item \textit{Un vèrtex.} Projecta $A$ ortogonalment sobre $\pi$: pren la recta per $A$ amb vector director $\vec{n}_{\pi}$ i interseca-la amb $\pi$.
-\item \textit{Alçària.} És la distància d'un vèrtex de la tapa, per exemple $A$, al pla $\pi$ (escriu-lo abans com $-4x + 3z - 24 = 0$).
-\end{itemize}
+\pista{Aquest apartat et demana dues coses.
 
 \medskip
-\textbf{Atenció:} «qualsevol» es refereix als quatre vèrtexs de la base, no a qualsevol punt de $\pi$.}
+\textit{Un vèrtex.} La capsa és un prisma recte: cada vèrtex de la base és just a sota d'un vèrtex de la tapa. Per trobar el vèrtex que és a sota d'$A$, escriu la recta que passa per $A$ amb el vector normal del pla $\pi$ com a vector director. Fixa't que a l'equació de $\pi$ no hi ha $y$: la 2a coordenada del vector normal és $0$. A continuació, troba el punt on aquesta recta talla el pla $\pi$.
+
+\medskip
+\textit{L'altura.} És la distància d'un vèrtex de la tapa, per exemple $A$, al pla $\pi$. En primer lloc, escriu el pla en la forma \mbox{$\ldots = 0$}, passant el $24$ a l'altre costat. A continuació, aplica la fórmula de la distància d'un punt $(x_{0}, y_{0}, z_{0})$ a un pla:
+\[
+d(A, \pi) = \frac{|a x_{0} + b y_{0} + c z_{0} + d|}{\sqrt{a^{2} + b^{2} + c^{2}}}
+\]}
 
 \end{document}

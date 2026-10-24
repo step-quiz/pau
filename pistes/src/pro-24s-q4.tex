@@ -12,38 +12,27 @@
 
 \subsection*{\textit{a)} \normalfont Si escollim 4 persones a l'atzar, quina és la probabilitat que almenys una d'elles pateixi arrítmies? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Sigui $X$ el nombre de persones amb arrítmia entre les 4: $X \sim B(4;\, 0{,}2)$.
+\pista{Sigui $X$ el nombre de persones amb arrítmia entre les 4. Cada persona en pateix amb probabilitat $0{,}2$, i per tant $X \sim B(4;\ 0{,}2)$.
 
 \medskip
-Per a «almenys una», passa al contrari, «cap d'elles»:
+«Almenys una» és el contrari de «cap». Per tant:
 \[
-P(X \ge 1) = 1 - P(X = 0).
+P(X \ge 1) = 1 - P(X = 0)
 \]}
 
 \subsection*{\textit{b)} \normalfont Quina és la probabilitat que una persona escollida a l'atzar obtingui un diagnòstic positiu d'arrítmia? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Fes un diagrama d'arbre. Hi ha dos camins que porten a un diagnòstic positiu:
-\begin{itemize}
-\item pateix arrítmia \emph{i} el Holter la detecta;
-\item no en pateix, \emph{però} el Holter dona un fals positiu.
-\end{itemize}
-Aplica el teorema de la probabilitat total.
+\pista{Fes un diagrama d'arbre. A la primera branca hi ha si la persona pateix arrítmia o no; a la segona, si el Holter dona positiu o no. Fixa't que el $0{,}5\,\%$ de falsos positius és dels qui no pateixen arrítmia. En tant per u, és $0{,}005$.
 
 \medskip
-\textbf{Atenció:} el $0{,}5\,\%$ de falsos positius és dels qui \emph{no} pateixen arrítmia; vigila en passar-lo a tant per u.}
+Hi ha dues maneres d'arribar a un diagnòstic positiu: pateix arrítmia i el Holter la detecta, o no en pateix però el Holter dona un fals positiu. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats. Això és el teorema de la probabilitat total.}
 
 \subsection*{\textit{c)} \normalfont Si una persona obté un diagnòstic negatiu a la prova del Holter, quina és la probabilitat que realment pateixi arrítmies? \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{És un cas clar del teorema de Bayes: et demanen una probabilitat condicionada en sentit \emph{invers} al de les dades.
-
-\medskip
-Anomena $A$ = «pateix arrítmia» i $H$ = «el Holter dona positiu».
-\begin{itemize}
-\item Coneixes $P(\overline{H} \mid A)$: «dona negatiu \emph{sabent que} pateix arrítmia», el complementari del $95\,\%$.
-\item Et demanen $P(A \mid \overline{H})$: «pateix arrítmia \emph{sabent que} ha donat negatiu».
-\end{itemize}
-
-\medskip
-\textbf{Atenció:} al denominador hi va $P(\overline{H}) = 1 - P(H)$, i $P(H)$ és el resultat de l'apartat \textit{b)}.}
+\pista{Torna a l'arbre de l'apartat \textit{b)}. Saps que el diagnòstic és negatiu: queda't només amb els camins que acaben en «negatiu». Et demanen quina part d'aquesta probabilitat ve del camí en què la persona pateix arrítmia:
+\[
+\frac{P(\text{pateix arrítmia i dona negatiu})}{P(\text{negatiu})}
+\]
+Fixa't que, si la persona pateix arrítmia, la probabilitat que el Holter doni negatiu és $1 - 0{,}95$. El denominador és 1 menys el resultat de l'apartat \textit{b)}. Això és el teorema de Bayes.}
 
 \end{document}
