@@ -1,0 +1,480 @@
+/* ═══════════════════════════════════════════════════════════════════
+   mates.js — Matemàtiques dels procediments animats
+   ───────────────────────────────────────────────────────────────────
+   Mòdul pur: no toca la pàgina (DOM). El fan servir formules.js, els
+   procediments i les proves automàtiques (Node). Exporta «Mates»:
+
+     Fraccio            nombres racionals exactes
+     ErrorLectura       error de lectura, amb un missatge per a l'alumne
+     llegeix(text)      text («2x^2-3x+1») → arbre de l'expressió
+     llegeixNombre(t)   text («-2», «1/2», «0,5») → Fraccio
+     avalua(arbre)      valor numèric d'un arbre
+     polinomi(arbre)    coeficients exactes, si l'arbre és un polinomi
+     termes(coefs)      termes no nuls {n, c}, de més a menys grau
+     derivaTermes(…)    termes de la derivada
+     valorTermes(…)     valor exacte dels termes en un punt
+     texNombre…         escriptura TeX i text pla de nombres i polinomis
+   ═══════════════════════════════════════════════════════════════════ */
+(function (arrel) {
+'use strict';
+
+/* ── 1. FRACCIONS EXACTES ──────────────────────────────────────────── */
+
+/** Màxim comú divisor de dos enters. */
+function mcd(a, b) {
+  a = Math.abs(a);
+  b = Math.abs(b);
+  while (b) [a, b] = [b, a % b];
+  return a;
+}
+
+/**
+ * Nombre racional exacte num/den, sempre simplificat i amb den > 0.
+ * Els objectes són immutables: cada operació en torna un de nou.
+ * Si un resultat surt dels enters segurs de JavaScript, llança RangeError.
+ */
+class Fraccio {
+  constructor(num, den = 1) {
+    if (!Number.isSafeInteger(num) || !Number.isSafeInteger(den) || den === 0) {
+      throw new RangeError(`Fracció no vàlida: ${num}/${den}`);
+    }
+    const g = mcd(num, den) || 1;
+    const s = den < 0 ? -1 : 1;
+    this.num = (s * num) / g || 0;          // «|| 0» evita el −0
+    this.den = (s * den) / g;
+    Object.freeze(this);
+  }
+
+  /** Converteix un enter (o una Fraccio) en Fraccio. */
+  static de(v) { return v instanceof Fraccio ? v : new Fraccio(v); }
+
+  suma(b)     { b = Fraccio.de(b); return new Fraccio(this.num * b.den + b.num * this.den, this.den * b.den); }
+  resta(b)    { return this.suma(Fraccio.de(b).oposada()); }
+  producte(b) { b = Fraccio.de(b); return new Fraccio(this.num * b.num, this.den * b.den); }
+  quocient(b) {
+    b = Fraccio.de(b);
+    if (b.num === 0) throw new RangeError('Divisió per zero');
+    return new Fraccio(this.num * b.den, this.den * b.num);
+  }
+  oposada()   { return new Fraccio(-this.num, this.den); }
+  abs()       { return new Fraccio(Math.abs(this.num), this.den); }
+
+  /** Potència d'exponent enter no negatiu. */
+  potencia(k) {
+    let r = new Fraccio(1);
+    for (let i = 0; i < k; i++) r = r.producte(this);
+    return r;
+  }
+
+  signe()     { return Math.sign(this.num); }
+  esZero()    { return this.num === 0; }
+  esEnter()   { return this.den === 1; }
+  igual(b)    { b = Fraccio.de(b); return this.num === b.num && this.den === b.den; }
+  valor()     { return this.num / this.den; }
+}
+
+const ZERO = new Fraccio(0);
+const U = new Fraccio(1);
+
+
+/* ── 2. LECTURA D'EXPRESSIONS ──────────────────────────────────────── */
+/*
+   Gramàtica, de menys a més prioritat:
+     expressió := terme (('+' | '-') terme)*
+     terme     := signe (('*' | '/') signe | [producte implícit] potència)*
+     signe     := ('+' | '-') signe | potència
+     potència  := primari ('^' signe)?        ← per la dreta: 2^3^2 = 2^9
+     primari   := nombre | variable | constant | funció '(' expressió ')'
+                | '(' expressió ')'
+   · El producte implícit («2x», «3(x+1)», «x(x-5)», «2ln(x)») té la
+     mateixa prioritat que «*». No s'admet davant d'un nombre: «x2» és un
+     error (cal escriure «x^2»).
+   · «-x^2» és −(x²), com a classe.
+   · S'accepten «−», «·», «×», superíndexs («x²»), «π», «√» i la coma
+     decimal («0,5»).
+
+   Nodes de l'arbre (objectes immutables):
+     {tipus: 'nombre', valor: Fraccio}     {tipus: 'variable', nom}
+     {tipus: 'constant', nom}              {tipus: 'oposat', a}
+     {tipus: 'suma' | 'resta' | 'producte' | 'quocient', a, b}
+     {tipus: 'potencia', base, exponent}   {tipus: 'crida', nom, arg}
+*/
+
+/** Error de lectura. El missatge és en català i va adreçat a l'alumne. */
+class ErrorLectura extends Error {
+  constructor(missatge) {
+    super(missatge);
+    this.name = 'ErrorLectura';
+  }
+}
+
+/** Funcions conegudes: nom → funció numèrica. */
+const FUNCIONS = Object.freeze({
+  ln: Math.log, log: Math.log10, sqrt: Math.sqrt, exp: Math.exp,
+  sin: Math.sin, cos: Math.cos, tan: Math.tan,
+});
+/** Altres noms de les mateixes funcions. */
+const SINONIMS = Object.freeze({arrel: 'sqrt', sen: 'sin', tg: 'tan'});
+/** Constants conegudes. */
+const CONSTANTS = Object.freeze({e: Math.E, pi: Math.PI});
+
+const SUPERINDEXS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const MAX_XIFRES = 12;          // més xifres no caben amb exactitud
+const MAX_GRAU = 12;            // grau màxim d'un polinomi llegit
+
+/** Unifica les maneres d'escriure: signes Unicode, superíndexs, coma decimal. */
+function normalitza(text) {
+  return String(text)
+    .replace(/[−–]/g, '-')
+    .replace(/[·×⋅]/g, '*')
+    .replace(/π/g, 'pi')
+    .replace(/√/g, 'sqrt')
+    .replace(/′/g, "'")
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, s => '^(' + [...s].map(c => SUPERINDEXS.indexOf(c)).join('') + ')')
+    .replace(/,/g, '.');
+}
+
+/** Converteix «12», «0.5» o «.25» en una Fraccio exacta. */
+function decimal(text) {
+  const [enters, decimals = ''] = text.split('.');
+  if ((enters + decimals).length > MAX_XIFRES) throw new ErrorLectura('Hi ha un nombre massa llarg.');
+  return new Fraccio(Number(enters + decimals || '0'), 10 ** decimals.length);
+}
+
+/**
+ * Divideix el text en peces (tokens).
+ * opcions.variables: lletres que són variables (per defecte, només «x»).
+ * opcions.funcions:  noms de funcions de l'usuari, amb primes si cal
+ *                    (p. ex. ['f', "f'"]); s'afegeixen a les conegudes.
+ */
+function trosseja(text, opcions) {
+  const s = normalitza(text);
+  const variables = opcions.variables || ['x'];
+  const funcionsUsuari = new Set(opcions.funcions || []);
+  const peces = [];
+  let i = 0;
+
+  const esFuncio = nom => nom in FUNCIONS || nom in SINONIMS;
+
+  while (i < s.length) {
+    const c = s[i];
+    if (/\s/.test(c)) { i++; continue; }
+
+    if (/[0-9.]/.test(c)) {
+      const m = /^[0-9]*\.?[0-9]*/.exec(s.slice(i))[0];
+      if (m === '.') throw new ErrorLectura('Hi ha un punt decimal sense xifres.');
+      peces.push({tipus: 'nombre', valor: decimal(m)});
+      i += m.length;
+      continue;
+    }
+
+    if (/[a-zA-Z]/.test(c)) {
+      const paraula = /^[a-zA-Z]+/.exec(s.slice(i))[0];
+      let j = i + paraula.length, primes = '';
+      while (s[j] === "'") { primes += "'"; j++; }
+      i = j;
+
+      if (funcionsUsuari.has(paraula + primes)) { peces.push({tipus: 'funcio', nom: paraula + primes}); continue; }
+      if (primes) throw new ErrorLectura(`No entenc «${paraula}${primes}».`);
+      if (esFuncio(paraula)) { peces.push({tipus: 'funcio', nom: SINONIMS[paraula] || paraula}); continue; }
+      if (paraula in CONSTANTS) { peces.push({tipus: 'constant', nom: paraula}); continue; }
+
+      // «lnx», «sqrtx»…: una funció sense parèntesis.
+      const prefix = Object.keys(FUNCIONS).concat(Object.keys(SINONIMS))
+        .filter(f => paraula.startsWith(f)).sort((a, b) => b.length - a.length)[0];
+      if (prefix) throw new ErrorLectura(`Escriu entre parèntesis el que hi ha dins de «${prefix}»: per exemple, ${prefix}(x).`);
+
+      // Si no, cada lletra és una variable o la constant e: «xx» = x·x.
+      for (const lletra of paraula) {
+        if (variables.includes(lletra)) peces.push({tipus: 'variable', nom: lletra});
+        else if (lletra in CONSTANTS) peces.push({tipus: 'constant', nom: lletra});
+        else if (!variables.length) throw new ErrorLectura('Aquí només hi pot haver un nombre.');
+        else throw new ErrorLectura(`No conec «${lletra}»: la variable és ${variables.join(', ')}.`);
+      }
+      continue;
+    }
+
+    if ('+-*/^()'.includes(c)) { peces.push({tipus: c}); i++; continue; }
+
+    throw new ErrorLectura(`No entenc el símbol «${c}».`);
+  }
+  peces.push({tipus: 'fi'});
+  return peces;
+}
+
+const node = (tipus, camps) => Object.freeze(Object.assign({tipus}, camps));
+const TIPUS_PRIMARI = new Set(['variable', 'constant', 'funcio', '(']);
+
+/**
+ * Llegeix una expressió i en torna l'arbre.
+ * Llança ErrorLectura si el text no és una expressió vàlida.
+ */
+function llegeix(text, opcions = {}) {
+  if (!String(text).trim()) throw new ErrorLectura('No hi ha cap expressió.');
+  const peces = trosseja(text, opcions);
+  let k = 0;
+  const mira = () => peces[k];
+  const pren = () => peces[k++];
+  const tanca = () => {
+    if (mira().tipus !== ')') throw new ErrorLectura('Falta tancar un parèntesi.');
+    pren();
+  };
+
+  function expressio() {
+    let a = terme();
+    while (mira().tipus === '+' || mira().tipus === '-') {
+      const op = pren().tipus;
+      a = node(op === '+' ? 'suma' : 'resta', {a, b: terme()});
+    }
+    return a;
+  }
+
+  function terme() {
+    let a = signe();
+    for (;;) {
+      const t = mira().tipus;
+      if (t === '*' || t === '/') { pren(); a = node(t === '*' ? 'producte' : 'quocient', {a, b: signe()}); }
+      else if (TIPUS_PRIMARI.has(t)) a = node('producte', {a, b: potencia()});
+      else if (t === 'nombre') throw new ErrorLectura('Falta un signe d\'operació entre dos nombres, o el «^» d\'una potència.');
+      else return a;
+    }
+  }
+
+  function signe() {
+    if (mira().tipus === '-') { pren(); return node('oposat', {a: signe()}); }
+    if (mira().tipus === '+') { pren(); return signe(); }
+    return potencia();
+  }
+
+  function potencia() {
+    const base = primari();
+    if (mira().tipus !== '^') return base;
+    pren();
+    return node('potencia', {base, exponent: signe()});
+  }
+
+  function primari() {
+    const p = pren();
+    switch (p.tipus) {
+      case 'nombre':   return node('nombre', {valor: p.valor});
+      case 'variable': return node('variable', {nom: p.nom});
+      case 'constant': return node('constant', {nom: p.nom});
+      case 'funcio': {
+        if (mira().tipus !== '(') throw new ErrorLectura(`Escriu entre parèntesis el que hi ha dins de «${p.nom}»: per exemple, ${p.nom}(x).`);
+        pren();
+        const arg = expressio();
+        tanca();
+        return node('crida', {nom: p.nom, arg});
+      }
+      case '(': {
+        const e = expressio();
+        tanca();
+        return e;
+      }
+      case 'fi': throw new ErrorLectura('L\'expressió s\'acaba massa aviat: hi falta alguna cosa al final.');
+      case ')':  throw new ErrorLectura('Hi ha un parèntesi «)» de més, o un parèntesi buit.');
+      default:   throw new ErrorLectura(`Hi falta un nombre o una variable abans de «${p.tipus}».`);
+    }
+  }
+
+  const arbre = expressio();
+  if (mira().tipus !== 'fi') {
+    throw new ErrorLectura(mira().tipus === ')' ? 'Hi ha un parèntesi «)» de més.' : 'Sobra alguna cosa al final de l\'expressió.');
+  }
+  return arbre;
+}
+
+/** Llegeix un nombre exacte: «-2», «1/2», «0,5», «(3)». */
+function llegeixNombre(text) {
+  const p = polinomi(llegeix(text, {variables: []}));
+  if (!p) throw new ErrorLectura('No és un nombre racional.');
+  return p.length ? p[0] : ZERO;
+}
+
+
+/* ── 3. AVALUACIÓ NUMÈRICA ─────────────────────────────────────────── */
+
+/**
+ * Valor numèric d'un arbre.
+ * entorn.variables: {x: 2, …};  entorn.funcions: {f: x => …, …}.
+ */
+function avalua(n, entorn = {}) {
+  const ev = m => avalua(m, entorn);
+  switch (n.tipus) {
+    case 'nombre':   return n.valor.valor();
+    case 'variable': {
+      const v = (entorn.variables || {})[n.nom];
+      if (v === undefined) throw new Error(`Falta el valor de ${n.nom}`);
+      return v;
+    }
+    case 'constant': return CONSTANTS[n.nom];
+    case 'oposat':   return -ev(n.a);
+    case 'suma':     return ev(n.a) + ev(n.b);
+    case 'resta':    return ev(n.a) - ev(n.b);
+    case 'producte': return ev(n.a) * ev(n.b);
+    case 'quocient': return ev(n.a) / ev(n.b);
+    case 'potencia': return Math.pow(ev(n.base), ev(n.exponent));
+    case 'crida': {
+      const f = (entorn.funcions || {})[n.nom] || FUNCIONS[n.nom];
+      if (!f) throw new Error(`Falta la funció ${n.nom}`);
+      return f(ev(n.arg));
+    }
+  }
+  throw new Error(`Node desconegut: ${n.tipus}`);
+}
+
+
+/* ── 4. POLINOMIS ──────────────────────────────────────────────────── */
+/*
+   Un polinomi és un vector de coeficients Fraccio, de grau 0 cap amunt,
+   sense zeros al final: 2x²−3x+1 → [1, −3, 2]. El polinomi zero és [].
+   Els «termes» són la forma de treball dels procediments: només els
+   coeficients no nuls, de més a menys grau: [{n: 2, c: 2}, {n: 1, c: −3}, {n: 0, c: 1}].
+*/
+
+/** Treu els zeros del final. */
+function retalla(p) {
+  let n = p.length;
+  while (n && p[n - 1].esZero()) n--;
+  return p.slice(0, n);
+}
+
+function sumaPolinomis(p, q) {
+  const r = [];
+  for (let i = 0; i < Math.max(p.length, q.length); i++) r.push((p[i] || ZERO).suma(q[i] || ZERO));
+  return retalla(r);
+}
+
+function producteDePolinomis(p, q) {
+  if (!p.length || !q.length) return [];
+  const r = Array.from({length: p.length + q.length - 1}, () => ZERO);
+  p.forEach((a, i) => q.forEach((b, j) => { r[i + j] = r[i + j].suma(a.producte(b)); }));
+  return retalla(r);
+}
+
+/** Coeficients de l'arbre si és un polinomi en «x»; si no, null. */
+function polinomiDe(n, x) {
+  const pol = m => polinomiDe(m, x);
+  switch (n.tipus) {
+    case 'nombre':   return retalla([n.valor]);
+    case 'variable': return n.nom === x ? [ZERO, U] : null;
+    case 'constant':
+    case 'crida':    return null;
+    case 'oposat': {
+      const p = pol(n.a);
+      return p && p.map(c => c.oposada());
+    }
+    case 'suma':
+    case 'resta':
+    case 'producte': {
+      const p = pol(n.a), q = pol(n.b);
+      if (!p || !q) return null;
+      if (n.tipus === 'suma') return sumaPolinomis(p, q);
+      if (n.tipus === 'resta') return sumaPolinomis(p, q.map(c => c.oposada()));
+      return producteDePolinomis(p, q);
+    }
+    case 'quocient': {                       // només entre un nombre no nul
+      const p = pol(n.a), q = pol(n.b);
+      if (!p || !q || q.length !== 1) return null;
+      return retalla(p.map(c => c.quocient(q[0])));
+    }
+    case 'potencia': {                       // exponent natural
+      const p = pol(n.base), e = pol(n.exponent);
+      if (!p || !e || e.length > 1) return null;
+      const k = e.length ? e[0] : ZERO;
+      if (!k.esEnter() || k.num < 0 || (p.length - 1) * k.num > MAX_GRAU) return null;
+      let r = [U];
+      for (let i = 0; i < k.num; i++) r = producteDePolinomis(r, p);
+      return r;
+    }
+  }
+  return null;
+}
+
+/**
+ * Coeficients exactes de l'arbre si és un polinomi en la variable
+ * (per defecte «x»), de grau 0 cap amunt. Si no ho és, null.
+ */
+function polinomi(arbre, x = 'x') {
+  try {
+    return polinomiDe(arbre, x);
+  } catch (e) {
+    if (e instanceof RangeError) return null;   // nombres massa grans o divisió per 0
+    throw e;
+  }
+}
+
+/** Termes no nuls, de més a menys grau. Admet coeficients enters o Fraccio. */
+function termes(coeficients) {
+  return coeficients
+    .map((c, n) => ({n, c: Fraccio.de(c)}))
+    .filter(t => !t.c.esZero())
+    .reverse();
+}
+
+/** Termes de la derivada: (c·xⁿ)' = c·n·xⁿ⁻¹. */
+function derivaTermes(llista) {
+  return llista.filter(t => t.n >= 1).map(t => ({n: t.n - 1, c: Fraccio.de(t.c).producte(t.n)}));
+}
+
+/** Valor exacte dels termes en el punt x. */
+function valorTermes(llista, x) {
+  x = Fraccio.de(x);
+  return llista.reduce((s, t) => s.suma(Fraccio.de(t.c).producte(x.potencia(t.n))), ZERO);
+}
+
+
+/* ── 5. ESCRIPTURA ─────────────────────────────────────────────────── */
+
+/** Nombre en TeX: «-3», «\frac{1}{2}», «-\frac{1}{2}». */
+function texNombre(v) {
+  v = Fraccio.de(v);
+  if (v.esEnter()) return String(v.num);
+  return (v.num < 0 ? '-' : '') + `\\frac{${Math.abs(v.num)}}{${v.den}}`;
+}
+
+/** Nombre en TeX, entre parèntesis si és negatiu o fraccionari: «(-2)». */
+function texEntreParentesis(v) {
+  v = Fraccio.de(v);
+  if (!v.esEnter()) return `\\left(${texNombre(v)}\\right)`;
+  return v.num < 0 ? `(${texNombre(v)})` : texNombre(v);
+}
+
+/** Polinomi en TeX, sense claus: «2x^{2} - 3x + 1». */
+function texPolinomi(llista) {
+  if (!llista.length) return '0';
+  return llista.map((t, i) => {
+    const c = Fraccio.de(t.c), a = c.abs();
+    let s = i === 0 ? (c.signe() < 0 ? '-' : '') : (c.signe() < 0 ? ' - ' : ' + ');
+    if (t.n === 0 || !a.igual(U)) s += texNombre(a);
+    if (t.n >= 1) s += 'x';
+    if (t.n >= 2) s += `^{${t.n}}`;
+    return s;
+  }).join('');
+}
+
+/** Polinomi en text pla, per a l'adreça: «2x^2-3x+1». */
+function textPolinomi(llista) {
+  if (!llista.length) return '0';
+  return llista.map((t, i) => {
+    const c = Fraccio.de(t.c), a = c.abs();
+    let s = c.signe() < 0 ? '-' : (i === 0 ? '' : '+');
+    const coef = a.esEnter() ? String(a.num) : `(${a.num}/${a.den})`;
+    if (t.n === 0 || !a.igual(U)) s += coef;
+    if (t.n >= 1) s += 'x';
+    if (t.n >= 2) s += '^' + t.n;
+    return s;
+  }).join('');
+}
+
+
+/* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
+
+arrel.Mates = Object.freeze({
+  Fraccio, ErrorLectura,
+  llegeix, llegeixNombre, avalua, polinomi,
+  termes, derivaTermes, valorTermes,
+  texNombre, texEntreParentesis, texPolinomi, textPolinomi,
+});
+
+})(globalThis);

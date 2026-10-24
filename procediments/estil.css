@@ -1,0 +1,220 @@
+/* ═══════════════════════════════════════════════════════════════════
+   estil.css — Estil comú dels procediments animats
+   ───────────────────────────────────────────────────────────────────
+   La pàgina la construeix motor.js; aquí hi ha els colors, les mides i
+   la disposició. La paleta és la del web (index.html). El color de la
+   categoria (--cat) depèn de <body data-categoria="…">, que posa el
+   motor a partir de procediment.categoria.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── PALETA ────────────────────────────────────────────────────────── */
+:root{
+  color-scheme:light;
+  /* Paleta del web */
+  --bg:#f8fafc;
+  --surface:#ffffff;
+  --border:#cbd5e1;
+  --txt:#1e293b;
+  --muted:#64748b;
+  --accent:#3b82f6;
+  --hd-bg:#1e293b;
+  /* Color de la categoria (per defecte, l'accent) i el seu fons suau */
+  --cat:var(--accent);
+  --cat-fons:rgba(59,130,246,.10);
+  /* La «mà» que manipula: requadres d'avís, ona del clic */
+  --ma:rgba(59,130,246,.16);
+  --ma-vora:rgba(59,130,246,.55);
+  --ona:rgba(59,130,246,.45);
+  /* Altres */
+  --graella:#e3e8ef;          /* punts de la pissarra */
+  --avis:#9a5b16;
+  --lletra:'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --mono:'Source Code Pro', ui-monospace, Menlo, Consolas, monospace;
+}
+body[data-categoria="algebra"]     {--cat:#b33c3c; --cat-fons:rgba(179,60,60,.09);}
+body[data-categoria="geometria"]   {--cat:#0f766e; --cat-fons:rgba(15,118,110,.09);}
+body[data-categoria="analisi"]     {--cat:#7c5cbf; --cat-fons:rgba(124,92,191,.10);}
+body[data-categoria="probabilitat"]{--cat:#9a5b16; --cat-fons:rgba(154,91,22,.09);}
+
+
+/* ── PÀGINA ────────────────────────────────────────────────────────── */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg); color:var(--txt);
+  font-family:var(--lletra); font-size:15px; line-height:1.55;
+}
+#procediment{min-height:100vh; display:flex; flex-direction:column}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* Capçalera, com la del web */
+.capcalera{
+  background:var(--hd-bg); color:#fff;
+  padding-block:12px;
+  padding-left:max(20px, env(safe-area-inset-left, 0px)); padding-right:max(20px, env(safe-area-inset-right, 0px));
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+}
+.capcalera h1{margin:0; font-size:1.05rem; font-weight:700; line-height:1.3}
+.cami{margin:3px 0 0; font-family:var(--mono); font-size:.67rem; color:rgba(255,255,255,.6)}
+.torna{
+  flex-shrink:0;
+  font-family:var(--mono); font-size:.73rem; color:#fff; text-decoration:none;
+  padding:6px 11px; border:1px solid rgba(255,255,255,.45); border-radius:5px;
+  transition:background-color .15s, border-color .15s;
+}
+.torna:hover{background:rgba(255,255,255,.12); border-color:#fff}
+
+.contingut{
+  flex:1; width:100%; max-width:920px; margin:0 auto;
+  padding-block:22px 32px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  display:flex; flex-direction:column; gap:16px;
+}
+.enunciat{margin:0; max-width:68ch}
+.enunciat .katex{font-size:1.08em}
+.avis{
+  margin:0; padding:10px 14px; border-radius:8px; font-size:.9rem;
+  background:#fff7ea; border:1px solid #f1d3a8; color:#7a4510;
+}
+
+/* Peu, com el del web (però no fix) */
+.peu{
+  background:#f8f9fa; border-top:1px solid #ccc; padding-block:10px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  font-family:var(--mono); font-size:.75rem; color:#333; text-align:center;
+}
+.peu a{color:#333}
+
+.error-carrega{max-width:640px; margin:48px auto; padding:0 16px; color:var(--txt)}
+
+
+/* ── PISSARRA ──────────────────────────────────────────────────────── */
+.escenari{
+  position:relative; overflow:hidden;
+  background-color:var(--surface);
+  background-image:radial-gradient(var(--graella) 1.1px, transparent 1.3px);
+  background-size:22px 22px; background-position:11px 11px;
+  border:1px solid var(--border); border-radius:12px;
+}
+.pissarra{position:relative; padding:18px 22px 14px; font-size:var(--mida, 30px)}
+.capa{width:100%}
+.capa.nova{position:absolute; left:0; top:0; padding:inherit; visibility:hidden}  /* la capa del pas següent, mentre es prepara */
+.fila{
+  min-height:2.2em; display:flex; align-items:center; white-space:nowrap;
+  border-radius:10px; padding:0 .45em; margin:0 -.45em;
+}
+.fila .katex{font-size:1em}
+.fila.final{background:var(--cat-fons); box-shadow:inset 0 0 0 1.5px var(--cat)}
+.fila.prova{position:absolute; left:0; top:0; visibility:hidden}               /* per mesurar les línies */
+.amaga-claus [data-k]{visibility:hidden}                                        /* durant una transició */
+
+.efectes{position:absolute; inset:0; pointer-events:none}
+.fantasma{position:absolute; left:0; top:0; white-space:nowrap; will-change:transform, opacity}
+.requadre{
+  position:absolute; left:0; top:0; opacity:0;
+  border-radius:7px; background:var(--ma); box-shadow:0 0 0 1.5px var(--ma-vora);
+}
+.ona{
+  position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px;
+  border-radius:50%; border:2px solid var(--ona); pointer-events:none;
+}
+.cursor{
+  position:absolute; left:0; top:0; z-index:5; width:22px; height:30px;
+  pointer-events:none; opacity:0; transition:opacity .25s;
+  transform-origin:2px 2px; filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.35));
+}
+.cursor svg{display:block; width:100%; height:100%}
+.cursor.visible{opacity:1}
+
+
+/* ── REPRODUCTOR ───────────────────────────────────────────────────── */
+.reproductor{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px}
+.botons{display:flex; gap:6px}
+.boto{
+  width:42px; height:42px; padding:0; border-radius:50%;
+  border:1px solid var(--border); background:var(--surface);
+  display:grid; place-items:center; cursor:pointer; transition:border-color .15s;
+}
+.boto:hover:not(:disabled){border-color:var(--cat)}
+.boto:disabled{opacity:.4; cursor:default}
+.boto.principal{width:48px; height:48px; background:var(--cat); border-color:var(--cat); color:#fff}
+.boto svg{width:18px; height:18px; fill:currentColor}
+
+/* Un punt per pas: el botó fa 20 px, i el punt que es veu, 12 px */
+.punts{display:flex; flex-wrap:wrap; flex:1 1 200px; min-width:0}
+.punt{width:20px; height:22px; padding:0; border:0; background:none; cursor:pointer; display:grid; place-items:center}
+.punt::before{
+  content:''; width:12px; height:12px; border-radius:50%;
+  border:1.5px solid var(--border); box-sizing:border-box;
+}
+.punt.fet::before{background:var(--border)}
+.punt.actual::before{background:var(--cat); border-color:var(--cat)}
+
+.velocitat{display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:12px; color:var(--muted)}
+.velocitat select{
+  font:inherit; color:var(--txt); background:var(--surface);
+  border:1px solid var(--border); border-radius:6px; padding:4px 6px;
+}
+
+.explicacio{margin:0; min-height:3.4em; display:flex; gap:14px; align-items:baseline}
+.num-pas{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums}
+.text-pas{font-size:16px; max-width:62ch; min-width:0}
+.text-pas .katex{font-size:1.05em}
+
+
+/* ── EDITOR DE DADES ───────────────────────────────────────────────── */
+.targeta{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:18px 20px; display:flex; flex-direction:column; gap:14px;
+}
+.targeta h2{margin:0; font-size:1rem; font-weight:700}
+.editor{display:flex; flex-direction:column; gap:12px}
+.editor-fila{display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px 16px; font-size:21px}
+.etiqueta, .sufix{height:46px; display:inline-flex; align-items:center; white-space:nowrap}
+.etiqueta .katex, .sufix .katex{font-size:1.2em}
+.terme{display:inline-flex; align-items:flex-start; gap:3px}
+.columna{display:inline-flex; flex-direction:column; align-items:center; gap:6px}
+.valor{
+  height:46px; min-width:60px; padding:0 6px; border-radius:9px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:KaTeX_Main, 'Times New Roman', serif; font-size:26px; font-variant-numeric:tabular-nums;
+  background:var(--cat-fons);
+}
+.fletxes{display:inline-flex; border:1px solid var(--border); border-radius:9px; background:var(--surface); overflow:hidden}
+.fletxa{
+  width:30px; height:30px; border:0; background:transparent; color:var(--txt);
+  font-size:17px; line-height:1; cursor:pointer;
+  touch-action:manipulation; user-select:none; -webkit-user-select:none;
+}
+.fletxa + .fletxa{border-left:1px solid var(--border)}
+.fletxa:hover:not(:disabled){background:var(--cat-fons); color:var(--cat)}
+.fletxa:disabled{opacity:.3; cursor:default}
+.terme.zero .valor, .terme.zero .sufix{opacity:.4}
+
+.resum{margin:0; color:var(--muted)}
+.error-editor{margin:0; color:var(--avis); font-size:14px}
+.exemples{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.exemples span{font-size:13px; color:var(--muted)}
+.exemple{
+  border:1px solid var(--border); background:var(--bg); border-radius:999px;
+  padding:5px 12px; font-size:14px; cursor:pointer;
+}
+.exemple:hover{border-color:var(--cat)}
+.exemple .katex{font-size:1em}
+.nota{margin:0; font-size:13px; color:var(--muted); max-width:70ch}
+
+
+/* ── PANTALLA PETITA (igual que MIDA.pantallaPetita de motor.js) ───── */
+@media (max-width:520px){
+  .capcalera{padding-block:10px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+  .pissarra{padding:14px 12px 10px}
+  .targeta{padding:16px}
+  .editor-fila{gap:8px 10px; font-size:18px}
+  .etiqueta, .sufix{height:42px}
+  .valor{height:42px; min-width:50px; font-size:22px}
+  .text-pas{font-size:15px}
+}
+@media (prefers-reduced-motion: reduce){
+  .cursor, .torna, .boto{transition:none}
+}

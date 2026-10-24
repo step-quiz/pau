@@ -43,6 +43,7 @@ pistes/README.md           how David edits a hint by hand
 .claude/hooks/session-start.sh   installs TeX Live in Claude Code cloud sessions
 .vscode/tasks.json         VS Code tasks: build the open hint / all hints
 pistes/editor/             the «Editor de pistes PAU» artifact: generator, template and docs
+procediments/              animated step-by-step procedures (shared engine + one page per procedure); see procediments/README.md
 CLAUDE.md                  short project rules (Catalan)
 ```
 

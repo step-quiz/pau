@@ -23,6 +23,21 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 | `pistes/ESTIL.md` | Guia d'estil de les pistes (en anglès) |
 | `pistes/REVISIO.md` | Seguiment de la revisió, una fila per pista |
 | `pistes/editor/EDITOR-PISTES-PAU.md` | L'artifact «Editor de pistes PAU» i els seus scripts |
+| `procediments/README.md` | Procediments animats: arquitectura, format dels passos, proves (en anglès) |
+
+## Procediments animats
+
+`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions (de moment, l'equació de la recta tangent). Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
+
+`procediments/recta-tangent.html?f=x^3-3x+1&x0=-1`
+
+Totes les pàgines comparteixen el motor (`motor.js`) i l'estil (`estil.css`); cada procediment només té una pàgina HTML petita i un fitxer JS. Abans de pujar-hi canvis, passeu les proves:
+
+```
+node procediments/proves/comprova.js
+```
+
+Comproven, entre altres coses, que cada línia de cada pas sigui una igualtat certa.
 
 ## Automatitzacions
 
