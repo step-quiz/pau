@@ -182,7 +182,8 @@ Positions are measured on the real KaTeX output, so any TeX layout works. Rules 
 3. Create `nom.html` (copy `recta-tangent.html`; change the title, description and the procedure script/global).
 4. Add the procedure to `proves/comprova.js`: address cases, a data grid, the structural lint (`comprovaGuio`) and a truth check for every line.
 5. Run the tests; open the page and play every example (desktop and phone width).
-6. Update this README and the main `README.md`.
+6. Link it from the site menu: add `['nom', 'Títol']` to the right category of the `DEMOS` object in `../index.html` (the DEMO button of each category card opens a dialog listing them). `prova-index-demo.js` fails if a page is missing there.
+7. Update this README and the main `README.md`.
 
 ## 7. Tests
 

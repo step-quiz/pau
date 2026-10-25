@@ -104,6 +104,56 @@ header h1{font-size:.92rem;font-weight:700;line-height:1.3;}
 .cat-card[data-cat=geometria]   {border-color:var(--geo);}  .cat-card[data-cat=geometria]   h2{color:var(--geo);}
 .cat-card[data-cat=analisi]     {border-color:var(--ana);}  .cat-card[data-cat=analisi]     h2{color:var(--ana);}
 .cat-card[data-cat=probabilitat]{border-color:var(--pro);}  .cat-card[data-cat=probabilitat]h2{color:var(--pro);}
+.cat-card[data-cat=algebra]     {--cat:var(--alg);}
+.cat-card[data-cat=geometria]   {--cat:var(--geo);}
+.cat-card[data-cat=analisi]     {--cat:var(--ana);}
+.cat-card[data-cat=probabilitat]{--cat:var(--pro);}
+.cat-card{display:flex;flex-direction:column;}
+
+/* ── BOTÓ DEMO (procediments pas a pas) ─────────────────────────────────────── */
+.demo-btn{
+  align-self:flex-start;margin-top:auto;
+  font-family:'Source Code Pro',monospace;font-size:.72rem;font-weight:700;letter-spacing:.12em;
+  color:var(--cat);background:var(--surface);
+  border:2px solid var(--cat);border-radius:5px;
+  padding:6px 14px;margin-top:14px;cursor:pointer;
+  transition:background .15s,color .15s,transform .15s,box-shadow .15s;
+}
+.demo-btn:hover,.demo-btn:focus-visible{
+  background:var(--cat);color:#fff;
+  transform:scale(1.08);box-shadow:0 4px 14px rgba(0,0,0,.25);
+  outline:none;
+}
+.demo-btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+
+.demo-dlg{
+  border:none;border-top:6px solid var(--cat);border-radius:10px;
+  padding:20px 18px 18px;width:min(520px,calc(100vw - 32px));
+  max-height:calc(100vh - 40px);
+  background:var(--surface);color:var(--txt);
+  box-shadow:0 18px 50px rgba(0,0,0,.3);
+  margin:auto;
+}
+.demo-dlg::backdrop{background:rgba(15,23,42,.55);}
+.demo-dlg h2{font-size:1rem;color:var(--cat);margin-bottom:4px;padding-right:36px;}
+.demo-dlg .demo-sub{font-size:.75rem;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.demo-tanca{
+  position:absolute;top:12px;right:12px;width:32px;height:32px;
+  border:1px solid var(--border);border-radius:50%;background:var(--surface);
+  font-size:1rem;line-height:1;color:var(--muted);cursor:pointer;
+}
+.demo-tanca:hover{background:var(--txt);color:#fff;}
+.demo-llista{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.demo-llista a{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border:1px solid var(--border);border-left:4px solid var(--cat);
+  border-radius:6px;text-decoration:none;color:var(--txt);font-size:.82rem;
+  transition:background .15s,color .15s,transform .15s;
+}
+.demo-llista a:hover,.demo-llista a:focus-visible{background:var(--cat);color:#fff;transform:translateX(3px);}
+.demo-llista .demo-num{
+  font-family:'Source Code Pro',monospace;font-size:.68rem;opacity:.7;min-width:1.6em;
+}
 
 /* ── BACK BUTTON ────────────────────────────────────────────────────────────── */
 .back-btn{
@@ -324,24 +374,36 @@ footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;
       <div class="num">…</div>
       <h2>Àlgebra</h2>
       <p>Matrius, sistemes lineals amb paràmetre</p>
+      <button type="button" class="demo-btn" data-demo="algebra">DEMO</button>
     </div>
     <div class="cat-card" data-cat="geometria"    role="button" tabindex="0" onclick="showCat('geometria')">
       <div class="num">…</div>
       <h2>Geometria afí i mètrica</h2>
       <p>Rectes i plans, distàncies, perpendiculars</p>
+      <button type="button" class="demo-btn" data-demo="geometria">DEMO</button>
     </div>
     <div class="cat-card" data-cat="analisi"      role="button" tabindex="0" onclick="showCat('analisi')">
       <div class="num">…</div>
       <h2>Anàlisi / Càlcul</h2>
       <p>Funcions, Bolzano, tangents, integrals, optimització</p>
+      <button type="button" class="demo-btn" data-demo="analisi">DEMO</button>
     </div>
     <div class="cat-card" data-cat="probabilitat" role="button" tabindex="0" onclick="showCat('probabilitat')">
       <div class="num">…</div>
       <h2>Probabilitat</h2>
       <p>Probabilitat total, Bayes, binomial B(n,p)</p>
+      <button type="button" class="demo-btn" data-demo="probabilitat">DEMO</button>
     </div>
   </div>
 </div>
+
+<!-- DEMO: llista de procediments pas a pas de la categoria -->
+<dialog class="demo-dlg" id="demo-dlg" aria-labelledby="demo-titol">
+  <button type="button" class="demo-tanca" aria-label="Tanca">✕</button>
+  <h2 id="demo-titol"></h2>
+  <p class="demo-sub">Procediments animats pas a pas. Cada pàgina porta exemples i permet canviar les dades.</p>
+  <ul class="demo-llista" id="demo-llista"></ul>
+</dialog>
 
 <!-- VIEW 2: List -->
 <div class="view" id="v-list">
@@ -400,6 +462,81 @@ document.addEventListener('keydown', e => {
 });
 const CAT_COLOR = {algebra:'#b33c3c',geometria:'#0f766e',analisi:'#7c5cbf',probabilitat:'#9a5b16'};
 const CAT_NAME  = {algebra:'Àlgebra',geometria:'Geometria afí i mètrica',analisi:'Anàlisi / Càlcul',probabilitat:'Probabilitat'};
+
+/* ── DEMO: procediments pas a pas (carpeta procediments/) ───────────────
+   [fitxer sense .html, títol]. En afegir un procediment nou, afegiu-lo aquí. */
+const DEMOS = {
+  algebra: [
+    ['determinant',       'Determinant 3×3 amb un paràmetre (Sarrus)'],
+    ['rang',              'Rang d’una matriu (orlant menors)'],
+    ['inversa',           'Matriu inversa 3×3 (adjunts)'],
+    ['equacio-matricial', 'Equació matricial'],
+    ['discussio',         'Discussió d’un sistema amb un paràmetre'],
+    ['sistema-sci',       'Sistema compatible indeterminat'],
+    ['diagonalitzacio',   'Diagonalització d’una matriu'],
+  ],
+  geometria: [
+    ['pla',                  'Equació d’un pla'],
+    ['recta-plans',          'Recta donada per dos plans'],
+    ['recta-pla',            'Posició relativa d’una recta i un pla'],
+    ['dues-rectes',          'Posició relativa de dues rectes'],
+    ['distancies',           'Distàncies'],
+    ['projeccions',          'Projeccions i simètrics'],
+    ['area-volum',           'Àrea i volum'],
+    ['perpendicular-comuna', 'Perpendicular comuna'],
+  ],
+  analisi: [
+    ['recta-tangent',       'Recta tangent'],
+    ['creixement',          'Creixement i decreixement'],
+    ['extrems',             'Màxims i mínims relatius'],
+    ['polinomi-condicions', 'Polinomi de grau 3 a partir de condicions'],
+    ['optimitzacio',        'Optimització'],
+    ['asimptotes',          'Asímptotes d’una funció racional'],
+    ['bolzano',             'Teorema de Bolzano i bisecció'],
+    ['primitiva',           'Primitiva amb una condició'],
+    ['barrow',              'Regla de Barrow'],
+    ['area-eix',            'Àrea entre una corba i l’eix OX'],
+    ['area-corbes',         'Àrea entre dues corbes'],
+    ['area-parametre',      'Paràmetre a partir d’una integral'],
+  ],
+  probabilitat: [
+    ['probabilitat-total', 'Arbre de probabilitats i probabilitat total'],
+    ['bayes',              'Teorema de Bayes'],
+    ['binomial',           'Distribució binomial'],
+  ],
+};
+
+function showDemos(cat) {
+  const dlg = document.getElementById('demo-dlg');
+  dlg.style.setProperty('--cat', CAT_COLOR[cat]);
+  document.getElementById('demo-titol').textContent = 'DEMO · ' + CAT_NAME[cat];
+  const ul = document.getElementById('demo-llista');
+  ul.replaceChildren(...DEMOS[cat].map(([fitxer, titol], i) => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = 'procediments/' + fitxer + '.html';
+    const num = document.createElement('span');
+    num.className = 'demo-num';
+    num.textContent = String(i + 1).padStart(2, '0');
+    a.append(num, titol);
+    li.append(a);
+    return li;
+  }));
+  dlg.showModal();
+}
+
+document.querySelectorAll('.demo-btn').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation();          // no obre la llista d'exercicis de la targeta
+  showDemos(b.dataset.demo);
+}));
+{
+  const dlg = document.getElementById('demo-dlg');
+  dlg.querySelector('.demo-tanca').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', e => {           // clic al fons enfosquit, fora del quadre
+    const r = dlg.getBoundingClientRect();
+    if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
+  });
+}
 
 const EXERS = {
 

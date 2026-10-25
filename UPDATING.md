@@ -103,7 +103,7 @@ Examples: `ana-27j-q1`, `alg-27j-q2`, `pro-27j-q3`, `ana-27j-q4a`, `geo-27j-q4b`
 
 - `ref` is the `q…` part of the id.
 - `titol` is a short Catalan title describing the content (see existing lines for tone and length; Unicode maths symbols are fine: ², ℝ, π, λ, ≠).
-- The year range and the counters in the menu are computed automatically from `EXERS`. No other place in `index.html` needs editing.
+- The year range and the counters in the menu are computed automatically from `EXERS`. No other place in `index.html` needs editing for exercises (the separate `DEMOS` object lists the step-by-step procedures of `procediments/`).
 
 ---
 
