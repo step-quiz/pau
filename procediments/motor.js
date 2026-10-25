@@ -103,6 +103,8 @@ function textAmbFrases(text) {
   }).join('');
 }
 const esFilaText = tex => tex.startsWith('§');
+/** Una fila que és un esquema (SVG fet pel procediment, no per l'usuari): es mostra tal qual. */
+const esFilaFigura = tex => tex.startsWith('<svg');
 
 /** Anima un element i espera que acabi. L'estat final es manté. */
 function anima(el, fotogrames, opcions) {
@@ -300,13 +302,16 @@ function creaCursor(escenari, el, temps) {
  */
 function creaPissarra(r, nFiles, cursor, temps) {
   let capa = null;                        // capa visible: les files del pas actual
+  let usades = null;                      // les files que fa servir algun pas del guió (les altres no ocupen lloc)
 
   function dibuixaCapa(pas) {
     const c = element('div', {class: 'capa'});
     for (let i = 0; i < nFiles; i++) {
       const tex = pas.files[i];
-      const fila = element('div', {class: 'fila' + (tex && esFilaText(tex) ? ' text' : '') + (pas.classes[i] ? ' ' + pas.classes[i] : '')});
-      if (tex) fila.innerHTML = esFilaText(tex) ? textAmbFrases(tex.slice(1)) : katex.renderToString(tex, OPCIONS_PISSARRA);
+      const figura = tex && esFilaFigura(tex);
+      const fila = element('div', {class: 'fila' + (tex && esFilaText(tex) ? ' text' : '') + (figura ? ' figura' : '') + (pas.classes[i] ? ' ' + pas.classes[i] : '')});
+      if (usades && !usades.has(i)) fila.hidden = true;
+      if (tex) fila.innerHTML = figura ? tex : esFilaText(tex) ? textAmbFrases(tex.slice(1)) : katex.renderToString(tex, OPCIONS_PISSARRA);
       c.append(fila);
     }
     return c;
@@ -318,8 +323,10 @@ function creaPissarra(r, nFiles, cursor, temps) {
     r.pissarra.replaceChildren(capa);
   }
 
-  /** Tria la mida de la lletra perquè la línia més llarga de tots els passos hi càpiga. */
+  /** Tria la mida de la lletra perquè la línia més llarga de tots els passos hi càpiga, i quines files fa servir el guió. */
   function ajusta(passos) {
+    usades = new Set();
+    for (const pas of passos) pas.files.forEach((tex, i) => { if (tex) usades.add(i); });
     const base = matchMedia(MIDA.pantallaPetita).matches ? MIDA.petita : MIDA.gran;
     r.pissarra.style.setProperty('--mida', base + 'px');
     const prova = element('div', {class: 'fila prova'});
@@ -327,7 +334,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
     let maxim = 0;
     for (const pas of passos) {
       for (const tex of pas.files) {
-        if (!tex || esFilaText(tex)) continue;          // el text s'ajusta sol a l'amplada
+        if (!tex || esFilaText(tex) || esFilaFigura(tex)) continue;          // el text i els esquemes s'ajusten sols a l'amplada
         prova.innerHTML = katex.renderToString(tex, OPCIONS_PISSARRA);
         maxim = Math.max(maxim, prova.firstElementChild.getBoundingClientRect().width);
       }

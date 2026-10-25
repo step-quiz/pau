@@ -18,11 +18,14 @@
         P t n  valor del terme  P R    resultat de tota l'expressió
         P A, P B, P Q   parèntesis i prima de (…)'
         P E n, P C n    exponent nou i coeficient nou en derivar
+        P d n           el denominador nou en integrar
+        P I, P D, P K   el signe ∫, el «dx» i la constant C
       Claus d'un membre esquerre «f(x) =» amb prefix L:
         L F  nom    L P  prima    L a, L b  parèntesis    L X  argument    L q  «=»
       Convé que L i P siguin lletres diferents (p. ex. «G» i «g»).
 
    2. EQUACIONS: resolPolinomi() resol «polinomi = 0» pas a pas.
+     DERIVADES i INTEGRALS de polinomis amb claus (derivada…, integral…).
    3. FILES DE TEXT: filaText() i frase(), per a enunciats amb frases marcades.
    4. GUIÓ: el constructor de la llista de passos d'un procediment.
    El format d'un pas es documenta a README.md.
@@ -30,7 +33,8 @@
 (function (arrel) {
 'use strict';
 
-const {Fraccio, mcd, arrelExacta, texNombre, texEntreParentesis, texPolinomi, derivaTermes} = arrel.Mates;
+const Mates = arrel.Mates;
+const {Fraccio, mcd, arrelExacta, texNombre, texEntreParentesis, texPolinomi, derivaTermes} = Mates;
 
 
 /* ── 1. CLAUS ──────────────────────────────────────────────────────── */
@@ -256,6 +260,69 @@ function derivadaFeta(P, Q, llista) {
 }
 
 
+/* ── 3b. INTEGRAL D'UN POLINOMI AMB CLAUS ──────────────────────────── */
+
+/** ∫ (6x² − 4x + 1) dx, o amb límits ∫_a^b (…) dx («limits»: [a, b], en TeX). Els parèntesis, si hi ha més d'un terme. */
+function integralIndicada(P, llista, limits = null) {
+  const parentesis = normalitza(llista).length > 1;
+  return clau(P + 'I', '\\displaystyle\\int') + (limits ? `_{${clau(P + 'La', limits[0])}}^{${clau(P + 'Lb', limits[1])}}` : '')
+    + (parentesis ? clau(P + 'A', '(') : '') + polinomi(P, llista) + (parentesis ? clau(P + 'B', ')') : '') + '\\,' + clau(P + 'D', 'dx');
+}
+
+/**
+ * La regla aplicada a cada terme: c·xⁿ → c · xⁿ⁺¹/(n + 1) (l'exponent nou és P E n; el
+ * denominador, P d n); la constant c → c·x (la x és P v 0). Sense la C.
+ */
+function integralRegla(P, llista) {
+  return normalitza(llista).map((t, i) => {
+    const a = t.c.abs();
+    let s = signe(P, t.n, i === 0, t.c.signe() < 0);
+    if (t.n === 0) return s + (esU(a) ? '' : clau(P + 'c0', texNombre(a))) + clau(P + 'v0', 'x');
+    if (!esU(a)) s += clau(P + 'c' + t.n, texNombre(a)) + op(P + 'm' + t.n, '\\cdot');
+    return s + `\\dfrac{${clau(P + 'v' + t.n, 'x')}^{${clau(P + 'E' + t.n, t.n + 1)}}}{${clau(P + 'd' + t.n, t.n + 1)}}`;
+  }).join('');
+}
+
+/**
+ * La primitiva acabada, com un polinomi normal amb el prefix Q (sense la C). Torna {tex, fusiona,
+ * reanomena}: el coeficient nou surt del coeficient, el punt i el denominador; la resta de símbols
+ * passen a tenir claus de Q.
+ */
+function integralFeta(P, Q, llista) {
+  const fusiona = {}, reanomena = {};
+  normalitza(llista).forEach((t, i) => {
+    const k = t.n + 1, a = t.c.abs(), nou = a.quocient(k);
+    if (i > 0 || t.c.signe() < 0) reanomena[Q + 's' + k] = P + 's' + t.n;
+    reanomena[Q + 'v' + k] = P + 'v' + t.n;
+    if (t.n === 0) { if (!esU(a)) reanomena[Q + 'c1'] = P + 'c0'; return; }
+    reanomena[Q + 'e' + k] = P + 'E' + t.n;
+    const fonts = (esU(a) ? [] : [P + 'c' + t.n, P + 'm' + t.n]).concat([P + 'd' + t.n]);
+    // Si el coeficient nou és 1 (p. ex. 3·x³/3), no s'escriu: tot va a parar a la x.
+    fusiona[esU(nou) ? Q + 'v' + k : Q + 'c' + k] = fonts;
+  });
+  return {tex: polinomi(Q, Mates.integraTermes(llista)), fusiona, reanomena};
+}
+/** « + C», amb clau. */
+const mesC = P => op(P + 'p', '+') + clau(P + 'K', 'C');
+
+/**
+ * Els tres passos d'una integral indefinida a la fila «fila» del guió «g», darrere de «inici»
+ * (p. ex. «F(x) =»): la integral, la regla terme a terme i la primitiva simplificada (prefixos
+ * i, j). «C»: si s'hi escriu la constant. «textos»: {indicada, regla, feta}, per canviar-los.
+ */
+function passosIntegral(g, fila, inici, llista, {C = true, textos = {}} = {}) {
+  const ambC = C ? mesC('i') : '';
+  g.files[fila] = inici + integralIndicada('i', llista);
+  g.afegeix(textos.indicada || 'Escriu la integral indefinida de $f$.');
+  g.files[fila] = inici + integralRegla('i', llista) + ambC;
+  g.afegeix(textos.regla || ('Integra terme a terme: $\\int x^n\\,dx = \\dfrac{x^{n+1}}{n+1}$ (puja l\'exponent i divideix pel nou exponent), i un nombre $c$ dona $cx$.'
+    + (C ? ' Sempre s\'hi suma una constant $C$.' : '')), {cursor: {clic: 'iI'}});
+  const feta = integralFeta('i', 'j', llista);
+  g.files[fila] = inici + feta.tex + ambC;
+  g.afegeix(textos.feta || `Simplifica: $${texPolinomi(Mates.integraTermes(llista))}${C ? ' + C' : ''}$.`, {fusiona: feta.fusiona, reanomena: feta.reanomena});
+}
+
+
 /* ── 4. EQUACIONS «POLINOMI = 0» ───────────────────────────────────── */
 
 /** 2x² − 3x + 1 = 0. Claus: les del polinomi, P q per a «=» i P z per al 0. */
@@ -439,7 +506,7 @@ function enunciatMarcat(text, marca) {
 const AMPLE_ORDRE = {'\\cdot': 12, '\\qquad': 32, '\\quad': 16, '\\,': 3, '\\ ': 5, '\\neq': 20, '\\ne': 20, '\\iff': 36,
   '\\le': 20, '\\ge': 20, '\\lambda': 10, '\\cdots': 22, '\\ldots': 22};
 function ampleTex(tex) {
-  let t = tex.replace(/\\htmlData\{[^}]*\}/g, '').replace(/\\(mathrel|mathbin|left|right|textstyle)/g, '');
+  let t = tex.replace(/\\htmlData\{[^}]*\}/g, '').replace(/\\(mathrel|mathbin|left|right|textstyle|displaystyle)/g, '');
   let ample = 0;
   // Una fracció fa l'amplada del més ample, el numerador o el denominador.
   for (let i = t.search(/\\d?frac\{/); i >= 0; i = t.search(/\\d?frac\{/)) {
@@ -525,6 +592,7 @@ arrel.Formules = Object.freeze({
   polinomi, substituit, avaluat, fusionsAvaluat,
   resultat, fusionsResultat, clausResultat,
   derivadaIndicada, derivadaBaixada, derivadaFeta,
+  integralIndicada, integralRegla, integralFeta, mesC, passosIntegral,
   equacio, resolPolinomi,
   filaText, frase, enunciatMarcat,
   ampleTex, enLinies,

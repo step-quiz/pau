@@ -106,6 +106,7 @@ button{font:inherit; color:inherit}
   border-radius:10px; padding:.15em .45em; margin:0 -.45em;
 }
 .fila .katex{font-size:1em}
+.fila[hidden]{display:none}                                                    /* una fila que cap pas del guió fa servir */
 .fila.final{background:var(--cat-fons); box-shadow:inset 0 0 0 1.5px var(--cat)}
 .fila.destacat{background:var(--cat-fons)}                                       /* un resultat que cal recordar (p. ex. ±∞ per a l'esbós) */
 .fila.prova{position:absolute; left:0; top:0; visibility:hidden}               /* per mesurar les línies */
@@ -121,6 +122,28 @@ button{font:inherit; color:inherit}
 .frase{border-radius:4px; transition:background-color .2s}
 .marca-objectiu, .marca-avis{background:rgba(234,179,8,.30); box-shadow:0 0 0 2px rgba(234,179,8,.30)}
 .marca-condicio, .marca-doble{background:rgba(16,185,129,.24); box-shadow:0 0 0 2px rgba(16,185,129,.24)}
+/* Esquemes (SVG) a la pissarra: mida limitada, colors de la pàgina */
+.fila.figura{display:flex; justify-content:center}
+.fila.figura svg{width:max(14em, 260px); max-width:100%; height:auto; overflow:visible}   /* creix amb la lletra de la pissarra; mai més petit que 260 px */
+.fila.figura .pla{fill:var(--cat-fons); stroke:var(--cat); stroke-width:1.2}
+.fila.figura .vector{stroke:var(--cat); stroke-width:2.2; fill:none}
+.fila.figura .punta{fill:var(--cat)}
+.fila.figura .sobre{stroke:var(--cat); stroke-width:1.3; fill:none}
+.fila.figura .recta{stroke:#334155; stroke-width:1.6; fill:none}
+.fila.figura .cat-recta{stroke:var(--cat); stroke-width:2; fill:none}
+.fila.figura .discontinua{stroke:#64748b; stroke-width:1.2; stroke-dasharray:4 3; fill:none}
+.fila.figura .punt{fill:#334155}
+.fila.figura text{font:italic 16px "Libre Baskerville", serif; fill:#1e293b}
+.fila.figura text.cat{fill:var(--cat); font-weight:700}
+.fila.figura tspan.sub{font-size:11px; font-style:normal}
+.fila.figura .eix{stroke:#94a3b8; stroke-width:1.2}
+.fila.figura .corba{stroke:var(--cat); stroke-width:2.4; fill:none}
+.fila.figura .corba2{stroke:#b45309; stroke-width:2.4; fill:none}
+.fila.figura .zona{fill:var(--cat); fill-opacity:.18; stroke:none}
+.fila.figura .zona2{fill:#b45309; fill-opacity:.18; stroke:none}
+.fila.figura text.nom{fill:var(--cat); font-weight:700}
+.fila.figura text.nom2{fill:#b45309; font-weight:700}
+.fila.figura text.petit{font:12px var(--mono, monospace); fill:#475569}
 /* Marques dins de les fórmules (\htmlData{k=…,marca=…}): els productes de Sarrus, un menor triat… */
 .katex [data-marca="mes"]{background:rgba(16,185,129,.30); box-shadow:0 0 0 3px rgba(16,185,129,.30); border-radius:2px}
 .katex [data-marca="menys"]{background:rgba(220,38,38,.22); box-shadow:0 0 0 3px rgba(220,38,38,.22); border-radius:2px}

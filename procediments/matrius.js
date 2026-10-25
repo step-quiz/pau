@@ -66,9 +66,10 @@ function texFactor(p, X) {
 
 /**
  * «m,1,1;1,m,1;1,1,m» → {A: files de polinomis, X: el paràmetre o null}. Cada element
- * és un enter o «enter · X + enter», amb nombres de −9 a 9. Llança Mates.ErrorLectura.
+ * és un enter o «enter · X + enter», amb nombres de −9 a 9 (o de −maxim a maxim). Llança
+ * Mates.ErrorLectura.
  */
-function llegeixMatriu(text, files, columnes) {
+function llegeixMatriu(text, files, columnes, maxim = MAX_ELEMENT) {
   const net = String(text).replace(/\s+/g, '');
   const lletres = [...new Set(net.match(/[A-Za-z]/g) || [])];
   if (lletres.length > 1) throw new M.ErrorLectura(`Hi ha més d'una lletra (${lletres.join(', ')}), i només hi pot haver un paràmetre.`);
@@ -85,7 +86,7 @@ function llegeixMatriu(text, files, columnes) {
       if (!p || p.length > 2 || p.some(c => !c.esEnter())) {
         throw new M.ErrorLectura(`L'element «${e}» ha de ser un nombre enter${X ? ` o de la forma «2${X}-1» (un enter per ${X}, més un enter)` : ''}.`);
       }
-      if (p.some(c => Math.abs(c.num) > MAX_ELEMENT)) throw new M.ErrorLectura(`Els nombres de la matriu han d'anar de −${MAX_ELEMENT} a ${MAX_ELEMENT}.`);
+      if (p.some(c => Math.abs(c.num) > maxim)) throw new M.ErrorLectura(`Els nombres de la matriu han d'anar de −${maxim} a ${maxim}.`);
       return p;
     });
   });

@@ -14,6 +14,7 @@
      coeficientsDe(…)   el contrari: termes → coeficients
      sumaPolinomis, producteDePolinomis   operacions amb coeficients
      derivaTermes(…)    termes de la derivada
+     integraTermes(…)   termes d'una primitiva (sense la constant)
      valorTermes(…)     valor exacte dels termes en un punt
      arrelExacta(v)     arrel quadrada exacta (o null)
      arrelsRacionals(…) solucions de «polinomi de grau ≤ 2 = 0»
@@ -431,6 +432,11 @@ function derivaTermes(llista) {
   return llista.filter(t => t.n >= 1).map(t => ({n: t.n - 1, c: Fraccio.de(t.c).producte(t.n)}));
 }
 
+/** Termes d'una primitiva (sense la constant C): ∫ c·xⁿ dx = c·xⁿ⁺¹/(n + 1). */
+function integraTermes(llista) {
+  return llista.map(t => ({n: t.n + 1, c: Fraccio.de(t.c).quocient(t.n + 1)}));
+}
+
 /** Valor exacte dels termes en el punt x. */
 function valorTermes(llista, x) {
   x = Fraccio.de(x);
@@ -553,7 +559,7 @@ const texDecimal = x => (decimalsDe(Fraccio.de(x)) === null ? null : formaDecima
 arrel.Mates = Object.freeze({
   Fraccio, ErrorLectura, mcd,
   llegeix, llegeixNombre, avalua, polinomi,
-  termes, coeficientsDe, sumaPolinomis, producteDePolinomis, derivaTermes, valorTermes, arrelExacta, arrelsRacionals,
+  termes, coeficientsDe, sumaPolinomis, producteDePolinomis, derivaTermes, integraTermes, valorTermes, arrelExacta, arrelsRacionals,
   texNombre, texEntreParentesis, texPolinomi, textPolinomi, formaDecimal, texDecimal,
 });
 
