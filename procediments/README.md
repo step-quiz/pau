@@ -1,6 +1,6 @@
 # procediments/ — animated step-by-step procedures
 
-Small pages, inside the PAU site, that show a mechanical procedure (for now, from the *Anàlisi* block: the equation of the tangent line, relative maxima and minima, and the growth/decrease table) as an animation in the style of Graspable Math. The student watches symbols move, merge and change, one step at a time, with a short explanation for each step. The data (the function, the point…) can be changed with arrows or through the address.
+Small pages, inside the PAU site, that show a mechanical procedure (for now, from the *Anàlisi* block: the equation of the tangent line, relative maxima and minima, the growth/decrease table, and six optimisation problems) as an animation in the style of Graspable Math. The student watches symbols move, merge and change, one step at a time, with a short explanation for each step. The data (the function, the point…) can be changed with arrows or through the address.
 
 Principles: keep it simple, step by step, smooth, and **every line shown is a true equality** (checked automatically, see §7).
 
@@ -18,7 +18,8 @@ Student-facing text is Catalan; code comments are Catalan; this file is English.
 | `creixement.js` | procedure | no | Growth and decrease of a polynomial (degree ≤ 3) or of `P/Q` (deg P ≤ 2, 1 ≤ deg Q ≤ 2): domain, quotient rule, critical points, sign table of `f'` with test values, maxima/minima marks, conclusion. Global `Creixement`. Page `creixement.html?f=(x^2+3)/(x-1)`. |
 | `motor.js` | engine | yes | Builds the page, reads the address, renders steps with KaTeX, animates transitions, player and editor. Global `Motor`. |
 | `estil.css` | style | — | Shared look (site palette; category colour from `body[data-categoria]`). |
-| `recta-tangent.html`, `extrems.html`, `creixement.html` | pages | — | Load the above and call `Motor.inicia(<Procedure>)`. |
+| `optimitzacio.js` | procedure | no | Six fixed optimisation problems (no editor; the chips choose the problem), simplified from PAU models, all solved with the same technique: **reading** (the statement is on the board; the phrases that say what to optimise are marked in yellow and those that give the constraint in green, then dragged into the formulas), function of two variables, constraint, one variable, domain, `f' = 0`, second derivative, answer. Each problem is a data object of TeX pieces (documented at the top of the file); `passos()` builds the same script for all. Global `Optimitzacio`. Page `optimitzacio.html?p=hort` (`hort`, `capsa`, `llauna`, `diposit`, `pista`, `nombres`). |
+| `recta-tangent.html`, `extrems.html`, `creixement.html`, `optimitzacio.html` | pages | — | Load the above and call `Motor.inicia(<Procedure>)`. |
 | `proves/comprova.js` | tests | no | `node procediments/proves/comprova.js` (§7). |
 
 Dependency order: `katex` → `mates.js` → `formules.js` → `dades.js` → `motor.js` and the procedure file. Plain classic scripts (no modules, no build step); each file is an IIFE that sets one frozen global on `globalThis`, so pages work from any static host and the pure files also load in Node.
@@ -55,7 +56,7 @@ A procedure is a frozen object:
 | `perDefecte` | Default data, e.g. `{a3: 0, a2: 2, a1: -3, a0: 1, x0: 2}`. |
 | `exemples` | Data sets offered as chips. |
 | `titolEditor`, `notaEditor` | Editor heading and an extra sentence for its note. |
-| `editor` | Rows `{etiqueta: TeX, camps: [{id, sufix: TeX, nom, min, max, signe: 'sempre' \| 'negatiu', atenua0}]}`. Every field is an integer with ↑/↓ arrows; `signe: 'sempre'` shows `+2`; `atenua0` fades the term when it is 0. |
+| `editor` | Rows `{etiqueta: TeX, camps: [{id, sufix: TeX, nom, min, max, signe: 'sempre' \| 'negatiu', atenua0}]}`; an empty array means fixed problems (no editor, no summary; the chips choose the data, and `nomExemple(v)` gives their plain-text labels). Every field is an integer with ↑/↓ arrows; `signe: 'sempre'` shows `+2`; `atenua0` fades the term when it is 0. |
 | `valida(v)` | `null`, or a Catalan error sentence. |
 | `llegeixAdreca(p)` | Address parameters (decoded strings) → `{valors}` or `{error}`. |
 | `escriuAdreca(v)` | Data → address parameters (strings). |
@@ -88,6 +89,8 @@ Only `passos` and `resum` are mandatory for the engine; the rest have fallbacks 
   fusiona:   {newKey: ['oldKey', …]},          // optional
 }
 ```
+
+A row may also be **text** instead of TeX (e.g. a problem statement): `Formules.filaText(text)` (a string starting with `§`). The text may contain `$TeX$` and phrases `Formules.frase(key, text, mark)` (written `{{key|mark|text}}`): a keyed phrase moves, merges and can be dragged like a symbol; `mark` (`objectiu`, `condicio`) highlights it (CSS `.marca-…`). Text rows wrap, keep a fixed text size and are left out of the board-width fit. A change of mark counts as a change (anticipation box and cross-fade), because the engine compares `className` too.
 
 Build it with `Formules.guio(nFiles)`: set `g.files[i]` / `g.classes[i]`, call `g.afegeix(text, options)`, return `g.passos`. A step identical to the previous one (same TeX, same classes) is skipped, so optional steps («Calcula cada terme») need no special case. `g.completa(text)` appends a sentence to the last step when the board must not change (e.g. «l'equació no té solucions»).
 
@@ -155,6 +158,7 @@ No dependencies (Node ≥ 16). It loads the pure files with `vm` and checks:
    - Tangent line: lines with `y` must hold on the tangent line and fail off it; the final line must be `y = …` without `f`.
    - `resolPolinomi`, for every `ax² + bx + c = 0` with coefficients in −6…6 and rational roots: every row must have exactly the same solutions as the equation (`o` = union, `±` = both values, an equation row = its own roots).
    - Growth table: row 0 is the domain (`ℝ − {roots of Q}`); row 1 holds identities with the true `f` and `f'` (rational identities are checked at 14 points, enough for the degrees involved); row 2 holds equations whose solutions are those of `Q = 0` (before the derivative appears) or of «numerator of `f'` = 0» (after), or a test value `… = v > 0` whose arithmetic and sign are checked; row 3 is the table: the header must be complete (points = critical points ∪ excluded points, ascending; `−∞`, `+∞` at the ends), and every filled cell must be right (sign of `f'` on each interval, `0` / `∄` at the points, arrows, `màx` / `mín` exactly where `f'` changes sign); row 4 lists the increasing and decreasing intervals. The final table must be complete. The address round trip is checked for every case.
+   - Optimisation: the statement row is not an equality and is not evaluated; at the end it must contain phrases marked `objectiu` and `condicio` (and no other marks). The test file has its **own model** of each problem (function of two variables, the other variable from the constraint, first and second derivatives, domain, optimum), and the model's derivatives are themselves checked with finite differences. Rows: the function (two variables, or one after substitution), the constraint (true on the constraint curve and false off it), the domain (as written in the model), the derivatives, equations (written solutions must be zeros of `f'` and include the optimum; other equations must vanish at the optimum and nowhere else among sample points of the domain), chains of values, and the answer `v = …, w = …, f = …`. `π` is treated as an indeterminate: every row is checked for π = 3 and π = 22/7.
    - Extrema: rows 0–1 are identities (a final `< 0` / `> 0` is checked) or equations with exactly the critical points as solutions; rows 2–3 are a critical point `x = a`, or a conclusion checked with `f'(a) = 0`, `f(a)` and the sign of `f''(a)` (`f''(a) = 0` only for a cubic, where `f''' ≠ 0` proves it is neither); the last step has one conclusion per critical point. `valida` must reject exactly the irrational cases.
 
 Grids: 10 052 tangent-line data sets, 1 344 equations, about 4 700 valid functions for extrema and about 4 200 for the growth table (dense, extremes and a fixed pseudo-random sample). The run takes about 35 s and ends with `Tot correcte: … comprovacions` (exit code 0) or the first errors (exit code 1).

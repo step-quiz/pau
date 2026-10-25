@@ -21,10 +21,10 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
-const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement} = globalThis;
+const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio} = globalThis;
 const {Fraccio} = M;
 const fr = (a, b = 1) => new Fraccio(a, b);
 
@@ -118,7 +118,16 @@ function textPla(tex) {
           case '\\nearrow': s += '↗'; break;
           case '\\searrow': s += '↘'; break;
           case '\\nexists': s += '∄'; break;
-          case '\\sqrt': s += `sqrt(${grup()})`; break;
+          case '\\sqrt': {
+            if (tex[i] === '[') {                     // \sqrt[n]{a} → a^(1/n)
+              const fi = tex.indexOf(']', i);
+              const n = tex.slice(i + 1, fi);
+              i = fi + 1;
+              s += `((${grup()})^(1/${n}))`;
+            } else s += `sqrt(${grup()})`;
+            break;
+          }
+          case '\\pi': s += '(pi)'; break;
           case '\\text': { const t = grup(); s += t === 'o' ? '|' : `«${t}»`; break; }
           case '\\cdot': s += '*'; break;
           case '\\prime': s += "'"; break;
@@ -137,7 +146,7 @@ function textPla(tex) {
 }
 
 /** Claus d'una línia TeX, en ordre. */
-const clausDe = tex => [...tex.matchAll(/\\htmlData\{k=([^}]*)\}/g)].map(m => m[1]);
+const clausDe = tex => [...tex.matchAll(/\\htmlData\{k=([^}]*)\}|\{\{([^|}]+)\|/g)].map(m => m[1] || m[2]);
 
 /** Valor exacte (Fraccio) d'un arbre de Mates.llegeix. */
 function exacte(n, entorn) {
@@ -151,9 +160,18 @@ function exacte(n, entorn) {
     case 'producte': return ev(n.a).producte(ev(n.b));
     case 'quocient': return ev(n.a).quocient(ev(n.b));
     case 'potencia': {
-      const e = ev(n.exponent);
-      if (!e.esEnter() || e.num < 0) throw new Error('Exponent no natural');
-      return ev(n.base).potencia(e.num);
+      const e = ev(n.exponent), b = ev(n.base);
+      if (e.esEnter() && e.num >= 0) return b.potencia(e.num);
+      if (e.num === 1 && e.den > 1 && b.signe() >= 0) {      // arrel n-èsima exacta
+        const arrel = k => { const r = Math.round(Math.pow(k, 1 / e.den)); return r ** e.den === k ? r : null; };
+        const [a, d] = [arrel(b.num), arrel(b.den)];
+        if (a !== null && d !== null) return fr(a, d);
+      }
+      throw new Error('Potència no prevista per la prova');
+    }
+    case 'constant': {
+      if (n.nom === 'pi' && entorn.variables.pi) return entorn.variables.pi;   // π com a indeterminada
+      throw new Error(`Constant no prevista per la prova: ${n.nom}`);
     }
     case 'crida': {
       if (n.nom !== 'sqrt') return entorn.funcions[n.nom](ev(n.arg));
@@ -822,6 +840,174 @@ seccio('guions i veritat de creixement', () => {
     maxim = Math.max(maxim, llista.length);
   }
   return `${valids} casos vàlids (de ${casos.length}), ${passos} passos (fins a ${maxim} per cas), ${linies} línies comprovades`;
+});
+
+
+/* ── 7. OPTIMITZACIÓ ───────────────────────────────────────────────── */
+
+/*
+ * Model de cada problema, escrit aquí de manera independent del guió:
+ *   v, w, f     variable principal, l'altra i el nom de la funció
+ *   O(v, w, π)  la funció amb dues variables;   W(v, π) l'altra variable aïllada de la condició
+ *   d1, d2      la primera i la segona derivada de O(v, W(v)) (es comproven numèricament)
+ *   domini      el domini, com el text pla de la pissarra
+ *   optim(π)    el valor òptim de v;   maxim   cert si és un màxim
+ *   mostres     valors de v dins del domini, diferents de l'òptim
+ *   pis         valors de π amb què es prova (π fa d'indeterminada)
+ */
+const OPT = (() => {
+  const q = (a, b = 1) => fr(a, b);
+  const sense = [q(1)];
+  return {
+    hort: {v: 'x', w: 'y', f: 'A', maxim: true, domini: '0<x<20', mostres: [q(1), q(5), q(13, 2), q(19)], pis: sense,
+      O: (x, y) => x.producte(y), W: x => q(40).resta(x.producte(2)),
+      d1: x => q(40).resta(x.producte(4)), d2: () => q(-4), optim: () => q(10)},
+    capsa: {v: 'x', w: 'b', f: 'V', maxim: true, domini: '0<x<6', mostres: [q(1, 2), q(1), q(3), q(5)], pis: sense,
+      O: (x, b) => b.producte(b).producte(x), W: x => q(12).resta(x.producte(2)),
+      d1: x => x.producte(x).producte(12).resta(x.producte(96)).suma(144), d2: x => x.producte(24).resta(96), optim: () => q(2)},
+    llauna: {v: 'r', w: 'h', f: 'V', maxim: true, domini: '0<r<sqrt(27)', mostres: [q(1), q(2), q(5, 2), q(4), q(5)], pis: [q(3), q(22, 7)],
+      O: (r, h, pi) => pi.producte(r).producte(r).producte(h), W: r => q(27).resta(r.producte(r)).quocient(r.producte(2)),
+      d1: (r, pi) => pi.producte(27).resta(pi.producte(3).producte(r).producte(r)).quocient(2), d2: (r, pi) => pi.producte(-3).producte(r), optim: () => q(3)},
+    diposit: {v: 'x', w: 'h', f: 'C', maxim: false, domini: 'x>0', mostres: [q(1, 2), q(1), q(3), q(5)], pis: sense,
+      O: (x, h) => x.producte(x).producte(20).suma(x.producte(h).producte(40)), W: x => q(8).quocient(x.producte(x)),
+      d1: x => x.producte(40).resta(q(320).quocient(x.producte(x))), d2: x => q(40).suma(q(640).quocient(x.potencia(3))), optim: () => q(2)},
+    pista: {v: 'r', w: 'x', f: 'A', maxim: true, domini: '0<r<((200)/((pi)))', mostres: [q(10), q(20), q(40), q(50)], pis: [q(3), q(22, 7)],
+      O: (r, x) => r.producte(x).producte(2), W: (r, pi) => q(200).resta(pi.producte(r)),
+      d1: (r, pi) => q(400).resta(pi.producte(4).producte(r)), d2: (r, pi) => pi.producte(-4), optim: pi => q(100).quocient(pi)},
+    nombres: {v: 'y', w: 'x', f: 'P', maxim: true, domini: '0<y<12', mostres: [q(1), q(3), q(10), q(11)], pis: sense,
+      O: (y, x) => x.producte(y).producte(y), W: y => q(12).resta(y),
+      d1: y => y.producte(24).resta(y.producte(y).producte(3)), d2: y => q(24).resta(y.producte(6)), optim: () => q(8)},
+  };
+})();
+
+/** Veritat d'un guió d'optimització, per a un valor de π. */
+function comprovaOptimitzacio(passos, model, pi, nom) {
+  const {v, w, f} = model;
+  const lectura = {variables: [v, w], funcions: [f, f + "'", f + "''"]};
+  const W = x => model.W(x, pi);
+  const funcio = x => model.O(x, W(x), pi);
+  const funcions = {[f]: funcio, [f + "'"]: x => model.d1(x, pi), [f + "''"]: x => model.d2(x, pi)};
+  const valor = (text, x = fr(0), y = fr(0)) => exacte(M.llegeix(text, lectura), {variables: {[v]: x, [w]: y, pi}, funcions});
+  const optim = model.optim(pi);
+  const totsIguals = vs => vs.every(a => a.igual(vs[0]));
+  let linies = 0;
+
+  const FILA = Optimitzacio.FILA;
+  passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
+    if (!tex || fila === FILA.enunciat) return;                      // l'enunciat no és una igualtat
+    const on = `${nom}, pas ${i + 1}, fila ${fila + 1}`;
+    let pla = '';
+    try {
+      pla = textPla(tex);
+      linies++;
+      let m;
+      if (fila === FILA.funcio) {
+        if ((m = new RegExp(`^${f}=(.*)$`).exec(pla))) {                        // amb dues variables
+          const parelles = model.mostres.map((x, k) => [x, fr(k + 2, 3)]);
+          comprova(parelles.every(([x, y]) => valor(m[1], x, y).igual(model.O(x, y, pi))), () => `${on}: «${pla}» no és la funció`);
+        } else {
+          comprova(model.mostres.every(x => totsIguals(pla.split('=').map(part => valor(part, x)).concat([funcio(x)]))), () => `${on}: «${pla}» no és certa`);
+        }
+      } else if (fila === FILA.condicio) {
+        if ((m = new RegExp(`^${w}=(.*)$`).exec(pla))) {
+          comprova(model.mostres.every(x => valor(m[1], x).igual(W(x))), () => `${on}: «${pla}» no és la condició aïllada`);
+        } else {
+          const [esq, dre] = pla.split('=');
+          const zero = (x, y) => valor(esq, x, y).resta(valor(dre, x, y));
+          comprova(model.mostres.every(x => zero(x, W(x)).esZero() && !zero(x, W(x).suma(1)).esZero()), () => `${on}: «${pla}» no és equivalent a la condició`);
+        }
+      } else if (fila === FILA.domini) {
+        comprova(pla === model.domini, () => `${on}: domini «${pla}» en lloc de «${model.domini}»`);
+      } else if (fila === FILA.derivada) {
+        comprova(model.mostres.every(x => totsIguals(pla.split('=').map(part => valor(part, x)))), () => `${on}: «${pla}» no és certa`);
+      } else if (fila === FILA.calcul) {
+        const relacio = /^(.*)([<>])0$/.exec(pla);
+        if (relacio) {
+          const parts = relacio[1].split('=').map(part => valor(part, optim));
+          comprova(totsIguals(parts) && parts[0].signe() === (relacio[2] === '<' ? -1 : 1), () => `${on}: «${pla}» és fals`);
+        } else if (pla.includes(f + '(') || pla.includes(f + "'") || pla.startsWith(w + '=')) {
+          const parts = pla.split('=').map(part => (part === w ? W(optim) : valor(part, optim)));
+          comprova(totsIguals(parts), () => `${on}: «${pla}» no és certa`);
+        } else {
+          const disjuncions = pla.split('|').map(part => part.split('='));
+          const esExplicita = ([esq, dre]) => esq === v && !dre.replace(/sqrt|pi/g, '').includes(v);
+          if (disjuncions.length > 1 || esExplicita(disjuncions[0])) {
+            // Solucions escrites: cada part és «v = valor» (amb ± o no) o una equació polinòmica.
+            const valors = disjuncions.flatMap(([esq, dre]) => {
+              if (esExplicita([esq, dre])) return (dre.includes('±') ? [dre.replace('±', '+'), dre.replace('±', '-')] : [dre]).map(t => valor(t));
+              const p = M.polinomi(M.llegeix(`(${esq})-(${dre})`, {variables: [v]}), v);
+              if (!p) throw new Error(`«${esq}=${dre}» no és polinòmica`);
+              return arrelsDe(p);
+            });
+            comprova(valors.some(a => a.igual(optim)) && valors.every(a => funcions[f + "'"](a).esZero()),
+              () => `${on}: «${pla}»: les solucions no són les de ${f}'(${v}) = 0`);
+          } else {
+            const [esq, dre] = pla.split('=');
+            const E = x => valor(esq, x).resta(valor(dre, x));
+            comprova(E(optim).esZero() && model.mostres.every(x => !E(x).esZero() && !funcions[f + "'"](x).esZero()),
+              () => `${on}: «${pla}» no és equivalent a ${f}'(${v}) = 0 dins del domini`);
+          }
+        }
+      } else {
+        for (const part of pla.split(',')) {
+          const [nomPart, text] = part.split('=');
+          const esperat = nomPart === v ? optim : nomPart === w ? W(optim) : nomPart === f ? funcio(optim) : null;
+          comprova(esperat && valor(text).igual(esperat), () => `${on}: «${part}» no és la solució`);
+        }
+      }
+    } catch (e) {
+      comprova(false, () => `${on}: no es pot llegir «${pla || tex}»: ${e.message}`);
+    }
+  }));
+  const final = textPla(passos[passos.length - 1].files[FILA.resposta]).split(',').map(t => t.split('=')[0]);
+  // La lectura: al final, l'enunciat té frases marcades de les dues categories, i cap més marca.
+  const enunciat = passos[passos.length - 1].files[FILA.enunciat];
+  const marques = [...enunciat.matchAll(/\{\{[^|]*\|([^|]*)\|/g)].map(m => m[1]);
+  comprova(enunciat.startsWith('§') && marques.includes('objectiu') && marques.includes('condicio') && marques.every(m => m === 'objectiu' || m === 'condicio'),
+    () => `${nom}: l'enunciat no té les frases marcades (objectiu i condició)`);
+  comprova(final.join() === [v, w, f].join(), () => `${nom}: la resposta final no té ${v}, ${w} i ${f}`);
+  comprova(model.d2(optim, pi).signe() === (model.maxim ? -1 : 1), () => `${nom}: el model no té un ${model.maxim ? 'màxim' : 'mínim'}`);
+  comprova(funcions[f + "'"](optim).esZero(), () => `${nom}: el model no té f' = 0 a l'òptim`);
+  return linies;
+}
+
+seccio('optimització', () => {
+  let linies = 0, passos = 0;
+  for (const problema of Optimitzacio.problemes) {
+    const model = OPT[problema.id];
+    comprova(model && problema.v === model.v && problema.w === model.w && problema.f === model.f, () => `${problema.id}: no hi ha model, o no coincideix`);
+    if (!model) continue;
+    // El model es comprova a si mateix: les derivades, amb diferències finites.
+    const h = fr(1, 16);
+    for (const pi of model.pis) {
+      const F0 = x => model.O(x, model.W(x, pi), pi), F1 = x => model.d1(x, pi), F2 = x => model.d2(x, pi);
+      // Diferència central amb extrapolació de Richardson: error de l'ordre de h⁴.
+      const central = (g, x, k) => g(x.suma(k)).resta(g(x.resta(k))).quocient(k.producte(2));
+      const aprox = (g, x) => central(g, x, h.quocient(2)).producte(4).resta(central(g, x, h)).quocient(3).valor();
+      const prop = (a, b) => Math.abs(a - b) < 1e-3 * Math.max(1, Math.abs(b));
+      let fetes = 0;
+      for (const x of model.mostres) {
+        let parells;
+        try {
+          parells = [[aprox(F0, x), F1(x).valor()], [aprox(F1, x), F2(x).valor()]];
+        } catch (e) {
+          if (e instanceof RangeError) continue;     // fraccions massa grans: aquest punt no es pot fer exacte
+          throw e;
+        }
+        fetes++;
+        comprova(prop(...parells[0]), () => `${problema.id}: la primera derivada del model no quadra en ${x.valor()}`);
+        comprova(prop(...parells[1]), () => `${problema.id}: la segona derivada del model no quadra en ${x.valor()}`);
+      }
+      comprova(fetes >= 2, () => `${problema.id}: el model no s'ha pogut comprovar`);
+      const llista = Optimitzacio.passos({p: problema.id});
+      comprovaGuio(llista, Optimitzacio.files, problema.id);
+      linies += comprovaOptimitzacio(llista, model, pi, `${problema.id} (π = ${pi.num}/${pi.den})`);
+      passos += llista.length;
+    }
+    comprova(iguals(Optimitzacio.llegeixAdreca(Optimitzacio.escriuAdreca({p: problema.id})).valors, {p: problema.id}), () => `${problema.id}: adreça`);
+  }
+  comprova(/no existeix/.test(Optimitzacio.llegeixAdreca({p: 'res'}).error || ''), 'problema inexistent a l\'adreça');
+  return `${Optimitzacio.problemes.length} problemes, ${passos} passos, ${linies} línies comprovades`;
 });
 
 

@@ -39,6 +39,7 @@ body[data-categoria="probabilitat"]{--cat:#9a5b16; --cat-fons:rgba(154,91,22,.09
 
 /* ── PÀGINA ────────────────────────────────────────────────────────── */
 *{box-sizing:border-box}
+[hidden]{display:none !important}   /* l'atribut hidden guanya als display de les classes */
 body{
   margin:0;
   background:var(--bg); color:var(--txt);
@@ -107,7 +108,17 @@ button{font:inherit; color:inherit}
 .fila .katex{font-size:1em}
 .fila.final{background:var(--cat-fons); box-shadow:inset 0 0 0 1.5px var(--cat)}
 .fila.prova{position:absolute; left:0; top:0; visibility:hidden}               /* per mesurar les línies */
-.amaga-claus [data-k]{visibility:hidden}                                        /* durant una transició */
+.amaga-claus [data-k]{visibility:hidden}
+
+/* Files de text (enunciats) i frases marcades */
+.fila.text{
+  display:block; white-space:normal; min-height:0; padding:.35em .45em .5em;
+  font-family:var(--lletra); font-size:16px; line-height:1.75; max-width:72ch;
+}
+.fila.text .katex{font-size:1.05em}
+.frase{border-radius:4px; transition:background-color .2s}
+.marca-objectiu{background:rgba(234,179,8,.30); box-shadow:0 0 0 2px rgba(234,179,8,.30)}
+.marca-condicio{background:rgba(16,185,129,.24); box-shadow:0 0 0 2px rgba(16,185,129,.24)}                                        /* durant una transició */
 
 .efectes{position:absolute; inset:0; pointer-events:none}
 .fantasma{position:absolute; left:0; top:0; white-space:nowrap; will-change:transform, opacity}
@@ -201,6 +212,7 @@ button{font:inherit; color:inherit}
   padding:5px 12px; font-size:14px; cursor:pointer;
 }
 .exemple:hover{border-color:var(--cat)}
+.exemple[aria-pressed="true"]{border-color:var(--cat); background:var(--cat-fons)}
 .exemple .katex{font-size:1em}
 .nota{margin:0; font-size:13px; color:var(--muted); max-width:70ch}
 

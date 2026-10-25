@@ -89,6 +89,21 @@ function textAmbFormules(text) {
   ).join('');
 }
 
+/**
+ * Fila de text de la pissarra (vegeu Formules.filaText): text amb $fórmules$
+ * i frases {{clau|marca|text}}, que es poden seguir d'un pas a l'altre com
+ * els símbols (data-k) i es poden marcar (classe «marca-…»).
+ */
+function textAmbFrases(text) {
+  return text.split(/(\{\{[^}]*\}\})/).map(tros => {
+    const m = /^\{\{([^|]*)\|([^|]*)\|(.*)\}\}$/.exec(tros);
+    if (!m) return textAmbFormules(tros);
+    const [, k, marca, contingut] = m;
+    return `<span${k ? ` data-k="${escapa(k)}"` : ''} class="frase${marca ? ' marca-' + escapa(marca) : ''}">${textAmbFormules(contingut)}</span>`;
+  }).join('');
+}
+const esFilaText = tex => tex.startsWith('§');
+
 /** Anima un element i espera que acabi. L'estat final es manté. */
 function anima(el, fotogrames, opcions) {
   return el.animate(fotogrames, Object.assign({fill: 'forwards', easing: CORBA}, opcions)).finished;
@@ -115,7 +130,7 @@ function unio(rs) {
  * Contingut d'un símbol, sense l'espai que KaTeX hi afegeix a dins quan
  * va seguit d'un operador: serveix per saber si el símbol canvia.
  */
-const signatura = el => el.innerHTML.replace(/<span class="mspace"[^>]*><\/span>/g, '');
+const signatura = el => el.className + '|' + el.innerHTML.replace(/<span class="mspace"[^>]*><\/span>/g, '');
 const midaLletra = el => parseFloat(getComputedStyle(el).fontSize);
 
 
@@ -183,7 +198,7 @@ function construeixPagina(proc, contenidor) {
     editor: element('div', {class: 'editor'}),
     resum: element('p', {class: 'resum'}),
     errorEditor: element('p', {class: 'error-editor', role: 'status', hidden: ''}),
-    exemples: element('div', {class: 'exemples'}, [element('span', {text: 'Exemples:'})]),
+    exemples: element('div', {class: 'exemples'}, [element('span', {text: proc.editor.length ? 'Exemples:' : 'Problemes:'})]),
   };
   for (const [valor, nom] of [['0.6', 'lenta'], ['1', 'normal'], ['1.6', 'ràpida']]) {
     r.velocitat.append(element('option', {value: valor, text: nom, selected: valor === '1' ? '' : null}));
@@ -209,8 +224,9 @@ function construeixPagina(proc, contenidor) {
       element('section', {class: 'targeta', 'aria-labelledby': 'titol-editor'}, [
         element('h2', {id: 'titol-editor', text: proc.titolEditor || 'Canvia les dades'}),
         r.editor, r.resum, r.errorEditor, r.exemples,
-        element('p', {class: 'nota', text: 'Toca ↑ o ↓ sota cada nombre, o mantén la fletxa premuda. '
-          + (proc.notaEditor ? proc.notaEditor + ' ' : '') + 'L\'animació es torna a generar sola.'}),
+        element('p', {class: 'nota', text: proc.editor.length
+          ? 'Toca ↑ o ↓ sota cada nombre, o mantén la fletxa premuda. ' + (proc.notaEditor ? proc.notaEditor + ' ' : '') + 'L\'animació es torna a generar sola.'
+          : proc.notaEditor || ''}),
       ]),
     ]),
     element('footer', {class: 'peu', html: PEU}),
@@ -288,8 +304,9 @@ function creaPissarra(r, nFiles, cursor, temps) {
   function dibuixaCapa(pas) {
     const c = element('div', {class: 'capa'});
     for (let i = 0; i < nFiles; i++) {
-      const fila = element('div', {class: 'fila' + (pas.classes[i] ? ' ' + pas.classes[i] : '')});
-      if (pas.files[i]) fila.innerHTML = katex.renderToString(pas.files[i], OPCIONS_PISSARRA);
+      const tex = pas.files[i];
+      const fila = element('div', {class: 'fila' + (tex && esFilaText(tex) ? ' text' : '') + (pas.classes[i] ? ' ' + pas.classes[i] : '')});
+      if (tex) fila.innerHTML = esFilaText(tex) ? textAmbFrases(tex.slice(1)) : katex.renderToString(tex, OPCIONS_PISSARRA);
       c.append(fila);
     }
     return c;
@@ -310,7 +327,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
     let maxim = 0;
     for (const pas of passos) {
       for (const tex of pas.files) {
-        if (!tex) continue;
+        if (!tex || esFilaText(tex)) continue;          // el text s'ajusta sol a l'amplada
         prova.innerHTML = katex.renderToString(tex, OPCIONS_PISSARRA);
         maxim = Math.max(maxim, prova.firstElementChild.getBoundingClientRect().width);
       }
@@ -332,6 +349,8 @@ function creaPissarra(r, nFiles, cursor, temps) {
     const f = element('div', {class: 'katex fantasma'});
     f.style.fontSize = estil.fontSize;
     f.style.color = estil.color;
+    f.style.fontFamily = estil.fontFamily;            // una frase de text no ha de canviar de lletra
+    f.style.fontStyle = estil.fontStyle;
     const copia = el.cloneNode(true);
     copia.removeAttribute('data-k');
     copia.querySelectorAll('[data-k]').forEach(n => n.removeAttribute('data-k'));
@@ -724,13 +743,21 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
   let actuals = null, passos = [];
 
   const mostraAvis = text => { r.avis.textContent = text || ''; r.avis.hidden = !text; };
-  const mostraResum = valors => { r.resum.innerHTML = 'Queda ' + formula(proc.resum(valors)) + '.'; };
+  // Sense editor (p. ex. problemes fixos), no hi ha res a resumir: els exemples ja diuen què es veu.
+  r.editor.hidden = r.resum.hidden = !proc.editor.length;
+  const mostraResum = valors => { if (proc.editor.length) r.resum.innerHTML = 'Queda ' + formula(proc.resum(valors)) + '.'; };
+
+  const botonsExemple = [];   // [{boto, valors}]: el de les dades actuals queda marcat
+  const iguals = (a, b) => Object.keys(a).every(k => a[k] === b[k]);
 
   /** Genera els passos per a uns valors i va al primer. */
   function carrega(valors, escriu = false) {
     actuals = Object.assign({}, valors);
+    for (const {boto, valors: v} of botonsExemple) boto.setAttribute('aria-pressed', String(iguals(v, actuals)));
     passos = proc.passos(actuals);
-    r.enunciat.innerHTML = textAmbFormules(proc.enunciat(actuals));
+    const text = proc.enunciat(actuals);
+    r.enunciat.innerHTML = textAmbFormules(text);
+    r.enunciat.hidden = !text;                          // p. ex. si l'enunciat és a la pissarra
     mostraResum(actuals);
     pissarra.ajusta(passos);
     reproductor.carrega(passos);
@@ -759,13 +786,15 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
   });
 
   for (const valors of proc.exemples || []) {
-    const b = element('button', {class: 'exemple', type: 'button', html: formula(proc.resum(valors))});
+    const b = element('button', {class: 'exemple', type: 'button',
+      html: proc.nomExemple ? escapa(proc.nomExemple(valors)) : formula(proc.resum(valors))});
     b.addEventListener('click', () => {
       editor.posa(valors);
       mostraResum(valors);
       r.errorEditor.hidden = true;
       programa(valors, 0);
     });
+    botonsExemple.push({boto: b, valors});
     r.exemples.append(b);
   }
 

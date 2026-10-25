@@ -487,14 +487,14 @@ function texEntreParentesis(v) {
   return v.num < 0 ? `(${texNombre(v)})` : texNombre(v);
 }
 
-/** Polinomi en TeX, sense claus: «2x^{2} - 3x + 1». */
-function texPolinomi(llista) {
+/** Polinomi en TeX, sense claus: «2x^{2} - 3x + 1». «x»: el nom de la variable. */
+function texPolinomi(llista, x = 'x') {
   if (!llista.length) return '0';
   return llista.map((t, i) => {
     const c = Fraccio.de(t.c), a = c.abs();
     let s = i === 0 ? (c.signe() < 0 ? '-' : '') : (c.signe() < 0 ? ' - ' : ' + ');
     if (t.n === 0 || !a.igual(U)) s += texNombre(a);
-    if (t.n >= 1) s += 'x';
+    if (t.n >= 1) s += x;
     if (t.n >= 2) s += `^{${t.n}}`;
     return s;
   }).join('');
