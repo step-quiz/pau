@@ -2,6 +2,8 @@
 
 Small pages, inside the PAU site, that show a mechanical procedure (from the *Àlgebra* block: the determinant of a 3×3 matrix with a parameter (Sarrus) and the values that make it zero, the rank of a matrix by bordering minors, a compatible indeterminate 3×3 system with its solution set, the discussion of a system with a parameter (Rouché–Frobenius), the inverse of a 3×3 matrix by adjoints, matrix equations, and diagonalisation; from the *Probabilitat* block: probability trees and the law of total probability, Bayes' theorem, and the binomial distribution; from the *Anàlisi* block: the equation of the tangent line, relative maxima and minima, the growth/decrease table, six optimisation problems, six cubics determined from conditions, Bolzano's theorem with bisection, and the asymptotes of a rational function) as an animation in the style of Graspable Math. The student watches symbols move, merge and change, one step at a time, with a short explanation for each step. The data (the function, the point…) can be changed with arrows or through the address.
 
+**New session? Read `INSIGHTS.md` first** (design rationale, lessons learned, and a playbook for change requests). This file is the reference.
+
 Principles: keep it simple, step by step, smooth, and **every line shown is a true equality** (checked automatically, see §7).
 
 Student-facing text is Catalan; code comments are Catalan; this file is English.
@@ -51,6 +53,9 @@ Student-facing text is Catalan; code comments are Catalan; this file is English.
 | `area-parametre.js` | procedure | no | A parameter from an integral or an area, three fixed problems (`?p=limit`, `coeficient`, `parabola`): ∫₀ᵏ(2x + 1) dx = 6 (k > 0, a quadratic by `resolPolinomi`); ∫₀³(kx² + 2x) dx = 27 (linear); the area between y = kx − x² and the x axis is 36 (roots 0 and k, k³/6 = 36, k = ∛216 = 6, graph at the end). Global `AreaParametre`. |
 | `recta-tangent.html`, `extrems.html`, `creixement.html`, `optimitzacio.html`, `polinomi-condicions.html`, `bolzano.html`, `asimptotes.html`, `probabilitat-total.html`, `bayes.html`, `binomial.html`, `determinant.html`, `rang.html`, `sistema-sci.html`, `discussio.html`, `inversa.html`, `equacio-matricial.html`, `diagonalitzacio.html`, `pla.html`, `recta-plans.html`, `recta-pla.html`, `dues-rectes.html`, `distancies.html`, `projeccions.html`, `area-volum.html`, `perpendicular-comuna.html`, `primitiva.html`, `barrow.html`, `area-eix.html`, `area-corbes.html`, `area-parametre.html` | pages | — | Load the above and call `Motor.inicia(<Procedure>)`. |
 | `proves/comprova.js` | tests | no | `node procediments/proves/comprova.js` (§7). |
+| `proves/mutacions/muta-*.py` | tests | no | Mutation scripts: each injects realistic bugs, one at a time, into a temporary copy and requires `comprova.js` to fail (§7). |
+| `proves/navegador/prova-*.js` | tests | yes | Playwright browser tests per page, plus `prova-partides.js` (wrapped phrases mid-transition), `prova-index-demo.js` (DEMO menu of `../index.html`) and `mostra-esquemes.js` (screenshots of every sketch) (§7). |
+| `proves/eines/empaqueta.py` | tool | — | Bundles one page into a single self-contained HTML (for a Claude artifact preview). |
 
 Dependency order: `katex` → `mates.js` → `formules.js` → `dades.js` → [`arbres.js` | `matrius.js` | `matrius.js` → `geometria.js`, when the procedure needs them] → `motor.js` and the procedure file. Plain classic scripts (no modules, no build step); each file is an IIFE that sets one frozen global on `globalThis`, so pages work from any static host and the pure files also load in Node.
 
@@ -191,6 +196,16 @@ Positions are measured on the real KaTeX output, so any TeX layout works. Rules 
 node procediments/proves/comprova.js
 node procediments/proves/comprova.js binomial    # only the sections whose name contains «binomial»
 ```
+
+Mutation and browser tests (run before delivering a change to a procedure):
+
+```
+python3 procediments/proves/mutacions/muta-barrow.py            # → 6/6 (every injected bug detected)
+node procediments/proves/navegador/prova-barrow.js . <katex>/dist /tmp/shots   # → ALL BROWSER CHECKS PASSED
+node procediments/proves/navegador/prova-index-demo.js . /tmp/shots
+```
+
+Browser tests need Node with `playwright` (Chromium) and a local copy of KaTeX 0.16.9 (`npm i katex@0.16.9`, then `node_modules/katex/dist`); they serve the repo on a local port and route the cdnjs KaTeX requests to it.
 
 No dependencies (Node ≥ 16). It loads the pure files with `vm` and checks:
 

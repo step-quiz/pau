@@ -37,7 +37,7 @@ Web estàtica (`index.html` + `config.js`) amb 67 exercicis de PAU. Cada exercic
 - A `main`, la GitHub Action `.github/workflows/pistes.yml` recompila les pistes quan canvia un `.tex` i desa els PDF. A les altres branques, compileu-les vosaltres abans del commit.
 - La llista d'exercicis de la web és l'objecte `EXERS` d'`index.html`; ha de coincidir amb els fitxers de `data/`.
 - Per afegir una convocatòria nova (p. ex. juny o setembre 2027), seguiu `UPDATING.md`.
-- `procediments/`: pàgines animades pas a pas (motor i estil comuns + una pàgina i un JS per procediment). Seguiu `procediments/README.md`. Abans de lliurar-hi canvis, `node procediments/proves/comprova.js` ha d'acabar amb «Tot correcte».
+- `procediments/`: pàgines animades pas a pas (motor i estil comuns + una pàgina i un JS per procediment). Llegiu primer `procediments/INSIGHTS.md` (com està pensat, lliçons apreses i com convertir un comentari del David en el canvi correcte) i després `procediments/README.md` (referència). Abans de lliurar-hi canvis, `node procediments/proves/comprova.js` ha d'acabar amb «Tot correcte».
 
 ## Revisió de pistes
 
