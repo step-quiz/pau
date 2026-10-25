@@ -144,6 +144,20 @@ If the request is ambiguous *and* expensive (a new procedure, a change in all pa
 - To verify his repo state he sends a ZIP of `main`: diff it against your working copy (`diff -rq`) and check `_uploads/` is empty (a ZIP still there = workflow not run yet → *Actions* tab).
 - Student-facing text must be correct Catalan (accents, apostrophes `d’una` in titles, decimal comma).
 
+## 8b. Default answers (do not ask David these)
+
+A cold-start session tends to ask the same questions before starting. The answers:
+
+1. **"Is the ZIP you sent the current `main`?"** Assume yes. To be safe anyway, deliver **only the files you changed**, never the whole repo, so a stale base cannot overwrite his later work. If the change touches a file he may have edited since (rare: he does not edit code), say so in the delivery message.
+2. **"One page or all pages?"** Not a binary. Three levels:
+   - look/behaviour of the page frame (speed, colours, font size, player, buttons, editor) → shared (`estil.css`, `TEMPS`/`MIDA`, `motor.js`): all 30 pages change;
+   - **notation produced by a shared writer** (how a polynomial, a fraction, an integral, a matrix, a Sarrus product, a root is written) → the shared writer, so every page using it stays consistent — grep its callers and look at each one;
+   - content of one procedure (a step, a caption, the order, an example, a sketch choice) → only that page.
+   If a request about one page would be better as a shared change, do the shared change and say so in one line.
+3. **"Does DEMO include the menu in `index.html`?"** Yes: the `DEMOS` object, the button and the dialog are part of it. The rest of `index.html` (`EXERS`, PDFs) is the exercise system — out of scope unless asked.
+4. **"What if a request breaks strict truth?"** Do not ask first: implement the closest *true* version that gives the same pedagogical effect — the question goes in the caption, or the unknown gets a name on the board (`I = \int_0^2 …` first, `I = 4` later); an approximation is written with `≈` beside the exact value. If the checker does not understand the new form, extend `textPla` / that section; never weaken or skip a check. Explain the choice in one line. Ask only if no true version exists.
+5. **Stale docs you notice** (README paragraphs, counts): just fix them in the same delivery; the house rule says docs follow the code.
+
 ## 9. Known limits / ideas not done
 
 - Polynomials up to degree 3 with small integer coefficients; irrational roots are rejected rather than shown with radicals (except distances, which have exact `c·√m`).
