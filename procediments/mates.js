@@ -514,6 +514,39 @@ function textPolinomi(llista) {
   }).join('');
 }
 
+/** Quants decimals té una fracció decimal (denominador 2ᵖ·5ᵠ), o null si no ho és. */
+function decimalsDe(x) {
+  let d = x.den, k = 0;
+  while (d % 10 === 0) { d /= 10; k++; }
+  let k2 = 0, k5 = 0;
+  while (d % 2 === 0) { d /= 2; k2++; }
+  while (d % 5 === 0) { d /= 5; k5++; }
+  return d === 1 ? k + Math.max(k2, k5) : null;
+}
+
+/** Les xifres de |x| arrodonit a «dec» decimals, amb coma: «0{,}375». */
+function xifres(x, dec) {
+  const n = Math.round(Math.abs(x.num) * 10 ** dec / x.den);
+  const s = String(n).padStart(dec + 1, '0');
+  return dec ? `${s.slice(0, -dec)}{,}${s.slice(-dec)}` : s;
+}
+
+/**
+ * Un nombre en decimal (TeX, amb coma): exacte si té com a màxim «maxim»
+ * decimals; si no, arrodonit a 3 decimals, o a més si cal perquè no surti 0.
+ * Torna {tex, aprox}: el TeX sense «≈» i si és aproximat.
+ */
+function formaDecimal(x, maxim = 4) {
+  x = Fraccio.de(x);
+  const exactes = decimalsDe(x);
+  const aprox = exactes === null || exactes > maxim;
+  let dec = aprox ? 3 : exactes;
+  if (aprox) while (Math.round(Math.abs(x.num) * 10 ** dec / x.den) === 0) dec++;
+  return {tex: (x.signe() < 0 ? '-' : '') + xifres(x, dec), aprox};
+}
+/** Un nombre decimal exacte (TeX, amb coma), amb tots els decimals que tingui; null si no és decimal. */
+const texDecimal = x => (decimalsDe(Fraccio.de(x)) === null ? null : formaDecimal(x, Infinity).tex);
+
 
 /* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
 
@@ -521,7 +554,7 @@ arrel.Mates = Object.freeze({
   Fraccio, ErrorLectura, mcd,
   llegeix, llegeixNombre, avalua, polinomi,
   termes, coeficientsDe, sumaPolinomis, producteDePolinomis, derivaTermes, valorTermes, arrelExacta, arrelsRacionals,
-  texNombre, texEntreParentesis, texPolinomi, textPolinomi,
+  texNombre, texEntreParentesis, texPolinomi, textPolinomi, formaDecimal, texDecimal,
 });
 
 })(globalThis);

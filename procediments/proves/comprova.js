@@ -21,10 +21,10 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
-const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio} = globalThis;
+const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio, PolinomiCondicions, Bolzano, Asimptotes} = globalThis;
 const {Fraccio} = M;
 const fr = (a, b = 1) => new Fraccio(a, b);
 
@@ -118,6 +118,13 @@ function textPla(tex) {
           case '\\nearrow': s += '↗'; break;
           case '\\searrow': s += '↘'; break;
           case '\\nexists': s += '∄'; break;
+          case '\\exists': s += '∃'; break;
+          case '\\in': s += '∈'; break;
+          case '\\approx': s += '≈'; break;
+          case '\\lim': s += 'lim'; break;
+          case '\\limits': break;
+          case '\\to': s += '→'; break;
+          case '\\underset': { const sota = grup(); s += `${grup()}⁽${sota}⁾`; break; }   // un nombre amb un signe a sota
           case '\\sqrt': {
             if (tex[i] === '[') {                     // \sqrt[n]{a} → a^(1/n)
               const fi = tex.indexOf(']', i);
@@ -284,6 +291,13 @@ seccio('mates.js i formules.js', () => {
 
   // Claus i guió
   comprova((() => { try { F.clau('a-b', 'x'); return false; } catch (e) { return true; } })(), 'una clau amb «-» no és vàlida');
+  comprova(F.marcat('q4: ⟦a:a⟧ + ⟦b:b⟧ = ⟦r:2⟧') === F.clau('q4a', 'a') + ' + ' + F.clau('q4b', 'b') + ' ' + F.rel('q4q', '=') + ' ' + F.clau('q4r', '2'),
+    'marcat: prefix, claus i «=» amb clau');
+  comprova(F.marcat('⟦x:3⟧ ⟦m:-⟧ ⟦y:1⟧ = 2') === F.clau('x', '3') + ' ' + F.op('m', '-') + ' ' + F.clau('y', '1') + ' = 2', 'marcat: sense prefix, operador amb clau');
+  comprova(clausDe(F.marcat('q5: ⟦e:24a + 4b⟧ = ⟦r:0⟧')).join() === 'q5e,q5q,q5r', 'marcat: claus en ordre');
+  for (const dolent of ['q1: a = b = c', 'q1: ⟦a:a = ⟦r:2⟧', 'q1: ⟦a-b:a⟧ = 0', 'q1: a ⟧ = 0']) {
+    comprova((() => { try { F.marcat(dolent); return false; } catch (e) { return true; } })(), `marcat(«${dolent}») hauria de fallar`);
+  }
   const g = F.guio(1);
   g.files[0] = 'x';
   g.afegeix('u');
@@ -683,7 +697,7 @@ const derivadaP = a => retallaP(a.slice(1).map((c, i) => c.producte(i + 1)));
 function cellesDeTaula(tex) {
   const m = /^\\begin\{array\}\{[^}]*\}(.*)\\end\{array\}$/.exec(tex.trim());
   if (!m) throw new Error('no és una taula');
-  return m[1].split('\\\\').map(fila => fila.replace(/\\hline/g, '').split('&').map(c => textPla(c.trim())));
+  return m[1].split('\\\\').map(fila => fila.replace(/\\hline/g, '').replace(/^\[[^\]]*\]/, '').split('&').map(c => textPla(c.trim())));
 }
 
 /** Extrem d'un interval: «-∞», «+∞» o un nombre. */
@@ -1008,6 +1022,571 @@ seccio('optimització', () => {
   }
   comprova(/no existeix/.test(Optimitzacio.llegeixAdreca({p: 'res'}).error || ''), 'problema inexistent a l\'adreça');
   return `${Optimitzacio.problemes.length} problemes, ${passos} passos, ${linies} línies comprovades`;
+});
+
+
+/* ── 8. POLINOMI DE GRAU 3 A PARTIR DE CONDICIONS ──────────────────── */
+
+/*
+ * Model de cada problema, escrit aquí de manera independent del guió:
+ *   condicions  [[ordre, x, valor], …]: f(x), f'(x) o f''(x) val «valor», en l'ordre de l'enunciat
+ *   frases      quantes condicions dona cada frase de dades (2: es marca «×2»)
+ *   extrems     [[x, 'maxim' | 'minim' | 'extrem'], …]     inflexions [x, …]
+ *   solucio     [a, b, c, d]
+ */
+const PC = {
+  ordenades: {condicions: [[0, 0, 4], [1, 0, 0], [1, 2, 0], [0, 1, 2]], frases: [1, 2, 1], extrems: [[0, 'extrem'], [2, 'extrem']], inflexions: [], solucio: [1, -3, 0, 4]},
+  maxim: {condicions: [[0, 0, 0], [1, 1, 0], [0, 1, 2], [1, -1, 0]], frases: [1, 2, 1], extrems: [[1, 'maxim']], inflexions: [], solucio: [-1, 0, 3, 0]},
+  tangent: {condicions: [[1, 1, 2], [0, 1, 1], [1, 0, 0], [0, -1, -3]], frases: [2, 1, 1], extrems: [[0, 'extrem']], inflexions: [], solucio: [2, -2, 0, 1]},
+  inflexio: {condicions: [[2, 0, 0], [0, 0, 0], [0, 1, -2], [0, 2, 2]], frases: [2, 2], extrems: [], inflexions: [0], solucio: [1, 0, -3, 0]},
+  beneficis: {condicions: [[0, 0, 0], [1, 2, 0], [0, 2, 20], [2, 3, 0]], frases: [1, 2, 1], extrems: [[2, 'maxim']], inflexions: [3], solucio: [1, -9, 24, 0]},
+  maxmin: {condicions: [[1, 1, 0], [0, 1, 3], [1, 3, 0], [0, 3, -1]], frases: [2, 2], extrems: [[1, 'maxim'], [3, 'minim']], inflexions: [], solucio: [1, -6, 9, -1]},
+};
+
+/* f, f' i f'' amb els paràmetres u = [a, b, c, d] (Fraccio). */
+const DERIVADES_PC = [
+  ([a, b, c, d]) => t => a.producte(t.potencia(3)).suma(b.producte(t.potencia(2))).suma(c.producte(t)).suma(d),
+  ([a, b, c]) => t => a.producte(t.potencia(2)).producte(3).suma(b.producte(t).producte(2)).suma(c),
+  ([a, b]) => t => a.producte(t).producte(6).suma(b.producte(2)),
+];
+const LECTURA_PC = {variables: ['a', 'b', 'c', 'd', 'x'], funcions: ['f', "f'", "f''"]};
+const funcionsPC = u => ({f: DERIVADES_PC[0](u), "f'": DERIVADES_PC[1](u), "f''": DERIVADES_PC[2](u)});
+/** Valor d'una expressió en text pla, amb els paràmetres u i la x. */
+const valorPC = (text, u, x = fr(0)) => exacte(M.llegeix(text, LECTURA_PC), {variables: {a: u[0], b: u[1], c: u[2], d: u[3], x}, funcions: funcionsPC(u)});
+
+const BASE_PC = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => fr(i === j ? 1 : 0)));
+const ZERO_PC = [fr(0), fr(0), fr(0), fr(0)];
+const PROVA_PC = [[fr(2), fr(-3), fr(5, 2), fr(7)], [fr(-1, 3), fr(4), fr(-2), fr(1, 5)]];
+
+/**
+ * Forma afí d'una funció dels paràmetres, E(u) = α·u + β, com a [α0, α1, α2, α3, β].
+ * Llança un error si E no és afí (es comprova en dos punts més).
+ */
+function afiPC(E) {
+  const b = E(ZERO_PC);
+  const forma = BASE_PC.map(e => E(e).resta(b)).concat([b]);
+  for (const u of PROVA_PC) {
+    const previst = u.reduce((s, ui, i) => s.suma(forma[i].producte(ui)), b);
+    if (!E(u).igual(previst)) throw new Error('no és una equació lineal en a, b, c i d');
+  }
+  return forma;
+}
+/** Forma afí (membre esquerre − membre dret) d'una igualtat «A = B» en text pla. */
+const formaDe = pla => {
+  const parts = pla.split('=');
+  if (parts.length !== 2) throw new Error(`«${pla}» no és una igualtat simple`);
+  return afiPC(u => valorPC(parts[0], u).resta(valorPC(parts[1], u)));
+};
+/** Cert si dues formes afins són proporcionals (amb un factor diferent de 0): la mateixa equació. */
+function proporcionals(A, B) {
+  const j = B.findIndex(v => !v.esZero());
+  if (j < 0 || A[j].esZero()) return false;
+  const l = A[j].quocient(B[j]);
+  return A.every((v, i) => v.igual(B[i].producte(l)));
+}
+/** Solució única del sistema de formes afins (4 equacions), o null si no n'hi ha una de sola. */
+function resolPC(formes) {
+  const m = formes.map(f => f.slice(0, 4).concat([f[4].oposada()]));
+  for (let col = 0; col < 4; col++) {
+    const piv = m.findIndex((fila, i) => i >= col && !fila[col].esZero());
+    if (piv < 0) return null;
+    [m[col], m[piv]] = [m[piv], m[col]];
+    for (let i = 0; i < m.length; i++) {
+      if (i === col || m[i][col].esZero()) continue;
+      const k = m[i][col].quocient(m[col][col]);
+      m[i] = m[i].map((v, j) => v.resta(m[col][j].producte(k)));
+    }
+  }
+  return m.map((fila, i) => fila[4].quocient(fila[i]));
+}
+const satisfa = (forma, u) => u.reduce((s, ui, i) => s.suma(forma[i].producte(ui)), forma[4]).esZero();
+/** Línies d'un sistema «\begin{cases} … \\ … \end{cases}», en text pla. */
+function liniesDeSistema(tex) {
+  const m = /^\\begin\{cases\}(.*)\\end\{cases\}$/.exec(tex.trim());
+  if (!m) throw new Error('no és un sistema');
+  return m[1].split('\\\\').map(l => textPla(l.trim()));
+}
+
+/** Veritat d'un guió del polinomi de grau 3: cada fila, a cada pas. */
+function comprovaPolinomi(passos, problema, model, nom) {
+  const FILA = PolinomiCondicions.FILA;
+  const conds = model.condicions.map(([o, x, v]) => afiPC(u => DERIVADES_PC[o](u)(fr(x)).resta(fr(v))));
+  const sol = resolPC(conds);
+  comprova(sol && sol.every((v, i) => v.igual(model.solucio[i])), () => `${nom}: el model no té la solució única ${model.solucio}`);
+  if (!sol) return 0;
+  comprova(['a', 'b', 'c', 'd'].every((v, i) => fr(problema.solucio[v]).igual(sol[i])), () => `${nom}: la solució de les dades no és la del model`);
+  // Les dades del problema diuen el mateix que el model: condicions, frases, extrems i inflexions.
+  const dades = problema.dades.flatMap(d => d.condicions);
+  comprova(iguals(dades.map(c => [c.ordre, c.x, c.valor]), model.condicions), () => `${nom}: les condicions de les dades no són les del model`);
+  comprova(iguals(problema.dades.map(d => d.condicions.length), model.frases), () => `${nom}: les frases de les dades no són les del model`);
+  const extremsDades = dades.filter(c => c.extrem).map(c => [c.x, c.extrem]).filter(([x], k, l) => l.findIndex(e => e[0] === x) === k);
+  comprova(iguals(extremsDades, model.extrems), () => `${nom}: els extrems de les dades (${extremsDades}) no són els del model`);
+  comprova(iguals(dades.filter(c => c.inflexio).map(c => c.x), model.inflexions), () => `${nom}: les inflexions de les dades no són les del model`);
+  const NOMS = ['f(x)', "f'(x)", "f''(x)"];
+  const PARAMS = [sol].concat(PROVA_PC);
+  let linies = 0, primerSistemaComplet = true;
+  const comprovacions = new Set();          // abscisses comprovades amb f''
+
+  passos.forEach((pas, i) => {
+    const sistemaTex = pas.files[FILA.sistema];
+    let nLinies = 0;
+    pas.files.forEach((tex, fila) => {
+      if (!tex || fila === FILA.enunciat) return;
+      const on = `${nom}, pas ${i + 1}, fila ${fila + 1}`;
+      let pla = '';
+      try {
+        linies++;
+        if (fila === FILA.sistema) {
+          const ls = liniesDeSistema(tex);
+          nLinies = ls.length;
+          const formes = ls.map(formaDe);
+          if (ls.length < 4 || primerSistemaComplet) {
+            comprova(formes.every((f, j) => proporcionals(f, conds[j])), () => `${on}: les equacions «${ls}» no són les de les dades, en ordre`);
+            if (ls.length === 4) primerSistemaComplet = false;
+          }
+          if (ls.length === 4) {
+            comprova(resolPC(formes) !== null && formes.every(f => satisfa(f, sol)), () => `${on}: el sistema «${ls}» no és equivalent`);
+          }
+          comprova(ls.length <= 4, () => `${on}: massa equacions`);
+          return;
+        }
+        pla = textPla(tex);
+        if (fila === FILA.calcul) {
+          const relacio = /^(.*)([<>])0$/.exec(pla);
+          const enTraduccio = (sistemaTex ? liniesDeSistema(sistemaTex).length : 0) < 4;
+          if (relacio) {
+            const parts = relacio[1].split('=');
+            const valors = parts.map(t => valorPC(t, sol));
+            comprova(valors.every(v => v.igual(valors[0])) && valors[0].signe() === (relacio[2] === '<' ? -1 : 1), () => `${on}: «${pla}» és fals`);
+            const m = /^f''\((.+)\)$/.exec(parts[0]);
+            if (m) comprovacions.add(conjunt([valorPC(m[1], sol)]));
+          } else if (enTraduccio) {
+            const k = sistemaTex ? liniesDeSistema(sistemaTex).length : 0;
+            comprova(proporcionals(formaDe(pla), conds[k]), () => `${on}: «${pla}» no és la traducció de la dada ${k + 1}`);
+          } else {
+            const valors = pla.split('=').map(t => valorPC(t, sol));
+            comprova(valors.length >= 2 && valors.every(v => v.igual(valors[0])), () => `${on}: «${pla}» no és certa per a la solució`);
+          }
+          return;
+        }
+        // Files de f, f', f'' i de la resposta: identitats en x.
+        const [esq, dre] = pla.split('=');
+        const ordre = fila === FILA.resposta ? 0 : fila - FILA.funcio;
+        comprova(esq === NOMS[ordre] && pla.split('=').length === 2, () => `${on}: «${pla}» no és de la forma ${NOMS[ordre]} = …`);
+        const params = /[abcd]/.test(dre) ? PARAMS : [sol];
+        comprova(params.every(u => PUNTS.every(x => valorPC(esq, u, x).igual(valorPC(dre, u, x)))), () => `${on}: «${pla}» no és certa`);
+      } catch (e) {
+        comprova(false, () => `${on}: no es pot llegir «${pla || tex}»: ${e.message}`);
+      }
+    });
+    if (i > 0) {
+      const anterior = passos[i - 1].files[FILA.sistema];
+      const n0 = anterior ? liniesDeSistema(anterior).length : 0;
+      comprova(nLinies >= n0, () => `${nom}, pas ${i + 1}: el sistema ha perdut equacions`);
+    }
+  });
+
+  // Al final: el sistema resolt, la resposta i l'enunciat marcat.
+  const final = passos[passos.length - 1];
+  const ls = liniesDeSistema(final.files[FILA.sistema]);
+  const resolt = ls.map(l => /^([abcd])=(-?\d+)$/.exec(l));
+  comprova(resolt.every(Boolean) && conjuntLletres(resolt) === 'abcd'
+    && resolt.every(m => fr(Number(m[2])).igual(sol['abcd'.indexOf(m[1])])), () => `${nom}: el sistema final no és la solució: ${ls}`);
+  comprova(final.classes[FILA.resposta] === 'final' && !final.files[FILA.calcul], () => `${nom}: la resposta final no està destacada`);
+  comprova(!/[abcd]/.test(textPla(final.files[FILA.resposta]).split('=')[1]), () => `${nom}: la resposta final encara té lletres`);
+  const enunciat = final.files[FILA.enunciat];
+  model.frases.forEach((n, j) => {
+    const m = new RegExp(`\\{\\{E${j + 1}1\\|([^|]*)\\|`).exec(enunciat);
+    comprova(m && m[1] === (n === 2 ? 'doble' : 'condicio'), () => `${nom}: la frase ${j + 1} hauria d'estar marcada «${n === 2 ? 'doble' : 'condicio'}»`);
+  });
+  comprova(model.frases.reduce((s, n) => s + n, 0) === 4, () => `${nom}: les frases no donen quatre condicions`);
+  // Els extrems i les inflexions de l'enunciat hi són de debò, i els extrems s'han comprovat amb f''.
+  const d2 = DERIVADES_PC[2](sol);
+  for (const [x, tipus] of model.extrems) {
+    const s = d2(fr(x)).signe();
+    comprova(DERIVADES_PC[1](sol)(fr(x)).esZero() && (tipus === 'maxim' ? s < 0 : tipus === 'minim' ? s > 0 : s !== 0), () => `${nom}: en x = ${x} no hi ha un ${tipus}`);
+    comprova(comprovacions.has(conjunt([fr(x)])), () => `${nom}: falta la comprovació amb f'' en x = ${x}`);
+  }
+  for (const x of model.inflexions) comprova(d2(fr(x)).esZero() && !sol[0].esZero(), () => `${nom}: en x = ${x} no hi ha inflexió`);
+  comprova(comprovacions.size === model.extrems.length, () => `${nom}: hi ha comprovacions amb f'' de més`);
+  return linies;
+}
+const conjuntLletres = ms => ms.map(m => m[1]).sort().join('');
+
+seccio('polinomi a partir de condicions', () => {
+  let linies = 0, passos = 0;
+  for (const problema of PolinomiCondicions.problemes) {
+    const model = PC[problema.id];
+    comprova(model, () => `${problema.id}: no hi ha model`);
+    if (!model) continue;
+    const llista = PolinomiCondicions.passos({p: problema.id});
+    comprovaGuio(llista, PolinomiCondicions.files, problema.id);
+    linies += comprovaPolinomi(llista, problema, model, problema.id);
+    passos += llista.length;
+    comprova(iguals(PolinomiCondicions.llegeixAdreca(PolinomiCondicions.escriuAdreca({p: problema.id})).valors, {p: problema.id}), () => `${problema.id}: adreça`);
+  }
+  comprova(Object.keys(PC).length === PolinomiCondicions.problemes.length, 'hi ha models de problemes que no existeixen');
+  comprova(/no existeix/.test(PolinomiCondicions.llegeixAdreca({p: 'res'}).error || ''), 'problema inexistent a l\'adreça');
+  comprova(iguals(PolinomiCondicions.llegeixAdreca({}).valors, {p: 'ordenades'}), 'problema per defecte');
+  return `${PolinomiCondicions.problemes.length} problemes, ${passos} passos, ${linies} línies comprovades`;
+});
+
+
+/* ── 9. TEOREMA DE BOLZANO I BISECCIÓ ──────────────────────────────── */
+
+/** Nombre escrit amb coma decimal («-0,375») → Fraccio, calculat aquí mateix. */
+function llegeixDecimal(t) {
+  const m = /^(-?)(\d+)(?:,(\d+))?$/.exec(t);
+  if (!m) throw new Error(`«${t}» no és un nombre decimal`);
+  const dec = m[3] || '';
+  const v = fr(Number(m[2] + dec), 10 ** dec.length);
+  return m[1] ? v.oposada() : v;
+}
+/** Cel·la de f(m): «v<0», «≈v>0» o «0». Torna {valor, aprox, decimals, signe}. */
+function cellaValor(t) {
+  if (t === '0') return {valor: fr(0), aprox: false, decimals: 0, signe: 0};
+  const m = /^(≈?)(-?[\d,]+)([<>])0$/.exec(t);
+  if (!m) throw new Error(`cel·la de valor «${t}» no prevista`);
+  return {valor: llegeixDecimal(m[2]), aprox: m[1] === '≈', decimals: (m[2].split(',')[1] || '').length, signe: m[3] === '<' ? -1 : 1};
+}
+/** Interval amb signes «[l⁽s⁾;r⁽t⁾]». */
+function cellaInterval(t) {
+  const m = /^\[(-?[\d,]+)⁽([+-])⁾;(-?[\d,]+)⁽([+-])⁾\]$/.exec(t);
+  if (!m) throw new Error(`interval «${t}» no previst`);
+  return {l: llegeixDecimal(m[1]), sl: m[2] === '-' ? -1 : 1, r: llegeixDecimal(m[3]), sr: m[4] === '-' ? -1 : 1};
+}
+
+/**
+ * Veritat d'un guió de Bolzano, amb un model calculat aquí: f, f(a), f(b), i la bisecció
+ * feta de nou. Files: f(x) (identitat); la continuïtat (text amb l'interval); f(a) i f(b)
+ * (cadenes d'igualtats, amb el signe final); la conclusió; la taula (cada interval amb els
+ * signes certs de f, cada punt mitjà, cada valor exacte o ben arrodonit, i l'interval
+ * següent, la meitat amb canvi de signe); la resposta.
+ */
+function comprovaBolzano(passos, v, nom) {
+  const FILA = Bolzano.FILA;
+  const coefs = [v.a0, v.a1, v.a2, v.a3].map(c => fr(c));
+  const f = polinomiExacte(coefs);
+  const funcions = {f};
+  const [a, b] = [fr(v.a), fr(v.b)];
+  const s = x => f(x).signe();
+  const aplica = s(a) * s(b) < 0;
+  // La bisecció del model.
+  const model = [];                       // {l, r, m, fm}
+  let arrel = null;
+  if (aplica) {
+    let [l, r] = [a, b];
+    for (let k = 0; k < v.n; k++) {
+      const m = l.suma(r).quocient(2);
+      model.push({l, r, m, fm: f(m)});
+      if (f(m).esZero()) { arrel = m; break; }
+      if (s(m) !== s(l)) r = m; else l = m;
+    }
+    if (!arrel) model.push({l, r});
+  }
+  const valor = t => exacte(M.llegeix(t, LECTURA), {variables: {}, funcions});
+  let linies = 0;
+  passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
+    if (!tex) return;
+    const on = `${nom}, pas ${i + 1}, fila ${fila + 1}`;
+    let pla = '';
+    linies++;
+    try {
+      if (fila === FILA.continuitat) {
+        comprova(tex.startsWith('§') && tex.includes(`$[${v.a}, ${v.b}]$`), () => `${on}: la continuïtat no parla de [${v.a}, ${v.b}]`);
+        return;
+      }
+      if (fila === FILA.taula) {
+        const [cap, ...files] = cellesDeTaula(tex);
+        comprova(cap.join('|') === '«interval»|m|f(m)', () => `${on}: capçalera «${cap}»`);
+        files.forEach((c, k) => {
+          const mod = model[k];
+          const iv = cellaInterval(c[0]);
+          comprova(mod && iv.l.igual(mod.l) && iv.r.igual(mod.r) && iv.sl === s(iv.l) && iv.sr === s(iv.r) && iv.sl !== iv.sr,
+            () => `${on}: l'interval ${k + 1} «${c[0]}» no és el de la bisecció o té els signes malament`);
+          if (c[1]) comprova(mod.m && llegeixDecimal(c[1]).igual(mod.m), () => `${on}: el punt mitjà «${c[1]}» no és ${mod.m && mod.m.valor()}`);
+          if (c[2]) {
+            const cv = cellaValor(c[2]);
+            const error = cv.valor.resta(mod.fm).abs();
+            comprova(cv.signe === mod.fm.signe() && (cv.aprox ? !cv.valor.esZero() && error.producte(2 * 10 ** cv.decimals).resta(1).signe() <= 0 : error.esZero()),
+              () => `${on}: «f(${c[1]})» val ${mod.fm.valor()}, no «${c[2]}»`);
+          }
+          if (k < files.length - 1) comprova(c[1] && c[2], () => `${on}: una fila de la taula sense acabar`);
+        });
+        return;
+      }
+      pla = textPla(tex);
+      if (fila === FILA.bolzano) {
+        comprova(aplica ? pla === `∃c∈(${v.a},${v.b}):f(c)=0` : pla === "«mateixsigne:Bolzanonos'hipotaplicar»", () => `${on}: conclusió «${pla}»`);
+      } else if (fila === FILA.resposta) {
+        const esperat = arrel ? `c=${pla.slice(2)}` : `c∈(${pla.slice(3, -1)})`;
+        if (arrel) comprova(pla === esperat && llegeixDecimal(pla.slice(2)).igual(arrel), () => `${on}: «${pla}» no és l'arrel`);
+        else {
+          const [l, r] = pla.slice(3, -1).split(';').map(llegeixDecimal);
+          const ultim = model[model.length - 1];
+          comprova(pla === esperat && l.igual(ultim.l) && r.igual(ultim.r) && r.resta(l).igual(b.resta(a).quocient(2 ** v.n)), () => `${on}: resposta «${pla}»`);
+        }
+      } else if (fila === FILA.funcio) {
+        const [esq, dre] = pla.split('=').map(costat);
+        comprova(PUNTS.every(x => esq({variables: {x}, funcions}).igual(dre({variables: {x}, funcions}))), () => `${on}: «${pla}» no és certa`);
+      } else {
+        const x = fila === FILA.fa ? v.a : v.b;
+        const relacio = /^(.*)([<>])0$/.exec(pla);
+        const parts = (relacio ? relacio[1] : pla).split('=');
+        comprova(parts[0] === `f(${x})` && parts.map(valor).every(w => w.igual(f(fr(x)))), () => `${on}: «${pla}» no és certa`);
+        if (relacio) comprova(s(fr(x)) === (relacio[2] === '<' ? -1 : 1), () => `${on}: «${pla}»: signe`);
+      }
+    } catch (e) {
+      comprova(false, () => `${on}: no es pot llegir «${pla || tex}»: ${e.message}`);
+    }
+  }));
+  // Al final: la conclusió o la resposta destacada, i la taula completa.
+  const final = passos[passos.length - 1];
+  if (!aplica) {
+    comprova(final.classes[FILA.bolzano] === 'final' && !final.files[FILA.taula], () => `${nom}: amb el mateix signe, el procediment ha d'acabar a la conclusió`);
+  } else {
+    comprova(final.classes[FILA.resposta] === 'final', () => `${nom}: la resposta no està destacada`);
+    comprova(cellesDeTaula(final.files[FILA.taula]).length - 1 === model.length, () => `${nom}: la taula final no té ${model.length} files`);
+  }
+  return linies;
+}
+
+seccio('Bolzano i bisecció', () => {
+  const B = p => Bolzano.llegeixAdreca(p);
+  const d = (a3, a2, a1, a0, a, b, n) => ({a3, a2, a1, a0, a, b, n});
+  for (const [p, esperat] of [
+    [{}, d(1, 0, 1, -1, 0, 1, 3)], [{f: 'x^2-2', a: '1', b: '2', n: '4'}, d(0, 1, 0, -2, 1, 2, 4)], [{f: 'x^3+3x+2', a: '-2', b: '0'}, d(1, 0, 3, 2, -2, 0, 3)],
+  ]) comprova(iguals(B(p).valors, esperat), () => `Bolzano.llegeixAdreca(${JSON.stringify(p)}) → ${JSON.stringify(B(p))}`);
+  for (const [p, patro] of [
+    [{a: '2', b: '1'}, /a < b/], [{n: '0'}, /bisseccions/], [{n: '6'}, /bisseccions/], [{a: '1/2'}, /no és un nombre enter/],
+    [{f: 'x^2-1', a: '1', b: '2'}, /ja és una arrel/], [{b: '7'}, /entre −5 i 5/], [{f: 'x^4'}, /grau 4/], [{f: '(x'}, /^No entenc l'adreça/],
+  ]) comprova(patro.test(B(p).error || ''), () => `Bolzano.llegeixAdreca(${JSON.stringify(p)}) hauria de donar ${patro}: ${JSON.stringify(B(p))}`);
+  for (const v of Bolzano.exemples) comprova(Bolzano.valida(v) === null, () => `l'exemple ${JSON.stringify(v)} no és vàlid`);
+  // L'arrodoniment: exacte fins a 4 decimals; si no, amb ≈ i prou decimals perquè no surti 0.
+  for (const [x, tex, aprox] of [[fr(-3, 8), '-0{,}375', false], [fr(121, 64), '1{,}891', true], [fr(1, 4096), '0{,}0002', true], [fr(-5), '-5', false], [fr(1, 3), '0{,}333', true]]) {
+    const r = Bolzano.decimal(x);
+    comprova(r.tex === tex && r.aprox === aprox, () => `decimal(${x.num}/${x.den}) → ${JSON.stringify(r)}`);
+  }
+  const casos = Bolzano.exemples.slice();
+  const atzar = aleatori(2029);
+  const enter = (min, max) => min + Math.floor(atzar() * (max - min + 1));
+  for (let i = 0; i < 3000; i++) casos.push(d(enter(-3, 3), enter(-5, 5), enter(-9, 9), enter(-9, 9), enter(-5, 4), 0, enter(1, 5)));
+  for (const c of casos) if (!c.b) c.b = enter(c.a + 1, 5);
+  let valids = 0, linies = 0, passos = 0, exactes = 0, sense = 0;
+  for (const v of casos) {
+    if (Bolzano.valida(v)) continue;
+    valids++;
+    const nom = `f = ${Dd.textFuncio(v)}, [${v.a}, ${v.b}], n = ${v.n}`;
+    comprova(iguals(B(Bolzano.escriuAdreca(v)).valors, v), () => `${nom}: anada i tornada de l'adreça`);
+    const llista = Bolzano.passos(v);
+    comprovaGuio(llista, Bolzano.files, nom);
+    linies += comprovaBolzano(llista, v, nom);
+    passos += llista.length;
+    if (llista[llista.length - 1].text.includes('arrel exacta')) exactes++;
+    if (llista[llista.length - 1].files[Bolzano.FILA.taula] === '') sense++;
+  }
+  comprova(exactes > 0 && sense > 0, 'la mostra no té casos d\'arrel exacta o de mateix signe');
+  return `${valids} casos vàlids, ${passos} passos, ${linies} línies comprovades (${exactes} amb arrel exacta, ${sense} sense Bolzano)`;
+});
+
+
+/* ── 10. ASÍMPTOTES D'UNA FUNCIÓ RACIONAL ──────────────────────────── */
+
+/**
+ * Una expressió en x (amb f) com a funció racional exacta [N, D]: coeficients
+ * Fraccio de grau 0 cap amunt. f(x) és P/Q. Serveix per calcular límits.
+ */
+function racional(n, P, Q) {
+  const r = m => racional(m, P, Q);
+  const u = [fr(1)];
+  switch (n.tipus) {
+    case 'nombre': return [[n.valor], u];
+    case 'variable': if (n.nom === 'x') return [[fr(0), fr(1)], u]; break;
+    case 'oposat': { const [a, b] = r(n.a); return [a.map(c => c.oposada()), b]; }
+    case 'suma': case 'resta': {
+      const [a, b] = r(n.a), [c, d] = r(n.b);
+      const cd = producteP(c, b).map(x => (n.tipus === 'resta' ? x.oposada() : x));
+      return [sumaP(producteP(a, d), cd), producteP(b, d)];
+    }
+    case 'producte': { const [a, b] = r(n.a), [c, d] = r(n.b); return [producteP(a, c), producteP(b, d)]; }
+    case 'quocient': { const [a, b] = r(n.a), [c, d] = r(n.b); return [producteP(a, d), producteP(b, c)]; }
+    case 'potencia': {
+      const e = exacte(n.exponent, {variables: {}, funcions: {}});
+      if (!e.esEnter() || e.num < 0) break;
+      let res = [u, u];
+      const [a, b] = r(n.base);
+      for (let i = 0; i < e.num; i++) res = [producteP(res[0], a), producteP(res[1], b)];
+      return res;
+    }
+    case 'crida': if (n.nom === 'f' && n.arg.tipus === 'variable' && n.arg.nom === 'x') return [P, Q]; break;
+  }
+  throw new Error(`expressió no prevista en un límit: ${n.tipus}`);
+}
+const LECTURA_LIM = {variables: ['x'], funcions: ['f']};
+/** Límit a +∞ (cap = 1) o −∞ (cap = −1) d'una funció racional [N, D]: «+∞», «-∞» o un nombre en text. */
+function limitRacional([N, D], cap) {
+  const [n, d] = [retallaP(N), retallaP(D)];
+  if (!d.length) throw new Error('denominador 0');
+  if (!n.length) return '0';
+  const k = (n.length - 1) - (d.length - 1), c = n[n.length - 1].quocient(d[d.length - 1]);
+  if (k < 0) return '0';
+  if (k === 0) return conjunt([c]);
+  return c.signe() * (cap < 0 && k % 2 ? -1 : 1) < 0 ? '-∞' : '+∞';
+}
+/** Valor d'un costat d'una línia de límit: «lim_x→+∞EXPR», «+∞», «-∞» o un nombre. */
+function valorLimit(text, cap, P, Q) {
+  const m = /^lim_x→([+-]|±)∞(.*)$/.exec(text);
+  if (m) {
+    const caps = m[1] === '±' ? [1, -1] : [m[1] === '+' ? 1 : -1];
+    if (!caps.includes(cap)) throw new Error(`«${text}»: el límit no és cap a ${cap > 0 ? '+' : '-'}∞`);
+    const vals = caps.map(c => limitRacional(racional(M.llegeix(m[2], LECTURA_LIM), P, Q), c));
+    if (vals.some(v => v !== vals[0])) throw new Error(`«${text}»: el límit no és el mateix a +∞ i a −∞`);
+    return vals[0];
+  }
+  if (text === '+∞' || text === '-∞') return text;
+  return conjunt([exacte(M.llegeix(text, {variables: []}), {variables: {}, funcions: {}})]);
+}
+/** Línies d'un «\begin{array}{l} … \end{array}», en text pla. */
+const liniesDArray = tex => {
+  const m = /^\\begin\{array\}\{l\}(.*)\\end\{array\}$/.exec(tex.trim());
+  if (!m) throw new Error('no és una llista de línies');
+  return m[1].split('\\\\').map(l => textPla(l.replace(/^\[[^\]]*\]/, '').trim()));
+};
+
+/**
+ * Veritat d'un guió d'asímptotes, amb un model calculat aquí: les arrels de Q (asímptotes
+ * verticals), el signe de Q a cada costat d'una arrel (per la seva multiplicitat), els graus
+ * (horitzontal) i la divisió P = Q·S + R (obliqua, si S és de grau 1).
+ */
+function comprovaAsimptotes(passos, v, nom) {
+  const FILA = Asimptotes.FILA;
+  const P = retallaP([v.p0, v.p1, v.p2, v.p3].map(c => fr(c))), Q = retallaP([v.q0, v.q1, v.q2].map(c => fr(c)));
+  const val = p => x => p.reduceRight((s, c) => s.producte(x).suma(c), fr(0));
+  const f = x => val(P)(x).quocient(val(Q)(x));
+  const arrelsQ = arrelsDe(Q);
+  // Signe de Q just a la dreta (s = 1) o a l'esquerra (s = −1) d'una arrel a: la primera derivada que no s'anul·la.
+  const signeCostat = (a, s) => {
+    let d = Q, m = 0;
+    while (val(d)(a).esZero()) { d = derivadaP(d); m++; }
+    return val(d)(a).signe() * (s < 0 && m % 2 ? -1 : 1);
+  };
+  // Divisió P = Q·S + R.
+  const S = [], Rr = P.slice();
+  for (let i = Rr.length - 1; i >= Q.length - 1; i--) {
+    const q = Rr[i].quocient(Q[Q.length - 1]);
+    S[i - (Q.length - 1)] = q;
+    for (let j = 0; j < Q.length; j++) Rr[i - (Q.length - 1) + j] = Rr[i - (Q.length - 1) + j].resta(Q[j].producte(q));
+  }
+  const grauP = P.length - 1, grauQ = Q.length - 1;
+  const AH = grauP < grauQ ? fr(0) : grauP === grauQ ? P[grauP].quocient(Q[grauQ]) : null;
+  const AO = grauP === grauQ + 1 ? {m: S[1], n: S[0]} : null;
+  const limF = cap => limitRacional([P, Q], cap);
+  let linies = 0;
+
+  passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
+    if (!tex) return;
+    const on = `${nom}, pas ${i + 1}, fila ${fila + 1}`;
+    linies++;
+    try {
+      if (fila === FILA.funcio) {
+        const [esq, dre] = textPla(tex).split('=').map(costat);
+        const punts = [-7, -3, -1, 1, 3, 5, 9, 11, -9, 13].map(k => fr(k, 4)).filter(x => !val(Q)(x).esZero());
+        comprova(punts.every(x => esq({variables: {x}, funcions: {f}}).igual(dre({variables: {x}, funcions: {f}}))), () => `${on}: «${textPla(tex)}» no és certa`);
+      } else if (fila === FILA.calcul) {
+        comprova(solucionsDeFila(textPla(tex)) === conjunt(arrelsQ), () => `${on}: «${textPla(tex)}» no té per solucions les arrels de Q`);
+      } else if (fila === FILA.domini) {
+        const m = /^«Dom»f=ℝ(?:-\{(.+)\})?$/.exec(textPla(tex));
+        const valor = t => exacte(M.llegeix(t, {variables: []}), {variables: {}, funcions: {}});
+        comprova(m && conjunt(m[1] ? m[1].split(',').map(valor) : []) === conjunt(arrelsQ), () => `${on}: domini «${textPla(tex)}»`);
+      } else if (fila === FILA.laterals) {
+        for (const l of liniesDArray(tex)) {
+          const m = /^lim_x→(.+)\^\(([+-])\)f\(x\)=\(\((.+)\)\/\(0\^\(([+-])\)\)\)(?:=([+-])∞)?$/.exec(l);
+          if (!m) throw new Error(`línia «${l}» no prevista`);
+          const valor = t => exacte(M.llegeix(t, {variables: []}), {variables: {}, funcions: {}});
+          const a = valor(m[1]), s = m[2] === '-' ? -1 : 1, k = valor(m[3]), sq = m[4] === '-' ? -1 : 1;
+          comprova(arrelsQ.some(r => r.igual(a)) && val(P)(a).igual(k) && !k.esZero() && signeCostat(a, s) === sq
+            && (!m[5] || (m[5] === '-' ? -1 : 1) === k.signe() * sq), () => `${on}: «${l}» és fals`);
+        }
+      } else if (fila === FILA.infinit || fila === FILA.obliqua) {
+        for (const l of liniesDArray(tex)) {
+          const [esq, dre] = l.split('=');
+          let m;
+          if ((m = /^lim_x→([+-])∞f\(x\)$/.exec(esq))) {
+            const cap = m[1] === '+' ? 1 : -1;
+            comprova(fila === FILA.infinit && valorLimit(dre, cap, P, Q) === limF(cap), () => `${on}: «${l}» és fals (el límit és ${limF(cap)})`);
+          } else if (esq === 'm' || esq === 'n') {
+            const model = AO && conjunt([AO[esq]]);
+            comprova(fila === FILA.obliqua && AO && [1, -1].every(cap => valorLimit(dre, cap, P, Q) === model), () => `${on}: «${l}»: ${esq} no és ${model}`);
+          } else if (esq === 'lim_x→+∞((f(x))/(x))') {
+            const lim = limitRacional([P, producteP(Q, [fr(0), fr(1)])], 1);
+            comprova(fila === FILA.obliqua && !AO && !AH && valorLimit(dre, 1, P, Q) === lim && lim.endsWith('∞'), () => `${on}: «${l}» és fals`);
+          } else {
+            throw new Error(`línia «${l}» no prevista`);
+          }
+        }
+      } else if (fila === FILA.resum) {
+        const valor = t => exacte(M.llegeix(t, {variables: []}), {variables: {}, funcions: {}});
+        for (const l of liniesDArray(tex)) {
+          let m;
+          if ((m = /^«AV:»x=(.+)$/.exec(l))) comprova(arrelsQ.some(r => r.igual(valor(m[1]))), () => `${on}: «${l}» no és una asímptota vertical`);
+          else if (l === "«AV:non'hiha»") comprova(!arrelsQ.length, () => `${on}: diu que no hi ha asímptotes verticals`);
+          else if ((m = /^«AH:»y=(.+)$/.exec(l))) comprova(AH && valor(m[1]).igual(AH), () => `${on}: «${l}» és fals`);
+          else if (l === "«AH:non'hiha»") comprova(!AH, () => `${on}: sí que hi ha asímptota horitzontal`);
+          else if ((m = /^«AO:»y=(.+)$/.exec(l))) {
+            const recta = M.polinomi(M.llegeix(m[1]));
+            comprova(AO && recta && conjunt([recta[1] || fr(0)]) === conjunt([AO.m]) && conjunt([recta[0] || fr(0)]) === conjunt([AO.n]), () => `${on}: «${l}» és fals`);
+          } else if (l === "«AO:non'hiha»") comprova(!AO, () => `${on}: sí que hi ha asímptota obliqua`);
+          else throw new Error(`línia «${l}» no prevista`);
+        }
+      }
+    } catch (e) {
+      comprova(false, () => `${on}: no es pot llegir «${tex.slice(0, 120)}»: ${e.message}`);
+    }
+  }));
+  // Al final: el resum, complet i destacat; i, si el límit a l'infinit és infinit, la fila destacada.
+  const final = passos[passos.length - 1];
+  const resum = liniesDArray(final.files[FILA.resum]);
+  comprova(final.classes[FILA.resum] === 'final', () => `${nom}: el resum no està destacat`);
+  comprova(resum.filter(l => l.startsWith('«AV:')).length === Math.max(1, arrelsQ.length) && resum.some(l => l.startsWith('«AH:')) && resum.some(l => l.startsWith('«AO:')),
+    () => `${nom}: al resum hi falten asímptotes: ${resum}`);
+  comprova((final.classes[FILA.infinit] === 'destacat') === !AH, () => `${nom}: la fila dels límits a l'infinit s'ha de destacar si i només si són infinits`);
+  comprova(liniesDArray(final.files[FILA.laterals] || '\\begin{array}{l}\\end{array}').length === 2 * arrelsQ.length || (!arrelsQ.length && !final.files[FILA.laterals]),
+    () => `${nom}: falten límits laterals`);
+  return linies;
+}
+
+seccio('asímptotes', () => {
+  const A = p => Asimptotes.llegeixAdreca(p);
+  const d = (p3, p2, p1, p0, q2, q1, q0) => ({p3, p2, p1, p0, q2, q1, q0});
+  for (const [p, esperat] of [
+    [{}, d(0, 1, 0, 3, 0, 1, -1)], [{f: '3x/(x^2-4)'}, d(0, 0, 3, 0, 1, 0, -4)], [{f: 'x^3/(x+1)'}, d(1, 0, 0, 0, 0, 1, 1)],
+  ]) comprova(iguals(A(p).valors, esperat), () => `Asimptotes.llegeixAdreca(${JSON.stringify(p)}) → ${JSON.stringify(A(p))}`);
+  for (const [p, patro] of [
+    [{f: 'x^2+1'}, /ha de dependre de x/], [{f: '(x^2-1)/(x-1)'}, /factor comú/], [{f: '(x^3+x)/(x^2+1)'}, /factor comú/],
+    [{f: '1/(x^2-2)'}, /irracionals/], [{f: 'x^4/(x+1)'}, /grau massa alt/], [{f: '(x'}, /^No entenc l'adreça/],
+  ]) comprova(patro.test(A(p).error || ''), () => `Asimptotes.llegeixAdreca(${JSON.stringify(p)}) hauria de donar ${patro}: ${JSON.stringify(A(p))}`);
+  for (const v of Asimptotes.exemples) comprova(Asimptotes.valida(v) === null, () => `l'exemple ${JSON.stringify(v)} no és vàlid`);
+  const casos = Asimptotes.exemples.slice();
+  const atzar = aleatori(2030);
+  const enter = (min, max) => min + Math.floor(atzar() * (max - min + 1));
+  for (let i = 0; i < 4000; i++) casos.push(d(enter(-2, 2), enter(-4, 4), enter(-9, 9), enter(-9, 9), enter(-2, 2), enter(-5, 5), enter(-9, 9)));
+  let valids = 0, linies = 0, passos = 0;
+  const tipus = new Set();
+  for (const v of casos) {
+    if (Asimptotes.valida(v)) continue;
+    valids++;
+    const nom = `f = ${Asimptotes.escriuAdreca(v).f}`;
+    comprova(iguals(A(Asimptotes.escriuAdreca(v)).valors, v), () => `${nom}: anada i tornada de l'adreça`);
+    let llista;
+    try { llista = Asimptotes.passos(v); } catch (e) { comprova(false, () => `${nom}: passos() llança ${e.stack}`); continue; }
+    comprovaGuio(llista, Asimptotes.files, nom);
+    linies += comprovaAsimptotes(llista, v, nom);
+    passos += llista.length;
+    const res = liniesDArray(llista[llista.length - 1].files[Asimptotes.FILA.resum]).join();
+    tipus.add((res.includes('«AH:»') ? 'H' : '') + (res.includes('«AO:»') ? 'O' : '') + (res.includes("«AV:non'hiha»") ? '' : 'V'));
+  }
+  comprova(['HV', 'OV', 'V', 'H', 'O'].every(t => tipus.has(t)), () => `la mostra no té tots els tipus de casos: ${[...tipus]}`);
+  return `${valids} casos vàlids, ${passos} passos, ${linies} línies comprovades (tipus: ${[...tipus].sort().join(' ')})`;
 });
 
 

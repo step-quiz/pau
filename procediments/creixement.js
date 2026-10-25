@@ -99,41 +99,20 @@ function valida(v) {
 function llegeixAdreca(p) {
   const v = Object.assign({}, PER_DEFECTE);
   if (p.f !== undefined) {
-    let q;
-    try {
-      q = Dd.llegeixQuocient(p.f);
-    } catch (e) {
-      if (e instanceof M.ErrorLectura) return {error: `No entenc l'adreça: ${e.message}`};
-      throw e;
-    }
-    if (!q) {
-      return {error: `La funció de l'adreça, «${p.f}», no és un polinomi ni un quocient de polinomis. `
-        + 'Escriu el numerador i el denominador entre parèntesis, per exemple (x^2+3)/(x-1).'};
-    }
-    if (!q.P.concat(q.Q).every(c => c.esEnter())) return {error: `La funció de l'adreça, «${p.f}», té coeficients que no són enters.`};
-    if (q.P.length > 4 || q.Q.length > 3) {
-      return {error: `La funció de l'adreça, «${p.f}», té un grau massa alt: el numerador pot ser de grau 3 com a màxim, i el denominador, de grau 2.`};
-    }
-    for (let n = 0; n <= 3; n++) v['p' + n] = q.P[n] ? q.P[n].num : 0;
-    for (let n = 0; n <= 2; n++) v['q' + n] = q.Q[n] ? q.Q[n].num : 0;
+    const error = Dd.llegeixQuocientA(p.f, v);
+    if (error) return {error};
   }
   const error = valida(v);
   return error ? {error: `L'adreça no es pot fer servir. ${error}`} : {valors: v};
 }
 
 /** «x^3-1», «1/x», «2x/(x+1)», «(x^2+3)/(x-1)»: els parèntesis, només si calen. */
-function escriuAdreca(v) {
-  const P = termesP(v), Q = termesQ(v);
-  if (esPolinomi(v)) return {f: M.textPolinomi(P)};
-  const num = P.length > 1 ? `(${M.textPolinomi(P)})` : M.textPolinomi(P);
-  const den = Q.length > 1 || !Fraccio.de(Q[0].c).igual(1) ? `(${M.textPolinomi(Q)})` : M.textPolinomi(Q);
-  return {f: `${num}/${den}`};
-}
+const escriuAdreca = v => ({f: Dd.textQuocient(v)});
 
 
 /* ── 3. TEXTOS I PECES ─────────────────────────────────────────────── */
 
-const texFuncio = v => (esPolinomi(v) ? texPolinomi(termesP(v)) : `\\dfrac{${texPolinomi(termesP(v))}}{${texPolinomi(termesQ(v))}}`);
+const texFuncio = Dd.texQuocient;
 const enunciat = v => `Estudia el creixement i el decreixement de la funció $f(x) = ${texFuncio(v)}$.`;
 const resum = v => `f(x) = ${texFuncio(v)}`;
 

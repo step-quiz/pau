@@ -6,6 +6,7 @@
 
    1. Fórmules TeX amb CLAUS. Cada símbol que s'ha de poder seguir d'un
       pas al següent porta una clau: \htmlData{k=<clau>}{<símbol>}.
+      marcat() les escriu de manera compacta: «q4: ⟦a:a⟧ + ⟦b:b⟧ = ⟦r:2⟧».
       El motor (motor.js) busca les claus a la pissarra abans i després
       del pas, i el símbol que té la mateixa clau es desplaça.
       Una clau és única dins d'un pas (sumant totes les files).
@@ -45,6 +46,35 @@ function clau(k, tex) {
 const op = (k, tex) => `\\mathbin{${clau(k, tex)}}`;
 /** Relació amb clau («=»): conserva l'espaiat de TeX. */
 const rel = (k, tex) => `\\mathrel{${clau(k, tex)}}`;
+
+const RELACIONS = new Set(['=', '<', '>']);
+const OPERADORS = new Set(['+', '-', '\\cdot']);
+
+/**
+ * Fórmula amb claus escrita de manera compacta: «⟦k:tex⟧» és el símbol
+ * «tex» amb la clau k. Si el text comença per «prefix: », totes les claus
+ * porten aquest prefix, i el «=» que no és dins de cap ⟦…⟧ (n'hi pot haver
+ * un com a màxim) porta la clau prefix + «q». «=», «<» i «>» s'escriuen
+ * com a relacions (rel); «+», «-» i «\cdot», com a operadors (op).
+ *   marcat('q4: ⟦a:a⟧ + ⟦b:b⟧ = ⟦r:2⟧')   →  claus q4a, q4b, q4q i q4r
+ */
+function marcat(text) {
+  const m = /^([A-Za-z][A-Za-z0-9]*): /.exec(text);
+  const P = m ? m[1] : '';
+  let iguals = 0;
+  const tex = (m ? text.slice(m[0].length) : text).split(/(⟦[^⟦⟧]*⟧)/).map((tros, i) => {
+    if (i % 2) {
+      const s = /^⟦([A-Za-z0-9]+):([\s\S]*)⟧$/.exec(tros);
+      if (!s) throw new Error(`Símbol mal escrit: «${tros}»`);
+      const [, k, contingut] = s;
+      return (RELACIONS.has(contingut) ? rel : OPERADORS.has(contingut) ? op : clau)(P + k, contingut);
+    }
+    if (/[⟦⟧]/.test(tros)) throw new Error(`Claudàtors desaparellats a «${text}»`);
+    return P ? tros.replace(/=/g, () => { iguals++; return rel(P + 'q', '='); }) : tros;
+  }).join('');
+  if (iguals > 1) throw new Error(`Hi ha més d'un «=» sense clau a «${text}»`);
+  return tex;
+}
 
 /** Membre esquerre «f(x) =», «f'(2) =», «f''(x) =». «primes»: 0, 1 (o true) o 2. */
 function membreEsquerre(L, nom, arg, primes = 0) {
@@ -377,6 +407,23 @@ function frase(k, text, marca = '') {
   return `{{${k}|${marca}|${text}}}`;
 }
 
+/**
+ * Enunciat amb frases marcables, escrit amb claudàtors: «[id:frase]» o
+ * «[id*:frase]». Les frases d'un mateix id porten les claus E<id>1, E<id>2…
+ * marca(id) diu quina marca té cada id ('' si cap). Torna {tex, principal},
+ * on principal[id] és la clau de la frase marcada amb * (o la primera).
+ */
+function enunciatMarcat(text, marca) {
+  const n = {}, principal = {};
+  const resultat = text.replace(/\[([A-Za-z0-9]+)(\*?):([^\]]*)\]/g, (_, id, estrella, contingut) => {
+    n[id] = (n[id] || 0) + 1;
+    const k = 'E' + id + n[id];
+    if (estrella || !principal[id]) principal[id] = k;
+    return frase(k, contingut, marca(id));
+  });
+  return {tex: filaText(resultat), principal};
+}
+
 
 /* ── 6. GUIÓ ───────────────────────────────────────────────────────── */
 
@@ -414,12 +461,12 @@ function guio(nFiles) {
 /* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
 
 arrel.Formules = Object.freeze({
-  clau, op, rel, membreEsquerre,
+  clau, op, rel, marcat, membreEsquerre,
   polinomi, substituit, avaluat, fusionsAvaluat,
   resultat, fusionsResultat, clausResultat,
   derivadaIndicada, derivadaBaixada, derivadaFeta,
   equacio, resolPolinomi,
-  filaText, frase,
+  filaText, frase, enunciatMarcat,
   guio,
 });
 

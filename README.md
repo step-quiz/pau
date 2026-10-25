@@ -27,12 +27,15 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 
 ## Procediments animats
 
-`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. De moment, del bloc d'Anàlisi: l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes) i sis problemes d'optimització. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
+`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. De moment, del bloc d'Anàlisi: l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes), sis problemes d'optimització i sis polinomis de grau 3 que cal trobar a partir de condicions, el teorema de Bolzano amb el mètode de la bisecció, i les asímptotes d'una funció racional. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
 
 - `procediments/recta-tangent.html?f=x^3-3x+1&x0=-1`
 - `procediments/extrems.html?f=x^3-3x^2+1`
 - `procediments/creixement.html?f=(x^2+3)/(x-1)`
 - `procediments/optimitzacio.html?p=capsa` (sis problemes fixos: hort, capsa, llauna, diposit, pista, nombres)
+- `procediments/bolzano.html?f=x^3+x-1&a=0&b=1&n=3`
+- `procediments/asimptotes.html?f=(x^2+3)/(x-1)`
+- `procediments/polinomi-condicions.html?p=tangent` (sis problemes fixos: ordenades, maxim, tangent, inflexio, beneficis, maxmin)
 
 Totes les pàgines comparteixen el motor (`motor.js`) i l'estil (`estil.css`); cada procediment només té una pàgina HTML petita i un fitxer JS. Abans de pujar-hi canvis, passeu les proves:
 

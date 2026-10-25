@@ -9,12 +9,16 @@
      campsFuncio(max)            fila «f(x) =» de l'editor de fletxes
      campsPolinomi(…)            una fila de coeficients qualsevol
      llegeixQuocient(text)       «(x^2+3)/(x-1)» → {P, Q} (coeficients), o null
+     llegeixQuocientA(text, v, …) el mateix, cap als camps p3…p0 i q2…q0 (adreça)
+     textQuocient(v), texQuocient(v)  P/Q per a l'adreça i en TeX
      validaFuncio(v, max)        error (text per a l'alumne) o null
      llegeixFuncio(text, v, g)   llegeix «f» de l'adreça dins de v
      textFuncio(v)               «f» per a l'adreça: «x^3-3x^2+1»
      reglesDerivada(llista)      com es deriva cada tipus de terme (text)
      article(v)                  «l'» o «el» davant d'un nombre
    Els valors són {a3, a2, a1, a0, …}.
+   I, per als procediments de problemes fixos (sense editor):
+     problemesFixos(llista)      adreça «?p=<id>», exemples i textos comuns
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -84,6 +88,47 @@ function llegeixQuocient(text) {
   return P && Q && Q.length ? {P, Q} : null;
 }
 
+/**
+ * Llegeix la funció P/Q de l'adreça cap als camps p0…p<maxP> i q0…q<maxQ>
+ * de v. Torna un text d'error o null.
+ */
+function llegeixQuocientA(text, v, maxP = 3, maxQ = 2) {
+  let q;
+  try {
+    q = llegeixQuocient(text);
+  } catch (e) {
+    if (e instanceof M.ErrorLectura) return `No entenc l'adreça: ${e.message}`;
+    throw e;
+  }
+  if (!q) {
+    return `La funció de l'adreça, «${text}», no és un polinomi ni un quocient de polinomis. `
+      + 'Escriu el numerador i el denominador entre parèntesis, per exemple (x^2+3)/(x-1).';
+  }
+  if (!q.P.concat(q.Q).every(c => c.esEnter())) return `La funció de l'adreça, «${text}», té coeficients que no són enters.`;
+  if (q.P.length > maxP + 1 || q.Q.length > maxQ + 1) {
+    return `La funció de l'adreça, «${text}», té un grau massa alt: el numerador pot ser de grau ${maxP} com a màxim, i el denominador, de grau ${maxQ}.`;
+  }
+  for (let n = 0; n <= maxP; n++) v['p' + n] = q.P[n] ? q.P[n].num : 0;
+  for (let n = 0; n <= maxQ; n++) v['q' + n] = q.Q[n] ? q.Q[n].num : 0;
+  return null;
+}
+
+/** Termes del numerador i del denominador (camps p3…p0 i q2…q0). */
+const termesNumerador = v => termesAmb(v, 'p', 3);
+const termesDenominador = v => termesAmb(v, 'q', 2);
+const esPolinomiQ = v => !v.q2 && !v.q1 && v.q0 === 1;
+
+/** «x^3-1», «1/x», «2x/(x+1)», «(x^2+3)/(x-1)»: els parèntesis, només si calen. */
+function textQuocient(v) {
+  const P = termesNumerador(v), Q = termesDenominador(v);
+  if (esPolinomiQ(v)) return M.textPolinomi(P);
+  const num = P.length > 1 ? `(${M.textPolinomi(P)})` : M.textPolinomi(P);
+  const den = Q.length > 1 || !M.Fraccio.de(Q[0].c).igual(1) ? `(${M.textPolinomi(Q)})` : M.textPolinomi(Q);
+  return `${num}/${den}`;
+}
+/** P/Q en TeX: \dfrac{P}{Q}, o el polinomi P si Q = 1. */
+const texQuocient = v => (esPolinomiQ(v) ? M.texPolinomi(termesNumerador(v)) : `\\dfrac{${M.texPolinomi(termesNumerador(v))}}{${M.texPolinomi(termesDenominador(v))}}`);
+
 /** La funció per a l'adreça. */
 const textFuncio = v => M.textPolinomi(termesDe(v));
 
@@ -100,9 +145,37 @@ function reglesDerivada(llista) {
 /** Article davant d'un nombre: «l'1», «l'11», «el 3», «el −2». */
 const article = v => (M.Fraccio.de(v).igual(1) || M.Fraccio.de(v).igual(11) ? "l'" : 'el ');
 
+/**
+ * Peces comunes d'un procediment de problemes fixos, sense editor: cada
+ * problema té un id (per a l'adreça, «?p=<id>») i un nom (per al botó).
+ * L'enunciat no va a sobre de la pissarra: hi va a dins, com a fila de text.
+ * Torna {perId, perDefecte, exemples, valida, llegeixAdreca, escriuAdreca,
+ * enunciat, resum, nomExemple}.
+ */
+function problemesFixos(llista) {
+  const perId = id => llista.find(p => p.id === id);
+  const perDefecte = Object.freeze({p: llista[0].id});
+  return Object.freeze({
+    perId,
+    perDefecte,
+    exemples: Object.freeze(llista.map(p => Object.freeze({p: p.id}))),
+    valida: v => (perId(v.p) ? null : 'Aquest problema no existeix.'),
+    llegeixAdreca: a => {
+      if (a.p === undefined) return {valors: Object.assign({}, perDefecte)};
+      return perId(a.p) ? {valors: {p: a.p}}
+        : {error: `L'adreça demana el problema «${a.p}», que no existeix. Els problemes són: ${llista.map(q => q.id).join(', ')}.`};
+    },
+    escriuAdreca: v => ({p: v.p}),
+    enunciat: () => '',
+    resum: v => `\\text{${perId(v.p).nom}}`,
+    nomExemple: v => perId(v.p).nom,
+  });
+}
+
 arrel.Dades = Object.freeze({
   COEFS, termesDe, termesAmb, camp, campsFuncio, campsPolinomi, validaFuncio, llegeixFuncio, llegeixQuocient,
-  textFuncio, reglesDerivada, article,
+  llegeixQuocientA, textQuocient, texQuocient,
+  textFuncio, reglesDerivada, article, problemesFixos,
 });
 
 })(globalThis);

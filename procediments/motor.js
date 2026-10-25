@@ -343,10 +343,24 @@ function creaPissarra(r, nFiles, cursor, temps) {
   const ambClau = c => new Map([...c.querySelectorAll('[data-k]')].map(e => [e.dataset.k, e]));
   const posicions = m => new Map([...m].map(([k, e]) => [k, rectangle(e, r.efectes)]));
 
+  /**
+   * Trossos d'un símbol, un per línia: una frase d'una fila de text pot
+   * ocupar més d'una línia. Un símbol partit no es pot moure com un
+   * fantasma d'una sola línia: es queda a la seva capa i s'hi fon, i els
+   * requadres i el cursor van als seus trossos.
+   */
+  function trossos(el) {
+    const o = r.efectes.getBoundingClientRect();
+    return [...el.getClientRects()].filter(q => q.width > 0.5 && q.height > 0.5).map(q => {
+      const x = q.left - o.left, y = q.top - o.top;
+      return {x, y, w: q.width, h: q.height, cx: x + q.width / 2, cy: y + q.height / 2};
+    });
+  }
+
   /** Còpia d'un símbol, posada exactament damunt del rectangle «q». */
   function fantasma(el, q) {
     const estil = getComputedStyle(el);
-    const f = element('div', {class: 'katex fantasma'});
+    const f = element('div', {class: 'katex fantasma', 'data-de': el.dataset.k});
     f.style.fontSize = estil.fontSize;
     f.style.color = estil.color;
     f.style.fontFamily = estil.fontFamily;            // una frase de text no ha de canviar de lletra
@@ -405,19 +419,35 @@ function creaPissarra(r, nFiles, cursor, temps) {
     const igual = (ka, kb) => signatura(A.get(ka)) === signatura(B.get(kb));
     const canvia = (ka, kb) => !igual(ka, kb) || Math.abs(midaLletra(A.get(ka)) - midaLletra(B.get(kb))) > 0.5;
 
+    /* Símbols partits en més d'una línia (vegeu trossos): sense fantasma, es fonen amb la seva capa. */
+    const TA = new Map([...A].map(([k, e]) => [k, trossos(e)]));
+    const TB = new Map([...B].map(([k, e]) => [k, trossos(e)]));
+    const partitA = ka => TA.get(ka).length > 1, partitB = kb => TB.get(kb).length > 1;
+    const quiets = new Set();             // claus noves de parelles partides
+    for (const [kb, ka] of parelles) {
+      if (!partitA(ka) && !partitB(kb)) continue;
+      quiets.add(kb);
+      A.get(ka).classList.add('sense-fantasma');
+      B.get(kb).classList.add('sense-fantasma');
+    }
+    for (const [k, e] of A) if (!usades.has(k) && partitA(k)) e.classList.add('sense-fantasma');
+    for (const [k, e] of B) if (!parelles.has(k) && partitB(k)) e.classList.add('sense-fantasma');
+    /** On s'apunta un símbol: si està partit, el primer tros. */
+    const lloc = (R, T, k) => (T.has(k) && T.get(k).length > 1 ? T.get(k)[0] : R.get(k));
+
     /* 1. El cursor clica un símbol, o n'agafa un per arrossegar-lo. */
     const c = pas.cursor || {};
     let arrossegat = null;                // {r0, r1, el}: d'on surt, on va i el seu requadre
     if (c.arrossega && RA.has(c.arrossega)) {
-      const r0 = RA.get(c.arrossega);
+      const r0 = lloc(RA, TA, c.arrossega);
       const parella = [...parelles].find(([, ka]) => ka === c.arrossega);
-      const r1 = RB.get(c.fins) || (parella && RB.get(parella[0])) || RB.get(desti.get(c.arrossega)) || r0;
+      const r1 = lloc(RB, TB, c.fins) || (parella && lloc(RB, TB, parella[0])) || lloc(RB, TB, desti.get(c.arrossega)) || r0;
       await cursor.va(r0.cx, r0.cy + r0.h * 0.15);
       arrossegat = {r0, r1, el: requadre(r0, temps(TEMPS.agafa))};
       cursor.prem(true);
       await espera(temps(TEMPS.agafa));
     } else if (c.clic && RA.has(c.clic)) {
-      const q = RA.get(c.clic);
+      const q = lloc(RA, TA, c.clic);
       await cursor.va(q.cx, q.cy + q.h * 0.15);
       cursor.prem(true);
       cursor.ona(q.cx, q.cy);
@@ -429,11 +459,18 @@ function creaPissarra(r, nFiles, cursor, temps) {
     /* 2. Avisos: si no s'arrossega res, requadres sobre el que canviarà o desapareixerà. */
     const avisos = [];                    // {r0, r1, el}; r1 = null si el símbol desapareix
     if (!arrossegat) {
-      for (const [kb, ka] of parelles) if (canvia(ka, kb)) avisos.push({r0: RA.get(ka), r1: RB.get(kb)});
+      for (const [kb, ka] of parelles) {
+        if (!canvia(ka, kb)) continue;
+        if (!quiets.has(kb)) { avisos.push({r0: RA.get(ka), r1: RB.get(kb)}); continue; }
+        // Partit: un requadre per tros, que segueix el tros corresponent si n'hi ha tants com abans.
+        const [ta, tb] = [TA.get(ka), TB.get(kb)];
+        ta.forEach((q, j) => avisos.push({r0: q, r1: ta.length === tb.length ? tb[j] : null}));
+      }
       const grups = new Map();            // els símbols que es fusionen en un, en un sol requadre
       for (const ka of velles) {
         const kb = desti.get(ka);
         if (RB.has(kb)) grups.set(kb, (grups.get(kb) || []).concat([RA.get(ka)]));
+        else if (partitA(ka)) for (const q of TA.get(ka)) avisos.push({r0: q, r1: null});
         else avisos.push({r0: RA.get(ka), r1: null});
       }
       for (const [kb, rs] of grups) avisos.push({r0: unio(rs), r1: RB.get(kb)});
@@ -460,6 +497,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
 
     // Els símbols que continuen es desplacen; si canvien, el vell es fon en el nou.
     for (const [kb, ka] of parelles) {
+      if (quiets.has(kb)) continue;
       const a = RA.get(ka), b = RB.get(kb), elB = B.get(kb);
       const vell = fantasma(A.get(ka), a);
       const escala = midaLletra(elB) / vell.mida;
@@ -476,6 +514,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
 
     // Els símbols que desapareixen van a parar a la seva fusió, o s'esvaeixen.
     for (const ka of velles) {
+      if (partitA(ka)) continue;
       const a = RA.get(ka), vell = fantasma(A.get(ka), a), t = RB.get(desti.get(ka));
       feines.push(anima(vell.el, t
         ? [{transform: QUIET, opacity: 1}, {offset: 0.7, opacity: 0.85}, {transform: trasllat(a, t, 0.55), opacity: 0}]
@@ -485,6 +524,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
 
     // Els símbols nous apareixen; el resultat d'una fusió, amb una empenta.
     for (const kb of noves) {
+      if (partitB(kb)) continue;
       const nou = fantasma(B.get(kb), RB.get(kb)), esFusio = fusiona.has(kb);
       feines.push(anima(nou.el, esFusio
         ? [{transform: 'scale(.4)', opacity: 0}, {offset: 0.55, transform: 'scale(.4)', opacity: 0},
@@ -506,6 +546,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
     /* 4. Queda la capa nova, i el cursor deixa anar el símbol arrossegat. */
     vella.remove();
     nova.classList.remove('nova', 'amaga-claus');
+    nova.querySelectorAll('.sense-fantasma').forEach(e => e.classList.remove('sense-fantasma'));
     nova.style.visibility = '';
     aturaAnimacions(nova);
     capa = nova;

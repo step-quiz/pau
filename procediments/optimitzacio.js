@@ -247,25 +247,12 @@ const PROBLEMES = Object.freeze([
   },
 ]);
 
-const perId = id => PROBLEMES.find(p => p.id === id);
+/* Adreça, exemples i textos comuns (l'enunciat és a la pissarra, fila 0, per poder-hi marcar frases). */
+const FIXOS = arrel.Dades.problemesFixos(PROBLEMES);
+const {perId} = FIXOS;
 
 
-/* ── 2. DADES, ADREÇA I TEXTOS ─────────────────────────────────────── */
-
-const PER_DEFECTE = Object.freeze({p: 'hort'});
-const EXEMPLES = Object.freeze(PROBLEMES.map(p => Object.freeze({p: p.id})));
-
-const valida = v => (perId(v.p) ? null : 'Aquest problema no existeix.');
-
-function llegeixAdreca(p) {
-  if (p.p === undefined) return {valors: Object.assign({}, PER_DEFECTE)};
-  return perId(p.p) ? {valors: {p: p.p}}
-    : {error: `L'adreça demana el problema «${p.p}», que no existeix. Els problemes són: ${PROBLEMES.map(q => q.id).join(', ')}.`};
-}
-const escriuAdreca = v => ({p: v.p});
-const enunciat = () => '';                          // l'enunciat és a la pissarra (fila 0), per poder-hi marcar frases
-const resum = v => `\\text{${perId(v.p).nom}}`;
-const nomExemple = v => perId(v.p).nom;
+/* ── 2. FILES I LECTURA DE L'ENUNCIAT ──────────────────────────────── */
 
 /** Files de la pissarra. */
 const FILA = Object.freeze({enunciat: 0, funcio: 1, condicio: 2, domini: 3, derivada: 4, calcul: 5, resposta: 6});
@@ -278,13 +265,8 @@ const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio'});
  * cada categoria (la marcada amb *, o la primera), d'on surt la fórmula.
  */
 function lectura(p, marcades) {
-  const n = {o: 0, c: 0}, principal = {};
-  const text = p.lectura.text.replace(/\[([oc])(\*?):([^\]]*)\]/g, (_, tipus, estrella, contingut) => {
-    const k = 'E' + tipus + (++n[tipus]);
-    if (estrella || !principal[tipus]) principal[tipus] = estrella ? k : principal[tipus] || k;
-    return F.frase(k, contingut, marcades.includes(tipus) ? MARQUES[tipus] : '');
-  });
-  return {tex: F.filaText(text), objectiu: principal.o, condicio: principal.c};
+  const {tex, principal} = F.enunciatMarcat(p.lectura.text, id => (marcades.includes(id) ? MARQUES[id] : ''));
+  return {tex, objectiu: principal.o, condicio: principal.c};
 }
 
 
@@ -385,14 +367,16 @@ arrel.Optimitzacio = Object.freeze({
   titol: 'Optimització',
   categoria: 'analisi',
   files: 7,
-  perDefecte: PER_DEFECTE,
-  exemples: EXEMPLES,
+  perDefecte: FIXOS.perDefecte,
+  exemples: FIXOS.exemples,
   titolEditor: 'Tria un problema',
   notaEditor: 'Tots es resolen amb la mateixa tècnica: llegir l\'enunciat (què s\'optimitza i quina condició hi ha), funció, condició, una sola variable, domini, derivada, segona derivada i resposta.',
   editor: [],
   problemes: PROBLEMES,
   FILA,
-  valida, llegeixAdreca, escriuAdreca, enunciat, resum, nomExemple, passos,
+  valida: FIXOS.valida, llegeixAdreca: FIXOS.llegeixAdreca, escriuAdreca: FIXOS.escriuAdreca,
+  enunciat: FIXOS.enunciat, resum: FIXOS.resum, nomExemple: FIXOS.nomExemple,
+  passos,
 });
 
 })(globalThis);
