@@ -2,7 +2,7 @@
    formules.js — Fórmules amb claus i guions dels procediments
    ───────────────────────────────────────────────────────────────────
    Mòdul pur: no toca la pàgina (DOM). Depèn de mates.js. Exporta
-   «Formules», amb dues parts:
+   «Formules», amb tres parts:
 
    1. Fórmules TeX amb CLAUS. Cada símbol que s'ha de poder seguir d'un
       pas al següent porta una clau: \htmlData{k=<clau>}{<símbol>}.
@@ -21,13 +21,14 @@
         L F  nom    L P  prima    L a, L b  parèntesis    L X  argument    L q  «=»
       Convé que L i P siguin lletres diferents (p. ex. «G» i «g»).
 
-   2. GUIÓ: el constructor de la llista de passos d'un procediment.
+   2. EQUACIONS: resolPolinomi() resol «polinomi = 0» pas a pas.
+   3. GUIÓ: el constructor de la llista de passos d'un procediment.
    El format d'un pas es documenta a README.md.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
 
-const {Fraccio, texNombre, texEntreParentesis, derivaTermes} = arrel.Mates;
+const {Fraccio, mcd, arrelExacta, texNombre, texEntreParentesis, texPolinomi, derivaTermes} = arrel.Mates;
 
 
 /* ── 1. CLAUS ──────────────────────────────────────────────────────── */
@@ -44,10 +45,11 @@ const op = (k, tex) => `\\mathbin{${clau(k, tex)}}`;
 /** Relació amb clau («=»): conserva l'espaiat de TeX. */
 const rel = (k, tex) => `\\mathrel{${clau(k, tex)}}`;
 
-/** Membre esquerre «f(x) =», «f'(2) =». */
-function membreEsquerre(L, nom, arg, prima = false) {
+/** Membre esquerre «f(x) =», «f'(2) =», «f''(x) =». «primes»: 0, 1 (o true) o 2. */
+function membreEsquerre(L, nom, arg, primes = 0) {
+  const n = primes === true ? 1 : (primes || 0);
   return clau(L + 'F', nom)
-    + (prima ? `^{${clau(L + 'P', '\\prime')}}` : '')
+    + (n ? `^{${clau(L + 'P', '\\prime'.repeat(n))}}` : '')
     + clau(L + 'a', '(') + clau(L + 'X', arg) + clau(L + 'b', ')')
     + rel(L + 'q', '=');
 }
@@ -219,7 +221,147 @@ function derivadaFeta(P, Q, llista) {
 }
 
 
-/* ── 4. GUIÓ ───────────────────────────────────────────────────────── */
+/* ── 4. EQUACIONS «POLINOMI = 0» ───────────────────────────────────── */
+
+/** 2x² − 3x + 1 = 0. Claus: les del polinomi, P q per a «=» i P z per al 0. */
+const equacio = (P, llista) => polinomi(P, llista) + rel(P + 'q', '=') + clau(P + 'z', '0');
+
+/** «+3» o «−3», per als textos. */
+const ambSigne = v => (Fraccio.de(v).signe() < 0 ? '' : '+') + texNombre(v);
+/** Coeficient positiu d'un terme de grau n ≥ 1: no s'escriu si és 1. */
+const coeficient = (P, n, a) => (esU(a) ? '' : clau(P + 'c' + n, texNombre(a)));
+const O_DISJUNCIO = '\\quad\\text{o}\\quad ';
+
+/**
+ * Resol pas a pas l'equació «llista = 0» a la fila «fila» del guió «g»,
+ * amb claus de prefix P. El polinomi ha de tenir grau 2 o menys,
+ * coeficients enters i solucions racionals (Mates.arrelsRacionals ho diu).
+ *   textInici, opcionsInici: text i opcions del primer pas (l'equació).
+ * Mètodes, com a classe: dividir per un factor comú; passar el terme
+ * independent a l'altre costat; treure factor comú x; x² = k; i la
+ * fórmula de l'equació de segon grau.
+ * Torna les solucions, de menor a major: [{valor: Fraccio, clau}], on
+ * «clau» és la del nombre a l'última fila (per portar-lo a una altra fila).
+ * Si no n'hi ha cap, el text de l'últim pas ja ho explica.
+ */
+function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}) {
+  let t = normalitza(llista);
+  const posa = (tex, text, opcions) => { g.files[fila] = tex; g.afegeix(text, opcions); };
+  const x = n => clau(P + 'v' + n, 'x');
+  const igual = rel(P + 'q', '=');
+  const quadrat = x(2) + `^{${clau(P + 'e2', 2)}}`;
+
+  posa(equacio(P, t), textInici, opcionsInici);
+  const grau = t.length ? t[0].n : -1;
+  if (grau < 0 || grau > 2) throw new Error('resolPolinomi: grau no admès');
+  if (grau === 0) {
+    g.completa(` Però $${texNombre(t[0].c)} = 0$ no és cert per a cap valor de $x$: l'equació no té solucions.`);
+    return [];
+  }
+
+  // Divideix per un factor comú, i perquè el primer coeficient sigui positiu.
+  if (t.every(u => u.c.esEnter())) {
+    const k = t.reduce((m, u) => mcd(m, u.c.num), 0) * t[0].c.signe();
+    if (k !== 1) {
+      t = t.map(u => ({n: u.n, c: u.c.quocient(k)}));
+      posa(equacio(P, t), `Divideix els dos membres per $${texNombre(k)}$: l'equació és equivalent i més senzilla.`);
+    }
+  }
+  const coef = n => { const u = t.find(v => v.n === n); return u ? u.c : null; };
+  const [A, B, C] = [coef(2), coef(1), coef(0)];
+  const zero = Fraccio.de(0);
+
+  /** Dues solucions: la x (clau xClau) es queda a la primera. */
+  function separa(xClau, v1, v2, fusiona, text) {
+    posa(clau(xClau, 'x') + igual + clau(P + 'S1', texNombre(v1)) + O_DISJUNCIO
+      + clau(P + 'X2', 'x') + rel(P + 'Q2', '=') + clau(P + 'S2', texNombre(v2)), text, {fusiona});
+    return [{valor: v1, clau: P + 'S1'}, {valor: v2, clau: P + 'S2'}];
+  }
+
+  if (grau === 1) {
+    const a = B;
+    if (!C) return [{valor: zero, clau: P + 'z'}];                      // ja és «x = 0»
+    posa(coeficient(P, 1, a) + x(1) + igual + clau(P + 'c0', texNombre(C.oposada())),
+      `Passa el $${ambSigne(C)}$ a l'altre costat: hi arriba canviat de signe.`, {fusiona: {[P + 'c0']: [P + 'z']}});
+    const v = C.oposada().quocient(a);
+    if (!esU(a)) {
+      posa(x(1) + igual + clau(P + 'c0', texNombre(v)), `Divideix els dos membres per $${texNombre(a)}$.`, {fusiona: {[P + 'c0']: [P + 'c1']}});
+    }
+    return [{valor: v, clau: P + 'c0'}];
+  }
+
+  if (!B) {                                                              // A·x² + C = 0
+    let k = zero, kClau = P + 'z';
+    if (C) {
+      posa(coeficient(P, 2, A) + quadrat + igual + clau(P + 'c0', texNombre(C.oposada())),
+        `Passa el $${ambSigne(C)}$ a l'altre costat: hi arriba canviat de signe.`, {fusiona: {[P + 'c0']: [P + 'z']}});
+      k = C.oposada();
+      kClau = P + 'c0';
+      if (!esU(A)) {
+        k = k.quocient(A);
+        posa(quadrat + igual + clau(kClau, texNombre(k)), `Divideix els dos membres per $${texNombre(A)}$.`, {fusiona: {[kClau]: [P + 'c2']}});
+      }
+    }
+    if (k.signe() < 0) {
+      g.completa(' Un quadrat no pot ser negatiu: l\'equació no té solucions.');
+      return [];
+    }
+    if (k.esZero()) {
+      posa(x(2) + igual + clau(kClau, '0'), 'Si $x^2 = 0$, llavors $x = 0$.');
+      return [{valor: zero, clau: kClau}];
+    }
+    const r = arrelExacta(k);
+    const pm = clau(P + 'pm', '\\pm');
+    posa(x(2) + igual + pm + clau(P + 'r', `\\sqrt{${texNombre(k)}}`),
+      'Fes l\'arrel quadrada: hi ha dues solucions, una positiva i una negativa.', {fusiona: {[P + 'r']: [kClau], [P + 'pm']: [P + 'e2']}});
+    posa(x(2) + igual + pm + clau(P + 'r', texNombre(r)), `$\\sqrt{${texNombre(k)}} = ${texNombre(r)}$.`);
+    return separa(P + 'v2', r.oposada(), r, {[P + 'S1']: [P + 'pm'], [P + 'S2']: [P + 'r']}, 'Separa les dues solucions.');
+  }
+
+  if (!C) {                                                              // A·x² + B·x = 0
+    const dins = coeficient(P, 2, A) + x(2) + signe(P, 1, false, B.signe() < 0) + clau(P + 'c1', texNombre(B.abs()));
+    posa(clau(P + 'f', 'x') + clau(P + 'l', '(') + dins + clau(P + 'p', ')') + igual + clau(P + 'z', '0'),
+      'Treu factor comú $x$.', {fusiona: {[P + 'f']: [P + 'e2', P + 'v1']}});
+    const primera = clau(P + 'f', 'x') + rel(P + 'q0', '=') + clau(P + 'z0', '0') + O_DISJUNCIO;
+    posa(primera + dins + igual + clau(P + 'z', '0'), 'Un producte val $0$ quan algun dels factors val $0$.');
+    const v = B.oposada().quocient(A);
+    posa(primera + x(2) + igual + clau(P + 'c1', texNombre(v)),
+      `Resol $${texPolinomi([{n: 1, c: A}, {n: 0, c: B}])} = 0$: $x = ${texNombre(v)}$.`,
+      {fusiona: esU(A) ? {[P + 'c1']: [P + 'z']} : {[P + 'c1']: [P + 'z', P + 'c2']}});
+    return [{valor: zero, clau: P + 'z0'}, {valor: v, clau: P + 'c1'}].sort((a, b) => a.valor.resta(b.valor).signe());
+  }
+
+  // A·x² + B·x + C = 0: la fórmula.
+  const D = B.producte(B).resta(A.producte(C).producte(4));
+  const dosA = A.producte(2);
+  const formula = (arrelTex, denTex) => x(2) + igual + `\\dfrac{${clau(P + 'nb', texNombre(B.oposada())) + clau(P + 'pm', '\\pm')
+    + clau(P + 'r', arrelTex)}}{${clau(P + 'd', denTex)}}`;
+  const fonts = (...claus) => claus.filter(k => g.files[fila].includes(`{k=${k}}`));
+  posa(formula(`\\sqrt{${texEntreParentesis(B)}^{2} - 4 \\cdot ${texEntreParentesis(A)} \\cdot ${texEntreParentesis(C)}}`, `2 \\cdot ${texEntreParentesis(A)}`),
+    `Aplica la fórmula $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$, amb $a = ${texNombre(A)}$, $b = ${texNombre(B)}$ i $c = ${texNombre(C)}$.`,
+    {fusiona: {[P + 'nb']: fonts(P + 's1', P + 'c1', P + 'v1'), [P + 'r']: fonts(P + 's0', P + 'c0', P + 'e2', P + 'z'), [P + 'd']: fonts(P + 'c2')}});
+  posa(formula(`\\sqrt{${texNombre(D)}}`, texNombre(dosA)),
+    `Calcula el que hi ha dins de l'arrel, $b^2 - 4ac = ${texNombre(D)}$, i el denominador, $2a = ${texNombre(dosA)}$.`);
+  if (D.signe() < 0) {
+    g.completa(' L\'arrel quadrada d\'un nombre negatiu no existeix: l\'equació no té solucions.');
+    return [];
+  }
+  const r = arrelExacta(D);
+  posa(formula(texNombre(r), texNombre(dosA)), `$\\sqrt{${texNombre(D)}} = ${texNombre(r)}$.`);
+  if (r.esZero()) {
+    const v = B.oposada().quocient(dosA);
+    posa(x(2) + igual + clau(P + 'S1', texNombre(v)), `Com que l'arrel val $0$, només hi ha una solució: $x = ${texNombre(v)}$.`,
+      {fusiona: {[P + 'S1']: [P + 'nb', P + 'pm', P + 'r', P + 'd']}});
+    return [{valor: v, clau: P + 'S1'}];
+  }
+  const v1 = B.oposada().resta(r).quocient(dosA), v2 = B.oposada().suma(r).quocient(dosA);
+  const parcial = (s, v) => `x = \\frac{${texNombre(B.oposada())} ${s} ${texNombre(r)}}{${texNombre(dosA)}} = ${texNombre(v)}`;
+  return separa(P + 'v2', v1, v2, {[P + 'S1']: [P + 'nb', P + 'pm'], [P + 'S2']: [P + 'r', P + 'd']},
+    `Separa el $-$ i el $+$: $${parcial('-', v1)}$ i $${parcial('+', v2)}$.`);
+}
+
+
+/* ── 5. GUIÓ ───────────────────────────────────────────────────────── */
 
 /**
  * Constructor de la llista de passos d'un procediment.
@@ -227,6 +369,7 @@ function derivadaFeta(P, Q, llista) {
  *   g.files[0] = '…';                      // TeX amb claus de la fila 0
  *   g.classes[0] = 'final';                // classe CSS de la fila 0
  *   g.afegeix('Text del pas.', {cursor: {clic: 'Ta3'}});
+ *   g.completa(' Una frase més per al mateix pas.');
  *   return g.passos;
  * Un pas que no canviaria res de la pissarra (mateixes fórmules, mateixes
  * claus i mateixes classes) no s'afegeix. Així un guió pot demanar un pas
@@ -242,7 +385,12 @@ function guio(nFiles) {
     const igual = anterior && anterior.files.join('\n') === pas.files.join('\n') && anterior.classes.join() === pas.classes.join();
     if (!igual) passos.push(pas);
   }
-  return {files, classes, afegeix, passos};
+  /** Afegeix una frase al text de l'últim pas (quan la pissarra no ha de canviar). */
+  function completa(text) {
+    const i = passos.length - 1;
+    passos[i] = Object.freeze(Object.assign({}, passos[i], {text: passos[i].text + text}));
+  }
+  return {files, classes, afegeix, completa, passos};
 }
 
 
@@ -253,6 +401,7 @@ arrel.Formules = Object.freeze({
   polinomi, substituit, avaluat, fusionsAvaluat,
   resultat, fusionsResultat, clausResultat,
   derivadaIndicada, derivadaBaixada, derivadaFeta,
+  equacio, resolPolinomi,
   guio,
 });
 

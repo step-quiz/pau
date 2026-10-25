@@ -1,6 +1,6 @@
 # procediments/ — animated step-by-step procedures
 
-Small pages, inside the PAU site, that show a mechanical procedure (for now: the equation of the tangent line) as an animation in the style of Graspable Math. The student watches symbols move, merge and change, one step at a time, with a short explanation for each step. The data (the function, the point…) can be changed with arrows or through the address.
+Small pages, inside the PAU site, that show a mechanical procedure (for now, from the *Anàlisi* block: the equation of the tangent line, and relative maxima and minima) as an animation in the style of Graspable Math. The student watches symbols move, merge and change, one step at a time, with a short explanation for each step. The data (the function, the point…) can be changed with arrows or through the address.
 
 Principles: keep it simple, step by step, smooth, and **every line shown is a true equality** (checked automatically, see §7).
 
@@ -11,14 +11,16 @@ Student-facing text is Catalan; code comments are Catalan; this file is English.
 | File | Layer | DOM? | Role |
 |---|---|---|---|
 | `mates.js` | maths | no | Exact rationals (`Fraccio`), expression parser (`llegeix`), polynomials, TeX/plain writers. Global `Mates`. |
-| `formules.js` | formulas | no | TeX writers whose symbols carry **keys** (§4), and `guio()`, the step-list builder. Global `Formules`. |
-| `recta-tangent.js` | procedure | no | Definition of one procedure (§3). Global `RectaTangent`. |
+| `formules.js` | formulas | no | TeX writers whose symbols carry **keys** (§4), the step-by-step equation solver `resolPolinomi` (§4.1), and `guio()`, the step-list builder. Global `Formules`. |
+| `dades.js` | data | no | What the Anàlisi procedures share about `f(x) = a3·x³ + a2·x² + a1·x + a0`: editor row, validation, reading `f` from the address, derivative captions. Global `Dades`. |
+| `recta-tangent.js` | procedure | no | Tangent line (§3). Global `RectaTangent`. Page `recta-tangent.html?f=2x^2-3x+1&x0=2`. |
+| `extrems.js` | procedure | no | Relative maxima and minima: critical points, then the second derivative. Global `Extrems`. Page `extrems.html?f=x^3-3x^2+1`. |
 | `motor.js` | engine | yes | Builds the page, reads the address, renders steps with KaTeX, animates transitions, player and editor. Global `Motor`. |
 | `estil.css` | style | — | Shared look (site palette; category colour from `body[data-categoria]`). |
-| `recta-tangent.html` | page | — | Loads the above and calls `Motor.inicia(RectaTangent)`. |
+| `recta-tangent.html`, `extrems.html` | pages | — | Load the above and call `Motor.inicia(<Procedure>)`. |
 | `proves/comprova.js` | tests | no | `node procediments/proves/comprova.js` (§7). |
 
-Dependency order: `katex` → `mates.js` → `formules.js` → `motor.js` and the procedure file. Plain classic scripts (no modules, no build step); each file is an IIFE that sets one frozen global on `globalThis`, so pages work from any static host and the pure files also load in Node.
+Dependency order: `katex` → `mates.js` → `formules.js` → `dades.js` → `motor.js` and the procedure file. Plain classic scripts (no modules, no build step); each file is an IIFE that sets one frozen global on `globalThis`, so pages work from any static host and the pure files also load in Node.
 
 A change of look goes to `estil.css`; of timing, to `TEMPS` in `motor.js`; of behaviour, to `motor.js`. All procedures follow.
 
@@ -32,6 +34,7 @@ A change of look goes to `estil.css`; of timing, to `TEMPS` in `motor.js`; of be
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script src="mates.js"></script>
 <script src="formules.js"></script>
+<script src="dades.js"></script>
 <script src="motor.js"></script>
 <script src="recta-tangent.js"></script>
 <script>const procediment = Motor.inicia(RectaTangent);</script>
@@ -84,7 +87,7 @@ Only `passos` and `resum` are mandatory for the engine; the rest have fallbacks 
 }
 ```
 
-Build it with `Formules.guio(nFiles)`: set `g.files[i]` / `g.classes[i]`, call `g.afegeix(text, options)`, return `g.passos`. A step identical to the previous one (same TeX, same classes) is skipped, so optional steps («Calcula cada terme») need no special case.
+Build it with `Formules.guio(nFiles)`: set `g.files[i]` / `g.classes[i]`, call `g.afegeix(text, options)`, return `g.passos`. A step identical to the previous one (same TeX, same classes) is skipped, so optional steps («Calcula cada terme») need no special case. `g.completa(text)` appends a sentence to the last step when the board must not change (e.g. «l'equació no té solucions»).
 
 ### Keys
 
@@ -101,6 +104,10 @@ Polynomial helpers use a one-letter prefix `P` and the degree `n` of the term:
 | `PEn` | new exponent when deriving | | |
 
 `membreEsquerre(L, …)` writes `f(x) =` with prefix `L`: `LF` name, `LP` prime, `La`/`Lb` parentheses, `LX` argument, `Lq` `=`. Use different letters for `L` and `P`. The tangent equation (row 0) uses keys `T…`, documented at the top of `recta-tangent.js`.
+
+### 4.1 Solving «polynomial = 0»
+
+`Formules.resolPolinomi(g, row, P, terms, firstText, firstOptions)` adds the steps that solve `terms = 0` (degree ≤ 2, integer coefficients, rational roots) on one row, the way it is taught: divide by a common factor (and make the leading coefficient positive); degree 1: move the constant, divide; `Ax² + Bx = 0`: take out `x`, split the product, solve the linear factor; `Ax² + C = 0`: `x² = k`, `x = ±√k`; otherwise the quadratic formula (substituted, discriminant, square root, split `±`). No real solution: the last caption says why. It returns the solutions in ascending order as `[{valor, clau}]`, where `clau` is the key of the number on the last row (to drag it elsewhere). `Mates.arrelsRacionals(terms)` tells beforehand whether the roots are rational (procedures reject irrational cases in `valida`).
 
 ### Transition semantics (`motor.js`, `creaPissarra`)
 
@@ -142,6 +149,9 @@ No dependencies (Node ≥ 16). It loads the pure files with `vm` and checks:
 1. `mates.js` and `formules.js`: fractions, parsing (values and the Catalan error messages), polynomial round trips, both TeX writers.
 2. Address of the tangent line: valid cases, every error case, and the round trip `escriuAdreca → llegeixAdreca` for all 130 302 valid functions.
 3. Structure of every step list (rules of §4).
-4. **Strict truth** of every displayed line, with exact rational arithmetic: each row is converted from TeX to plain text, parsed and evaluated with the true `f` and `f'`. Lines with `y` must hold on the tangent line and fail off it; other lines must be identities (checked at 4 points, which proves them for polynomials of degree ≤ 3; `(…)'` is evaluated with the five-point formula, exact up to degree 4). The final line must be `y = …` without `f`.
+4. **Strict truth** of every displayed line, with exact rational arithmetic: each row is converted from TeX to plain text, parsed and evaluated with the true `f`, `f'` and `f''`. Identities are checked at 4 points, which proves them for polynomials of degree ≤ 3; `(…)'` is evaluated with the five-point formula, exact up to degree 4.
+   - Tangent line: lines with `y` must hold on the tangent line and fail off it; the final line must be `y = …` without `f`.
+   - `resolPolinomi`, for every `ax² + bx + c = 0` with coefficients in −6…6 and rational roots: every row must have exactly the same solutions as the equation (`o` = union, `±` = both values, an equation row = its own roots).
+   - Extrema: rows 0–1 are identities (a final `< 0` / `> 0` is checked) or equations with exactly the critical points as solutions; rows 2–3 are a critical point `x = a`, or a conclusion checked with `f'(a) = 0`, `f(a)` and the sign of `f''(a)` (`f''(a) = 0` only for a cubic, where `f''' ≠ 0` proves it is neither); the last step has one conclusion per critical point. `valida` must reject exactly the irrational cases.
 
-The grid has 10 052 data sets (dense, extremes and a fixed pseudo-random sample). The run takes about 15 s and ends with `Tot correcte: … comprovacions` (exit code 0) or the first errors (exit code 1).
+Grids: 10 052 tangent-line data sets, 1 344 equations and about 4 700 valid functions for extrema (dense, extremes and a fixed pseudo-random sample). The run takes about 20 s and ends with `Tot correcte: … comprovacions` (exit code 0) or the first errors (exit code 1).

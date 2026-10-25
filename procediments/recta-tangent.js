@@ -24,6 +24,7 @@
 
 const M = arrel.Mates;
 const F = arrel.Formules;
+const Dd = arrel.Dades;
 const {Fraccio, texNombre, texEntreParentesis, texPolinomi} = M;
 const {clau: K, op: O, rel: R} = F;
 
@@ -33,7 +34,6 @@ const {clau: K, op: O, rel: R} = F;
 const MAX_COEF = 9;
 const MAX_PUNT = 5;
 const MAX_GRAU = 3;
-const COEFS = ['a0', 'a1', 'a2', 'a3'];        // índex = grau
 
 const PER_DEFECTE = Object.freeze({a3: 0, a2: 2, a1: -3, a0: 1, x0: 2});
 
@@ -45,18 +45,13 @@ const EXEMPLES = Object.freeze([
   {a3: -1, a2: 3, a1: 0, a0: -2, x0: 3},       // f(x₀) negatiu
 ]);
 
-/** Termes de f, de més a menys grau. */
-const termesDe = v => M.termes(COEFS.map(id => v[id]));
-
-/** Article davant d'un nombre: «l'1», «l'11», «el 3», «el −2». */
-const article = v => (v.igual(1) || v.igual(11) ? "l'" : 'el ');
+const {termesDe, article} = Dd;
 
 /** Text d'error si els valors no són vàlids; si ho són, null. */
 function valida(v) {
-  const enter = (x, max) => Number.isInteger(x) && Math.abs(x) <= max;
-  if (!COEFS.every(id => enter(v[id], MAX_COEF))) return `Els coeficients han de ser enters entre −${MAX_COEF} i ${MAX_COEF}.`;
-  if (!enter(v.x0, MAX_PUNT)) return `El punt x₀ ha de ser un enter entre −${MAX_PUNT} i ${MAX_PUNT}.`;
-  if (!v.a3 && !v.a2 && !v.a1) return 'La funció ha de dependre de x: posa algun coeficient de x diferent de 0.';
+  const error = Dd.validaFuncio(v, MAX_COEF);
+  if (error) return error;
+  if (!Number.isInteger(v.x0) || Math.abs(v.x0) > MAX_PUNT) return `El punt x₀ ha de ser un enter entre −${MAX_PUNT} i ${MAX_PUNT}.`;
   return null;
 }
 
@@ -71,11 +66,8 @@ function llegeixAdreca(p) {
   const v = Object.assign({}, PER_DEFECTE);
   try {
     if (p.f !== undefined) {
-      const coefs = M.polinomi(M.llegeix(p.f));
-      if (!coefs) return {error: `La funció de l'adreça, «${p.f}», no és un polinomi. De moment, aquest procediment només treballa amb polinomis.`};
-      if (coefs.length - 1 > MAX_GRAU) return {error: `La funció de l'adreça, «${p.f}», és de grau ${coefs.length - 1}. De moment, el grau màxim és ${MAX_GRAU}.`};
-      if (!coefs.every(c => c.esEnter())) return {error: `La funció de l'adreça, «${p.f}», té coeficients que no són enters.`};
-      COEFS.forEach((id, n) => { v[id] = coefs[n] ? coefs[n].num : 0; });
+      const error = Dd.llegeixFuncio(p.f, v, MAX_GRAU);
+      if (error) return {error};
     }
     if (p.x0 !== undefined) {
       const x0 = M.llegeixNombre(p.x0);
@@ -92,7 +84,7 @@ function llegeixAdreca(p) {
 
 /** Paràmetres de l'adreça per a uns valors: {f: '2x^2-3x+1', x0: '2'}. */
 function escriuAdreca(v) {
-  return {f: M.textPolinomi(termesDe(v)), x0: String(v.x0)};
+  return {f: Dd.textFuncio(v), x0: String(v.x0)};
 }
 
 
@@ -107,15 +99,6 @@ function resum(v) {
   return `f(x) = ${texPolinomi(termesDe(v))},\\ \\ x_0 = ${texNombre(v.x0)}`;
 }
 
-/** Com es deriva cada tipus de terme de f. */
-function regles(f) {
-  const r = [];
-  if (f.some(t => t.n >= 2)) r.push('L\'exponent baixa multiplicant i es redueix en $1$.');
-  const lineal = f.find(t => t.n === 1);
-  if (lineal) r.push(`$${texPolinomi([lineal])}$ passa a $${texNombre(lineal.c)}$.`);
-  if (f.some(t => t.n === 0)) r.push('La constant desapareix.');
-  return r.join(' ');
-}
 
 
 /* ── 4. PASSOS ─────────────────────────────────────────────────────── */
@@ -189,7 +172,7 @@ function passos(v) {
   g.files[1] = derX + F.derivadaIndicada('d', f);
   g.afegeix('Ara calcula la derivada, $f\'(x)$.');
   g.files[1] = derX + F.derivadaBaixada('d', f);
-  g.afegeix(`Deriva terme a terme. ${regles(f)}`, {cursor: {clic: 'dQ'}});
+  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {cursor: {clic: 'dQ'}});
   const feta = F.derivadaFeta('d', 'q', f);
   let reanomenaPendent = {};
   if (feta.multiplica) {
@@ -260,8 +243,6 @@ function passos(v) {
 
 /* ── 5. DEFINICIÓ DEL PROCEDIMENT ──────────────────────────────────── */
 
-/** Camp de l'editor de fletxes (vegeu README.md). */
-const camp = (id, sufix, nom, max, signe, atenua0) => ({id, sufix, nom, min: -max, max, signe, atenua0});
 
 arrel.RectaTangent = Object.freeze({
   titol: 'Recta tangent',
@@ -272,13 +253,8 @@ arrel.RectaTangent = Object.freeze({
   titolEditor: 'Canvia la funció i el punt',
   notaEditor: `Els coeficients van de −${MAX_COEF} a ${MAX_COEF}, i el punt, de −${MAX_PUNT} a ${MAX_PUNT}.`,
   editor: [
-    {etiqueta: 'f(x) =', camps: [
-      camp('a3', 'x^3', 'coeficient de x al cub', MAX_COEF, 'negatiu', true),
-      camp('a2', 'x^2', 'coeficient de x al quadrat', MAX_COEF, 'sempre', true),
-      camp('a1', 'x', 'coeficient de x', MAX_COEF, 'sempre', true),
-      camp('a0', '', 'terme independent', MAX_COEF, 'sempre', true),
-    ]},
-    {etiqueta: 'x_0 =', camps: [camp('x0', '', 'punt x zero', MAX_PUNT, 'negatiu', false)]},
+    Dd.campsFuncio(MAX_COEF),
+    {etiqueta: 'x_0 =', camps: [Dd.camp('x0', '', 'punt x zero', MAX_PUNT, 'negatiu', false)]},
   ],
   valida, llegeixAdreca, escriuAdreca, enunciat, resum, passos,
 });

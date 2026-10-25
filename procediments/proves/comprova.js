@@ -21,10 +21,10 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'recta-tangent.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
-const {Mates: M, Formules: F, RectaTangent: RT} = globalThis;
+const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems} = globalThis;
 const {Fraccio} = M;
 const fr = (a, b = 1) => new Fraccio(a, b);
 
@@ -81,7 +81,8 @@ function aleatori(llavor) {
 /**
  * Converteix una línia TeX de la pissarra en text pla que Mates.llegeix
  * entén: treu les claus, \mathbin, \mathrel, \left, \right i els espais;
- * \cdot → *, ^{…} → ^(…), ^{\prime} → ', \frac{a}{b} → ((a)/(b)).
+ * \cdot → *, ^{…} → ^(…), ^{\prime} → ', \frac{a}{b} → ((a)/(b)),
+ * \sqrt{a} → sqrt(a), \pm → ±, \text{o} → | (disjunció), \text{…} → «…».
  */
 function textPla(tex) {
   let i = 0;
@@ -99,17 +100,20 @@ function textPla(tex) {
       const c = tex[i];
       if (c === '{') { s += grup(); continue; }
       if (c === '}') throw new Error(`Sobra una «}» a: ${tex}`);
-      if (c === '^') { i++; const g = grup(); s += g === "'" ? "'" : '^(' + g + ')'; continue; }
+      if (c === '^') { i++; const g = grup(); s += /^'+$/.test(g) ? g : '^(' + g + ')'; continue; }
       if (c === '_') { i++; s += '_' + grup(); continue; }
       if (c === '\\') {
         const ordre = /^\\([A-Za-z]+|.)/.exec(tex.slice(i))[0];
         i += ordre.length;
         switch (ordre) {
           case '\\htmlData': grup(); break;          // l'atribut k=…; el contingut és el grup següent
-          case '\\mathbin': case '\\mathrel': case '\\left': case '\\right': case '\\,': case '\\ ': break;
+          case '\\mathbin': case '\\mathrel': case '\\left': case '\\right': case '\\,': case '\\ ': case '\\quad': break;
+          case '\\pm': s += '±'; break;
+          case '\\sqrt': s += `sqrt(${grup()})`; break;
+          case '\\text': { const t = grup(); s += t === 'o' ? '|' : `«${t}»`; break; }
           case '\\cdot': s += '*'; break;
           case '\\prime': s += "'"; break;
-          case '\\frac': { const a = grup(), b = grup(); s += `((${a})/(${b}))`; break; }
+          case '\\frac': case '\\dfrac': { const a = grup(), b = grup(); s += `((${a})/(${b}))`; break; }
           default: throw new Error(`Ordre TeX no prevista per la prova: ${ordre}`);
         }
         continue;
@@ -142,12 +146,22 @@ function exacte(n, entorn) {
       if (!e.esEnter() || e.num < 0) throw new Error('Exponent no natural');
       return ev(n.base).potencia(e.num);
     }
-    case 'crida':    return entorn.funcions[n.nom](ev(n.arg));
+    case 'crida': {
+      if (n.nom !== 'sqrt') return entorn.funcions[n.nom](ev(n.arg));
+      const v = ev(n.arg);
+      if (v.signe() < 0) throw new SenseValorReal();
+      const r = M.arrelExacta(v);
+      if (!r) throw new Error(`Arrel irracional: √${v.num}/${v.den}`);
+      return r;
+    }
   }
   throw new Error(`Node no previst per la prova: ${n.tipus}`);
 }
 
-const LECTURA = {variables: ['x', 'y'], funcions: ['f', "f'"]};
+/** L'arrel quadrada d'un nombre negatiu: no hi ha valor real. */
+class SenseValorReal extends Error {}
+
+const LECTURA = {variables: ['x', 'y'], funcions: ['f', "f'", "f''"]};
 
 /**
  * Prepara un costat d'una igualtat: torna una funció entorn → Fraccio.
@@ -416,6 +430,214 @@ seccio('guions i veritat de recta-tangent', () => {
     maxim = Math.max(maxim, llista.length);
   }
   return `${casos.length} casos, ${passos} passos (fins a ${maxim} per cas), ${linies} línies comprovades`;
+});
+
+
+/* ── 5. EQUACIONS I EXTREMS RELATIUS ───────────────────────────────── */
+
+/** Clau d'un conjunt de nombres, per comparar conjunts: «-1,2,7/3». */
+const conjunt = valors => [...new Set(valors.map(v => v.num + (v.den === 1 ? '' : '/' + v.den)))]
+  .sort((a, b) => M.llegeixNombre(a).resta(M.llegeixNombre(b)).signe()).join(',');
+
+/**
+ * Solucions reals de «p = 0» (coeficients de grau 0 cap amunt, grau ≤ 2),
+ * calculades aquí mateix, sense Formules ni Mates.arrelsRacionals.
+ */
+function arrelsDe(p) {
+  if (!p.length) throw new Error('l\'equació és 0 = 0');
+  if (p.length === 1) return [];
+  if (p.length === 2) return [p[0].oposada().quocient(p[1])];
+  if (p.length > 3) throw new Error('grau més gran que 2');
+  const [c, b, a] = p;
+  const d = b.producte(b).resta(a.producte(c).producte(4));
+  if (d.signe() < 0) return [];
+  const r = M.arrelExacta(d);
+  if (!r) return null;                                  // irracionals
+  return [b.oposada().resta(r).quocient(a.producte(2)), b.oposada().suma(r).quocient(a.producte(2))];
+}
+
+/**
+ * Solucions d'una fila que és una equació en x: «x^2-2x=0», «x(x-2)=0»,
+ * «x=0|x-2=0» (| = «o»), «x=±sqrt(4)», «x=((2±sqrt(16))/(2))».
+ */
+function solucionsDeFila(pla) {
+  const valors = [];
+  for (const part of pla.split('|')) {
+    const costats = part.split('=');
+    if (costats.length !== 2) throw new Error(`«${part}» no és una equació`);
+    const [esquerre, dret] = costats;
+    if (part.includes('±')) {
+      if (esquerre !== 'x') throw new Error(`«${part}»: amb ± hi ha d'haver x a l'esquerra`);
+      for (const s of ['+', '-']) {
+        try {
+          valors.push(exacte(M.llegeix(dret.replace('±', s), LECTURA), {variables: {}, funcions: {}}));
+        } catch (e) {
+          if (!(e instanceof SenseValorReal)) throw e;
+        }
+      }
+    } else {
+      const p = M.polinomi(M.llegeix(`(${esquerre})-(${dret})`));
+      if (!p) throw new Error(`«${part}» no és polinòmica`);
+      const arrels = arrelsDe(p);
+      if (!arrels) throw new Error(`«${part}» té solucions irracionals`);
+      valors.push(...arrels);
+    }
+  }
+  return conjunt(valors);
+}
+
+seccio('equacions de formules.js', () => {
+  // arrelsRacionals
+  for (const [coefs, esperat, irracionals] of [
+    [[-3, 0, 1], '', true], [[-4, 0, 1], '-2,2', false], [[0, -2, 1], '0,2', false], [[1, -2, 1], '1', false],
+    [[1, 0, 1], '', false], [[3, 2], '-3/2', false], [[5], '', false], [[1, 4, 3], '-1,-1/3', false],
+  ]) {
+    const r = M.arrelsRacionals(M.termes(coefs));
+    comprova(conjunt(r.arrels) === esperat && r.irracionals === irracionals, () => `arrelsRacionals(${coefs}) → ${JSON.stringify(r)}`);
+  }
+  // resolPolinomi: totes les equacions a·x² + b·x + c = 0 amb coeficients entre −6 i 6 i solucions racionals.
+  let n = 0;
+  for (let a = -6; a <= 6; a++) for (let b = -6; b <= 6; b++) for (let c = -6; c <= 6; c++) {
+    if (!a && !b) continue;
+    const t = M.termes([c, b, a]);
+    if (M.arrelsRacionals(t).irracionals) continue;
+    n++;
+    const nom = `${M.textPolinomi(t)} = 0`;
+    const g = F.guio(1);
+    const sol = F.resolPolinomi(g, 0, 'e', t, 'Resol.');
+    const esperat = conjunt(arrelsDe([c, b, a].map(v => fr(v)).slice(0, a ? 3 : 2)));
+    comprova(conjunt(sol.map(s => s.valor)) === esperat, () => `${nom}: solucions ${conjunt(sol.map(s => s.valor))}, i són ${esperat}`);
+    if (g.passos.length > 1) comprovaGuio(g.passos, 1, nom);          // «x = 0» ja està resolta: un sol pas
+    const ultim = g.passos[g.passos.length - 1].files[0];
+    for (const s of sol) comprova(clausDe(ultim).includes(s.clau), () => `${nom}: la clau ${s.clau} no és a l'última fila`);
+    for (const [i, pas] of g.passos.entries()) {
+      try {
+        comprova(solucionsDeFila(textPla(pas.files[0])) === esperat, () => `${nom}, pas ${i + 1}: «${textPla(pas.files[0])}» no és equivalent`);
+      } catch (e) {
+        comprova(false, () => `${nom}, pas ${i + 1}: ${e.message}`);
+      }
+    }
+  }
+  return `${n} equacions`;
+});
+
+seccio('adreça de extrems', () => {
+  const E = arrel => Extrems.llegeixAdreca(arrel);
+  const dades = (a3, a2, a1, a0) => ({a3, a2, a1, a0});
+  for (const [p, esperat] of [
+    [{f: 'x^3-3x^2+1'}, dades(1, -3, 0, 1)], [{f: 'x^3-3x^2-9x+1'}, dades(1, -3, -9, 1)], [{}, dades(1, -3, 0, 1)],
+    [{f: 'x(x-2)'}, dades(0, 1, -2, 0)], [{f: '3x+1'}, dades(0, 0, 3, 1)],
+  ]) comprova(iguals(E(p).valors, esperat), () => `Extrems.llegeixAdreca(${JSON.stringify(p)}) → ${JSON.stringify(E(p))}`);
+  for (const [p, patro] of [
+    [{f: 'x^3-2x'}, /irracionals/], [{f: '5'}, /ha de dependre de x/], [{f: 'ln(x)'}, /no és un polinomi/], [{f: 'x^4'}, /de grau 4/], [{f: '2x^^2'}, /^No entenc l'adreça/],
+  ]) comprova(patro.test(E(p).error || ''), () => `Extrems.llegeixAdreca(${JSON.stringify(p)}) hauria de donar ${patro}: ${JSON.stringify(E(p))}`);
+  for (const v of Extrems.exemples) comprova(Extrems.valida(v) === null, () => `l'exemple ${JSON.stringify(v)} no és vàlid`);
+  let n = 0;
+  for (let a3 = -9; a3 <= 9; a3++) for (let a2 = -9; a2 <= 9; a2++) for (let a1 = -9; a1 <= 9; a1++) for (const a0 of [-7, 0, 4]) {
+    const v = dades(a3, a2, a1, a0);
+    if (Extrems.valida(v)) continue;
+    n++;
+    comprova(iguals(E(Extrems.escriuAdreca(v)).valors, v), () => `anada i tornada de ${JSON.stringify(Extrems.escriuAdreca(v))}`);
+  }
+  return `${n} funcions vàlides`;
+});
+
+/**
+ * Veritat d'un guió d'extrems. Files 0 i 1: identitats (f, f', f'' amb el
+ * seu valor de veritat), amb un «< 0» o «> 0» final que també es comprova;
+ * a la fila 1, una equació en x ha de tenir exactament els punts crítics
+ * com a solucions. Files 2 i 3: un candidat (un punt crític) o la
+ * conclusió, que es comprova amb f, f' i f''.
+ */
+function comprovaExtrems(passos, v, nom) {
+  const coefs = [v.a0, v.a1, v.a2, v.a3].map(c => fr(c));
+  const f = polinomiExacte(coefs), d1 = polinomiExacte([v.a1, 2 * v.a2, 3 * v.a3].map(c => fr(c))), d2 = polinomiExacte([2 * v.a2, 6 * v.a3].map(c => fr(c)));
+  const funcions = {f, "f'": d1, "f''": d2};
+  const p1 = [v.a1, 2 * v.a2, 3 * v.a3].map(c => fr(c));
+  while (p1.length && p1[p1.length - 1].esZero()) p1.pop();
+  const critics = conjunt(arrelsDe(p1));
+  const valor = text => exacte(M.llegeix(text, LECTURA), {variables: {}, funcions});
+  let linies = 0;
+
+  const identitat = (pla, on) => {
+    const relacio = /^(.*)([<>])0$/.exec(pla);
+    const parts = (relacio ? relacio[1] : pla).split('=').map(costat);
+    const valors = PUNTS.map(x => parts.map(p => p({variables: {x, y: fr(0)}, funcions})));
+    comprova(valors.every(vs => vs.every(w => w.igual(vs[0]))), () => `${on}: «${pla}» no és certa`);
+    if (relacio) comprova(valors[0][0].signe() === (relacio[2] === '<' ? -1 : 1), () => `${on}: «${pla}»: el signe no és correcte`);
+  };
+
+  passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
+    if (!tex) return;
+    const on = `${nom}, pas ${i + 1}, fila ${fila + 1}`;
+    let pla = '';
+    try {
+      pla = textPla(tex);
+      linies++;
+      if (fila <= 1) {
+        if (pla.includes('f')) identitat(pla, on);
+        else comprova(solucionsDeFila(pla) === critics, () => `${on}: «${pla}» no té per solucions els punts crítics (${critics})`);
+        return;
+      }
+      let m;
+      if ((m = /^x=(.+)$/.exec(pla))) {
+        comprova(conjunt([valor(m[1])]) !== '' && critics.split(',').includes(conjunt([valor(m[1])])), () => `${on}: «${pla}» no és un punt crític`);
+      } else if ((m = /^«(Màxim|Mínim)relatiu:»\((.+),(.+)\)$/.exec(pla))) {
+        const a = valor(m[2]), b = valor(m[3]);
+        comprova(d1(a).esZero() && f(a).igual(b) && d2(a).signe() === (m[1] === 'Màxim' ? -1 : 1), () => `${on}: «${pla}» és fals`);
+      } else if ((m = /^«Nimàximnimínimen»x=(.+)$/.exec(pla))) {
+        const a = valor(m[1]);
+        comprova(d1(a).esZero() && d2(a).esZero() && v.a3 !== 0, () => `${on}: «${pla}» és fals`);   // f''' = 6·a3 ≠ 0: inflexió
+      } else if (pla === '«Nohihapuntscrítics,ipertantnohihaextremsrelatius»') {
+        comprova(critics === '', () => `${on}: diu que no hi ha punts crítics, i n'hi ha (${critics})`);
+      } else {
+        comprova(false, () => `${on}: fila no prevista: «${pla}»`);
+      }
+    } catch (e) {
+      comprova(false, () => `${on}: no es pot llegir «${pla || tex}»: ${e.message}`);
+    }
+  }));
+
+  // L'últim pas: una conclusió per a cada punt crític, i cap més.
+  const final = passos[passos.length - 1].files.slice(2).filter(Boolean).map(textPla);
+  const xs = final.map(pla => (/x=(.+)$/.exec(pla) || /\((.+),/.exec(pla) || [])[1]).filter(Boolean).map(valor);
+  comprova(critics === '' ? final.length === 1 : conjunt(xs) === critics && final.length === xs.length && final.every(pla => pla.startsWith('«')),
+    () => `${nom}: el resultat final no correspon als punts crítics (${critics}): ${final}`);
+  return linies;
+}
+
+seccio('guions i veritat de extrems', () => {
+  const casos = [];
+  const afegeix = (a3, a2, a1, a0) => casos.push({a3, a2, a1, a0});
+  for (let a3 = -3; a3 <= 3; a3++) for (let a2 = -3; a2 <= 3; a2++) for (let a1 = -3; a1 <= 3; a1++) for (let a0 = -3; a0 <= 3; a0++) afegeix(a3, a2, a1, a0);
+  for (const a3 of [-9, 0, 9]) for (const a2 of [-9, 0, 9]) for (const a1 of [-9, 0, 9]) for (const a0 of [-9, 0, 9]) afegeix(a3, a2, a1, a0);
+  const atzar = aleatori(2027);
+  const enter = () => Math.floor(atzar() * 19) - 9;
+  for (let i = 0; i < 6000; i++) afegeix(enter(), enter(), enter(), enter());
+
+  let valids = 0, linies = 0, passos = 0, maxim = 0;
+  for (const v of casos) {
+    const nom = `f = ${Dd.textFuncio(v)}`;
+    const error = Extrems.valida(v);
+    const p1 = [v.a1, 2 * v.a2, 3 * v.a3].map(c => fr(c));
+    while (p1.length && p1[p1.length - 1].esZero()) p1.pop();
+    const irracional = p1.length > 0 && arrelsDe(p1) === null;
+    comprova(Boolean(error) === (!p1.length || irracional), () => `${nom}: valida() diu «${error}»`);
+    if (error) continue;
+    valids++;
+    let llista;
+    try {
+      llista = Extrems.passos(v);
+    } catch (e) {
+      comprova(false, () => `${nom}: passos() llança ${e.message}`);
+      continue;
+    }
+    comprovaGuio(llista, Extrems.files, nom);
+    linies += comprovaExtrems(llista, v, nom);
+    passos += llista.length;
+    maxim = Math.max(maxim, llista.length);
+  }
+  return `${valids} casos vàlids (de ${casos.length}), ${passos} passos (fins a ${maxim} per cas), ${linies} línies comprovades`;
 });
 
 

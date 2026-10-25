@@ -27,9 +27,10 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 
 ## Procediments animats
 
-`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions (de moment, l'equació de la recta tangent). Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
+`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. De moment, del bloc d'Anàlisi: l'equació de la recta tangent i els màxims i mínims relatius. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
 
-`procediments/recta-tangent.html?f=x^3-3x+1&x0=-1`
+- `procediments/recta-tangent.html?f=x^3-3x+1&x0=-1`
+- `procediments/extrems.html?f=x^3-3x^2+1`
 
 Totes les pàgines comparteixen el motor (`motor.js`) i l'estil (`estil.css`); cada procediment només té una pàgina HTML petita i un fitxer JS. Abans de pujar-hi canvis, passeu les proves:
 

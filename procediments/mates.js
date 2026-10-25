@@ -13,6 +13,8 @@
      termes(coefs)      termes no nuls {n, c}, de més a menys grau
      derivaTermes(…)    termes de la derivada
      valorTermes(…)     valor exacte dels termes en un punt
+     arrelExacta(v)     arrel quadrada exacta (o null)
+     arrelsRacionals(…) solucions de «polinomi de grau ≤ 2 = 0»
      texNombre…         escriptura TeX i text pla de nombres i polinomis
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
@@ -424,6 +426,39 @@ function valorTermes(llista, x) {
 }
 
 
+/** Arrel quadrada exacta d'una fracció, o null si és negativa o no és racional. */
+function arrelExacta(v) {
+  v = Fraccio.de(v);
+  if (v.signe() < 0) return null;
+  const a = Math.round(Math.sqrt(v.num)), b = Math.round(Math.sqrt(v.den));
+  return a * a === v.num && b * b === v.den ? new Fraccio(a, b) : null;
+}
+
+/**
+ * Solucions reals de «termes = 0», per a un polinomi de grau 2 o menys.
+ * Torna {arrels, irracionals}: arrels és la llista de solucions racionals,
+ * de menor a major; irracionals és cert si n'hi ha d'irracionals (llavors
+ * arrels és buida). El polinomi zero llança un error.
+ */
+function arrelsRacionals(llista) {
+  const c = [0, 1, 2].map(n => { const t = llista.find(u => u.n === n); return t ? Fraccio.de(t.c) : ZERO; });
+  if (llista.some(t => t.n > 2)) throw new Error('arrelsRacionals: grau més gran que 2');
+  if (!c[2].esZero()) {
+    const d = c[1].producte(c[1]).resta(c[2].producte(c[0]).producte(4));
+    if (d.signe() < 0) return {arrels: [], irracionals: false};
+    const r = arrelExacta(d);
+    if (!r) return {arrels: [], irracionals: true};
+    const den = c[2].producte(2);
+    const arrels = [c[1].oposada().resta(r).quocient(den), c[1].oposada().suma(r).quocient(den)]
+      .sort((a, b) => a.resta(b).signe());
+    return {arrels: r.esZero() ? [arrels[0]] : arrels, irracionals: false};
+  }
+  if (!c[1].esZero()) return {arrels: [c[0].oposada().quocient(c[1])], irracionals: false};
+  if (!c[0].esZero()) return {arrels: [], irracionals: false};
+  throw new Error('arrelsRacionals: el polinomi zero');
+}
+
+
 /* ── 5. ESCRIPTURA ─────────────────────────────────────────────────── */
 
 /** Nombre en TeX: «-3», «\frac{1}{2}», «-\frac{1}{2}». */
@@ -471,9 +506,9 @@ function textPolinomi(llista) {
 /* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
 
 arrel.Mates = Object.freeze({
-  Fraccio, ErrorLectura,
+  Fraccio, ErrorLectura, mcd,
   llegeix, llegeixNombre, avalua, polinomi,
-  termes, derivaTermes, valorTermes,
+  termes, derivaTermes, valorTermes, arrelExacta, arrelsRacionals,
   texNombre, texEntreParentesis, texPolinomi, textPolinomi,
 });
 
