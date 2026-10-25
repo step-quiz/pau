@@ -142,7 +142,7 @@ function llegeixAdreca() {
 /** Posa els paràmetres a l'adreça, sense afegir cap entrada a l'historial. */
 function escriuAdreca(parametres) {
   const text = Object.entries(parametres)
-    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v).replace(/%2B/gi, '+').replace(/%5E/gi, '^'))
+    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v).replace(/%2B/gi, '+').replace(/%5E/gi, '^').replace(/%2F/gi, '/'))
     .join('&');
   try {
     history.replaceState(null, '', location.pathname + (text ? '?' + text : '') + location.hash);

@@ -102,7 +102,7 @@ button{font:inherit; color:inherit}
 .capa.nova{position:absolute; left:0; top:0; padding:inherit; visibility:hidden}  /* la capa del pas següent, mentre es prepara */
 .fila{
   min-height:2.2em; display:flex; align-items:center; white-space:nowrap;
-  border-radius:10px; padding:0 .45em; margin:0 -.45em;
+  border-radius:10px; padding:.15em .45em; margin:0 -.45em;
 }
 .fila .katex{font-size:1em}
 .fila.final{background:var(--cat-fons); box-shadow:inset 0 0 0 1.5px var(--cat)}

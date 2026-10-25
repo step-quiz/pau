@@ -21,10 +21,10 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
-const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems} = globalThis;
+const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement} = globalThis;
 const {Fraccio} = M;
 const fr = (a, b = 1) => new Fraccio(a, b);
 
@@ -109,6 +109,15 @@ function textPla(tex) {
           case '\\htmlData': grup(); break;          // l'atribut k=…; el contingut és el grup següent
           case '\\mathbin': case '\\mathrel': case '\\left': case '\\right': case '\\,': case '\\ ': case '\\quad': break;
           case '\\pm': s += '±'; break;
+          case '\\qquad': break;
+          case '\\mathbb': grup(); s += 'ℝ'; break;
+          case '\\{': s += '{'; break;
+          case '\\}': s += '}'; break;
+          case '\\infty': s += '∞'; break;
+          case '\\cup': s += '∪'; break;
+          case '\\nearrow': s += '↗'; break;
+          case '\\searrow': s += '↘'; break;
+          case '\\nexists': s += '∄'; break;
           case '\\sqrt': s += `sqrt(${grup()})`; break;
           case '\\text': { const t = grup(); s += t === 'o' ? '|' : `«${t}»`; break; }
           case '\\cdot': s += '*'; break;
@@ -453,7 +462,8 @@ function arrelsDe(p) {
   if (d.signe() < 0) return [];
   const r = M.arrelExacta(d);
   if (!r) return null;                                  // irracionals
-  return [b.oposada().resta(r).quocient(a.producte(2)), b.oposada().suma(r).quocient(a.producte(2))];
+  const arrels = [b.oposada().resta(r).quocient(a.producte(2)), b.oposada().suma(r).quocient(a.producte(2))];
+  return r.esZero() ? arrels.slice(0, 1) : arrels;
 }
 
 /**
@@ -634,6 +644,180 @@ seccio('guions i veritat de extrems', () => {
     }
     comprovaGuio(llista, Extrems.files, nom);
     linies += comprovaExtrems(llista, v, nom);
+    passos += llista.length;
+    maxim = Math.max(maxim, llista.length);
+  }
+  return `${valids} casos vàlids (de ${casos.length}), ${passos} passos (fins a ${maxim} per cas), ${linies} línies comprovades`;
+});
+
+
+/* ── 6. CREIXEMENT I DECREIXEMENT ──────────────────────────────────── */
+
+/* Polinomis com a coeficients Fraccio de grau 0 cap amunt, calculats aquí mateix. */
+const retallaP = p => { const q = p.slice(); while (q.length && q[q.length - 1].esZero()) q.pop(); return q; };
+const sumaP = (a, b) => retallaP(Array.from({length: Math.max(a.length, b.length)}, (_, i) => (a[i] || fr(0)).suma(b[i] || fr(0))));
+const producteP = (a, b) => retallaP(a.length && b.length
+  ? Array.from({length: a.length + b.length - 1}, (_, k) => a.reduce((s, c, i) => (k - i >= 0 && k - i < b.length ? s.suma(c.producte(b[k - i])) : s), fr(0)))
+  : []);
+const derivadaP = a => retallaP(a.slice(1).map((c, i) => c.producte(i + 1)));
+
+/** Files i cel·les d'una taula «\begin{array}{…} … \end{array}», ja en text pla. */
+function cellesDeTaula(tex) {
+  const m = /^\\begin\{array\}\{[^}]*\}(.*)\\end\{array\}$/.exec(tex.trim());
+  if (!m) throw new Error('no és una taula');
+  return m[1].split('\\\\').map(fila => fila.replace(/\\hline/g, '').split('&').map(c => textPla(c.trim())));
+}
+
+/** Extrem d'un interval: «-∞», «+∞» o un nombre. */
+const extrem = (text, valor) => (text === '-∞' || text === '+∞' ? text : conjunt([valor(text)]));
+
+/**
+ * Veritat d'un guió de creixement. Fila 0: el domini. Fila 1: identitats
+ * (f, f'). Fila 2: equacions amb les solucions de Q = 0 (abans de la
+ * derivada) o del numerador de f' = 0 (després), o un valor de prova
+ * amb el seu signe. Fila 3: la taula: capçalera completa i cada cel·la,
+ * si no és buida, correcta. Fila 4: la conclusió.
+ */
+function comprovaCreixement(passos, v, nom) {
+  const P = retallaP([v.p0, v.p1, v.p2, v.p3].map(c => fr(c))), Q = retallaP([v.q0, v.q1, v.q2].map(c => fr(c)));
+  const N = sumaP(producteP(derivadaP(P), Q), producteP(P, derivadaP(Q)).map(c => c.oposada()));
+  const val = p => x => p.reduceRight((s, c) => s.producte(x).suma(c), fr(0));
+  const f = x => val(P)(x).quocient(val(Q)(x));
+  const df = x => val(N)(x).quocient(val(Q)(x).potencia(2));
+  const funcions = {f, "f'": df};
+  const arrelsQ = Q.length > 1 ? arrelsDe(Q) : [];
+  const domini = conjunt(arrelsQ);
+  const fora = x => arrelsQ.some(r => r.igual(x));
+  const critics = arrelsDe(N).filter(r => !fora(r));
+  const punts = arrelsQ.concat(critics).sort((a, b) => a.resta(b).signe());
+  const nI = punts.length + 1;
+  // Un punt de cada interval, per saber-ne el signe.
+  const interior = j => (nI === 1 ? fr(0) : j === 0 ? punts[0].resta(1) : j === nI - 1 ? punts[nI - 2].suma(1) : punts[j - 1].suma(punts[j]).quocient(2));
+  const signes = Array.from({length: nI}, (_, j) => val(N)(interior(j)).signe());
+  const intervals = s => signes.map((x, j) => (x === s ? j : null)).filter(j => j !== null);
+  const PUNTS_R = [-7, -5, -3, -1, 1, 3, 5, 7, 9, 11, -9, 13].map(k => fr(k, 4)).concat([fr(-7, 3), fr(5, 3)]).filter(x => !val(Q)(x).esZero());
+  const valor = text => exacte(M.llegeix(text, LECTURA), {variables: {}, funcions});
+  let linies = 0;
+
+  const comprovaInterval = (text, j, on) => {
+    const m = /^\((.+),(.+)\)$/.exec(text);
+    const esperat = [j === 0 ? '-∞' : conjunt([punts[j - 1]]), j === nI - 1 ? '+∞' : conjunt([punts[j]])];
+    comprova(m && extrem(m[1], valor) === esperat[0] && extrem(m[2], valor) === esperat[1], () => `${on}: interval «${text}» en lloc de (${esperat})`);
+  };
+
+  passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
+    if (!tex) return;
+    const on = `${nom}, pas ${i + 1}, fila ${fila + 1}`;
+    linies++;
+    try {
+      if (fila === 0) {
+        const m = /^«Dom»f=ℝ(?:-\{(.+)\})?$/.exec(textPla(tex));
+        comprova(m && conjunt(m[1] ? m[1].split(',').map(valor) : []) === domini, () => `${on}: domini «${textPla(tex)}» en lloc de ℝ − {${domini}}`);
+      } else if (fila === 1 || fila === 2) {
+        const pla = textPla(tex);
+        const relacio = /^(.*)([<>])0$/.exec(pla);
+        if (relacio) {
+          const parts = relacio[1].split('=').map(valor);
+          comprova(parts.every(w => w.igual(parts[0])) && parts[0].signe() === (relacio[2] === '<' ? -1 : 1), () => `${on}: «${pla}» és fals`);
+        } else if (pla.includes('f')) {
+          const parts = pla.split('=').map(costat);
+          comprova(PUNTS_R.length >= 10 && PUNTS_R.every(x => {
+            const vs = parts.map(c => c({variables: {x, y: fr(0)}, funcions}));
+            return vs.every(w => w.igual(vs[0]));
+          }), () => `${on}: «${pla}» no és certa`);
+        } else {
+          const objectiu = conjunt(pas.files[1] ? arrelsDe(N) : arrelsQ);
+          comprova(solucionsDeFila(pla) === objectiu, () => `${on}: «${pla}» no té per solucions ${objectiu}`);
+        }
+      } else if (fila === 3) {
+        const [cap, derivada, funcio] = cellesDeTaula(tex);
+        comprova(cap.length === 2 * nI && cap[0] === 'x' && derivada[0] === "f'(x)" && funcio[0] === 'f(x)', () => `${on}: forma de la taula`);
+        for (let j = 0; j < nI; j++) {
+          const esperatCap = nI === 1 ? '(-∞,+∞)' : j === 0 ? '-∞' : j === nI - 1 ? '+∞' : '';
+          comprova(cap[1 + 2 * j] === esperatCap, () => `${on}: capçalera de l'interval ${j + 1}: «${cap[1 + 2 * j]}»`);
+          const s = derivada[1 + 2 * j], fl = funcio[1 + 2 * j];
+          comprova(s === '' || s === (signes[j] > 0 ? '+' : '-'), () => `${on}: signe de f' a l'interval ${j + 1}: «${s}»`);
+          comprova(fl === '' || fl === (signes[j] > 0 ? '↗' : '↘'), () => `${on}: fletxa a l'interval ${j + 1}: «${fl}»`);
+          if (j === nI - 1) break;
+          const p = punts[j], c = cap[2 + 2 * j], dp = derivada[2 + 2 * j], fp = funcio[2 + 2 * j];
+          comprova(conjunt([valor(c)]) === conjunt([p]), () => `${on}: punt ${j + 1}: «${c}»`);
+          const esperatF = fora(p) ? '∄'
+            : signes[j] > 0 && signes[j + 1] < 0 ? '«màx»' : signes[j] < 0 && signes[j + 1] > 0 ? '«mín»' : '';
+          comprova(dp === '' || dp === (fora(p) ? '∄' : '0'), () => `${on}: f' al punt ${c}: «${dp}»`);
+          comprova(fp === '' || fp === esperatF, () => `${on}: f al punt ${c}: «${fp}» en lloc de «${esperatF}»`);
+          if (fora(p)) comprova(val(Q)(p).esZero(), () => `${on}: Q(${c}) no és 0`);
+          else comprova(df(p).esZero(), () => `${on}: f'(${c}) no és 0`);
+        }
+      } else {
+        const [[creix], [decreix]] = cellesDeTaula(tex);
+        for (const [text, prefix, s] of [[creix, '«Creixent:»', 1], [decreix, '«Decreixent:»', -1]]) {
+          comprova(text.startsWith(prefix), () => `${on}: «${text}»`);
+          const resta = text.slice(prefix.length);
+          const js = intervals(s);
+          if (!js.length) { comprova(resta === '«capinterval»', () => `${on}: «${text}» hauria de ser «cap interval»`); continue; }
+          const parts = resta.split('∪');
+          comprova(parts.length === js.length, () => `${on}: «${text}» no té ${js.length} intervals`);
+          parts.forEach((t, k) => comprovaInterval(t, js[k], on));
+        }
+      }
+    } catch (e) {
+      comprova(false, () => `${on}: no es pot llegir «${tex}»: ${e.message}`);
+    }
+  }));
+
+  // Al final, la taula és completa i hi ha la conclusió.
+  const final = passos[passos.length - 1];
+  comprova(Boolean(final.files[4]), () => `${nom}: falta la conclusió`);
+  const [, dFinal, fFinal] = cellesDeTaula(final.files[3]);
+  const puntsSenseCanvi = punts.filter((p, j) => !fora(p) && signes[j] === signes[j + 1]).length;
+  comprova(dFinal.every(c => c !== '') && fFinal.filter(c => c === '').length === puntsSenseCanvi,
+    () => `${nom}: la taula final no és completa`);
+  return linies;
+}
+
+seccio('adreça de creixement', () => {
+  const C = p => Creixement.llegeixAdreca(p);
+  const d = (p3, p2, p1, p0, q2, q1, q0) => ({p3, p2, p1, p0, q2, q1, q0});
+  for (const [p, esperat] of [
+    [{f: '(x^2+3)/(x-1)'}, d(0, 1, 0, 3, 0, 1, -1)], [{f: '-x/(2x+1)'}, d(0, 0, -1, 0, 0, 2, 1)], [{f: 'x^3-3x^2+1'}, d(1, -3, 0, 1, 0, 0, 1)], [{f: '1/x'}, d(0, 0, 0, 1, 0, 1, 0)],
+    [{f: 'x/(x^2+1)'}, d(0, 0, 1, 0, 1, 0, 1)], [{f: '2x/(x+1)'}, d(0, 0, 2, 0, 0, 1, 1)], [{}, d(0, 1, 0, 3, 0, 1, -1)],
+  ]) comprova(iguals(C(p).valors, esperat), () => `Creixement.llegeixAdreca(${JSON.stringify(p)}) → ${JSON.stringify(C(p))}`);
+  for (const [p, patro] of [
+    [{f: 'x^2/x^2-4'}, /ni un quocient/], [{f: '(x^2-1)/(x-1)'}, /factor comú/], [{f: '(x^2+1)/(2x^2+2)'}, /factor comú/],
+    [{f: '1/(x^2-2)'}, /no són del domini són irracionals/], [{f: 'x^3/(x+1)'}, /grau 2 com a màxim/], [{f: '1/(x^3+1)'}, /grau massa alt/],
+    [{f: 'x/2'}, /no són enters/], [{f: '5'}, /constant/], [{f: 'x^3-2x'}, /crítics són irracionals/], [{f: 'ln(x)'}, /ni un quocient/],
+    [{f: '(x+1'}, /^No entenc l'adreça/],
+  ]) comprova(patro.test(C(p).error || ''), () => `Creixement.llegeixAdreca(${JSON.stringify(p)}) hauria de donar ${patro}: ${JSON.stringify(C(p))}`);
+  for (const v of Creixement.exemples) comprova(Creixement.valida(v) === null, () => `l'exemple ${JSON.stringify(v)} no és vàlid`);
+});
+
+seccio('guions i veritat de creixement', () => {
+  const casos = [];
+  const xs = [-2, -1, 0, 1, 2];
+  for (const p2 of xs) for (const p1 of xs) for (const p0 of xs) for (const q2 of [-1, 0, 1]) for (const q1 of xs) for (const q0 of xs) {
+    casos.push({p3: 0, p2, p1, p0, q2, q1, q0});
+  }
+  for (const p3 of [-2, -1, 1, 2]) for (const p2 of xs) for (const p1 of xs) for (const p0 of [-1, 0, 3]) casos.push({p3, p2, p1, p0, q2: 0, q1: 0, q0: 1});
+  const atzar = aleatori(2028);
+  const enter = () => Math.floor(atzar() * 19) - 9;
+  for (let i = 0; i < 4000; i++) casos.push({p3: 0, p2: enter(), p1: enter(), p0: enter(), q2: enter(), q1: enter(), q0: enter()});
+
+  let valids = 0, linies = 0, passos = 0, maxim = 0;
+  for (const v of casos) {
+    const error = Creixement.valida(v);
+    if (error) continue;
+    valids++;
+    const nom = `f = ${Creixement.escriuAdreca(v).f}`;
+    comprova(iguals(Creixement.llegeixAdreca(Creixement.escriuAdreca(v)).valors, v), () => `${nom}: l'anada i tornada per l'adreça no funciona`);
+    let llista;
+    try {
+      llista = Creixement.passos(v);
+    } catch (e) {
+      comprova(false, () => `${nom}: passos() llança ${e.stack}`);
+      continue;
+    }
+    comprovaGuio(llista, Creixement.files, nom);
+    linies += comprovaCreixement(llista, v, nom);
     passos += llista.length;
     maxim = Math.max(maxim, llista.length);
   }

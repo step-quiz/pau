@@ -11,6 +11,8 @@
      avalua(arbre)      valor numèric d'un arbre
      polinomi(arbre)    coeficients exactes, si l'arbre és un polinomi
      termes(coefs)      termes no nuls {n, c}, de més a menys grau
+     coeficientsDe(…)   el contrari: termes → coeficients
+     sumaPolinomis, producteDePolinomis   operacions amb coeficients
      derivaTermes(…)    termes de la derivada
      valorTermes(…)     valor exacte dels termes en un punt
      arrelExacta(v)     arrel quadrada exacta (o null)
@@ -406,6 +408,16 @@ function polinomi(arbre, x = 'x') {
   }
 }
 
+/** Coeficients [a0, a1, …] (Fraccio, sense zeros al final) a partir d'una llista de termes. */
+function coeficientsDe(llista) {
+  const p = [];
+  for (const t of llista) {
+    while (p.length <= t.n) p.push(ZERO);
+    p[t.n] = p[t.n].suma(Fraccio.de(t.c));
+  }
+  return retalla(p);
+}
+
 /** Termes no nuls, de més a menys grau. Admet coeficients enters o Fraccio. */
 function termes(coeficients) {
   return coeficients
@@ -508,7 +520,7 @@ function textPolinomi(llista) {
 arrel.Mates = Object.freeze({
   Fraccio, ErrorLectura, mcd,
   llegeix, llegeixNombre, avalua, polinomi,
-  termes, derivaTermes, valorTermes, arrelExacta, arrelsRacionals,
+  termes, coeficientsDe, sumaPolinomis, producteDePolinomis, derivaTermes, valorTermes, arrelExacta, arrelsRacionals,
   texNombre, texEntreParentesis, texPolinomi, textPolinomi,
 });
 

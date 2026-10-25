@@ -5,7 +5,10 @@
    «Dades»: la funció f(x) = a3·x³ + a2·x² + a1·x + a0 amb coeficients
    enters, tal com la fan servir els procediments:
      termesDe(v)                 termes no nuls de f, de més a menys grau
+     termesAmb(v, prefix, grau)  el mateix per a uns altres camps (p. ex. p3…p0)
      campsFuncio(max)            fila «f(x) =» de l'editor de fletxes
+     campsPolinomi(…)            una fila de coeficients qualsevol
+     llegeixQuocient(text)       «(x^2+3)/(x-1)» → {P, Q} (coeficients), o null
      validaFuncio(v, max)        error (text per a l'alumne) o null
      llegeixFuncio(text, v, g)   llegeix «f» de l'adreça dins de v
      textFuncio(v)               «f» per a l'adreça: «x^3-3x^2+1»
@@ -20,21 +23,31 @@ const M = arrel.Mates;
 
 const COEFS = ['a0', 'a1', 'a2', 'a3'];        // índex = grau
 
+/** Termes no nuls del polinomi de coeficients v[prefix + n], n = grau…0, de més a menys grau. */
+const termesAmb = (v, prefix, grau) => M.termes(Array.from({length: grau + 1}, (_, n) => v[prefix + n]));
 /** Termes no nuls de f, de més a menys grau. */
-const termesDe = v => M.termes(COEFS.map(id => v[id]));
+const termesDe = v => termesAmb(v, 'a', 3);
 
 /** Camp de l'editor de fletxes (vegeu README.md). */
 const camp = (id, sufix, nom, max, signe, atenua0) => ({id, sufix, nom, min: -max, max, signe, atenua0});
 
-/** Fila «f(x) = □x³ □x² □x □» de l'editor. */
-function campsFuncio(max) {
-  return {etiqueta: 'f(x) =', camps: [
-    camp('a3', 'x^3', 'coeficient de x al cub', max, 'negatiu', true),
-    camp('a2', 'x^2', 'coeficient de x al quadrat', max, 'sempre', true),
-    camp('a1', 'x', 'coeficient de x', max, 'sempre', true),
-    camp('a0', '', 'terme independent', max, 'sempre', true),
-  ]};
+const NOMS = ['terme independent', 'coeficient de x', 'coeficient de x al quadrat', 'coeficient de x al cub'];
+const SUFIXOS = ['', 'x', 'x^2', 'x^3'];
+
+/**
+ * Fila de l'editor amb els coeficients v[prefix + n], n = grau…0.
+ * «de» s'afegeix al nom de cada camp (p. ex. «del numerador»).
+ */
+function campsPolinomi(etiqueta, prefix, grau, max, de = '') {
+  const camps = [];
+  for (let n = grau; n >= 0; n--) {
+    camps.push(camp(prefix + n, SUFIXOS[n], NOMS[n] + (de ? ' ' + de : ''), max, n === grau ? 'negatiu' : 'sempre', true));
+  }
+  return {etiqueta, camps};
 }
+
+/** Fila «f(x) = □x³ □x² □x □» de l'editor. */
+const campsFuncio = max => campsPolinomi('f(x) =', 'a', 3, max);
 
 /** Text d'error si els coeficients no són vàlids; si ho són, null. */
 function validaFuncio(v, max) {
@@ -57,6 +70,20 @@ function llegeixFuncio(text, v, maxGrau) {
   return null;
 }
 
+/**
+ * Llegeix un polinomi o un quocient de polinomis: «x^3-1», «1/x»,
+ * «(x^2+3)/(x-1)». Torna {P, Q}, coeficients Fraccio de grau 0 cap amunt
+ * (Q = [1] si és un polinomi), o null. Pot llançar Mates.ErrorLectura.
+ */
+function llegeixQuocient(text) {
+  const arbre = M.llegeix(text);
+  const p = M.polinomi(arbre);
+  if (p) return {P: p, Q: [M.Fraccio.de(1)]};
+  if (arbre.tipus !== 'quocient') return null;
+  const P = M.polinomi(arbre.a), Q = M.polinomi(arbre.b);
+  return P && Q && Q.length ? {P, Q} : null;
+}
+
 /** La funció per a l'adreça. */
 const textFuncio = v => M.textPolinomi(termesDe(v));
 
@@ -74,7 +101,8 @@ function reglesDerivada(llista) {
 const article = v => (M.Fraccio.de(v).igual(1) || M.Fraccio.de(v).igual(11) ? "l'" : 'el ');
 
 arrel.Dades = Object.freeze({
-  COEFS, termesDe, camp, campsFuncio, validaFuncio, llegeixFuncio, textFuncio, reglesDerivada, article,
+  COEFS, termesDe, termesAmb, camp, campsFuncio, campsPolinomi, validaFuncio, llegeixFuncio, llegeixQuocient,
+  textFuncio, reglesDerivada, article,
 });
 
 })(globalThis);

@@ -1,6 +1,6 @@
 # procediments/ — animated step-by-step procedures
 
-Small pages, inside the PAU site, that show a mechanical procedure (for now, from the *Anàlisi* block: the equation of the tangent line, and relative maxima and minima) as an animation in the style of Graspable Math. The student watches symbols move, merge and change, one step at a time, with a short explanation for each step. The data (the function, the point…) can be changed with arrows or through the address.
+Small pages, inside the PAU site, that show a mechanical procedure (for now, from the *Anàlisi* block: the equation of the tangent line, relative maxima and minima, and the growth/decrease table) as an animation in the style of Graspable Math. The student watches symbols move, merge and change, one step at a time, with a short explanation for each step. The data (the function, the point…) can be changed with arrows or through the address.
 
 Principles: keep it simple, step by step, smooth, and **every line shown is a true equality** (checked automatically, see §7).
 
@@ -12,12 +12,13 @@ Student-facing text is Catalan; code comments are Catalan; this file is English.
 |---|---|---|---|
 | `mates.js` | maths | no | Exact rationals (`Fraccio`), expression parser (`llegeix`), polynomials, TeX/plain writers. Global `Mates`. |
 | `formules.js` | formulas | no | TeX writers whose symbols carry **keys** (§4), the step-by-step equation solver `resolPolinomi` (§4.1), and `guio()`, the step-list builder. Global `Formules`. |
-| `dades.js` | data | no | What the Anàlisi procedures share about `f(x) = a3·x³ + a2·x² + a1·x + a0`: editor row, validation, reading `f` from the address, derivative captions. Global `Dades`. |
+| `dades.js` | data | no | What the Anàlisi procedures share about `f`: editor rows of coefficients (`campsFuncio`, `campsPolinomi`), validation, reading `f` from the address (`llegeixFuncio`, and `llegeixQuocient` for `P/Q`), derivative captions. Global `Dades`. |
 | `recta-tangent.js` | procedure | no | Tangent line (§3). Global `RectaTangent`. Page `recta-tangent.html?f=2x^2-3x+1&x0=2`. |
 | `extrems.js` | procedure | no | Relative maxima and minima: critical points, then the second derivative. Global `Extrems`. Page `extrems.html?f=x^3-3x^2+1`. |
+| `creixement.js` | procedure | no | Growth and decrease of a polynomial (degree ≤ 3) or of `P/Q` (deg P ≤ 2, 1 ≤ deg Q ≤ 2): domain, quotient rule, critical points, sign table of `f'` with test values, maxima/minima marks, conclusion. Global `Creixement`. Page `creixement.html?f=(x^2+3)/(x-1)`. |
 | `motor.js` | engine | yes | Builds the page, reads the address, renders steps with KaTeX, animates transitions, player and editor. Global `Motor`. |
 | `estil.css` | style | — | Shared look (site palette; category colour from `body[data-categoria]`). |
-| `recta-tangent.html`, `extrems.html` | pages | — | Load the above and call `Motor.inicia(<Procedure>)`. |
+| `recta-tangent.html`, `extrems.html`, `creixement.html` | pages | — | Load the above and call `Motor.inicia(<Procedure>)`. |
 | `proves/comprova.js` | tests | no | `node procediments/proves/comprova.js` (§7). |
 
 Dependency order: `katex` → `mates.js` → `formules.js` → `dades.js` → `motor.js` and the procedure file. Plain classic scripts (no modules, no build step); each file is an IIFE that sets one frozen global on `globalThis`, so pages work from any static host and the pure files also load in Node.
@@ -67,6 +68,7 @@ Only `passos` and `resum` are mandatory for the engine; the rest have fallbacks 
 
 `recta-tangent.html?f=2x^2-3x+1&x0=2`
 
+- For `creixement.html`, `f` may also be a quotient: `1/x`, `2x/(x+1)`, `(x^2+3)/(x-1)` (numerator and denominator with more than one term go in parentheses). It is rejected, with the reason, if the denominator is a number other than 1, if numerator and denominator share a factor, or if the domain or the critical points are irrational.
 - `f` is written as a student would write it: `x^3-3x+1`, `x(x-5)`, `(x-1)^3`, `2x²−3x+1`, `0,5x`… It must be a polynomial of degree ≤ 3 with integer coefficients between −9 and 9 that depends on x. `x0` is an integer between −5 and 5. A missing parameter takes its default.
 - The engine reads the query string itself: a literal `+` means plus (with `URLSearchParams` it would become a space). `%2B` also works.
 - If the address is wrong, the page explains why (in Catalan) and shows the default example.
@@ -152,6 +154,7 @@ No dependencies (Node ≥ 16). It loads the pure files with `vm` and checks:
 4. **Strict truth** of every displayed line, with exact rational arithmetic: each row is converted from TeX to plain text, parsed and evaluated with the true `f`, `f'` and `f''`. Identities are checked at 4 points, which proves them for polynomials of degree ≤ 3; `(…)'` is evaluated with the five-point formula, exact up to degree 4.
    - Tangent line: lines with `y` must hold on the tangent line and fail off it; the final line must be `y = …` without `f`.
    - `resolPolinomi`, for every `ax² + bx + c = 0` with coefficients in −6…6 and rational roots: every row must have exactly the same solutions as the equation (`o` = union, `±` = both values, an equation row = its own roots).
+   - Growth table: row 0 is the domain (`ℝ − {roots of Q}`); row 1 holds identities with the true `f` and `f'` (rational identities are checked at 14 points, enough for the degrees involved); row 2 holds equations whose solutions are those of `Q = 0` (before the derivative appears) or of «numerator of `f'` = 0» (after), or a test value `… = v > 0` whose arithmetic and sign are checked; row 3 is the table: the header must be complete (points = critical points ∪ excluded points, ascending; `−∞`, `+∞` at the ends), and every filled cell must be right (sign of `f'` on each interval, `0` / `∄` at the points, arrows, `màx` / `mín` exactly where `f'` changes sign); row 4 lists the increasing and decreasing intervals. The final table must be complete. The address round trip is checked for every case.
    - Extrema: rows 0–1 are identities (a final `< 0` / `> 0` is checked) or equations with exactly the critical points as solutions; rows 2–3 are a critical point `x = a`, or a conclusion checked with `f'(a) = 0`, `f(a)` and the sign of `f''(a)` (`f''(a) = 0` only for a cubic, where `f''' ≠ 0` proves it is neither); the last step has one conclusion per critical point. `valida` must reject exactly the irrational cases.
 
-Grids: 10 052 tangent-line data sets, 1 344 equations and about 4 700 valid functions for extrema (dense, extremes and a fixed pseudo-random sample). The run takes about 20 s and ends with `Tot correcte: … comprovacions` (exit code 0) or the first errors (exit code 1).
+Grids: 10 052 tangent-line data sets, 1 344 equations, about 4 700 valid functions for extrema and about 4 200 for the growth table (dense, extremes and a fixed pseudo-random sample). The run takes about 35 s and ends with `Tot correcte: … comprovacions` (exit code 0) or the first errors (exit code 1).
