@@ -37,10 +37,14 @@ const {Fraccio, mcd, arrelExacta, texNombre, texEntreParentesis, texPolinomi, de
 
 const CLAU_VALIDA = /^[A-Za-z][A-Za-z0-9]*$/;
 
-/** Símbol amb clau. */
-function clau(k, tex) {
+/** Les marques d'un símbol (el fons de color, a estil.css): «mes» (verd), «menys» (vermell), «tria» (groc). */
+const MARQUES = new Set(['mes', 'menys', 'tria']);
+
+/** Símbol amb clau, i potser amb una marca: \htmlData{k=a11,marca=mes}{m}. */
+function clau(k, tex, marca = '') {
   if (!CLAU_VALIDA.test(k)) throw new Error(`Clau no vàlida: «${k}»`);
-  return `\\htmlData{k=${k}}{${tex}}`;
+  if (marca && !MARQUES.has(marca)) throw new Error(`Marca no vàlida: «${marca}»`);
+  return `\\htmlData{k=${k}${marca ? ',marca=' + marca : ''}}{${tex}}`;
 }
 /** Operador binari amb clau («+», «−», «·»): conserva l'espaiat de TeX. */
 const op = (k, tex) => `\\mathbin{${clau(k, tex)}}`;
@@ -425,7 +429,63 @@ function enunciatMarcat(text, marca) {
 }
 
 
-/* ── 6. GUIÓ ───────────────────────────────────────────────────────── */
+/* ── 6. FILES LLARGUES: EN DIVERSES LÍNIES ─────────────────────────── */
+
+/*
+ * Amplada aproximada d'un TeX, en píxels de la pissarra al mòbil (mesurada amb
+ * KaTeX: una «m» fa uns 14 px, una xifra 8,5, un «+» amb els espais 16, etc.).
+ * Només serveix per decidir on es parteix una fila llarga.
+ */
+const AMPLE_ORDRE = {'\\cdot': 12, '\\qquad': 32, '\\quad': 16, '\\,': 3, '\\ ': 5, '\\neq': 20, '\\ne': 20, '\\iff': 36,
+  '\\le': 20, '\\ge': 20, '\\lambda': 10, '\\cdots': 22, '\\ldots': 22};
+function ampleTex(tex) {
+  let t = tex.replace(/\\htmlData\{[^}]*\}/g, '').replace(/\\(mathrel|mathbin|left|right|textstyle)/g, '');
+  let ample = 0;
+  // Una fracció fa l'amplada del més ample, el numerador o el denominador.
+  for (let i = t.search(/\\d?frac\{/); i >= 0; i = t.search(/\\d?frac\{/)) {
+    const grup = k => { let n = 0, j = k; do { if (t[j] === '{') n++; else if (t[j] === '}') n--; j++; } while (n && j < t.length); return j; };
+    const a = t.indexOf('{', i), fa = grup(a), fb = grup(fa);
+    ample += Math.max(ampleTex(t.slice(a + 1, fa - 1)), ampleTex(t.slice(fa + 1, fb - 1))) / 1.08 + 4;
+    t = t.slice(0, i) + t.slice(fb);
+  }
+  // Una matriu (o un array) fa l'amplada de la seva fila més ampla, més els espais entre columnes.
+  t = t.replace(/\\begin\{((?:[pvb]|small)?matrix|array)\}(\{[^}]*\})?((?:(?!\\begin\{)[\s\S])*?)\\end\{\1\}/g, (_, entorn, _c, cos) => {
+    const files = cos.split(/\\\\(?:\[[^\]]*\])?/).map(f => f.split('&'));
+    ample += Math.max(...files.map(f => f.reduce((s, c) => s + ampleTex(c), 0) / 1.08 + (f.length - 1) * (entorn === 'array' ? 12 : 23)))
+      + (entorn === 'array' ? 0 : 12);
+    return '';
+  });
+  t = t.replace(/\\text\{([^}]*)\}/g, (_, x) => { ample += 8 * x.length + 12; return ''; });
+  t = t.replace(/\^\{([^{}]*)\}|\^(.)/g, (_, a, b) => { ample += 0.7 * ampleTex(a || b); return ''; });
+  t = t.replace(/\\[A-Za-z]+|\\./g, o => { ample += o in AMPLE_ORDRE ? AMPLE_ORDRE[o] : 10; return ''; });
+  for (const c of t.replace(/[{}\s]/g, '')) {
+    ample += /[mw]/.test(c) ? 14.5 : /[A-Za-z]/.test(c) ? 9 : /\d/.test(c) ? 8.5 : /[()\[\]]/.test(c) ? 6.5
+      : c === '|' ? 4 : c === ',' ? 4 : /[+-]/.test(c) ? 16 : /[=<>]/.test(c) ? 20 : 9;
+  }
+  return Math.round(ample * 1.08);
+}
+
+/**
+ * Una fila llarga en diverses línies: «inici» i després les peces (cada una amb el seu
+ * signe, p. ex. « + 2m»), tantes com càpiguen en «ample» píxels; les línies següents
+ * comencen amb un sagnat. Si tot hi cap, una sola línia (sense array).
+ */
+function enLinies(inici, peces, {ample = 300, sagnat = '\\qquad ', final = ''} = {}) {
+  const linies = [inici];
+  for (const p of peces) {
+    const ara = linies[linies.length - 1];
+    if (ara.trim() !== '' && ara !== inici && ara !== sagnat && ampleTex(ara + p) > ample) linies.push(sagnat + p.replace(/^\s+/, ''));
+    else linies[linies.length - 1] = ara + p;
+  }
+  if (final) {
+    if (ampleTex(linies[linies.length - 1] + final) > ample) linies.push(sagnat + final.replace(/^\s+/, ''));
+    else linies[linies.length - 1] += final;
+  }
+  return linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[4pt] ')} \\end{array}` : linies[0];
+}
+
+
+/* ── 7. GUIÓ ───────────────────────────────────────────────────────── */
 
 /**
  * Constructor de la llista de passos d'un procediment.
@@ -467,6 +527,7 @@ arrel.Formules = Object.freeze({
   derivadaIndicada, derivadaBaixada, derivadaFeta,
   equacio, resolPolinomi,
   filaText, frase, enunciatMarcat,
+  ampleTex, enLinies,
   guio,
 });
 

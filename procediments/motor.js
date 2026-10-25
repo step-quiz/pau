@@ -157,7 +157,7 @@ function llegeixAdreca() {
 /** Posa els paràmetres a l'adreça, sense afegir cap entrada a l'historial. */
 function escriuAdreca(parametres) {
   const text = Object.entries(parametres)
-    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v).replace(/%2B/gi, '+').replace(/%5E/gi, '^').replace(/%2F/gi, '/'))
+    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v).replace(/%2B/gi, '+').replace(/%5E/gi, '^').replace(/%2F/gi, '/').replace(/%2C/gi, ',').replace(/%3B/gi, ';'))   // «p=0,25» o «A=m,1;1,m» tal com s'escriuen
     .join('&');
   try {
     history.replaceState(null, '', location.pathname + (text ? '?' + text : '') + location.hash);
@@ -198,7 +198,7 @@ function construeixPagina(proc, contenidor) {
     editor: element('div', {class: 'editor'}),
     resum: element('p', {class: 'resum'}),
     errorEditor: element('p', {class: 'error-editor', role: 'status', hidden: ''}),
-    exemples: element('div', {class: 'exemples'}, [element('span', {text: proc.editor.length ? 'Exemples:' : 'Problemes:'})]),
+    exemples: element('div', {class: 'exemples'}, [element('span', {text: proc.titolExemples || (proc.editor.length ? 'Exemples:' : 'Problemes:')})]),
   };
   for (const [valor, nom] of [['0.6', 'lenta'], ['1', 'normal'], ['1.6', 'ràpida']]) {
     r.velocitat.append(element('option', {value: valor, text: nom, selected: valor === '1' ? '' : null}));
@@ -716,20 +716,48 @@ function creaEditor(r, proc, enCanviar) {
     return terme;
   }
 
+  /*
+   * Variants (opcional): proc.modes = {id, nom, opcions: [{valor, nom}]}. Un grup de
+   * botons tria el valor de valors[id]; una fila amb «modes» només es veu en aquests.
+   */
+  const modes = proc.modes || null;
+  const botonsMode = [];
+  if (modes) {
+    const grup = element('div', {class: 'modes', role: 'group', 'aria-label': modes.nom});
+    for (const o of modes.opcions) {
+      const b = element('button', {class: 'mode', type: 'button', text: o.nom});
+      b.addEventListener('click', () => {
+        if (valors[modes.id] === o.valor) return;
+        valors[modes.id] = o.valor;
+        pinta();
+        enCanviar(Object.assign({}, valors));
+      });
+      botonsMode.push({b, valor: o.valor});
+      grup.append(b);
+    }
+    r.editor.append(grup);
+  }
+  const files = [];
   for (const fila of proc.editor) {
-    r.editor.append(element('div', {class: 'editor-fila'}, [
+    const el = element('div', {class: 'editor-fila'}, [
       element('span', {class: 'etiqueta', html: formula(fila.etiqueta)}),
       ...fila.camps.map(creaCamp),
-    ]));
+    ]);
+    files.push({el, modes: fila.modes});
+    r.editor.append(el);
   }
 
   /** Com es veu un valor: «−3»; «+2» si el camp porta sempre el signe; si no, «2». */
   const mostrat = (def, v) => (v < 0 ? MENYS + (-v) : (def.signe === 'sempre' ? '+' : '') + v);
 
   function pinta() {
+    if (modes) {
+      for (const {b, valor} of botonsMode) b.setAttribute('aria-pressed', String(valors[modes.id] === valor));
+      for (const {el, modes: m} of files) el.hidden = Boolean(m) && !m.includes(valors[modes.id]);
+    }
     for (const {def, terme, valor, puja, baixa} of Object.values(camps)) {
       const v = valors[def.id];
-      valor.textContent = mostrat(def, v);
+      valor.textContent = def.mostra ? def.mostra(v, valors) : mostrat(def, v);   // un camp pot triar com es veu (p. ex. «0,25» o «25 %»)
       valor.setAttribute('aria-valuenow', v);
       puja.disabled = v >= def.max;
       baixa.disabled = v <= def.min;
@@ -750,6 +778,7 @@ function creaEditor(r, proc, enCanviar) {
     /** Posa uns valors a l'editor, sense avisar de cap canvi. */
     posa(nous) {
       for (const id of Object.keys(camps)) valors[id] = nous[id];
+      if (modes) valors[modes.id] = nous[modes.id];
       pinta();
     },
   };

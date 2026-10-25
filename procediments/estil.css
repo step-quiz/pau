@@ -121,6 +121,10 @@ button{font:inherit; color:inherit}
 .frase{border-radius:4px; transition:background-color .2s}
 .marca-objectiu, .marca-avis{background:rgba(234,179,8,.30); box-shadow:0 0 0 2px rgba(234,179,8,.30)}
 .marca-condicio, .marca-doble{background:rgba(16,185,129,.24); box-shadow:0 0 0 2px rgba(16,185,129,.24)}
+/* Marques dins de les fórmules (\htmlData{k=…,marca=…}): els productes de Sarrus, un menor triat… */
+.katex [data-marca="mes"]{background:rgba(16,185,129,.30); box-shadow:0 0 0 3px rgba(16,185,129,.30); border-radius:2px}
+.katex [data-marca="menys"]{background:rgba(220,38,38,.22); box-shadow:0 0 0 3px rgba(220,38,38,.22); border-radius:2px}
+.katex [data-marca="tria"]{background:rgba(234,179,8,.32); box-shadow:0 0 0 3px rgba(234,179,8,.32); border-radius:2px}
 /* Una frase que amaga dues dades porta l'etiqueta «×2» */
 .marca-doble::after{
   content:"×2"; margin-left:.35em; padding:0 .35em; border-radius:4px;
@@ -220,6 +224,13 @@ button{font:inherit; color:inherit}
 }
 .exemple:hover{border-color:var(--cat)}
 .exemple[aria-pressed="true"]{border-color:var(--cat); background:var(--cat-fons)}
+/* Variants del procediment (p. ex. recta tangent, recta normal, pendent donat) */
+.modes{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px}
+.mode{
+  font:inherit; font-size:15px; padding:6px 12px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--border); background:var(--surface); color:var(--txt);
+}
+.mode[aria-pressed="true"]{border-color:var(--cat); background:var(--cat-fons); font-weight:700}
 .exemple .katex{font-size:1em}
 .nota{margin:0; font-size:13px; color:var(--muted); max-width:70ch}
 

@@ -533,14 +533,14 @@ function xifres(x, dec) {
 
 /**
  * Un nombre en decimal (TeX, amb coma): exacte si té com a màxim «maxim»
- * decimals; si no, arrodonit a 3 decimals, o a més si cal perquè no surti 0.
+ * decimals; si no, arrodonit a «arrodonir» decimals (3), o a més si cal perquè no surti 0.
  * Torna {tex, aprox}: el TeX sense «≈» i si és aproximat.
  */
-function formaDecimal(x, maxim = 4) {
+function formaDecimal(x, maxim = 4, arrodonir = 3) {
   x = Fraccio.de(x);
   const exactes = decimalsDe(x);
   const aprox = exactes === null || exactes > maxim;
-  let dec = aprox ? 3 : exactes;
+  let dec = aprox ? arrodonir : exactes;
   if (aprox) while (Math.round(Math.abs(x.num) * 10 ** dec / x.den) === 0) dec++;
   return {tex: (x.signe() < 0 ? '-' : '') + xifres(x, dec), aprox};
 }

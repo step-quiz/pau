@@ -27,14 +27,24 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 
 ## Procediments animats
 
-`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. De moment, del bloc d'Anàlisi: l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes), sis problemes d'optimització i sis polinomis de grau 3 que cal trobar a partir de condicions, el teorema de Bolzano amb el mètode de la bisecció, i les asímptotes d'una funció racional. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
+`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. Del bloc d'Àlgebra: el determinant d'una matriu 3×3 amb un paràmetre (Sarrus) i els valors que l'anul·len, el rang d'una matriu orlant menors, un sistema compatible indeterminat amb el seu conjunt de solucions, la discussió d'un sistema amb un paràmetre, la matriu inversa 3×3 per adjunts, les equacions matricials, i la diagonalització. Del bloc de Probabilitat: l'arbre de probabilitats i la probabilitat total, el teorema de Bayes i la distribució binomial. Del bloc d'Anàlisi: l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes), sis problemes d'optimització i sis polinomis de grau 3 que cal trobar a partir de condicions, el teorema de Bolzano amb el mètode de la bisecció, i les asímptotes d'una funció racional. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
 
-- `procediments/recta-tangent.html?f=x^3-3x+1&x0=-1`
+- `procediments/recta-tangent.html?f=x^3-3x+1&x0=-1` (també la recta normal, `&recta=normal`, i les tangents d'un pendent donat, `?f=x^3-3x&m=9`)
 - `procediments/extrems.html?f=x^3-3x^2+1`
 - `procediments/creixement.html?f=(x^2+3)/(x-1)`
 - `procediments/optimitzacio.html?p=capsa` (sis problemes fixos: hort, capsa, llauna, diposit, pista, nombres)
 - `procediments/bolzano.html?f=x^3+x-1&a=0&b=1&n=3`
 - `procediments/asimptotes.html?f=(x^2+3)/(x-1)`
+- `procediments/probabilitat-total.html?p=peces` (sis problemes fixos: peces, dau, prova, correu, maquines, bossa)
+- `procediments/bayes.html?p=prova` (els mateixos sis problemes, amb la pregunta de Bayes)
+- `procediments/determinant.html?A=m,1,1;1,m,1;1,1,m` (la matriu per files, separades per `;`; el paràmetre pot ser a, k, m, p o t)
+- `procediments/rang.html?A=1,2,3;2,4,1;3,6,4` (de 2 o 3 files i de 2 a 4 columnes)
+- `procediments/sistema-sci.html?S=1,1,1,2;1,-1,2,1;2,0,3,3` (una equació per fila: `1,1,1,2` és x + y + z = 2)
+- `procediments/discussio.html?S=1,m,m,-1;-1,1,1,1;2,1,m,2` (el sistema amb el paràmetre, una equació per fila)
+- `procediments/inversa.html?A=1,0,1;0,1,1;1,1,1`
+- `procediments/equacio-matricial.html?p=axb` (sis equacions fixes: ax, xa, axb, xab, axx, xa2x)
+- `procediments/diagonalitzacio.html?A=4,1;2,3` (2×2 o 3×3, amb valors propis enters i diferents)
+- `procediments/binomial.html?n=5&pc=25&r=ge&k=4` (la probabilitat en tant per cent; en tant per u: `?n=10&p=0,1&r=gt&k=1`; `r` és eq, ge, le, gt o lt)
 - `procediments/polinomi-condicions.html?p=tangent` (sis problemes fixos: ordenades, maxim, tangent, inflexio, beneficis, maxmin)
 
 Totes les pàgines comparteixen el motor (`motor.js`) i l'estil (`estil.css`); cada procediment només té una pàgina HTML petita i un fitxer JS. Abans de pujar-hi canvis, passeu les proves:
