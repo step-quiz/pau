@@ -69,16 +69,18 @@ function passos(valors) {
 
   /* 1. La lectura de la pregunta. */
   pas('Llegeix l\'enunciat, i sobretot la pregunta.');
+  // Primer els noms dels esdeveniments: així, quan s'escrigui P(A | B), ja se sap què vol dir cada lletra.
+  g.files[FILA.llegenda] = A.texLlegenda(p);
+  pas('Posa nom als esdeveniments: una lletra per a cada cosa que pot passar. La barra (com a $\\overline{D}$) vol dir «no»: és el contrari.');
   marcaPregunta = 'objectiu';
-  const formula = (num, den, resta = '') => K('Bl', b.tex) + R('Bq', '=') + `\\dfrac{${K('Bn', num)}}{${K('Bd', den)}}` + resta;
+  let marcaNum = '';                     // el numerador, del color del seu camí, quan ja és un nombre
+  const formula = (num, den, resta = '') => K('Bl', b.tex) + R('Bq', '=') + `\\dfrac{${K('Bn', num, marcaNum)}}{${K('Bd', den)}}` + resta;
   g.files[FILA.formula] = K('Bl', b.tex);
   pas(`La pregunta ja diu una cosa que sabem: $${condicio}$ (és la condició, va darrere de la barra). I demana $${demanat}$. `
     + `És $${b.tex}$, ${b.text}. Compte: a l'arbre hi ha $P(${condicio} \\mid ${demanat})$, que és al revés. Per girar-la, cal el teorema de Bayes.`,
   {cursor: {arrossega: 'Eq1', fins: 'Bl'}});
 
   /* 2. L'arbre complet, com a la pàgina de la probabilitat total. */
-  g.files[FILA.llegenda] = F.filaText(p.llegenda.map(([s, d]) => `$${s}$: ${d}`).join('; '));
-  pas('Els esdeveniments.');
   ambArbre = true;
   ambDades = true;
   t.primer.forEach((x, a) => {
@@ -94,12 +96,16 @@ function passos(valors) {
   pas(`Probabilitat condicionada: de tots els casos on passa $${condicio}$ (el denominador), quina part són també de $${demanat}$ (el numerador)?`);
 
   /* 4. El numerador: el camí demanat → condició. */
+  // Cada camí que acaba en la condició té el seu color: el del numerador també.
+  const colorDe = (a, j) => A.marcaCami(camins.findIndex(([x, y]) => x === a && y === j));
   marques[`${fa}${fj}`] = true;
-  productes[`${fa}${fj}`] = A.texProducte(p, t, fa, fj);
+  productes[`${fa}${fj}`] = A.texProducte(p, t, fa, fj, colorDe(fa, fj));
   const numerador = t.primer[fa].v.producte(t.fills[fa][fj].v);
   pas(`El numerador és el camí $${demanat} \\to ${condicio}$: multiplica les seves branques. $${A.texCami(t, fa, fj)} = ${A.texValor(p, numerador)}$.`,
     {cursor: {clic: `Bl${fa}${fj}`}});
-  g.files[FILA.formula] = formula(A.texValor(p, numerador), `P(${condicio})`);
+  const texNumerador = A.texValor(p, numerador);
+  marcaNum = colorDe(fa, fj);
+  g.files[FILA.formula] = formula(texNumerador, `P(${condicio})`);
   pas('Porta-ho al numerador.', {cursor: {arrossega: `Pr${fa}${fj}`, fins: 'Bn'}});
 
   /* 5. El denominador: tots els camins que acaben en la condició (la probabilitat total). */
@@ -109,23 +115,23 @@ function passos(valors) {
     termes.push(v);
     if (a === fa && j === fj) continue;
     marques[`${a}${j}`] = true;
-    productes[`${a}${j}`] = A.texProducte(p, t, a, j);
+    productes[`${a}${j}`] = A.texProducte(p, t, a, j, colorDe(a, j));
     pas(`El denominador és $P(${condicio})$: tots els camins que acaben en $${condicio}$. Un altre camí: $${A.texCami(t, a, j)} = ${A.texValor(p, v)}$.`,
       {cursor: {clic: `Bl${a}${j}`}});
   }
   const total = termes.reduce((s, v) => s.suma(v));
   const pregunta = b.pregunta || p.pregunta.tex;
-  g.files[FILA.calcul] = K('Cl', pregunta) + R('Cq', '=') + termes.map((v, i) => K(`S${i}`, A.texValor(p, v))).join(' + ')
+  g.files[FILA.calcul] = K('Cl', pregunta) + R('Cq', '=') + termes.map((v, i) => K(`S${i}`, A.texValor(p, v), A.marcaCami(i))).join(' + ')
     + R('Cr', '=') + K('Cv', A.texValor(p, total));
-  pas(`Suma els camins (teorema de la probabilitat total): $${pregunta} = ${A.texValor(p, total)}$.`);
+  pas(`Suma els camins (teorema de la probabilitat total): $${pregunta} = ${A.texValor(p, total)}$. Cada terme té el color del seu camí.`);
   g.files[FILA.calcul] = '';
-  g.files[FILA.formula] = formula(A.texValor(p, numerador), A.texValor(p, total));
+  g.files[FILA.formula] = formula(texNumerador, A.texValor(p, total));
   pas('Porta-ho al denominador.', {cursor: {arrossega: 'Cv', fins: 'Bd'}});
 
   /* 6. La divisió i la resposta. */
   const v = numerador.quocient(total);
   const r = resultat(p, v);
-  g.files[FILA.formula] = formula(A.texValor(p, numerador), A.texValor(p, total), R('Br', r.aprox ? '\\approx' : '=') + K('Bv', r.tex));
+  g.files[FILA.formula] = formula(texNumerador, A.texValor(p, total), R('Br', r.aprox ? '\\approx' : '=') + K('Bv', r.tex));
   pas(`Divideix: $${b.tex} ${r.aprox ? '\\approx' : '='} ${r.tex}$${r.aprox ? ' (arrodonit a quatre decimals)' : ''}.`);
   g.files[FILA.resposta] = K('Rr', `${b.tex} ${r.aprox ? '\\approx' : '='} ${r.tex}`);
   g.classes[FILA.resposta] = 'final';

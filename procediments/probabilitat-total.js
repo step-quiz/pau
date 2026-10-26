@@ -41,8 +41,6 @@ const {perId} = FIXOS;
 /** Files de la pissarra. */
 const FILA = Object.freeze({enunciat: 0, llegenda: 1, dades: 2, arbre: 3, calcul: 4, resposta: 5});
 
-/** La llegenda: «$F$: és de ferro; $A$: és d'acer; …». */
-const llegenda = p => F.filaText(p.llegenda.map(([s, t]) => `$${s}$: ${t}`).join('; '));
 
 function passos(valors) {
   const p = perId(valors.p);
@@ -63,8 +61,8 @@ function passos(valors) {
 
   /* 1. La lectura i la llegenda. */
   pas('Llegeix l\'enunciat. Primer, posa nom als esdeveniments.');
-  g.files[FILA.llegenda] = llegenda(p);
-  pas(`Els esdeveniments: ${p.llegenda.map(([s, d]) => `$${s}$: ${d}`).join('; ')}. La barra (com a $\\overline{D}$) vol dir «no»: és el contrari.`);
+  g.files[FILA.llegenda] = A.texLlegenda(p);
+  pas('Posa nom als esdeveniments: una lletra per a cada cosa que pot passar. La barra (com a $\\overline{D}$) vol dir «no»: és el contrari.');
 
   /* 2. Les dades, traduïdes a probabilitats (fila 2), en l'ordre de l'enunciat. */
   const branques = [];                    // totes les branques: {a, j (o null), b, valor}
@@ -125,19 +123,19 @@ function passos(valors) {
   pas(`Ara busca les fulles de l'arbre on passa el que demana l'enunciat (${p.pregunta.text}). N'hi ha ${p.objectiu.length === 2 ? 'dues' : 'tres'}: `
     + 'cada camí que hi porta és una manera diferent que passi.');
   const termes = [];
-  for (const [a, j] of p.objectiu) {
-    productes[`${a}${j}`] = A.texProducte(p, t, a, j);
+  p.objectiu.forEach(([a, j], i) => {
+    productes[`${a}${j}`] = A.texProducte(p, t, a, j, A.marcaCami(i));       // cada camí, del seu color
     const v = t.primer[a].v.producte(t.fills[a][j].v);
     termes.push(v);
     pas(`Camí $${t.primer[a].e} \\to ${t.fills[a][j].e}$: multiplica les probabilitats de les seves branques. `
       + `$${A.texCami(t, a, j)} = P(${t.primer[a].e}) \\cdot ${A.texCondicionada(t, a, j)} = ${A.texValor(p, v)}$.`, {cursor: {clic: `Bl${a}${j}`}});
-  }
+  });
 
   /* 5. La suma: el teorema de la probabilitat total. */
   const total = termes.reduce((s, v) => s.suma(v));
-  const suma = termes.map((v, i) => K(`S${i}`, A.texValor(p, v))).join(' + ');
+  const suma = termes.map((v, i) => K(`S${i}`, A.texValor(p, v), A.marcaCami(i))).join(' + ');
   g.files[FILA.calcul] = K('Cl', p.pregunta.tex) + R('Cq', '=') + suma;
-  pas('Teorema de la probabilitat total: la probabilitat que busques és la suma dels camins.');
+  pas('Teorema de la probabilitat total: la probabilitat que busques és la suma dels camins. Cada terme té el color del seu camí.');
   const decimal = p.format === 'fraccio' ? ` = ${M.texDecimal(total) || M.formaDecimal(total).tex}` : '';
   g.files[FILA.calcul] = K('Cl', p.pregunta.tex) + R('Cq', '=') + suma + R('Cr', '=') + K('Cv', A.texValor(p, total) + decimal);
   pas(`Suma: $${A.texValor(p, total)}$${decimal ? `$${decimal}$` : ''}.`);

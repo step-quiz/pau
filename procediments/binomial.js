@@ -202,23 +202,26 @@ function passos(v) {
   // Amb més de 3 casos: «P(X = 0) + … + P(X = 4)» (els casos sempre són seguits).
   const suma = ks => (ks.length > 3 ? `P(X = ${ks[0]}) + \\cdots + P(X = ${ks[ks.length - 1]})` : ks.map(j => `P(X = ${j})`).join(' + '));
 
-  /* 1. Les dades. */
-  const n = K('Dn', `n = ${v.n}`) + ',\\quad ';
+  /* 1. Les dades: una per línia, amb què vol dir cadascuna al costat (en gris). */
+  const dades = files => `\\begin{array}{ll} ${files.map(([tex, que]) => `${tex} & \\quad\\textcolor{#64748b}{\\small\\text{${que}}}`).join(' \\\\[6pt] ')} \\end{array}`;
+  const filaN = [K('Dn', `n = ${v.n}`), 'nombre de repeticions'];
+  const filaP = tex => [tex, 'probabilitat d\'èxit'];
   if (v.mode === 'cent') {
-    g.files[FILA.dades] = n + K('Dp', `p = ${v.p}\\,\\%`);
+    g.files[FILA.dades] = dades([filaN, filaP(K('Dp', `p = ${v.p}\\,\\%`))]);
     g.afegeix(`Es repeteix ${v.n} ${v.n === 1 ? 'vegada' : 'vegades'} el mateix experiment, de manera independent, i cada vegada hi ha dos resultats: `
       + `èxit o fracàs. La probabilitat d'èxit és $${v.p}\\,\\%$.`);
-    g.files[FILA.dades] = n + K('Dp', `p = ${v.p}\\,\\%`) + R('Dr', '=') + K('Dx', p);
+    g.files[FILA.dades] = dades([filaN, filaP(K('Dp', `p = ${v.p}\\,\\%`) + R('Dr', '=') + K('Dx', p))]);
     g.afegeix(`Passa el percentatge a tant per u: divideix per $100$. $p = ${v.p}\\,\\% = \\frac{${v.p}}{100} = ${p}$.`);
   } else {
-    g.files[FILA.dades] = n + K('Dp', 'p = ') + K('Dx', p);
+    g.files[FILA.dades] = dades([filaN, filaP(K('Dp', 'p = ') + K('Dx', p))]);
     g.afegeix(`Es repeteix ${v.n} ${v.n === 1 ? 'vegada' : 'vegades'} el mateix experiment, de manera independent, i cada vegada hi ha dos resultats: `
       + `èxit o fracàs. La probabilitat d'èxit és $p = ${p}$.`);
   }
-  const primera = g.files[FILA.dades];       // en dues línies, perquè hi càpiga al mòbil
-  g.files[FILA.dades] = linies([primera, K('Dq', `q = 1 - p = ${q}`)]);
+  const fP = v.mode === 'cent' ? filaP(K('Dp', `p = ${v.p}\\,\\%`) + R('Dr', '=') + K('Dx', p)) : filaP(K('Dp', 'p = ') + K('Dx', p));
+  const filaQ = [K('Dq', `q = 1 - p = ${q}`), 'probabilitat de fracàs'];
+  g.files[FILA.dades] = dades([filaN, fP, filaQ]);
   g.afegeix(`La probabilitat de fracàs és la contrària: $q = 1 - ${p} = ${q}$.`);
-  g.files[FILA.dades] = linies([primera, K('Dq', `q = 1 - p = ${q}`) + ',\\quad ' + K('DB', `X \\sim B(${v.n};\\ ${p})`)]);
+  g.files[FILA.dades] = dades([filaN, fP, filaQ, [K('DB', `X \\sim B(${v.n};\\ ${p})`), '$X$: nombre d\'èxits']]);
   g.afegeix(`El nombre d'èxits, $X$, segueix una distribució binomial: $X \\sim B(${v.n};\\ ${p})$.`);
 
   /* 2. La fórmula. */
@@ -245,12 +248,16 @@ function passos(v) {
         + (contraris.length === directes.length ? ' (Pel contrari, n\'hi hauria els mateixos.)' : ''));
   }
 
-  /* 4. Cada cas, amb la fórmula. */
+  /* 4. Cada cas, amb la fórmula. El cas que es calcula, en lila a la pregunta i a la seva línia. */
+  const filaPregunta = g.files[FILA.pregunta];
+  const marcaPregunta = j => { if (filaPregunta) g.files[FILA.pregunta] = filaPregunta.replace(`P(X = ${j})`, F.marca(`P(X = ${j})`, 'actual')); };
   const termes = [], valors = [];
   const pinta = () => { g.files[FILA.termes] = linies(termes, '6pt', true); };
   for (const j of calculats) {
     const t = `T${j}`;
-    termes.push(K(t + 'l', `P(X = ${j})`) + R(t + 'q', '=') + K(t + 'e', `\\binom{${v.n}}{${j}} \\cdot ${p}^{${j}} \\cdot ${q}^{${v.n - j}}`));
+    marcaPregunta(j);
+    termes.forEach((tx, i) => { termes[i] = tx.replace(',marca=actual}', '}'); });     // el cas d'abans ja no és l'actual
+    termes.push(K(t + 'l', `P(X = ${j})`, 'actual') + R(t + 'q', '=') + K(t + 'e', `\\binom{${v.n}}{${j}} \\cdot ${p}^{${j}} \\cdot ${q}^{${v.n - j}}`));
     pinta();
     g.afegeix(`Calcula $P(X = ${j})$: a la fórmula, substitueix $n = ${v.n}$, $k = ${j}$, $p = ${p}$ i $q = ${q}$.`,
       {cursor: {arrossega: 'Fe', fins: t + 'e'}});
@@ -262,6 +269,11 @@ function passos(v) {
     g.afegeix(`$\\binom{${v.n}}{${j}} = ${combinatori(v.n, j)}$${uns}. Opera: $P(X = ${j}) ${igualOAprox(x.aprox)} ${x.tex}$`
       + (x.aprox ? ' (arrodonit).' : '.'));
   }
+
+  // Acabats els casos, ja no n'hi ha cap d'actual.
+  termes.forEach((tx, i) => { termes[i] = tx.replace(',marca=actual}', '}'); });
+  if (termes.length) pinta();
+  if (filaPregunta) g.files[FILA.pregunta] = filaPregunta;
 
   /* 5. La suma, i la resposta. */
   const Ncalc = valors.reduce((s, t) => s + t.N, 0n);

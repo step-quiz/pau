@@ -14,12 +14,12 @@ MUT=[
  ('binomial.js', "const pc = percentatge(N, E);", "const pc = percentatge(N * 10n, E);", 'percentatge equivocat'),
  ('binomial.js', "let e = s.length - 1 - E;", "let e = s.length - E;", 'exponent de la notació científica'),
  ('binomial.js', ": `X \\\\ge ${c[0]}`;", ": `X > ${c[0]}`;", 'contrari mal escrit'),
- ('binomial.js', "g.files[FILA.dades] = n + K('Dp', `p = ${v.p}\\\\,\\\\%`) + R('Dr', '=') + K('Dx', p);", "g.files[FILA.dades] = n + K('Dp', `p = ${v.p}\\\\,\\\\%`) + R('Dr', '=') + K('Dx', q);", 'percentatge passat malament'),
+ ('binomial.js', "g.files[FILA.dades] = dades([filaN, filaP(K('Dp', `p = ${v.p}\\\\,\\\\%`) + R('Dr', '=') + K('Dx', p))]);", "g.files[FILA.dades] = dades([filaN, filaP(K('Dp', `p = ${v.p}\\\\,\\\\%`) + R('Dr', '=') + K('Dx', q))]);", 'percentatge passat malament'),
  ('binomial.js', "const p = texP(v.p), q = texP(100 - v.p);", "const p = texP(v.p), q = texP(99 - v.p);", 'q no és 1 − p'),
  ('binomial.js', "const uns = (j === 0", "valors.length && (valors[valors.length - 1].x = probabilitat(N + 1n, E));\n    const uns = (j === 0", 'valor d\'un cas canviat al text'),
  ('binomial.js', "+ \\\\cdots + P(X = ${ks[ks.length - 1]})", "+ \\\\cdots + P(X = ${ks[ks.length - 2]})", '«…» fins a un cas abans'),
  ('binomial.js', "+ K(i ? `Se${i}` : 'Se', xs.map(x => x.tex).join(' + '))", "+ K(i ? `Se${i}` : 'Se', xs.slice(0, 2).map(x => x.tex).join(' + '))", 'una línia de la suma perd un valor'),
- ('binomial.js', "g.files[FILA.dades] = linies([primera, K('Dq', `q = 1 - p = ${q}`) + ',\\\\quad ' + K('DB', `X \\\\sim B(${v.n};\\\\ ${p})`)]);", "g.files[FILA.dades] = linies([primera, K('Dq', `q = 1 - p = ${q}`) + ',\\\\quad ' + K('DB', `X \\\\sim B(${v.n + 1};\\\\ ${p})`)]);", 'B(n + 1; p)'),
+ ('binomial.js', "[K('DB', `X \\\\sim B(${v.n};\\\\ ${p})`), '$X$: nombre d\\'èxits']", "[K('DB', `X \\\\sim B(${v.n + 1};\\\\ ${p})`), '$X$: nombre d\\'èxits']", 'B(n + 1; p)'),
 ]
 det=0
 for f,a,b,nom in MUT:

@@ -3,7 +3,7 @@ import subprocess, shutil, os, tempfile
 ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MUT=[
  ('arbres.js', "const resta = coneguts.map(b => valorDe(b.p)).reduce((s, v) => s.resta(v), Fraccio.de(1));", "const resta = coneguts.map(b => valorDe(b.p)).reduce((s, v) => s.resta(v), Fraccio.de(1)).producte(Fraccio.de(1, 1) ).suma(new Fraccio(1, 100));", 'contrari mal calculat'),
- ('arbres.js', "K(`Pr${a}${j}`, texValor(p, b.v.producte(c.v)))", "K(`Pr${a}${j}`, texValor(p, b.v.suma(c.v)))", 'producte del camí'),
+ ('arbres.js', "K(`Pr${a}${j}`, texValor(p, b.v.producte(c.v)), marca)", "K(`Pr${a}${j}`, texValor(p, b.v.suma(c.v)), marca)", 'producte del camí'),
  ('arbres.js', "    objectiu: [[0, 0], [1, 0]],\n    pregunta: {tex: 'P(D)', text: 'que una peça sigui defectuosa'},\n    bayes: {tex: 'P(F \\\\mid D)'", "    objectiu: [[0, 0], [1, 1]],\n    pregunta: {tex: 'P(D)', text: 'que una peça sigui defectuosa'},\n    bayes: {tex: 'P(F \\\\mid D)'", 'camins equivocats'),
  ('arbres.js', "{e: 'F', p: '70%', dada: '1'", "{e: 'F', p: '75%', dada: '1'", 'dada equivocada'),
  ('arbres.js', "const texCondicionada = (t, a, j) => `P(${t.fills[a][j].e} \\\\mid ${t.primer[a].e})`;", "const texCondicionada = (t, a, j) => `P(${t.primer[a].e} \\\\mid ${t.fills[a][j].e})`;", 'condicionada al revés'),
@@ -17,7 +17,7 @@ for f,a,b,nom in MUT:
     p=os.path.join(d,f); s=open(p).read()
     if s.count(a)!=1: print('NO APLICA', nom, s.count(a)); continue
     open(p,'w').write(s.replace(a,b,1))
-    r=subprocess.run(['node', os.path.join(d,'proves/comprova.js')], capture_output=True, text=True)
+    r=subprocess.run(['node', os.path.join(d,'proves/comprova.js'), 'arbre i probabilitat'], capture_output=True, text=True)
     fa=r.returncode!=0; det+=fa
     l=[x for x in r.stdout.splitlines() if x.strip().startswith('·')][:1]
     print(('DETECTADA ' if fa else 'NO DETECTADA ')+nom, '|', l[0].strip()[:150] if l else '')

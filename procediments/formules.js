@@ -42,13 +42,21 @@ const {Fraccio, mcd, arrelExacta, texNombre, texEntreParentesis, texPolinomi, de
 const CLAU_VALIDA = /^[A-Za-z][A-Za-z0-9]*$/;
 
 /** Les marques d'un símbol (el fons de color, a estil.css): «mes» (verd), «menys» (vermell), «tria» (groc). */
-const MARQUES = new Set(['mes', 'menys', 'tria']);
+// mes/menys/tria: verd, vermell, groc. cami0/cami1/cami2: un color per a cada camí d'un arbre (blau, rosa, cian),
+// per veure d'on surt cada terme d'una suma.
+// actual: lila, el que s'està calculant ara (p. ex. P(X = 4) a la pregunta i a la seva línia).
+const MARQUES = new Set(['mes', 'menys', 'tria', 'cami0', 'cami1', 'cami2', 'actual']);
 
 /** Símbol amb clau, i potser amb una marca: \htmlData{k=a11,marca=mes}{m}. */
 function clau(k, tex, marca = '') {
   if (!CLAU_VALIDA.test(k)) throw new Error(`Clau no vàlida: «${k}»`);
   if (marca && !MARQUES.has(marca)) throw new Error(`Marca no vàlida: «${marca}»`);
   return `\\htmlData{k=${k}${marca ? ',marca=' + marca : ''}}{${tex}}`;
+}
+/** Una marca de color sense clau, per a un tros d'un símbol que ja en té (no es mou sol). */
+function marca(tex, m) {
+  if (!MARQUES.has(m)) throw new Error(`Marca no vàlida: «${m}»`);
+  return `\\htmlData{marca=${m}}{${tex}}`;
 }
 /** Operador binari amb clau («+», «−», «·»): conserva l'espaiat de TeX. */
 const op = (k, tex) => `\\mathbin{${clau(k, tex)}}`;
@@ -588,7 +596,7 @@ function guio(nFiles) {
 /* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
 
 arrel.Formules = Object.freeze({
-  clau, op, rel, marcat, membreEsquerre,
+  clau, marca, op, rel, marcat, membreEsquerre,
   polinomi, substituit, avaluat, fusionsAvaluat,
   resultat, fusionsResultat, clausResultat,
   derivadaIndicada, derivadaBaixada, derivadaFeta,

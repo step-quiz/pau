@@ -1780,6 +1780,23 @@ function comprovaProbabilitatTotal(passos, problema, model, nom) {
   return linies;
 }
 
+/**
+ * Colors dels camins (arbres.js): el producte del camí i-èsim dels que se sumen (Pr<a><b>) i el seu terme
+ * a la suma (S<i>) han de tenir el mateix color, cami<i>, i cada camí un color diferent.
+ */
+function comprovaColorsCamins(llista, FILA, camins, nom) {
+  llista.forEach((pas, n) => {
+    const on = `${nom}, pas ${n + 1}`;
+    for (const [, i, c] of (pas.files[FILA.calcul] || '').matchAll(/\\htmlData\{k=S(\d+),marca=(cami\d)\}/g)) {
+      comprova(c === `cami${Number(i) % 3}`, () => `${on}: el terme ${i} de la suma té el color ${c}`);
+    }
+    for (const [, a, b, c] of (pas.files[FILA.arbre] || '').matchAll(/\\htmlData\{k=P[pr](\d)(\d),marca=(cami\d)\}/g)) {
+      const i = camins.findIndex(([x, y]) => x === Number(a) && y === Number(b));
+      comprova(i >= 0 && c === `cami${i % 3}`, () => `${on}: el camí ${a}${b} té el color ${c}`);
+    }
+  });
+}
+
 seccio('arbre i probabilitat total', () => {
   let linies = 0, passos = 0;
   for (const problema of ProbabilitatTotal.problemes) {
@@ -1789,6 +1806,7 @@ seccio('arbre i probabilitat total', () => {
     const llista = ProbabilitatTotal.passos({p: problema.id});
     comprovaGuio(llista, ProbabilitatTotal.files, problema.id);
     linies += comprovaProbabilitatTotal(llista, problema, model, problema.id);
+    comprovaColorsCamins(llista, ProbabilitatTotal.FILA, problema.objectiu, problema.id);
     passos += llista.length;
     comprova(iguals(ProbabilitatTotal.llegeixAdreca(ProbabilitatTotal.escriuAdreca({p: problema.id})).valors, {p: problema.id}), () => `${problema.id}: adreça`);
   }
@@ -1902,6 +1920,10 @@ seccio('Bayes', () => {
     const llista = Bayes.passos({p: problema.id});
     comprovaGuio(llista, Bayes.files, problema.id);
     linies += comprovaBayes(llista, problema, model, by, problema.id);
+    comprovaColorsCamins(llista, Bayes.FILA, problema.bayes.objectiu || problema.objectiu, problema.id);
+    // Quan s'escriu P(A | B), la llegenda ja diu què vol dir cada lletra.
+    const primeraFormula = llista.findIndex(pas => pas.files[Bayes.FILA.formula]);
+    comprova(primeraFormula > 0 && Boolean(llista[primeraFormula].files[Bayes.FILA.llegenda]), () => `${problema.id}: P(A | B) surt abans que la llegenda`);
     passos += llista.length;
   }
   // L'arrodoniment: «≈» exigeix que el valor no sigui exacte i que la diferència sigui com a màxim mitja unitat de l'última xifra.
@@ -1988,9 +2010,12 @@ function comprovaBinomial(passos, v, nom) {
     linies++;
     try {
       if (fila === FILA.dades) {
-        const linies = tex.startsWith('\\begin{array}') ? tex.replace(/^\\begin\{array\}\{l\}|\\end\{array\}$/g, '').split('\\\\[4pt]') : [tex];
-        comprova(linies.length <= 2, () => `${on}: les dades són en una o dues línies`);
-        const trossos = linies.flatMap(l => l.trim().split(',\\quad ')).map(textPla);
+        // Una dada per línia: «fórmula & \quad\textcolor{…}{\text{què és}}»; es comprova la fórmula.
+        const m0 = /^\\begin\{array\}\{ll\}(.*)\\end\{array\}$/.exec(tex.trim());
+        comprova(Boolean(m0), () => `${on}: les dades no són una taula d'una dada per línia`);
+        const linies = m0 ? m0[1].split(/\\\\\[\d+pt\]/) : [];
+        comprova(linies.every(l => /&\s*\\quad\\textcolor\{#64748b\}\{\\small\\text\{[^}]+\}\}\s*$/.test(l)), () => `${on}: a cada dada li falta què és`);
+        const trossos = linies.map(l => textPla(l.split('&')[0].trim()));
         comprova(trossos[0] === `n=${v.n}`, () => `${on}: «${trossos[0]}»`);
         const [nomP, ...ps] = trossos[1].split('=');
         comprova(nomP === 'p' && ps.length && ps.every(t => (t.endsWith('%') ? igualB(llegeixB(t.slice(0, -1)).valor, Bq(v.p)) : igualB(llegeixB(t).valor, pB)))
@@ -2010,6 +2035,13 @@ function comprovaBinomial(passos, v, nom) {
         const m = /^(P\(X[^)]*\))=(.*)$/.exec(textPla(tex));
         comprova(m && m[1] === P && iguals(indicadorB(m[2], v.n), S), () => `${on}: «${textPla(tex)}» no és la mateixa probabilitat`);
       } else if (fila === FILA.termes) {
+        // El lila (cas actual): com a molt un, a l'última línia, i el mateix cas marcat a la pregunta si hi surt.
+        const marcats = (tex.match(/marca=actual/g) || []).length;
+        const ultimaMarcada = /marca=actual[^\\]*$|marca=actual(?!.*\\\\\[)/.test(tex);
+        comprova(marcats <= 1 && (!marcats || ultimaMarcada), () => `${on}: el cas en lila no és l'últim`);
+        const mPreg = /\\htmlData\{marca=actual\}\{P\(X = (\d+)\)\}/.exec(pas.files[FILA.pregunta] || '');
+        const mTerme = /\\htmlData\{k=T(\d+)l,marca=actual\}/.exec(tex);
+        comprova(!mPreg || (mTerme && mTerme[1] === mPreg[1]), () => `${on}: el lila de la pregunta i el del cas no coincideixen`);
         termes = liniesDArray(tex).map(l => {
           const m = /^P\(X=(\d+)\)=C\((\d+),(\d+)\)\*([\d,]+)\^\((\d+)\)\*([\d,]+)\^\((\d+)\)(?:(=|≈)(.+))?$/.exec(l);
           if (!m) throw new Error(`cas «${l}» no previst`);

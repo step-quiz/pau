@@ -30,7 +30,8 @@ const {clau: K, rel: R} = F;
      id, nom       per a l'adreça i per al botó
      format        'decimal' (percentatges i decimals) o 'fraccio' (Laplace: fraccions)
      text          l'enunciat, sense la pregunta; [1:…], [2:…]… són les frases amb dades
-     llegenda      [[símbol TeX, què vol dir], …]
+     llegenda      els esdeveniments, un nivell de l'arbre per línia: [[[símbol TeX, què vol dir], …], …];
+                   cada frase, sencera (l'alumne l'ha d'entendre sola: «la primera bola és vermella»)
      arbre         les branques del primer nivell: {e, p, dada, text}, {e, resta: true} o {e, p, raonat: text, frase}
                    e: l'esdeveniment (TeX); p: '70%' o '3/5'; dada: la frase d'on surt (va a la llista
                    de dades); resta: és el contrari de les altres (1 − …); raonat: es dedueix (text), a
@@ -45,7 +46,7 @@ const PROBLEMES = Object.freeze([
   {
     id: 'peces', nom: 'Peces de ferro i d\'acer', format: 'decimal',
     text: 'Una fàbrica fa peces de ferro i d\'acer. [1:El $70\\,\\%$ de les peces són de ferro], i la resta són d\'acer. [2:El $90\\,\\%$ de les peces de ferro no tenen cap defecte], mentre que [3:el $4\\,\\%$ de les peces d\'acer són defectuoses]. Agafem una peça a l\'atzar.',
-    llegenda: [['F', 'és de ferro'], ['A', 'és d\'acer'], ['D', 'és defectuosa'], ['\\overline{D}', 'no és defectuosa']],
+    llegenda: [[['F', 'la peça és de ferro'], ['A', 'la peça és d\'acer']], [['D', 'la peça és defectuosa'], ['\\overline{D}', 'la peça no és defectuosa']]],
     arbre: [
       {e: 'F', p: '70%', dada: '1', text: '«El 70 % de les peces són de ferro»: de cada 100 peces, 70 són de ferro. $P(F) = 70\\,\\% = 0{,}7$.'},
       {e: 'A', resta: true},
@@ -65,7 +66,7 @@ const PROBLEMES = Object.freeze([
   {
     id: 'dau', nom: 'El dau de la Rut', format: 'decimal',
     text: 'Per fer un problema, la Rut tira un dau: [1:si surt 1, 2 o 3, el resol ella mateixa]; si no, en copia la solució d\'Internet. [2:Quan el resol ella, l\'encerta el $80\\,\\%$ de les vegades], però [3:la solució d\'Internet només és correcta el $30\\,\\%$ de les vegades].',
-    llegenda: [['R', 'el resol ella'], ['I', 'el copia d\'Internet'], ['C', 'està bé'], ['\\overline{C}', 'està malament']],
+    llegenda: [[['R', 'la Rut resol el problema'], ['I', 'la Rut copia la solució d\'Internet']], [['C', 'el problema està bé'], ['\\overline{C}', 'el problema està malament']]],
     arbre: [
       {e: 'R', p: '3/6', dada: '1', text: 'Regla de Laplace: hi ha 6 resultats possibles i 3 de favorables (1, 2 o 3). $P(R) = \\frac{3}{6} = 0{,}5$.'},
       {e: 'I', resta: true},
@@ -84,7 +85,7 @@ const PROBLEMES = Object.freeze([
   {
     id: 'prova', nom: 'Una prova mèdica', format: 'decimal',
     text: '[1:El $10\\,\\%$ de la població té una malaltia]. Una prova per detectar-la [2:dona positiu en el $90\\,\\%$ dels malalts], però [3:també dona positiu en el $5\\,\\%$ de les persones sanes].',
-    llegenda: [['M', 'té la malaltia'], ['\\overline{M}', 'no la té'], ['T', 'la prova dona positiu'], ['\\overline{T}', 'dona negatiu']],
+    llegenda: [[['M', 'la persona té la malaltia'], ['\\overline{M}', 'la persona no té la malaltia']], [['T', 'la prova dona positiu'], ['\\overline{T}', 'la prova dona negatiu']]],
     arbre: [
       {e: 'M', p: '10%', dada: '1', text: '«El 10 % de la població té la malaltia»: $P(M) = 10\\,\\% = 0{,}1$.'},
       {e: '\\overline{M}', resta: true},
@@ -103,7 +104,7 @@ const PROBLEMES = Object.freeze([
   {
     id: 'correu', nom: 'El filtre del correu', format: 'decimal',
     text: '[1:El $30\\,\\%$ dels correus que rep una persona són brossa]. El filtre [2:envia a la carpeta de brossa el $90\\,\\%$ dels correus brossa], i [3:deixa a la safata d\'entrada el $95\\,\\%$ dels correus bons]: la resta, també els envia a la carpeta de brossa.',
-    llegenda: [['B', 'és brossa'], ['\\overline{B}', 'és bo'], ['C', 'va a la carpeta de brossa'], ['\\overline{C}', 'es queda a la safata']],
+    llegenda: [[['B', 'el correu és brossa'], ['\\overline{B}', 'el correu és bo']], [['C', 'el correu va a la carpeta de brossa'], ['\\overline{C}', 'el correu es queda a la safata d\'entrada']]],
     arbre: [
       {e: 'B', p: '30%', dada: '1', text: '«El 30 % dels correus són brossa»: $P(B) = 0{,}3$.'},
       {e: '\\overline{B}', resta: true},
@@ -123,7 +124,7 @@ const PROBLEMES = Object.freeze([
   {
     id: 'maquines', nom: 'Tres màquines', format: 'decimal',
     text: 'Una fàbrica té tres màquines. [1:La màquina $A$ fa el $50\\,\\%$ de les peces], [2:la $B$, el $30\\,\\%$], i la $C$, la resta. Són defectuoses [3:el $2\\,\\%$ de les peces de la $A$], [4:el $3\\,\\%$ de les de la $B$] i [5:el $5\\,\\%$ de les de la $C$].',
-    llegenda: [['A, B, C', 'la peça és de la màquina A, B o C'], ['D', 'és defectuosa'], ['\\overline{D}', 'no ho és']],
+    llegenda: [[['A', 'la peça l\'ha feta la màquina $A$'], ['B', 'l\'ha feta la màquina $B$'], ['C', 'l\'ha feta la màquina $C$']], [['D', 'la peça és defectuosa'], ['\\overline{D}', 'la peça no és defectuosa']]],
     arbre: [
       {e: 'A', p: '50%', dada: '1', text: '«La màquina A fa el 50 % de les peces»: $P(A) = 0{,}5$.'},
       {e: 'B', p: '30%', dada: '2', text: '«La B, el 30 %»: $P(B) = 0{,}3$.'},
@@ -142,7 +143,7 @@ const PROBLEMES = Object.freeze([
   {
     id: 'bossa', nom: 'Dues boles sense reemplaçament', format: 'fraccio',
     text: 'Una bossa té [1:$3$ boles vermelles i $2$ de blaves]. En traiem dues, [2:una darrere l\'altra i sense tornar la primera a la bossa].',
-    llegenda: [['V_1, B_1', 'la primera és vermella, blava'], ['V_2, B_2', 'la segona és vermella, blava']],
+    llegenda: [[['V_1', 'la primera bola és vermella'], ['B_1', 'la primera bola és blava']], [['V_2', 'la segona bola és vermella'], ['B_2', 'la segona bola és blava']]],
     arbre: [
       {e: 'V_1', p: '3/5', dada: '1', text: 'Regla de Laplace: hi ha 5 boles, i 3 són vermelles. $P(V_1) = \\frac{3}{5}$.'},
       {e: 'B_1', resta: true},
@@ -225,11 +226,17 @@ function texArbre(p, etiquetes = {}, productes = {}, marques = {}) {
   return `\\left\\{\\begin{array}{l} ${branques.join(' \\\\[12pt] ')} \\end{array}\\right.`;
 }
 
-/** El producte d'un camí, amb claus: «0,7 · 0,1 = 0,07». */
-function texProducte(p, t, a, j) {
+/** El producte d'un camí, amb claus: «0,7 · 0,1 = 0,07». «marca»: el color del camí (cami0, cami1, cami2), opcional. */
+function texProducte(p, t, a, j, marca = '') {
   const [b, c] = [t.primer[a], t.fills[a][j]];
-  return K(`Pp${a}${j}`, `${b.tex} \\cdot ${c.tex}`) + R(`Pq${a}${j}`, '=') + K(`Pr${a}${j}`, texValor(p, b.v.producte(c.v)));
+  return K(`Pp${a}${j}`, `${b.tex} \\cdot ${c.tex}`, marca) + R(`Pq${a}${j}`, '=') + K(`Pr${a}${j}`, texValor(p, b.v.producte(c.v)), marca);
 }
+/** El color del camí i-èsim dels que se sumen. */
+const marcaCami = i => `cami${i % 3}`;
+
+/** La llegenda, com a fila de text: un nivell de l'arbre per línia, «$F$: la peça és de ferro; $A$: …». */
+const textLlegenda = p => p.llegenda.map(nivell => nivell.map(([e, d]) => `$${e}$: ${d}`).join(';  ')).join('\n');
+const texLlegenda = p => F.filaText(textLlegenda(p));
 
 /** Probabilitat de la intersecció d'un camí, en TeX: «P(F \cap D)». */
 const texCami = (t, a, j) => `P(${t.primer[a].e} \\cap ${t.fills[a][j].e})`;
@@ -237,7 +244,7 @@ const texCami = (t, a, j) => `P(${t.primer[a].e} \\cap ${t.fills[a][j].e})`;
 const texCondicionada = (t, a, j) => `P(${t.fills[a][j].e} \\mid ${t.primer[a].e})`;
 
 arrel.Arbres = Object.freeze({
-  PROBLEMES, valorDe, font, texFraccio, arbre, texValor, percentatge, texArbre, texProducte, texCami, texCondicionada,
+  PROBLEMES, valorDe, font, texFraccio, arbre, textLlegenda, texLlegenda, texValor, percentatge, texArbre, texProducte, marcaCami, texCami, texCondicionada,
 });
 
 })(globalThis);

@@ -86,7 +86,7 @@ const formula = tex => katex.renderToString(tex, OPCIONS_TEXT);
 /** «Text amb $fórmules$» → HTML. */
 function textAmbFormules(text) {
   return text.split(/(\$[^$]+\$)/).map(tros =>
-    (tros.length > 2 && tros.startsWith('$') && tros.endsWith('$')) ? formula(tros.slice(1, -1)) : escapa(tros)
+    (tros.length > 2 && tros.startsWith('$') && tros.endsWith('$')) ? formula(tros.slice(1, -1)) : escapa(tros).replace(/\n/g, '<br>')
   ).join('');
 }
 
@@ -429,6 +429,9 @@ function creaPissarra(r, nFiles, cursor, temps) {
     f.style.fontStyle = estil.fontStyle;
     const copia = el.cloneNode(true);
     copia.removeAttribute('data-k');
+    // KaTeX pot posar a l'element mateix una classe de mida relativa al pare (p. ex. «sizing reset-size3 size6» d'un
+    // \textstyle dins d'una fletxa): fora del seu lloc, es tornaria a aplicar i el fantasma sortiria massa gran.
+    copia.style.fontSize = estil.fontSize;
     copia.querySelectorAll('[data-k]').forEach(n => n.removeAttribute('data-k'));
     f.append(copia);
     r.efectes.append(f);
