@@ -67,6 +67,7 @@ These came from David's feedback during development. Apply them by default.
 David asked that an improvement made in one place be applied everywhere it fits. Already applied:
 - Points without «=»: `P(3, -5)`, `A(0, 3, -1)` (statements, board, captions); vectors written with their value directly, never «B − A».
 - Equations: write the bare named equation first («f'(x) = 0», «A'(x) = 0», «f'(x) = m», «f(x) = 0», «f(x) − g(x) = 0», «|A| = 0»), then substitute. While it is solved the equation stays on its row and the work goes to a working row below (`Formules.resolEquacio`, `Matrius.passosArrels`); products with «·» (`x · (x − 2) = 0`, also `2 · (x − 1)` in plane equations, `2 · (1 + λ)` in substitutions, `m · (x − x₀)` in the tangent line; matrix products stay juxtaposed except `I · X`); lilac only on the solutions; solutions outside the domain crossed out in red (optimisation, increase/decrease, integral parameter).
+- Two planes in a sketch: the second one only has an outline of another colour (no fill): one plane never covers the other.
 - Board labels in words: «Àrea =», «Volum =», «màxim»/«mínim» in tables; table headers in bold.
 - A result such as «= 0» never alone on a new line (`enLinies` orphan rule).
 - No Cramer anywhere; no optional checks after the answer (f''(a) tests of an extremum the statement requires are not optional); no abbreviations (SCD/SCI/SI, AV/AH/AO).

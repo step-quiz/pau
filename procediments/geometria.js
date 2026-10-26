@@ -468,8 +468,12 @@ const fletxa = (x1, y1, x2, y2, classe = 'vector') => {
 /** Un text; «π_1» posa l'1 com a subíndex. */
 const sub = t => t.replace(/_([^_]+)$/, '<tspan class="sub" dy="4">$1</tspan>');
 const text = (x, y, t, classe = '') => `<text x="${x}" y="${y}"${classe ? ` class="${classe}"` : ''}>${sub(t)}</text>`;
-/** Un pla (paral·lelogram). «classe»: 'pla' o 'pla2' (un segon pla, d'un altre color). */
-const pla = (punts, nom, x, y, classe = 'pla') => `<polygon class="${classe}" points="${punts.map(q => q.join(',')).join(' ')}"/>` + (nom ? text(x, y, nom) : '');
+/**
+ * Un pla (paral·lelogram). «classe»: 'pla' o 'pla2'. El segon pla només té el contorn d'un altre color, sense
+ * fons (David: un pla no pot tapar l'altre); els atributs van a l'SVG mateix, perquè no depenguin de l'estil.
+ */
+const pla = (punts, nom, x, y, classe = 'pla') => `<polygon class="${classe}" points="${punts.map(q => q.join(',')).join(' ')}"`
+  + (classe === 'pla2' ? ' fill="none" stroke="#4f46e5" stroke-width="1.6"' : '') + '/>' + (nom ? text(x, y, nom) : '');
 const puntSvg = (x, y) => `<circle class="punt" cx="${x}" cy="${y}" r="3"/>`;
 /** L'esquema: 300 d'ample; [dalt, baix] és la franja vertical que ocupa el dibuix (sense marges buits). */
 const svg = (cos, [dalt, baix] = [0, 170]) => `<svg viewBox="0 ${dalt} 300 ${baix - dalt}" xmlns="http://www.w3.org/2000/svg" role="img">${cos}</svg>`;
