@@ -3,6 +3,7 @@
 Read this **before** touching anything in `procediments/`. `README.md` (same folder) is the *reference* (every file, field, key and test). This file is the *know-how*: why it is built this way, what was learned the hard way, and how to turn a request from David into the right change quickly.
 
 Reading order for a new session: `../CLAUDE.md` (house rules) → this file → `README.md` §1–§5 → the procedure you will touch → its section in `proves/comprova.js`.
+To build the same kind of pages for another subject, start from `graspable-formulae.md` (the engine explained for reuse).
 
 ---
 
