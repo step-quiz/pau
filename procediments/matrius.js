@@ -9,7 +9,10 @@
      passosSarrus(g, …)   els passos de la regla de Sarrus (3×3)
      passosArrels(g, …)   els passos de «polinomi = 0», de grau ≤ 3:
                           factor comú, o una arrel entera i Ruffini, i
-                          l'equació de segon grau (Formules.resolPolinomi)
+                          l'equació de segon grau (Formules.resolEquacio:
+                          l'equació es queda i els càlculs baixen a una
+                          fila de treball; productes amb «·»; solucions
+                          en lila)
      problemaArrels(p)    null si passosArrels el sap resoldre
      texSistema, texAmpliada   un sistema de 3 equacions i la seva A*
      passosGauss(S)       esglaonar la matriu ampliada pel mètode de Gauss
@@ -28,7 +31,8 @@
      P V<n>n    el «−» de davant d'un parèntesi; P V<n>z un producte 0
      P C<g>     el terme de grau g del determinant
      E…, Q…     les equacions (Formules.equacio); P… les proves d'arrels;
-                R… la taula de Ruffini (Ra dalt, Rx l'arrel, Rm al mig, Rb baix)
+                R… la taula de Ruffini (Ra dalt, Rx l'arrel, Rm al mig, Rb baix);
+                W… «x = r o»; Y… la còpia de l'equació que es queda quieta
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -313,107 +317,127 @@ const texSolucions = (arrels, X) => (arrels.length ? arrels.map(r => `${X} = ${M
 const ordena = arrels => arrels.filter((r, i) => arrels.findIndex(s => s.igual(r)) === i).sort((a, b) => a.resta(b).signe());
 
 /**
- * Els passos de «p = 0» (p de grau 1 a 3, coeficients enters; vegeu problemaArrels) a les
- * files: «equacio» (l'equació, i la factoritzada), «prova» (les arrels candidates),
- * «ruffini» (la taula) i «segon» (l'equació de segon grau que queda). «inici» és el text
- * del primer pas. Torna les solucions, diferents i en ordre (Fraccio).
+ * Els passos de «p = 0» (p de grau 1 a 3, coeficients enters; vegeu problemaArrels), amb les
+ * convencions de Formules.resolEquacio (l'equació es continua veient i els càlculs baixen a una
+ * fila de treball; productes amb «·»; «x = r» a la pissarra; en lila només les solucions).
+ *   files: {equacio, lliures}: l'equació va a «equacio»; les altres files (les proves d'arrels,
+ *          Ruffini, «x = r o …», la de treball) agafen, per ordre, les de «lliures» que facin
+ *          falta, així no queda cap fila buida entre dues files escrites.
+ *          (També s'admet {equacio, prova, ruffini, segon, treball}: lliures, en aquest ordre.)
+ *   nom:   si es dona («|A|»), el primer pas és l'equació tal com es planteja, «|A| = 0», i
+ *          el segon hi substitueix el polinomi. «inici» és el text del primer pas.
+ * Al final, un pas marca les solucions en lila. Torna les solucions, diferents i en ordre (Fraccio).
+ * Claus: E… l'equació; P… les proves; R… Ruffini; W… «x = r o»; Q… l'equació que queda;
+ * Y… la còpia de l'equació que es queda a la seva fila quan els càlculs baixen.
  */
-function passosArrels(g, {p, X, files, inici, nom}) {
+function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom}) {
   const termes = M.termes(p);
+  const equacio = filesDonades.equacio;
+  const cua = (filesDonades.lliures || ['prova', 'ruffini', 'segon', 'treball'].map(k => filesDonades[k]).filter(f => f !== undefined)).slice();
+  const files = {};
+  const fila = n => {
+    if (files[n] === undefined) {
+      if (!cua.length) throw new Error('passosArrels: no hi ha prou files lliures');
+      files[n] = cua.shift();
+    }
+    return files[n];
+  };
+  const lila = [];                                    // [fila, clau] de cada solució
+  const tanca = arrels => {
+    lila.forEach(([f, k]) => F.marcaSolucio(g, f, k));
+    const diferents = ordena(arrels);
+    const doble = arrels.filter((r, i) => arrels.findIndex(s => s.igual(r)) !== i);
+    if (diferents.length) {
+      g.afegeix(F.textSolucions(diferents, X)
+        + (doble.length ? ` ${doble.map(r => `$${X} = ${M.texNombre(r)}$`).join(', ')} surt dues vegades: és una arrel doble.` : ''));
+    }
+    return diferents;
+  };
   // Primer, l'equació tal com es planteja («|A| = 0»), si es dona el nom; el «=» i el «0» es queden.
   let textPolinomi = inici;
   if (nom) {
-    g.files[files.equacio] = K('En', nom) + R('Eq', '=') + K('Ez', '0');
+    g.files[equacio] = K('En', nom) + R('Eq', '=') + K('Ez', '0');
     g.afegeix(inici);
     textPolinomi = `Substitueix $${nom}$ per la seva expressió.`;
   }
-  /** Al final, les solucions trobades, en lila (marca «solucio») allà on són: «claus» = [[fila, clau]]. */
-  const marcaSolucions = (claus, trobades) => {
-    if (!trobades.length) return;
-    for (const [f, k] of claus) g.files[f] = g.files[f].replace(`\\htmlData{k=${k}}`, `\\htmlData{k=${k},marca=solucio}`);
-    const repetida = trobades.filter((r, i) => trobades.findIndex(s => s.igual(r)) !== i);
-    const llista = trobades.map(r => `$${X} = ${M.texNombre(r)}$`);
-    g.afegeix(`${trobades.length > 1 ? 'Les solucions de l\'equació són ' + llista.slice(0, -1).join(', ') + ' i ' + llista[llista.length - 1] : 'La solució de l\'equació és ' + llista[0]}.`
-      + (repetida.length ? ` ${repetida.map(r => `$${X} = ${M.texNombre(r)}$`).join(', ')} surt dues vegades: és una arrel doble.` : ''));
-  };
+
+  /* Grau 1 o 2: l'equació es queda; els càlculs, a la fila de treball. */
   if (p.length <= 3) {
-    const sol = F.resolPolinomi(g, files.equacio, 'E', termes, textPolinomi, {}, X);
-    marcaSolucions(sol.map(s => [files.equacio, s.clau]), sol.map(s => s.valor));
-    return ordena(sol.map(s => s.valor));
+    const sol = F.resolEquacio(g, {fila: equacio, treball: fila('treball'), P: 'E', termes, text: textPolinomi, X});
+    sol.forEach(s => lila.push([s.fila, s.clau]));
+    return tanca(sol.map(s => s.valor));
   }
 
   /* Grau 3: l'equació, i dividida pel factor comú (o canviada de signe). */
-  g.files[files.equacio] = F.equacio('E', termes, X);
+  g.files[equacio] = F.equacio('E', termes, X);
   g.afegeix(textPolinomi);
-  const clausSolucions = [];
   const {p: q, k} = normalitza(p);
   if (k !== 1) {
-    g.files[files.equacio] = F.equacio('E', M.termes(q), X);
+    g.files[equacio] = F.equacio('E', M.termes(q), X);
     g.afegeix(k === -1 ? 'Canvia el signe dels dos membres (multiplica per $-1$): el primer coeficient queda positiu.'
       : `Divideix els dos membres per $${k}$.`);
   }
   const texQ = texP(q, X);
-  let resta, arrels;
+  let resta, r;
   if (q[0].esZero()) {
     /* Sense terme independent: factor comú X (o X²). */
     const j = q.findIndex(c => !c.esZero());
     resta = q.slice(j);
     const factor = j === 1 ? X : `${X}^{${j}}`;
-    g.files[files.equacio] = K('Ef', factor) + `(${K('Er', texP(resta, X))})` + R('Eq', '=') + K('Ez', '0');
+    g.files[equacio] = K('Ef', factor) + ' \\cdot ' + `(${K('Er', texP(resta, X))})` + R('Eq', '=') + K('Ez', '0');
     g.afegeix(`No hi ha terme independent: treu factor comú $${factor}$.`);
-    arrels = [ZERO];
-    clausSolucions.push([files.equacio, 'Ef']);
-    g.completa(` Un producte val $0$ si algun factor val $0$: $${factor} = 0$${j > 1 ? `, és a dir, $${X} = 0$` : ''}, o bé $${texP(resta, X)} = 0$.`);
+    r = ZERO;
   } else {
     /* Una arrel entera, entre els divisors del terme independent. */
     const c0 = q[0].abs().num;
-    const llista = candidates(q[0]);
     const linies = [];
-    let r;
-    for (const c of llista) {
+    for (const c of candidates(q[0])) {
       const v = valorP(q, c);
-      linies.push(K(`Pv${linies.length}`, `${X} = ${c}`) + ':\\quad ' + K(`Pe${linies.length}`, `${texSubstituit(q, c)} = ${M.texNombre(v)}`
-        + (v.esZero() ? '' : ' \\neq 0')));
-      g.files[files.prova] = linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[4pt] ')} \\end{array}` : linies[0];
-      const quina = linies.length === 1
+      linies.push(K(`Pv${linies.length}`, `${X} = ${c}`) + ':\\quad ' + K(`Pe${linies.length}`, `${texSubstituit(q, c)} = ${M.texNombre(v)}` + (v.esZero() ? '' : ' \\neq 0')));
+      g.files[fila('prova')] = linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[4pt] ')} \\end{array}` : linies[0];
+      g.afegeix((linies.length === 1
         ? `Busca una arrel entera: ha de ser un divisor del terme independent, $${c0}$ (${divisors(c0).map(d => `$\\pm ${d}$`).join(', ')}). Prova $${X} = ${c}$: `
-        : `Prova $${X} = ${c}$: `;
-      g.afegeix(quina + (v.esZero() ? `dona $0$, és una arrel.` : `dona $${M.texNombre(v)}$, no és una arrel.`));
-      if (v.esZero()) { r = c; clausSolucions.push([files.prova, `Pv${linies.length - 1}`]); break; }
+        : `Prova $${X} = ${c}$: `) + (v.esZero() ? 'dona $0$, és una arrel.' : `dona $${M.texNombre(v)}$, no és una arrel.`));
+      if (v.esZero()) { r = Fraccio.de(c); break; }
     }
-    /* La regla de Ruffini: q entre (X − r). */
+    /* La regla de Ruffini: q entre (X − r). Una sola línia vertical, després de l'arrel. */
     const {dalt, mig, baix, quocient} = ruffini(q, r);
     const n = dalt.length;
-    const cel = (k, v) => (v === null || v === undefined ? '' : K(k, M.texNombre(v)));
-    // Una sola línia vertical, després de l'arrel (no abans del terme independent).
+    const cel = (kk, v) => (v === null || v === undefined ? '' : K(kk, M.texNombre(v)));
     const taula = fins => `\\begin{array}{r|${'r'.repeat(n)}} & ${dalt.map((v, i) => cel(`Ra${i}`, v)).join(' & ')} \\\\ `
-      + `${K('Rx', String(r))} & ${mig.map((v, i) => (i <= fins && i > 0 ? cel(`Rm${i}`, v) : '')).join(' & ')} \\\\ \\hline `
+      + `${K('Rx', M.texNombre(r))} & ${mig.map((v, i) => (i <= fins && i > 0 ? cel(`Rm${i}`, v) : '')).join(' & ')} \\\\ \\hline `
       + `& ${baix.map((v, i) => (i <= fins ? cel(`Rb${i}`, v) : '')).join(' & ')} \\end{array}`;
-    g.files[files.ruffini] = taula(-1);
-    g.afegeix(`Divideix per $${texP([new Fraccio(-r), U], X)}$ amb la regla de Ruffini: a dalt, els coeficients (també els zeros); a l'esquerra, l'arrel $${r}$.`);
-    g.files[files.ruffini] = taula(0);
+    g.files[fila('ruffini')] = taula(-1);
+    g.afegeix(`Divideix per $${texP([r.oposada(), U], X)}$ amb la regla de Ruffini: a dalt, els coeficients (també els zeros); a l'esquerra, l'arrel $${M.texNombre(r)}$.`);
+    g.files[fila('ruffini')] = taula(0);
     g.afegeix('Baixa el primer coeficient.');
     for (let i = 1; i < n; i++) {
-      g.files[files.ruffini] = taula(i);
-      g.afegeix(`Multiplica per $${r}$ i suma: $${M.texNombre(baix[i - 1])} \\cdot ${r < 0 ? `(${r})` : r} = ${M.texNombre(mig[i])}$, `
+      g.files[fila('ruffini')] = taula(i);
+      g.afegeix(`Multiplica per $${M.texNombre(r)}$ i suma: $${M.texNombre(baix[i - 1])} \\cdot ${M.texEntreParentesis(r)} = ${M.texNombre(mig[i])}$, `
         + `$${M.texNombre(dalt[i])} + ${M.texEntreParentesis(mig[i])} = ${M.texNombre(baix[i])}$.`
-        + (i === n - 1 ? ' El residu és $0$, perquè $' + `${X} = ${r}` + '$ és una arrel.' : ''));
+        + (i === n - 1 ? ` El residu és $0$, perquè $${X} = ${M.texNombre(r)}$ és una arrel.` : ''));
     }
     resta = quocient;
-    const factor = texP([new Fraccio(-r), U], X);
-    g.files[files.equacio] = `(${K('Ef', factor)})(${K('Er', texP(resta, X))})` + R('Eq', '=') + K('Ez', '0');
-    g.afegeix(`Els nombres de baix (menys el residu) són els coeficients del quocient: $${texQ} = (${factor})(${texP(resta, X)})$.`);
-    arrels = [new Fraccio(r)];
-    g.completa(` Un producte val $0$ si algun factor val $0$: $${factor} = 0$, és a dir, $${X} = ${r}$, o bé $${texP(resta, X)} = 0$.`);
+    const factor = texP([r.oposada(), U], X);
+    g.files[equacio] = `(${K('Ef', factor)}) \\cdot (${K('Er', texP(resta, X))})` + R('Eq', '=') + K('Ez', '0');
+    g.afegeix(`Els nombres de baix (menys el residu) són els coeficients del quocient: $${texQ} = (${factor}) \\cdot (${texP(resta, X)})$.`);
   }
-  /* L'equació que queda (grau 1 o 2). */
+
+  /* Un producte val 0 si algun factor val 0: «x = r o (el que queda) = 0». */
+  const davant = K('Wv', X) + R('Wq', '=') + K('Wr', M.texNombre(r));
+  lila.push([fila('segon'), 'Wr']);
+  const parteix = `Un producte val $0$ si algun factor val $0$: $${X} = ${M.texNombre(r)}$`;
+  let arrels = [r];
   if (resta.length > 1) {
-    const sol = F.resolPolinomi(g, files.segon, 'Q', M.termes(resta), `Resol $${texP(resta, X)} = 0$.`, {}, X);
+    const sol = F.resolEquacio(g, {fila: fila('segon'), treball: fila('treball'), P: 'Q', termes: M.termes(resta), X, davant: davant + '\\quad\\text{o}\\quad ',
+      text: `${parteix}, o bé $${texP(resta, X)} = 0$. Resol aquesta equació.`});
+    sol.forEach(s => lila.push([s.fila, s.clau]));
     arrels = arrels.concat(sol.map(s => s.valor));
-    sol.forEach(s => clausSolucions.push([files.segon, s.clau]));
+  } else {
+    g.files[fila('segon')] = davant;
+    g.afegeix(parteix + '.');
   }
-  marcaSolucions(clausSolucions, arrels);
-  return ordena(arrels);
+  return tanca(arrels);
 }
 
 

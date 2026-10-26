@@ -118,12 +118,15 @@ function passos(v) {
 
   /* 2. Els punts crítics: f'(x) = 0, a la fila 1. Si no s'ha multiplicat, les claus noves de la fila 0 van aquí. */
   // Primer l'equació tal com es planteja, f'(x) = 0; després, amb l'expressió de f'(x). El «=» i el «0» (claus eq, ez) es queden.
+  // L'equació es continua veient: els càlculs baixen a la fila 2 (Formules.resolEquacio), i les solucions acaben en lila.
   g.files[1] = F.membreEsquerre('e', 'f', 'x', 1) + K('ez', '0');
   g.afegeix('Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.',
     {reanomena: feta1.multiplica ? {} : feta1.reanomena});
-  const solucions = F.resolPolinomi(g, 1, 'e', d1, 'Substitueix $f\'(x)$ per la seva expressió.');
+  const solucions = F.resolEquacio(g, {fila: 1, treball: 2, P: 'e', termes: d1, text: 'Substitueix $f\'(x)$ per la seva expressió.', lila: true,
+    final: sol => `${sol.length > 1 ? 'Els punts crítics són' : 'L\'únic punt crític és'} ${sol.map(s => `$x = ${texNombre(s.valor)}$`).join(' i ')}.`});
 
   g.files[1] = '';
+  g.files[2] = '';
   if (!solucions.length) {
     g.files[2] = K('Kn', '\\text{No hi ha punts crítics, i per tant no hi ha extrems relatius}');
     g.classes[2] = 'final';

@@ -25,7 +25,7 @@ const M = arrel.Mates;
 const F = arrel.Formules;
 const G = arrel.Geometria;
 const {clau: K, rel: R} = F;
-const {punt, resta, escala, texPunt, texRecta} = G;
+const {punt, resta, escala, texPunt, texPuntNom, texRecta} = G;
 
 /**
  * Els problemes. Cada un diu quines dades té (punts A, B, C, P; rectes r, s {P, u}; un pla π {n, D})
@@ -54,13 +54,13 @@ const {perId} = FIXOS;
 const FILA = Object.freeze({dades: 0, esquema: 1, elements: 2, det: 3, desenvolupa: 4, pla: 5, comprovacio: 6});
 
 const ENUNCIATS = {
-  'tres': p => `Troba l'equació del pla que passa pels punts $A = ${texPunt(p.A)}$, $B = ${texPunt(p.B)}$ i $C = ${texPunt(p.C)}$.`,
-  'punt-recta': p => `Troba l'equació del pla que conté el punt $P = ${texPunt(p.P)}$ i la recta $r: ${texRecta(p.r)}$.`,
+  'tres': p => `Troba l'equació del pla que passa pels punts $${texPuntNom('A', p.A)}$, $${texPuntNom('B', p.B)}$ i $${texPuntNom('C', p.C)}$.`,
+  'punt-recta': p => `Troba l'equació del pla que conté el punt $${texPuntNom('P', p.P)}$ i la recta $r: ${texRecta(p.r)}$.`,
   'rectes': p => `Les rectes $r: ${texRecta(p.r)}$ i $s: ${texRecta(p.s, '\\mu')}$ es tallen. Troba l'equació del pla que les conté.`,
   'conte-perp': p => `Troba l'equació del pla que conté la recta $r: ${texRecta(p.r)}$ i és perpendicular al pla $\\pi: ${G.texPla(p.pi)}$.`,
-  'perp-recta': p => `Troba l'equació del pla que passa per $P = ${texPunt(p.P)}$ i és perpendicular a la recta $r: ${texRecta(p.r)}$.`,
-  'paralel': p => `Troba l'equació del pla que passa per $P = ${texPunt(p.P)}$ i és paral·lel al pla $\\pi: ${G.texPla(p.pi)}$.`,
-  'mediador': p => `Troba l'equació del pla mediador del segment d'extrems $A = ${texPunt(p.A)}$ i $B = ${texPunt(p.B)}$.`,
+  'perp-recta': p => `Troba l'equació del pla que passa per $${texPuntNom('P', p.P)}$ i és perpendicular a la recta $r: ${texRecta(p.r)}$.`,
+  'paralel': p => `Troba l'equació del pla que passa per $${texPuntNom('P', p.P)}$ i és paral·lel al pla $\\pi: ${G.texPla(p.pi)}$.`,
+  'mediador': p => `Troba l'equació del pla mediador del segment d'extrems $${texPuntNom('A', p.A)}$ i $${texPuntNom('B', p.B)}$.`,
 };
 
 /** La idea de cada esquema (el text del pas que el mostra). */
@@ -74,21 +74,21 @@ const IDEES = {
   'mediador': 'El pla mediador talla el segment $AB$ pel mig, en angle recte: passa pel punt mitjà $M$ i el vector $\\overrightarrow{AB}$ n\'és un vector normal.',
 };
 
-/** Un vector amb nom: «\overrightarrow{AB} = B - A = (1,\ 1,\ -1)». */
-const texDif = (nom, X, Y, nX, nY) => `\\overrightarrow{${nom}} = ${nY} - ${nX} = ${texPunt(resta(Y, X))}`;
+/** Un vector amb nom, directament amb el seu valor (David: res de «B - A», no es resten punts): «\overrightarrow{AB} = (1,\ 1,\ -1)». */
+const texDif = (nom, X, Y) => `\\overrightarrow{${nom}} = ${texPunt(resta(Y, X))}`;
 const llista = linies => (linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[4pt] ')} \\end{array}` : linies[0]);
 
 function passos(valors) {
   const p = perId(valors.p);
   const g = F.guio(7);
   const dades = {
-    'tres': () => [`A = ${texPunt(p.A)}`, `B = ${texPunt(p.B)}`, `C = ${texPunt(p.C)}`],
-    'punt-recta': () => [`P = ${texPunt(p.P)}`, `r: ${texRecta(p.r)}`],
+    'tres': () => [texPuntNom('A', p.A), texPuntNom('B', p.B), texPuntNom('C', p.C)],
+    'punt-recta': () => [texPuntNom('P', p.P), `r: ${texRecta(p.r)}`],
     'rectes': () => [`r: ${texRecta(p.r)}`, `s: ${texRecta(p.s, '\\mu')}`],
     'conte-perp': () => [`r: ${texRecta(p.r)}`, `\\pi: ${G.texPla(p.pi)}`],
-    'perp-recta': () => [`P = ${texPunt(p.P)}`, `r: ${texRecta(p.r)}`],
-    'paralel': () => [`P = ${texPunt(p.P)}`, `\\pi: ${G.texPla(p.pi)}`],
-    'mediador': () => [`A = ${texPunt(p.A)}`, `B = ${texPunt(p.B)}`],
+    'perp-recta': () => [texPuntNom('P', p.P), `r: ${texRecta(p.r)}`],
+    'paralel': () => [texPuntNom('P', p.P), `\\pi: ${G.texPla(p.pi)}`],
+    'mediador': () => [texPuntNom('A', p.A), texPuntNom('B', p.B)],
   }[p.id]();
   g.files[FILA.dades] = llista(dades.map((d, i) => K(`Dd${i}`, d)));
   g.afegeix('Per escriure l\'equació d\'un pla cal un punt i dos vectors directors (o un punt i un vector normal, perpendicular al pla). '
@@ -100,34 +100,36 @@ function passos(valors) {
 
   if (['tres', 'punt-recta', 'rectes', 'conte-perp'].includes(p.id)) {
     /* Un punt i dos vectors directors: el determinant. */
-    let P, v1, v2;
+    let P, v1, v2, nomP = 'P';
     if (p.id === 'tres') {
       [P, v1, v2] = [p.A, resta(p.B, p.A), resta(p.C, p.A)];
-      elements([`P = A = ${texPunt(P)}`, texDif('AB', p.A, p.B, 'A', 'B'), texDif('AC', p.A, p.C, 'A', 'C')]);
-      g.afegeix('Un punt, $A$, i dos vectors del pla: $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ (van d\'un punt del pla a un altre). Com que $A$, $B$ i $C$ no estan alineats, no són proporcionals.');
+      nomP = 'A';
+      elements([texPuntNom('A', P), texDif('AB', p.A, p.B), texDif('AC', p.A, p.C)]);
+      g.afegeix('Un punt, $A$, i dos vectors del pla: $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ (van d\'un punt del pla a un altre; les seves components són les coordenades de l\'extrem menys les de l\'origen). Com que $A$, $B$ i $C$ no estan alineats, no són proporcionals.');
     } else if (p.id === 'punt-recta') {
       [P, v1, v2] = [p.r.P, p.r.u, resta(p.P, p.r.P)];
-      elements([`Q = ${texPunt(P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, texDif('QP', p.r.P, p.P, 'Q', 'P')]);
+      nomP = 'Q';
+      elements([`${texPuntNom('Q', P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, texDif('QP', p.r.P, p.P)]);
       g.afegeix('Un punt de la recta, $Q$, que també és del pla; el vector director de la recta, $\\vec{u}$; i el vector que va de $Q$ a $P$.');
     } else if (p.id === 'rectes') {
       [P, v1, v2] = [p.r.P, p.r.u, p.s.u];
-      elements([`P = ${texPunt(P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, `\\vec{v} = ${texPunt(v2)}`]);
+      elements([`${texPuntNom('P', P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, `\\vec{v} = ${texPunt(v2)}`]);
       g.afegeix('Un punt d\'una de les rectes (és del pla) i els dos vectors directors, $\\vec{u}$ i $\\vec{v}$: les dues rectes són al pla.');
     } else {
       [P, v1, v2] = [p.r.P, p.r.u, p.pi.n];
-      elements([`P = ${texPunt(P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, `\\vec{n}_{\\pi} = ${texPunt(v2)}`]);
+      elements([`${texPuntNom('P', P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, `\\vec{n}_{\\pi} = ${texPunt(v2)}`]);
       g.afegeix('Un punt de la recta i el seu vector director, $\\vec{u}$ (la recta és al pla). El segon vector director: el vector normal de $\\pi$. '
         + 'Si el pla que busquem és perpendicular a $\\pi$, la recta perpendicular a $\\pi$ (la de direcció $\\vec{n}_{\\pi}$) hi és paral·lela.');
     }
-    pla = G.passosPlaDeterminant(g, {P, v1, v2, files: FILA});
+    pla = G.passosPlaDeterminant(g, {P, v1, v2, files: FILA, nomP});
   } else if (p.id === 'perp-recta') {
-    elements([`P = ${texPunt(p.P)}`, `\\vec{n} = \\vec{u} = ${texPunt(p.r.u)}`]);
+    elements([texPuntNom('P', p.P), `\\vec{n} = \\vec{u} = ${texPunt(p.r.u)}`]);
     g.afegeix('Si la recta és perpendicular al pla, el seu vector director és perpendicular al pla: és un vector normal. (Mira l\'esquema.)');
-    pla = G.passosPlaNormal(g, {P: p.P, n: p.r.u, files: FILA, text: 'Un pla de vector normal $\\vec{n} = (A,\\ B,\\ C)$ que passa per $P = (a,\\ b,\\ c)$: '
+    pla = G.passosPlaNormal(g, {P: p.P, n: p.r.u, files: FILA, text: 'Un pla de vector normal $\\vec{n} = (A,\\ B,\\ C)$ que passa per $P(a,\\ b,\\ c)$: '
       + '$A(x - a) + B(y - b) + C(z - c) = 0$.'});
   } else if (p.id === 'paralel') {
     const n = p.pi.n;
-    elements([`P = ${texPunt(p.P)}`, `\\vec{n} = \\vec{n}_{\\pi} = ${texPunt(n)}`]);
+    elements([texPuntNom('P', p.P), `\\vec{n} = \\vec{n}_{\\pi} = ${texPunt(n)}`]);
     g.afegeix('Dos plans paral·lels tenen el mateix vector normal (mira l\'esquema): el pla que busquem és $' + G.texEsquerre(n, null) + ' + D = 0$, i només falta $D$.');
     g.files[FILA.desenvolupa] = K('Hf', `${G.texEsquerre(n, null)} + D`) + R('Hq', '=') + K('Hz', '0');
     g.afegeix('Escriu l\'equació amb la $D$ per determinar.');
@@ -141,10 +143,13 @@ function passos(valors) {
   } else {
     const Mm = p.A.map((x, i) => x.suma(p.B[i]).quocient(2));
     const AB = resta(p.B, p.A);
-    elements([`M = \\left(\\tfrac{${M.texNombre(p.A[0])} + ${M.texNombre(p.B[0])}}{2},\\ \\tfrac{${M.texNombre(p.A[1])} + ${M.texNombre(p.B[1])}}{2},\\ \\tfrac{${M.texNombre(p.A[2])} + ${M.texNombre(p.B[2])}}{2}\\right) = ${texPunt(Mm)}`,
-      `\\vec{n} = ${texDif('AB', p.A, p.B, 'A', 'B')}`]);
-    g.afegeix('El pla mediador és perpendicular al segment $AB$ pel seu punt mitjà $M$: un vector normal és $\\overrightarrow{AB}$ (mira l\'esquema). '
+    // El punt mitjà, sense signe igual (David): primer les mitjanes, després el punt.
+    const mitjana = j => `\\tfrac{${M.texNombre(p.A[j])} + ${M.texNombre(p.B[j])}}{2}`;
+    elements([`M\\left(${[0, 1, 2].map(mitjana).join(',\\ ')}\\right)`, `\\vec{n} = ${texDif('AB', p.A, p.B)}`]);
+    g.afegeix('El pla mediador és perpendicular al segment $AB$ pel seu punt mitjà $M$: les coordenades de $M$ són les mitjanes de les de $A$ i $B$, i un vector normal és $\\overrightarrow{AB}$ (mira l\'esquema). '
       + '(També es pot fer amb un punt qualsevol $G$: els que compleixen $d(G, A) = d(G, B)$.)');
+    elements([texPuntNom('M', Mm), `\\vec{n} = ${texDif('AB', p.A, p.B)}`]);
+    g.afegeix(`Calcula les mitjanes: $${texPuntNom('M', Mm)}$.`);
     pla = G.passosPlaNormal(g, {P: Mm, n: AB, files: FILA, text: 'Pla de vector normal $\\overrightarrow{AB}$ que passa per $M$: $A(x - a) + B(y - b) + C(z - c) = 0$.'});
   }
 

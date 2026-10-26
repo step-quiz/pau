@@ -9,8 +9,11 @@
    Passos:
      1. el sistema i la matriu ampliada A*;
      2. |A| per Sarrus (els sis productes alhora; vegeu la pàgina del
-        determinant per al detall) i els valors que l'anul·len (Ruffini
-        si és de grau 3);
+        determinant per al detall) i els valors que l'anul·len
+        (Matrius.passosArrels: l'equació es queda i els càlculs baixen a
+        les files lliures; Ruffini si és de grau 3; solucions en lila);
+        després, un resum «|A| = 0 ⟺ m = … o m = …» i els càlculs
+        s'esborren: les files lliures es reaprofiten per als casos;
      3. si |A| ≠ 0: rang(A) = rang(A*) = 3, compatible determinat;
      4. per a cada valor que anul·la |A|: A* amb aquest valor; el rang
         de A (un menor d'ordre 2 no nul; si no n'hi ha, les files són
@@ -19,8 +22,8 @@
      5. la taula de la discussió.
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
    Claus: Y<i> les equacions; Mn, Mq, a<i><j> A*; d… el determinant (vegeu
-   matrius.js: dMn, dS…, dV…, dC…); E…, P…, R…, Q… |A| = 0; Dc… el cas
-   |A| ≠ 0; K<c>… el cas c; T<n><a-d> la taula.
+   matrius.js: dMn, dS…, dV…, dC…); E…, P…, R…, W…, Q…, Y… |A| = 0; Zf, Zi,
+   Zs el resum; Dc… el cas |A| ≠ 0; K<c>… el cas c; T<n><a-d> la taula.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -31,7 +34,11 @@ const Mt = arrel.Matrius;
 const {clau: K, rel: R} = F;
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({sistema: 0, matriu: 1, det: 2, sarrus: 3, calcul: 4, equacio: 5, prova: 6, ruffini: 7, segon: 8, scd: 9, cas: 10, taula: 11});
+// Les files lliures (proves d'arrels, Ruffini, «m = r o …», treball) només serveixen per resoldre |A| = 0: després
+// s'esborren i s'hi escriuen els casos (scd, cas) i la taula. Així no queda cap fila buida enmig.
+const FILA = Object.freeze({sistema: 0, matriu: 1, det: 2, sarrus: 3, calcul: 4, equacio: 5, lliures: Object.freeze([6, 7, 8, 9]),
+  scd: 6, cas: 7, taula: 8});
+const FILES = 10;
 
 const EXEMPLES = Object.freeze([
   '1,m,m,-1;-1,1,1,1;2,1,m,2',          // |A| = m² − 1: m = −1 SCI, m = 1 SI
@@ -133,7 +140,7 @@ const DESCRIPCIO = (rA, rS) => (rA < rS ? 'sistema incompatible: no té solució
 function passos(v) {
   const {S, X} = sistema(v);
   const A = S.map(f => f.slice(0, 3));
-  const g = F.guio(12);
+  const g = F.guio(FILES);
   g.files[FILA.sistema] = Mt.texSistema(S, {P: 'Y', X});
   g.afegeix(`Discutir el sistema és dir, per a cada valor de $${X}$, si té una solució, infinites o cap. Es fa comparant els rangs de $A$ (els coeficients) `
     + `i de $A^*$ (l'ampliada): és el teorema de Rouché–Frobenius.`);
@@ -143,6 +150,12 @@ function passos(v) {
   /* |A| i els valors que l'anul·len. */
   const {det} = Mt.passosSarrus(g, {A, X, nom: '|A|', P: 'd', rapid: true, files: {matriu: FILA.det, sarrus: FILA.sarrus, calcul: FILA.calcul}});
   const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|', inici: `On és $|A| = 0$? Per a aquests valors, $\\text{rang}(A) < 3$.`}).map(r => r.num);
+  // El resum: els càlculs ja no calen, i les seves files es reaprofiten.
+  FILA.lliures.forEach(f => { g.files[f] = ''; });
+  const solucions = Mt.texSolucions(arrels.map(r => M.Fraccio.de(r)), X);
+  g.files[FILA.equacio] = solucions ? K('Zf', '|A| = 0') + R('Zi', '\\iff') + K('Zs', solucions) : K('Zf', `|A| \\neq 0 \\text{ per a tot } ${X}`);
+  g.afegeix((solucions ? `Resumeix-ho: $|A| = 0$ només si $${solucions}$.` : `Resumeix-ho: $|A|$ no val mai $0$.`)
+    + ' (Esborrem els càlculs: ja no ens calen.)');
 
   /* La taula, que es va omplint. */
   // La capçalera, en negreta; la taula, una mica separada dels càlculs (classe «separat»).
@@ -229,7 +242,7 @@ function passos(v) {
 arrel.Discussio = Object.freeze({
   titol: 'Discussió d\'un sistema amb un paràmetre',
   categoria: 'algebra',
-  files: 12,
+  files: FILES,
   perDefecte: PER_DEFECTE,
   exemples: EXEMPLES,
   titolEditor: 'Tria un sistema',

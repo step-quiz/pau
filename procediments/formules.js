@@ -24,7 +24,16 @@
         L F  nom    L P  prima    L a, L b  parèntesis    L X  argument    L q  «=»
       Convé que L i P siguin lletres diferents (p. ex. «G» i «g»).
 
-   2. EQUACIONS: resolPolinomi() resol «polinomi = 0» pas a pas.
+   2. EQUACIONS: resolPolinomi() resol «polinomi = 0» pas a pas, i
+      resolEquacio() fa el mateix amb les convencions del David (octubre
+      2026), que valen per a tot el web:
+        · mentre es resol, l'equació es continua veient: els càlculs
+          (passar termes, la fórmula, les solucions) van a una fila de
+          sota, la «fila de treball»;
+        · un producte s'escriu amb punt: x · (x − 2) = 0;
+        · quan es treu factor comú x, «x = 0» s'escriu a la pissarra;
+        · en lila (marca «solucio») només les solucions, mai el factor x;
+        · una solució que no serveix (fora del domini…) es tatxa (tatxa()).
      DERIVADES i INTEGRALS de polinomis amb claus (derivada…, integral…).
    3. FILES DE TEXT: filaText() i frase(), per a enunciats amb frases marcades.
    4. GUIÓ: el constructor de la llista de passos d'un procediment.
@@ -432,7 +441,7 @@ function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x'
 
   if (!C) {                                                              // A·x² + B·x = 0
     const dins = coeficient(P, 2, A) + x(2) + signe(P, 1, false, B.signe() < 0) + clau(P + 'c1', texNombre(B.abs()));
-    posa(clau(P + 'f', X) + clau(P + 'l', '(') + dins + clau(P + 'p', ')') + igual + clau(P + 'z', '0'),
+    posa(clau(P + 'f', X) + op(P + 'pt', '\\cdot') + clau(P + 'l', '(') + dins + clau(P + 'p', ')') + igual + clau(P + 'z', '0'),
       `Treu factor comú $${X}$.`, {fusiona: {[P + 'f']: [P + 'e2', P + 'v1']}});
     const primera = clau(P + 'f', X) + rel(P + 'q0', '=') + clau(P + 'z0', '0') + O_DISJUNCIO;
     posa(primera + dins + igual + clau(P + 'z', '0'), 'Un producte val $0$ quan algun dels factors val $0$.');
@@ -470,6 +479,72 @@ function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x'
   const parcial = (s, v) => `${X} = \\frac{${texNombre(B.oposada())} ${s} ${texNombre(r)}}{${texNombre(dosA)}} = ${texNombre(v)}`;
   return separa(P + 'v2', v1, v2, {[P + 'S1']: [P + 'nb', P + 'pm'], [P + 'S2']: [P + 'r', P + 'd']},
     `Separa el $-$ i el $+$: $${parcial('-', v1)}$ i $${parcial('+', v2)}$.`);
+}
+
+
+/** Una solució que no serveix (fora del domini, o que l'enunciat no admet), tatxada en vermell. */
+const tatxa = tex => `\\textcolor{#b91c1c}{\\cancel{${tex}}}`;
+
+/** Posa la marca lila («solucio») al símbol de clau k de la fila. */
+function marcaSolucio(g, fila, k) {
+  g.files[fila] = g.files[fila].replace(`\\htmlData{k=${k}}`, `\\htmlData{k=${k},marca=solucio}`);
+}
+
+/**
+ * Tatxa la solució de clau k de la fila: el tros «x = valor» que la conté (les solucions
+ * d'una fila es parteixen per «o»), o la fila sencera si només n'hi ha una.
+ */
+function tatxaSolucio(g, fila, k) {
+  const parts = g.files[fila].split(O_DISJUNCIO);
+  const i = parts.findIndex(t => t.includes(`{k=${k}}`) || t.includes(`{k=${k},`));
+  if (i < 0) throw new Error(`tatxaSolucio: la clau ${k} no és a la fila ${fila}`);
+  parts[i] = tatxa(parts[i]);
+  g.files[fila] = parts.join(O_DISJUNCIO);
+}
+
+/** «La solució és $x = 2$.», «Les solucions són $x = 0$ i $x = 2$.» (valors: Fraccio). */
+function textSolucions(valors, X = 'x') {
+  const llista = valors.map(v => `$${X} = ${texNombre(v)}$`);
+  return llista.length > 1 ? `Les solucions són ${llista.slice(0, -1).join(', ')} i ${llista[llista.length - 1]}.` : `La solució és ${llista[0]}.`;
+}
+
+/** Les mateixes claus amb una «Y» al davant: una còpia que es queda quieta mentre l'original baixa. */
+const copiaQuieta = tex => tex.replace(/\\htmlData\{k=/g, '\\htmlData{k=Y');
+/** Encara és l'equació «polinomi = 0» (la de partida o la dividida), no un pas de la resolució. */
+const esEquacio = (tex, P) => tex.includes(`{k=${P}z}`) && !tex.includes(`{k=${P}f}`) && !tex.includes(`{k=${P}S1}`);
+
+/**
+ * Resol «termes = 0» (grau ≤ 2) com resolPolinomi, però l'equació es continua veient:
+ * l'equació (i la simplificada, si es divideix per un factor comú) es queda a «fila»,
+ * precedida de «davant»; els altres passos van a la fila de treball «treball» (sense
+ * «treball», tot va a «fila»). Quan els càlculs baixen, a «fila» hi queda una còpia de
+ * l'equació (claus Y…) i els símbols originals baixen a la fila de treball.
+ *   lila:    cert → un pas final marca les solucions en lila; el seu text és «final» (un text, o
+ *            una funció de les solucions), o «Les solucions són …». Sense solucions, no hi ha pas.
+ *   serveix: (amb lila) una funció del valor: les solucions que no serveixen (fora del domini…)
+ *            no es marquen en lila, sinó que es tatxen en vermell.
+ * Torna [{valor, clau, fila}]: la clau i la fila de cada solució a la pissarra (també les tatxades).
+ */
+function resolEquacio(g, {fila, treball, P, termes, text, X = 'x', davant = '', opcions = {}, lila = false, final = null, serveix = null}) {
+  let baixat = false, equacio = '';
+  const files = new Proxy(g.files, {
+    get(t, k) { return k === String(fila) && baixat ? t[treball] : t[k]; },
+    set(t, k, v) {
+      if (k !== String(fila)) { t[k] = v; return true; }
+      if (!baixat && (treball === undefined || esEquacio(v, P))) { t[fila] = davant + v; equacio = v; return true; }
+      if (!baixat) { baixat = true; t[fila] = davant + copiaQuieta(equacio); }
+      t[treball] = v;
+      return true;
+    },
+  });
+  const intermediari = {files, classes: g.classes, afegeix: g.afegeix, completa: g.completa, passos: g.passos};
+  const sol = resolPolinomi(intermediari, fila, P, termes, text, opcions, X)
+    .map(s => ({valor: s.valor, clau: s.clau, fila: baixat ? treball : fila}));
+  if (lila && sol.length) {
+    sol.forEach(s => (!serveix || serveix(s.valor) ? marcaSolucio : tatxaSolucio)(g, s.fila, s.clau));
+    g.afegeix(typeof final === 'function' ? final(sol) : final || textSolucions(sol.map(s => s.valor), X));
+  }
+  return sol;
 }
 
 
@@ -552,12 +627,21 @@ const AMPLE_LINIA = 460;
  * comencen amb un sagnat. Si tot hi cap, una sola línia (sense array).
  */
 function enLinies(inici, peces, {ample = AMPLE_LINIA, sagnat = '\\qquad ', final = '', espai = '4pt'} = {}) {
-  const linies = [inici];
+  const grups = [[]];                                        // les peces de cada línia
+  const text = k => (k === 0 ? inici : sagnat) + grups[k].map((p, j) => (k > 0 && j === 0 ? p.replace(/^\s+/, '') : p)).join('');
   for (const p of peces) {
-    const ara = linies[linies.length - 1];
-    if (ara.trim() !== '' && ara !== inici && ara !== sagnat && ampleTex(ara + p) > ample) linies.push(sagnat + p.replace(/^\s+/, ''));
-    else linies[linies.length - 1] = ara + p;
+    const k = grups.length - 1;
+    if (grups[k].length && ampleTex(text(k) + p) > ample) grups.push([p]);
+    else grups[k].push(p);
   }
+  // Un resultat curt («= 5») mai sol en una línia nova (David): hi baixa també la peça anterior, si hi cap.
+  const n = grups.length;
+  if (n > 1 && grups[n - 1].length === 1 && grups[n - 2].length > 1 && ampleTex(grups[n - 1][0]) < ample / 3) {
+    const moguda = grups[n - 2].pop();
+    if (ampleTex(sagnat + moguda.replace(/^\s+/, '') + grups[n - 1][0]) <= ample) grups[n - 1].unshift(moguda);
+    else grups[n - 2].push(moguda);
+  }
+  const linies = grups.map((_, k) => text(k));
   // El final («= 0», «= 5 ≠ 0») sempre a la mateixa línia que l'última peça: sol en una línia nova costa de llegir (David).
   if (final) linies[linies.length - 1] += final;
   return linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0];
@@ -605,7 +689,7 @@ arrel.Formules = Object.freeze({
   resultat, fusionsResultat, clausResultat,
   derivadaIndicada, derivadaBaixada, derivadaFeta,
   integralIndicada, integralRegla, integralFeta, mesC, passosIntegral,
-  equacio, resolPolinomi,
+  equacio, resolPolinomi, resolEquacio, marcaSolucio, tatxaSolucio, textSolucions, tatxa,
   filaText, frase, enunciatMarcat,
   ampleTex, enLinies,
   guio,

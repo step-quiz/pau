@@ -25,7 +25,7 @@ const F = arrel.Formules;
 const Mt = arrel.Matrius;
 const G = arrel.Geometria;
 const {clau: K, rel: R} = F;
-const {punt, resta, texPunt, texRecta, escalar} = G;
+const {punt, resta, texPunt, texPuntNom, texRecta, escalar} = G;
 const fr = (a, b = 1) => new M.Fraccio(a, b);
 
 const PROBLEMES = Object.freeze([
@@ -42,21 +42,22 @@ const {perId} = FIXOS;
 const FILA = Object.freeze({dades: 0, esquema: 1, vectors: 2, producte: 3, valor: 4, mixt: 5, formula: 6, solucions: 7, dibuix: 8});
 
 const ENUNCIATS = {
-  'triangle': p => `Calcula l'àrea del triangle de vèrtexs $A = ${texPunt(p.A)}$, $B = ${texPunt(p.B)}$ i $C = ${texPunt(p.C)}$.`,
-  'triangle-arrel': p => `Calcula l'àrea del triangle de vèrtexs $A = ${texPunt(p.A)}$, $B = ${texPunt(p.B)}$ i $C = ${texPunt(p.C)}$.`,
-  'tetraedre': p => `Calcula el volum del tetraedre de vèrtexs $A = ${texPunt(p.A)}$, $B = ${texPunt(p.B)}$, $C = ${texPunt(p.C)}$ i $D = ${texPunt(p.D)}$.`,
-  'quart-vertex': p => `Els punts $A = ${texPunt(p.A)}$, $B = ${texPunt(p.B)}$ i $C = ${texPunt(p.C)}$ són tres vèrtexs d'un tetraedre. `
+  'triangle': p => `Calcula l'àrea del triangle de vèrtexs ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$ i ${texPuntNom('C', p.C)}$.`,
+  'triangle-arrel': p => `Calcula l'àrea del triangle de vèrtexs ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$ i ${texPuntNom('C', p.C)}$.`,
+  'tetraedre': p => `Calcula el volum del tetraedre de vèrtexs ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$, ${texPuntNom('C', p.C)}$ i ${texPuntNom('D', p.D)}$.`,
+  'quart-vertex': p => `Els punts ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$ i ${texPuntNom('C', p.C)}$ són tres vèrtexs d'un tetraedre. `
     + `Troba el quart vèrtex $D$, sobre la recta $r: ${texRecta(p.r)}$, perquè el volum del tetraedre sigui $${M.texNombre(p.V)}$.`,
 };
 
 const llista = (linies, espai = '6pt') => (linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0]);
-const texDif = (nom, X, Y, nX, nY) => `\\overrightarrow{${nom}} = ${nY} - ${nX} = ${texPunt(resta(Y, X))}`;
+/** Un vector, directament amb el seu valor (David: res de «B - A», no es resten punts). */
+const texDif = (nom, X, Y) => `\\overrightarrow{${nom}} = ${texPunt(resta(Y, X))}`;
 
 function passos(valors) {
   const p = perId(valors.p);
   const g = F.guio(9);
-  const dades = [`A = ${texPunt(p.A)}`, `B = ${texPunt(p.B)}`, `C = ${texPunt(p.C)}`];
-  if (p.D) dades.push(`D = ${texPunt(p.D)}`);
+  const dades = [texPuntNom('A', p.A), texPuntNom('B', p.B), texPuntNom('C', p.C)];
+  if (p.D) dades.push(texPuntNom('D', p.D));
   if (p.r) dades.push(`r:\\ ${texRecta(p.r)}`, `\\text{Volum} = ${M.texNombre(p.V)}`);
   g.files[FILA.dades] = llista(dades.map((d, i) => K(`Dd${i}`, d)));
   g.afegeix('Primer, què dona l\'enunciat.');
@@ -70,8 +71,8 @@ function passos(valors) {
   }[tri ? 'triangle' : p.id]);
 
   if (tri) {
-    g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B, 'A', 'B')), K('Eb', texDif('AC', p.A, p.C, 'A', 'C'))]);
-    g.afegeix('Els vectors de dos costats que surten del mateix vèrtex, $A$.');
+    g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B)), K('Eb', texDif('AC', p.A, p.C))]);
+    g.afegeix('Els vectors de dos costats que surten del mateix vèrtex, $A$: les coordenades de l\'extrem menys les de $A$.');
     const w = G.passosProducteVectorial(g, {u: AB, v: AC, nom: '\\overrightarrow{AB} \\times \\overrightarrow{AC}', files: {producte: FILA.producte, valor: FILA.valor},
       text: 'El producte vectorial $\\overrightarrow{AB} \\times \\overrightarrow{AC}$, com un determinant: a la primera fila, $\\vec{i}$, $\\vec{j}$, $\\vec{k}$; a les altres, les components dels dos vectors.'});
     const W = G.modul2(w), rW = G.arrelQuadrada(W);
@@ -88,8 +89,8 @@ function passos(valors) {
       + `Resposta: l'àrea del triangle és $${G.texArrel(area)}$ unitats quadrades.`);
   } else if (p.id === 'tetraedre') {
     const AD = resta(p.D, p.A);
-    g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B, 'A', 'B')), K('Eb', texDif('AC', p.A, p.C, 'A', 'C')), K('Ec', texDif('AD', p.A, p.D, 'A', 'D'))]);
-    g.afegeix('Els vectors de les tres arestes que surten del vèrtex $A$.');
+    g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B)), K('Eb', texDif('AC', p.A, p.C)), K('Ec', texDif('AD', p.A, p.D))]);
+    g.afegeix('Els vectors de les tres arestes que surten del vèrtex $A$: les coordenades de l\'extrem menys les de $A$.');
     const B3 = [AB, AC, AD];
     const det = Mt.det3N(B3);
     g.files[FILA.mixt] = F.enLinies(K('Mn', '\\det(\\overrightarrow{AB}, \\overrightarrow{AC}, \\overrightarrow{AD})') + R('Mq', '=') + K('Md', Mt.texVmatriuN(B3)) + ' = ',
@@ -105,8 +106,8 @@ function passos(valors) {
     /* El quart vèrtex: D_λ sobre r, i (AB × AC) · AD_λ. */
     const Dg = p.r;
     const ADg = {P: resta(Dg.P, p.A), u: Dg.u};
-    g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B, 'A', 'B')), K('Eb', texDif('AC', p.A, p.C, 'A', 'C')),
-      K('Ed', `D_{\\lambda} = ${G.texGeneric(Dg)}`), K('Ec', `\\overrightarrow{AD_{\\lambda}} = D_{\\lambda} - A = ${G.texGeneric(ADg)}`)]);
+    g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B)), K('Eb', texDif('AC', p.A, p.C)),
+      K('Ed', `D_{\\lambda}${G.texGeneric(Dg)}`), K('Ec', `\\overrightarrow{AD_{\\lambda}} = ${G.texGeneric(ADg)}`)]);
     g.afegeix('Els vectors $\\overrightarrow{AB}$, $\\overrightarrow{AC}$; el punt genèric $D_{\\lambda}$ de la recta, i el vector $\\overrightarrow{AD_{\\lambda}}$ (depèn de $\\lambda$).');
     const w = G.passosProducteVectorial(g, {u: AB, v: AC, nom: '\\overrightarrow{AB} \\times \\overrightarrow{AC}', files: {producte: FILA.producte, valor: FILA.valor},
       text: 'El producte mixt es pot calcular en dos passos: primer el producte vectorial $\\overrightarrow{AB} \\times \\overrightarrow{AC}$ (un determinant), i després el producte escalar per $\\overrightarrow{AD_{\\lambda}}$.'});
@@ -126,10 +127,10 @@ function passos(valors) {
     const ls = [sisV, sisV.oposada()].map(x => x.resta(b).quocient(a));
     const Ds = ls.map(l => Dg.P.map((x, i) => x.suma(Dg.u[i].producte(l))));
     g.files[FILA.solucions] = llista([0, 1].map(i => K(`S${i}`, `${lineal} = ${M.texNombre(i ? sisV.oposada() : sisV)}\\ \\Rightarrow\\ \\lambda = ${M.texNombre(ls[i])}`
-      + `\\ \\Rightarrow\\ D_{${i + 1}} = ${texPunt(Ds[i])}`)));
+      + `\\ \\Rightarrow\\ ${texPuntNom(`D_{${i + 1}}`, Ds[i])}`)));
     g.classes[FILA.solucions] = 'final';
     g.afegeix(`$|${lineal}| = ${M.texNombre(sisV)}$: el que hi ha dins val $${M.texNombre(sisV)}$ o $${M.texNombre(sisV.oposada())}$. Dues solucions: `
-      + `$D_1 = ${texPunt(Ds[0])}$ i $D_2 = ${texPunt(Ds[1])}$ (un a cada banda del pla $ABC$).`);
+      + `$${texPuntNom('D_1', Ds[0])}$ i $${texPuntNom('D_2', Ds[1])}$ (un a cada banda del pla $ABC$).`);
     // Les dues solucions, dibuixades (David): dos tetraedres, un a cada banda del pla ABC.
     g.files[FILA.dibuix] = G.esquema('quart-vertex-solucions');      // sota la resposta, perquè es vegin junts
     g.afegeix(`Els dos tetraedres, $ABCD_1$ i $ABCD_2$, tenen volum $${M.texNombre(p.V)}$: $D_1$ i $D_2$ són de la recta $r$, un a cada banda del pla $ABC$, a la mateixa distància.`);

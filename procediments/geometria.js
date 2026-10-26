@@ -55,6 +55,8 @@ function vectorSimple(w) {
 /* ── 2. ESCRIPTURA ─────────────────────────────────────────────────── */
 
 const texPunt = P => `(${P.map(x => M.texNombre(x)).join(',\\ ')})`;
+/** Un punt amb nom, sense signe igual (David): «P(1,\ 2,\ 3)», mai «P = (1, 2, 3)». */
+const texPuntNom = (nom, P) => `${nom}${texPunt(P)}`;
 /** «x - 1», «y», «z + 2» (la coordenada menys la del punt). */
 const texMenys = (v, a) => (a.esZero() ? v : `${v} ${a.signe() > 0 ? '-' : '+'} ${M.texNombre(a.abs())}`);
 /** El primer membre d'un pla, «3x - y + 2z - 5». */
@@ -82,11 +84,14 @@ const texGeneric = ({P, u}, l = '\\lambda') => `(${P.map((a, i) => Mt.texLineal(
 
 /* ── 3. EL PLA ─────────────────────────────────────────────────────── */
 
-/** Un coeficient davant d'un factor: «3(x - 1)», «-(y - 2)», « + 2z»; si és el primer, sense « + ». */
+/**
+ * Un coeficient davant d'un factor: «3 \cdot (x - 1)», «-(y - 2)», « + 2z»; si és el primer, sense « + ».
+ * Un producte per un parèntesi porta punt (David: «x · (x − 2)»).
+ */
 function texCoefFactor(c, factor, primer) {
   const a = c.abs();
   const f = factor.length > 1 ? `(${factor})` : factor;
-  const t = (a.igual(1) ? '' : M.texNombre(a)) + f;
+  const t = (a.igual(1) ? '' : M.texNombre(a) + (factor.length > 1 ? ' \\cdot ' : '')) + f;
   if (primer) return (c.signe() < 0 ? '-' : '') + t;
   return c.signe() < 0 ? ` - ${t}` : ` + ${t}`;
 }
@@ -123,11 +128,12 @@ function passosFormaGeneral(g, {P, n, files, escriuForma = true, text}) {
  */
 const SARRUS_SIMBOLS = Object.freeze([[0, 1, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0], [0, 2, 1], [1, 0, 2]]);   // [símbol, columna de u, columna de v]
 const ambParentesi = s => (/\s[+-]\s/.test(s) ? `(${s})` : s);
-/** c·s amb el signe davant («2(x - 1)», « - \vec{j}», « + 0»); si és el primer, sense « + ». */
+/** c·s amb el signe davant («2 \cdot (x - 1)», « - \vec{j}», « + 0»); si és el primer, sense « + ». Davant d'un parèntesi, punt. */
 function texCoefSimbol(c, s, primer) {
   if (c.esZero()) return primer ? '0' : ' + 0';
   const a = c.abs();
-  const t = (a.igual(1) ? '' : M.texNombre(a) + (s.startsWith('\\vec') ? '\\,' : '')) + ambParentesi(s);
+  const s2 = ambParentesi(s);
+  const t = (a.igual(1) ? '' : M.texNombre(a) + (s.startsWith('\\vec') ? '\\,' : s2 !== s ? ' \\cdot ' : '')) + s2;
   if (primer) return (c.signe() < 0 ? '-' : '') + t;
   return c.signe() < 0 ? ` - ${t}` : ` + ${t}`;
 }
@@ -154,12 +160,13 @@ const TEXT_SARRUS = 'Regla de Sarrus, amb dos claudàtors: al primer, la diagona
  * El pla que passa per P i té els vectors directors v1 i v2: el determinant |X − P; v1; v2| = 0
  * (els tres vectors són al pla), desenvolupat per la primera fila. Files: det, desenvolupa, pla.
  */
-function passosPlaDeterminant(g, {P, v1, v2, files}) {
+function passosPlaDeterminant(g, {P, v1, v2, files, nomP = 'P'}) {
   const fila1 = VARS.map((v, i) => texMenys(v, P[i]));
   const texV = v => v.map(x => M.texNombre(x)).join(' & ');
   g.files[files.det] = K('Gd', `\\begin{vmatrix} ${fila1.join(' & ')} \\\\ ${texV(v1)} \\\\ ${texV(v2)} \\end{vmatrix}`) + R('Gq', '=') + K('Gz', '0');
-  g.afegeix(`Un punt qualsevol $G = (x,\\ y,\\ z)$ és del pla si el vector $\\overrightarrow{PG} = (${fila1.join(',\\ ')})$ i els dos vectors directors són coplanaris: `
-    + 'el determinant que formen val $0$. A la primera fila, $\\overrightarrow{PG}$; a les altres, els vectors directors.');
+  // Els punts, sense signe igual (David): «G(x, y, z)».
+  g.afegeix(`Un punt qualsevol $G(x,\\ y,\\ z)$ és del pla si el vector $\\overrightarrow{${nomP}G} = (${fila1.join(',\\ ')})$ i els dos vectors directors són coplanaris: `
+    + `el determinant que formen val $0$. A la primera fila, $\\overrightarrow{${nomP}G}$; a les altres, els vectors directors.`);
   // Sempre per Sarrus (mai per adjunts), amb claudàtors.
   const sr = sarrusSimbolic(fila1, v1, v2, 'H');
   const zero = R('Hq', '=') + K('Hz', '0');
@@ -243,16 +250,19 @@ function texProporcio(a, b, nomA, nomB, compA, compB) {
 /** «1 \cdot 2 + (-1) \cdot (-1) + 1 \cdot 1»: el producte escalar u · v, terme a terme. */
 const texEscalar = (u, v) => u.map((x, i) => `${M.texEntreParentesis(x)} \\cdot ${M.texEntreParentesis(v[i])}`).join(' + ');
 
-/** El coeficient c per una coordenada lineal e = [e₀, e₁] (e₀ + e₁λ): «2(1 + \lambda)», « - (-\lambda)», « + 3 \cdot 2». */
+/** El coeficient c per una coordenada lineal e = [e₀, e₁] (e₀ + e₁λ): «2 \cdot (1 + \lambda)», « - (-\lambda)», « + 3 \cdot 2». */
 function texCoefLineal(c, e, primer, L) {
   const a = c.abs();
+  // Un sol terme positiu en λ no porta parèntesis: «2\lambda», «2 \cdot 3\lambda» (mai «2(\lambda)»).
+  const solLambda = e[0].esZero() && e[1].signe() > 0;
   const t = e[1].esZero() ? (a.igual(1) ? '' : `${M.texNombre(a)} \\cdot `) + M.texEntreParentesis(e[0])
-    : (a.igual(1) ? '' : M.texNombre(a)) + `(${Mt.texLineal(e, L)})`;
+    : solLambda ? (a.igual(1) ? '' : e[1].igual(1) ? M.texNombre(a) : `${M.texNombre(a)} \\cdot `) + Mt.texLineal(e, L)
+      : (a.igual(1) ? '' : `${M.texNombre(a)} \\cdot `) + `(${Mt.texLineal(e, L)})`;
   if (primer) return (c.signe() < 0 ? '-' : '') + t;
   return (c.signe() < 0 ? ' - ' : ' + ') + t;
 }
 
-/** El primer membre d'un pla amb les coordenades lineals e = [[e₀, e₁], …] d'un punt genèric: «2(1 + \lambda) - (-\lambda) + 7». */
+/** El primer membre d'un pla amb les coordenades lineals e = [[e₀, e₁], …] d'un punt genèric: «2 \cdot (1 + \lambda) - (-\lambda) + 7». */
 function texSubstitucioLineal(n, D, e, L = '\\lambda') {
   const termes = n.map((c, i) => [c, e[i]]).filter(([c]) => !c.esZero());
   const constant = D && !D.esZero() ? (D.signe() > 0 ? ` + ${M.texNombre(D)}` : ` - ${M.texNombre(D.abs())}`) : '';
@@ -268,7 +278,9 @@ function texSubstitucioLineal(n, D, e, L = '\\lambda') {
  */
 function passosPuntGenericAlPla(g, {r, pla, files, L = '\\lambda', nom = 'P_{\\lambda}', textos = {}, etiqueta = '', davantGeneric = '', davantSubstitucio = ''}) {
   const e = r.P.map((x, i) => [x, r.u[i]]);
-  g.files[files.generic] = davantGeneric + K('Gp', nom) + R('Gq', '=') + K('Gc', texGeneric(r, L));
+  // Un punt s'escriu sense signe igual, «P_r(1 + \lambda,\ …)» (David); un vector, amb «=».
+  const esVector = nom.startsWith('\\overrightarrow');
+  g.files[files.generic] = davantGeneric + K('Gp', nom) + (esVector ? R('Gq', '=') : '') + K('Gc', texGeneric(r, L));
   g.afegeix(textos.generic || `Un punt qualsevol de la recta, el punt genèric: cada valor de $${L}$ en dona un.`);
   const termes = pla.n.map((c, i) => [c, e[i]]).filter(([c]) => !c.esZero());
   g.files[files.substitucio] = davantSubstitucio + (etiqueta ? K('Gn', etiqueta) + R('Go', '=') : '') + K('Gs', texSubstitucioLineal(pla.n, pla.D, e, L)) + R('Gt', '=') + K('Gz', '0');
@@ -485,7 +497,7 @@ const ESQUEMES = Object.freeze({
     + `<line class="recta" x1="150" y1="165" x2="150" y2="10"/>` + text(158, 18, 'r') + puntSvg(150, 100) + text(130, 116, 'P')
     + fletxa(150, 100, 150, 40) + vectors(158, 52, 'n', 'u'), [0, 170]),
   /** Dos plans paral·lels: tenen el mateix vector normal. */
-  'paralels': () => svg(pla([[20, 70], [190, 70], [270, 25], [100, 25]], 'π', 245, 42) + pla([[20, 150], [190, 150], [270, 105], [100, 105]], 'π′', 245, 122)
+  'paralels': () => svg(pla([[20, 70], [190, 70], [270, 25], [100, 25]], 'π', 245, 42) + pla([[20, 150], [190, 150], [270, 105], [100, 105]], 'π′', 245, 122, 'pla2')
     + fletxa(140, 48, 140, 8) + vectors(148, 18, 'n') + fletxa(140, 128, 140, 88) + vectors(148, 98, 'n') + puntSvg(80, 135) + text(64, 148, 'P'), [0, 155]),
   /** El pla mediador d'un segment: perpendicular al segment pel seu punt mitjà. */
   'mediador': () => svg(pla([[120, 160], [180, 120], [180, 10], [120, 50]], 'π', 186, 30)
@@ -493,7 +505,7 @@ const ESQUEMES = Object.freeze({
     + puntSvg(150, 85) + text(132, 104, 'M') + fletxa(150, 85, 215, 76) + vectors(196, 66, 'AB'), [5, 165]),
   /** Un pla que conté una recta i és perpendicular a un altre pla: el vector normal de l'altre és un vector director seu. */
   'conte-perpendicular': () => svg(pla([[10, 150], [190, 150], [290, 100], [110, 100]], 'π', 262, 140)
-    + pla([[90, 125], [210, 125], [210, 20], [90, 20]], 'σ', 196, 38) + `<line class="recta" x1="70" y1="70" x2="230" y2="70"/>` + text(236, 74, 'r')
+    + pla([[90, 125], [210, 125], [210, 20], [90, 20]], 'σ', 196, 38, 'pla2') + `<line class="recta" x1="70" y1="70" x2="230" y2="70"/>` + text(236, 74, 'r')
     + fletxa(130, 70, 175, 70) + vectors(160, 62, 'u') + fletxa(110, 118, 110, 48) + vectors(116, 58, 'n'), [15, 155]),
   /** Un punt i una recta: el vector director de la recta i el vector que va de la recta al punt. */
   'punt-recta': () => svg(pla([[20, 140], [210, 140], [285, 60], [95, 60]], 'π', 258, 132)
@@ -608,7 +620,7 @@ const esquema = nom => ESQUEMES[nom]();
 
 arrel.Geometria = Object.freeze({
   VARS, punt, resta, suma, escala, escalar, vectorial, esZero, factorComu, vectorSimple,
-  texPunt, texMenys, texEsquerre, texPla, texSubstitucio, texRecta, texGeneric,
+  texPunt, texPuntNom, texMenys, texEsquerre, texPla, texSubstitucio, texRecta, texGeneric,
   passosPlaDeterminant, passosPlaNormal, passosFormaGeneral,
   UNITATS, texIJK, passosProducteVectorial, passosReduccio2, texEq, texSistemaEq, COLOR_EQ, texEscalar, passosPuntGenericAlPla, texProporcio, texSubstitucioLineal,
   arrelQuadrada, texArrel, texModul, modul2, pecesQuocientArrel,

@@ -27,7 +27,7 @@ const F = arrel.Formules;
 const Mt = arrel.Matrius;
 const G = arrel.Geometria;
 const {clau: K, rel: R} = F;
-const {punt, resta, texPunt, texPla, texRecta, escalar} = G;
+const {punt, resta, texPunt, texPuntNom, texPla, texRecta, escalar} = G;
 const fr = (a, b = 1) => new M.Fraccio(a, b);
 
 const PROBLEMES = Object.freeze([
@@ -48,15 +48,15 @@ const {perId} = FIXOS;
 const FILA = Object.freeze({dades: 0, esquema: 1, posicio: 2, punt: 3, producte: 4, valor: 5, formula: 6, solucions: 7});
 
 const ENUNCIATS = {
-  'punt-pla': p => `Calcula la distància del punt $P = ${texPunt(p.P)}$ al pla $\\pi: ${texPla(p.pi)}$.`,
-  'punt-pla-arrel': p => `Calcula la distància del punt $P = ${texPunt(p.P)}$ al pla $\\pi: ${texPla(p.pi)}$.`,
+  'punt-pla': p => `Calcula la distància del punt $${texPuntNom('P', p.P)}$ al pla $\\pi: ${texPla(p.pi)}$.`,
+  'punt-pla-arrel': p => `Calcula la distància del punt $${texPuntNom('P', p.P)}$ al pla $\\pi: ${texPla(p.pi)}$.`,
   'plans-paralels': p => `Calcula la distància entre els plans $\\pi_1: ${texPla(p.pi)}$ i $\\pi_2: ${texPla(p.sigma)}$.`,
   'plans-secants': p => `Calcula la distància entre els plans $\\pi_1: ${texPla(p.pi)}$ i $\\pi_2: ${texPla(p.sigma)}$.`,
   'recta-paralela': p => `Calcula la distància de la recta $r: ${texRecta(p.r)}$ al pla $\\pi: ${texPla(p.pi)}$.`,
   'recta-secant': p => `Calcula la distància de la recta $r: ${texRecta(p.r)}$ al pla $\\pi: ${texPla(p.pi)}$.`,
   'plans-distancia': p => `Troba els plans paral·lels a $\\pi: ${texPla(p.pi)}$ que són a distància $${M.texNombre(p.d)}$ de $\\pi$.`,
   'punts-recta': p => `Troba els punts de la recta $r: ${texRecta(p.r)}$ que són a distància $${M.texNombre(p.d)}$ del pla $\\pi: ${texPla(p.pi)}$.`,
-  'punt-recta': p => `Calcula la distància del punt $P = ${texPunt(p.P)}$ a la recta $r: ${texRecta(p.r)}$.`,
+  'punt-recta': p => `Calcula la distància del punt $${texPuntNom('P', p.P)}$ a la recta $r: ${texRecta(p.r)}$.`,
 };
 
 const llista = (linies, espai = '6pt') => (linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0]);
@@ -88,15 +88,15 @@ function passos(valors) {
   const p = perId(valors.p);
   const g = F.guio(8);
   const dades = {
-    'punt-pla': () => [`P = ${texPunt(p.P)}`, `\\pi:\\ ${texPla(p.pi)}`],
-    'punt-pla-arrel': () => [`P = ${texPunt(p.P)}`, `\\pi:\\ ${texPla(p.pi)}`],
+    'punt-pla': () => [texPuntNom('P', p.P), `\\pi:\\ ${texPla(p.pi)}`],
+    'punt-pla-arrel': () => [texPuntNom('P', p.P), `\\pi:\\ ${texPla(p.pi)}`],
     'plans-paralels': () => [`\\pi_1:\\ ${texPla(p.pi)}`, `\\pi_2:\\ ${texPla(p.sigma)}`],
     'plans-secants': () => [`\\pi_1:\\ ${texPla(p.pi)}`, `\\pi_2:\\ ${texPla(p.sigma)}`],
     'recta-paralela': () => [`r:\\ ${texRecta(p.r)}`, `\\pi:\\ ${texPla(p.pi)}`],
     'recta-secant': () => [`r:\\ ${texRecta(p.r)}`, `\\pi:\\ ${texPla(p.pi)}`],
     'plans-distancia': () => [`\\pi:\\ ${texPla(p.pi)}`, `d = ${M.texNombre(p.d)}`],
     'punts-recta': () => [`r:\\ ${texRecta(p.r)}`, `\\pi:\\ ${texPla(p.pi)}`, `d = ${M.texNombre(p.d)}`],
-    'punt-recta': () => [`P = ${texPunt(p.P)}`, `r:\\ ${texRecta(p.r)}`],
+    'punt-recta': () => [texPuntNom('P', p.P), `r:\\ ${texRecta(p.r)}`],
   }[p.id]();
   g.files[FILA.dades] = llista(dades.map((d, i) => K(`Dd${i}`, d)));
   g.afegeix('Primer, què dona l\'enunciat.');
@@ -131,13 +131,17 @@ function passos(valors) {
     const j = p.pi.n.findIndex(x => !x.esZero());
     const Q = [0, 1, 2].map(c => (c === j ? p.pi.D.oposada().quocient(p.pi.n[j]) : fr(0)));
     const zeros = [0, 1, 2].filter(c => c !== j).map(c => G.VARS[c]);
-    g.files[FILA.punt] = K('Pp', `${zeros.join(' = ')} = 0\\ \\Rightarrow\\ ${G.VARS[j]} = ${M.texNombre(Q[j])}:\\quad P = ${texPunt(Q)} \\in \\pi_1`);
+    g.files[FILA.punt] = K('Pp', `${zeros.join(' = ')} = 0\\ \\Rightarrow\\ ${G.VARS[j]} = ${M.texNombre(Q[j])}:\\quad ${texPuntNom('P', Q)} \\in \\pi_1`);
     g.afegeix(`Un punt de $\\pi_1$: fes $${zeros.join(' = ')} = 0$ a l'equació i aïlla $${G.VARS[j]}$.`);
     const d = passosPuntPla(g, {Q, pla: p.sigma, nom: 'd(\\pi_1, \\pi_2) = d(P, \\pi_2)'});
     g.afegeix(`Resposta: $d(\\pi_1, \\pi_2) = ${G.texArrel(d)}$ unitats.`);
   } else if (p.id === 'recta-paralela' || p.id === 'recta-secant') {
     const a = escalar(p.r.u, p.pi.n);
-    g.files[FILA.posicio] = K('Ps', `\\vec{u} \\cdot \\vec{n} = ${G.texEscalar(p.r.u, p.pi.n)} = ${M.texNombre(a)}${a.esZero() ? '' : ' \\neq 0'}`);
+    // Abans de fer servir u i n, què són (David: cap símbol sense dir què és).
+    const vectors = K('Pu', `\\vec{u} = ${texPunt(p.r.u)},\\quad \\vec{n} = ${texPunt(p.pi.n)}`);
+    g.files[FILA.posicio] = vectors;
+    g.afegeix('El vector director de la recta, $\\vec{u}$, i el vector normal del pla, $\\vec{n}$.');
+    g.files[FILA.posicio] = llista([vectors, K('Ps', `\\vec{u} \\cdot \\vec{n} = ${G.texEscalar(p.r.u, p.pi.n)} = ${M.texNombre(a)}${a.esZero() ? '' : ' \\neq 0'}`)]);
     if (!a.esZero()) {
       g.afegeix('Abans de calcular, mira com són la recta i el pla. $\\vec{u} \\cdot \\vec{n} \\neq 0$: la recta no és paral·lela al pla, el talla.');
       g.files[FILA.esquema] = G.esquema('recta-secant');
@@ -148,10 +152,10 @@ function passos(valors) {
       return g.passos;
     }
     const v = escalar(p.pi.n, p.r.P).suma(p.pi.D);
-    g.files[FILA.posicio] = llista([K('Ps', `\\vec{u} \\cdot \\vec{n} = ${G.texEscalar(p.r.u, p.pi.n)} = 0`),
-      K('Pt', `P:\\quad ${G.texSubstitucio(p.pi.n, p.pi.D, p.r.P)} = ${M.texNombre(v)} \\neq 0\\ \\Rightarrow\\ r \\parallel \\pi`)]);
+    g.files[FILA.posicio] = llista([vectors, K('Ps', `\\vec{u} \\cdot \\vec{n} = ${G.texEscalar(p.r.u, p.pi.n)} = 0`),
+      K('Pt', `${texPuntNom('P', p.r.P)}:\\quad ${G.texSubstitucio(p.pi.n, p.pi.D, p.r.P)} = ${M.texNombre(v)} \\neq 0\\ \\Rightarrow\\ r \\parallel \\pi`)]);
     g.afegeix('Abans de calcular, mira com són la recta i el pla. $\\vec{u} \\cdot \\vec{n} = 0$: la recta és paral·lela al pla o hi és continguda. '
-      + `El punt $P = ${texPunt(p.r.P)}$ de la recta no és del pla: és paral·lela.`);
+      + `El punt $${texPuntNom('P', p.r.P)}$ de la recta no és del pla: és paral·lela.`);
     g.files[FILA.esquema] = G.esquema('recta-paralela');
     g.afegeix('Una recta paral·lela a un pla és a la mateixa distància del pla en tots els seus punts: n\'hi ha prou amb un, $P$.');
     const d = passosPuntPla(g, {Q: p.r.P, pla: p.pi, nom: 'd(r, \\pi) = d(P, \\pi)'});
@@ -183,7 +187,7 @@ function passos(valors) {
     const S = G.modul2(p.pi.n), rS = G.arrelQuadrada(S);
     g.files[FILA.esquema] = G.esquema('punts-a-distancia');
     g.afegeix('Els punts de la recta a distància $d$ del pla: n\'hi ha un a cada banda del pla (si la recta no hi és paral·lela).');
-    g.files[FILA.punt] = K('Gp', 'P_{\\lambda}') + R('Gq', '=') + K('Gc', G.texGeneric(p.r));
+    g.files[FILA.punt] = K('Gp', 'P_{\\lambda}') + K('Gc', G.texGeneric(p.r));          // un punt, sense «=» (David)
     g.afegeix('Un punt qualsevol de la recta: el punt genèric $P_{\\lambda}$. Imposa-li la condició: la seva distància al pla ha de ser $d$.');
     const e = p.r.P.map((x, i) => [x, p.r.u[i]]);
     const a = escalar(p.pi.n, p.r.u), b = escalar(p.pi.n, p.r.P).suma(p.pi.D);
@@ -198,17 +202,17 @@ function passos(valors) {
     const ls = [dn, dn.oposada()].map(x => x.resta(b).quocient(a));
     const Ps = ls.map(l => p.r.P.map((x, i) => x.suma(p.r.u[i].producte(l))));
     g.files[FILA.solucions] = llista([0, 1].map(i => K(`S${i}`, `${lineal} = ${M.texNombre(i ? dn.oposada() : dn)}\\ \\Rightarrow\\ \\lambda = ${M.texNombre(ls[i])}`
-      + `\\ \\Rightarrow\\ P_{${i + 1}} = ${texPunt(Ps[i])}`)));
+      + `\\ \\Rightarrow\\ ${texPuntNom(`P_{${i + 1}}`, Ps[i])}`)));
     g.classes[FILA.solucions] = 'final';
     g.afegeix(`$\\left|${lineal}\\right| = ${M.texNombre(dn)}$: el que hi ha dins val $${M.texNombre(dn)}$ o $${M.texNombre(dn.oposada())}$. Dues solucions per a $\\lambda$; `
-      + `posa-les al punt genèric. Resposta: $P_1 = ${texPunt(Ps[0])}$ i $P_2 = ${texPunt(Ps[1])}$.`);
+      + `posa-les al punt genèric. Resposta: $${texPuntNom('P_1', Ps[0])}$ i $${texPuntNom('P_2', Ps[1])}$.`);
   } else {
     /* Punt–recta: |QP × u| / |u|. */
     g.files[FILA.esquema] = G.esquema('distancia-punt-recta');
     g.afegeix('El paral·lelogram de costats $\\overrightarrow{QP}$ i $\\vec{u}$ té àrea $|\\overrightarrow{QP} \\times \\vec{u}|$; la base és $|\\vec{u}|$ i l\'altura, la distància de $P$ a la recta.');
     const QP = resta(p.P, p.r.P);
-    g.files[FILA.punt] = llista([K('Pq', `Q = ${texPunt(p.r.P)} \\in r,\\quad \\vec{u} = ${texPunt(p.r.u)}`), K('Pv', `\\overrightarrow{QP} = P - Q = ${texPunt(QP)}`)]);
-    g.afegeix('Un punt $Q$ de la recta, el seu vector director $\\vec{u}$ i el vector que va de $Q$ a $P$.');
+    g.files[FILA.punt] = llista([K('Pq', `${texPuntNom('Q', p.r.P)} \\in r,\\quad \\vec{u} = ${texPunt(p.r.u)}`), K('Pv', `\\overrightarrow{QP} = ${texPunt(QP)}`)]);
+    g.afegeix('Un punt $Q$ de la recta, el seu vector director $\\vec{u}$ i el vector que va de $Q$ a $P$ (les coordenades de $P$ menys les de $Q$).');
     const w = G.passosProducteVectorial(g, {u: QP, v: p.r.u, nom: '\\overrightarrow{QP} \\times \\vec{u}', files: {producte: FILA.producte, valor: FILA.valor},
       text: 'Calcula el producte vectorial $\\overrightarrow{QP} \\times \\vec{u}$ com un determinant: a la primera fila, $\\vec{i}$, $\\vec{j}$, $\\vec{k}$; a les altres, les components dels dos vectors.'});
     const inici = K('Fl', 'd(P, r)') + R('Fq', '=');

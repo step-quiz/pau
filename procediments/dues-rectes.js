@@ -94,8 +94,12 @@ function passos(v) {
   g.afegeix('Dues rectes de l\'espai poden ser coincidents, paral·leles, secants (es tallen) o es poden creuar (no es tallen ni són paral·leles). '
     + 'Primer, mira els vectors directors.');
   const prop = G.texProporcio(r.u, s.u, '\\vec{u}', '\\vec{v}', 'u', 'v');
-  const vectors = K('Ku', `\\vec{u} = ${texPunt(r.u)}`) + ',\\qquad ' + K('Kv', `\\vec{v} = ${texPunt(s.u)}`);
-  g.files[FILA.direccions] = llista([vectors, K('Kp', prop.tex + (prop.proporcionals ? '\\ \\Rightarrow\\ \\vec{u} \\parallel \\vec{v}' : '\\ \\Rightarrow\\ \\vec{u} \\nparallel \\vec{v}'))]);
+  // De cada recta, un punt i el vector director, amb nom (David: cap símbol sense haver dit què és).
+  const elements = [K('KP', `${G.texPuntNom('P', r.P)} \\in r`) + ',\\quad ' + K('Ku', `\\vec{u} = ${texPunt(r.u)}`),
+    K('KQ', `${G.texPuntNom('Q', s.P)} \\in s`) + ',\\quad ' + K('Kv', `\\vec{v} = ${texPunt(s.u)}`)];
+  g.files[FILA.direccions] = llista(elements);
+  g.afegeix('De cada recta, un punt i el vector director: $P$ i $\\vec{u}$ de $r$; $Q$ i $\\vec{v}$ de $s$.');
+  g.files[FILA.direccions] = llista([...elements, K('Kp', prop.tex + (prop.proporcionals ? '\\ \\Rightarrow\\ \\vec{u} \\parallel \\vec{v}' : '\\ \\Rightarrow\\ \\vec{u} \\nparallel \\vec{v}'))]);
   g.afegeix(prop.proporcionals
     ? 'Els vectors directors són proporcionals: les rectes tenen la mateixa direcció. Són paral·leles o coincidents (la mateixa recta).'
     : 'Els vectors directors no són proporcionals' + (prop.tex.includes('dfrac') ? ' (les seves components no van en la mateixa proporció)' : ' (on $\\vec{v}$ té un $0$, $\\vec{u}$ no en té)')
@@ -172,8 +176,8 @@ function passos(v) {
   // El punt de tall es diu R (David: mai X per a un punt); la resposta, amb una frase (res de r ∩ s = {R}).
   if (tallen) {
     const Rp = r.P.map((x, c) => x.suma(r.u[c].producte(l0)));
-    g.files[FILA.conclusio] = llista([K('Lv', `${L} = ${M.texNombre(l0)}\\ \\Rightarrow\\ R = ${texPunt(Rp)}`), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ es tallen en el punt } R')]);
-    g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ a les equacions paramètriques de $r$ (o $\\mu = ${M.texNombre(m0)}$ a les de $s$): és el punt de tall, $R = ${texPunt(Rp)}$. Les rectes $r$ i $s$ es tallen en el punt $R$.`);
+    g.files[FILA.conclusio] = llista([K('Lv', `${L} = ${M.texNombre(l0)}\\ \\Rightarrow\\ ${G.texPuntNom('R', Rp)}`), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ es tallen en el punt } R')]);
+    g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ a les equacions paramètriques de $r$ (o $\\mu = ${M.texNombre(m0)}$ a les de $s$): és el punt de tall, $${G.texPuntNom('R', Rp)}$. Les rectes $r$ i $s$ es tallen en el punt $R$.`);
   } else {
     g.files[FILA.conclusio] = K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ es creuen}');
     g.afegeix('No tenen cap punt comú i tenen direccions diferents: les rectes $r$ i $s$ es creuen (no són en un mateix pla).');

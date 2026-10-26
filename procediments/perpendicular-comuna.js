@@ -100,12 +100,14 @@ function passos(v) {
   g.afegeix('La perpendicular comuna talla les dues rectes i és perpendicular a totes dues. La distància entre les rectes és la longitud del segment que hi fa.');
   g.files[FILA.esquema] = G.esquema('perpendicular-comuna');
   g.afegeix('Busca el punt $P_0$ de $r$ i el punt $Q_0$ de $s$ tals que el vector $\\overrightarrow{P_0Q_0}$ és perpendicular a les dues rectes.');
-  g.files[FILA.generics] = llista([K('Ga', `P_{\\lambda} = ${G.texGeneric(r)} \\in r`), K('Gb', `Q_{\\mu} = ${G.texGeneric(s, MU)} \\in s`)]);
-  g.afegeix('Un punt qualsevol de cada recta: els punts genèrics, cadascun amb el seu paràmetre.');
+  // Els punts genèrics, sense «=» (David), i els vectors directors, amb nom abans de fer-los servir.
+  g.files[FILA.generics] = llista([K('Ga', `P_{\\lambda}${G.texGeneric(r)} \\in r`) + ',\\quad ' + K('Gu', `\\vec{u} = ${texPunt(r.u)}`),
+    K('Gb', `Q_{\\mu}${G.texGeneric(s, MU)} \\in s`) + ',\\quad ' + K('Gw', `\\vec{v} = ${texPunt(s.u)}`)]);
+  g.afegeix('Un punt qualsevol de cada recta (els punts genèrics, cadascun amb el seu paràmetre) i els vectors directors, $\\vec{u}$ i $\\vec{v}$.');
   const PQ = resta(s.P, r.P);
   const e = [0, 1, 2].map(i => [PQ[i], r.u[i].oposada(), s.u[i]]);              // Q_μ − P_λ = (Q − P) − λu + μv
-  g.files[FILA.vector] = K('Gv', `\\overrightarrow{P_{\\lambda}Q_{\\mu}} = Q_{\\mu} - P_{\\lambda} = (${e.map(texLineal2).join(',\\ ')})`);
-  g.afegeix('El vector que va de $P_{\\lambda}$ a $Q_{\\mu}$: resta coordenada a coordenada.');
+  g.files[FILA.vector] = K('Gv', `\\overrightarrow{P_{\\lambda}Q_{\\mu}} = (${e.map(texLineal2).join(',\\ ')})`);
+  g.afegeix('El vector que va de $P_{\\lambda}$ a $Q_{\\mu}$: les coordenades de $Q_{\\mu}$ menys les de $P_{\\lambda}$.');
   const condicio = (w, nom, k) => K(`C${k}`, `\\overrightarrow{P_{\\lambda}Q_{\\mu}} \\cdot ${nom} = ${texEscalarLineal(w, e)} = 0`);
   g.files[FILA.condicions] = llista([condicio(r.u, '\\vec{u}', 'a'), condicio(s.u, '\\vec{v}', 'b')]);
   g.afegeix('Ha de ser perpendicular a les dues rectes: el producte escalar amb $\\vec{u}$ i amb $\\vec{v}$ ha de ser $0$.');
@@ -116,7 +118,7 @@ function passos(v) {
   const [l0, m0] = G.passosReduccio2(g, {S, vars: [L, MU], fila: FILA.reduccio});
   const P0 = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));
   const Q0 = s.P.map((x, i) => x.suma(s.u[i].producte(m0)));
-  g.files[FILA.peus] = llista([K('Pa', `P_0 = P_{${M.texNombre(l0)}} = ${texPunt(P0)}`), K('Pb', `Q_0 = Q_{${M.texNombre(m0)}} = ${texPunt(Q0)}`)]);
+  g.files[FILA.peus] = llista([K('Pa', `\\lambda = ${M.texNombre(l0)}\\ \\Rightarrow\\ ${G.texPuntNom('P_0', P0)}`), K('Pb', `\\mu = ${M.texNombre(m0)}\\ \\Rightarrow\\ ${G.texPuntNom('Q_0', Q0)}`)]);
   g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ al punt genèric de $r$ i $\\mu = ${M.texNombre(m0)}$ al de $s$: són els peus de la perpendicular comuna.`);
   const P0Q0 = resta(Q0, P0);
   if (G.esZero(P0Q0)) {

@@ -138,7 +138,7 @@ function passos(valors) {
   pas('Teorema de la probabilitat total: la probabilitat que busques és la suma dels camins. Cada terme té el color del seu camí.');
   const decimal = p.format === 'fraccio' ? ` = ${M.texDecimal(total) || M.formaDecimal(total).tex}` : '';
   g.files[FILA.calcul] = K('Cl', p.pregunta.tex) + R('Cq', '=') + suma + R('Cr', '=') + K('Cv', A.texValor(p, total) + decimal);
-  pas(`Suma: $${A.texValor(p, total)}$${decimal ? `$${decimal}$` : ''}.`);
+  pas(`Suma: $${A.texValor(p, total)}${decimal}$.`);
   g.files[FILA.calcul] = '';
   g.files[FILA.resposta] = K('Rr', `${p.pregunta.tex} = ${A.texValor(p, total)}${decimal}`);
   g.classes[FILA.resposta] = 'final';

@@ -40,9 +40,6 @@ const {perId} = FIXOS;
 /** Files de la pissarra (la gràfica, la del problema «parabola», al final: no deixa cap forat a dalt). */
 const FILA = Object.freeze({dades: 0, talls: 1, primitiva: 2, barrow: 3, equacio: 4, treball: 5, resposta: 6, grafica: 7});
 const FILES = 8;
-const O = '\\quad\\text{o}\\quad ';
-/** Una solució que no serveix, tatxada (en vermell). */
-const tatxa = tex => `\\textcolor{#b91c1c}{\\cancel{${tex}}}`;
 
 const ENUNCIATS = {
   'limit': () => 'Troba el valor de $k > 0$ tal que $\\displaystyle\\int_0^k (2x + 1)\\,dx = 6$.',
@@ -66,7 +63,8 @@ function passos(valors) {
       text: 'Passa el $6$ a l\'altre costat (hi arriba canviat de signe): és una equació de segon grau en $k$. Resol-la a sota.'});
     const k0 = sols.map(s => s.valor).find(x => x.signe() > 0);
     const dolentes = sols.map(s => s.valor).filter(x => x.signe() <= 0);
-    g.files[FILA.treball] = g.files[FILA.treball].split(O).map((part, i) => (sols[i].valor.signe() > 0 ? part : tatxa(part))).join(O);
+    // La que serveix, en lila (com totes les solucions); la que no, tatxada.
+    for (const s of sols) (s.valor.signe() > 0 ? F.marcaSolucio : F.tatxaSolucio)(g, s.fila, s.clau);
     g.files[FILA.resposta] = K('Rk', `k > 0\\ \\Rightarrow\\ k = ${M.texNombre(k0)}`);
     g.classes[FILA.resposta] = 'final';
     g.afegeix(`L'enunciat demana $k > 0$: ${dolentes.map(x => `$k = ${M.texNombre(x)}$`).join(', ')} no serveix (la tatxem). Resposta: $k = ${M.texNombre(k0)}$.`);

@@ -21,6 +21,10 @@
      fila 0  el domini            fila 1  f(x) i f'(x)
      fila 2  el càlcul del moment fila 3  la taula
      fila 4  la conclusió
+   Les equacions (Q = 0 i f'(x) = 0) es queden a la fila 2 mentre es
+   resolen: els càlculs baixen a la fila 3, la de treball, que després
+   ocupa la taula (Formules.resolEquacio). Les solucions, en lila; un punt
+   crític que no és del domini, tatxat.
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
 
    Claus: V… domini; D…, N… derivada; w i e equacions (Q = 0, f' = 0);
@@ -159,16 +163,18 @@ function passos(v) {
   const N = numerador(P, Q);
   const g = F.guio(5);
 
-  /* 1. El domini, a la fila 0 (l'equació Q(x) = 0, a la fila 2). */
+  /* 1. El domini, a la fila 0 (l'equació Q(x) = 0, a la fila 2, i els càlculs a la 3). */
   const DOMINI = K('Vt', '\\text{Dom}\\,') + K('Vf', 'f') + R('Vq', '=') + K('VR', '\\mathbb{R}');
   let fora = [];
   if (pol) {
     g.files[0] = DOMINI;
     g.afegeix('Primer, el domini: $f$ és un polinomi, i un polinomi existeix per a qualsevol valor de $x$.');
   } else {
-    const sol = F.resolPolinomi(g, 2, 'w', Q, 'Primer, el domini: $f$ no existeix on el denominador val $0$. Resol l\'equació.');
+    const sol = F.resolEquacio(g, {fila: 2, treball: 3, P: 'w', termes: Q, text: 'Primer, el domini: $f$ no existeix on el denominador val $0$. Resol l\'equació.',
+      lila: true, final: s => `El denominador val $0$ per a ${llista(s.map(t => t.valor))}.`});
     fora = sol.map(s => s.valor);
     g.files[2] = '';
+    g.files[3] = '';
     g.files[0] = DOMINI + (sol.length
       ? O('Vm', '-') + K('Va', '\\{') + sol.map((s, j) => K('Vp' + j, texNombre(s.valor))).join(',\\ ') + K('Vb', '\\}')
       : '');
@@ -215,16 +221,24 @@ function passos(v) {
     g.afegeix(`Agrupa els termes semblants: $f'(x) = \\frac{${texPolinomi(N)}}{${den}}$.`);
   }
 
-  /* 3. Els punts crítics: f'(x) = 0, a la fila 2. */
-  const sol = F.resolPolinomi(g, 2, 'e', N,
-    pol ? 'Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.' : '$f\'(x)$ val $0$ quan el numerador val $0$. Resol l\'equació.',
-    {reanomena: pendent});
-  const esFora = a => fora.some(r => r.igual(a));
-  const critics = sol.filter(s => !esFora(s.valor));
-  const descartats = sol.filter(s => esFora(s.valor)).map(s => s.valor);
-  if (descartats.length) {
-    g.completa(` Però ${llista(descartats)} no ${descartats.length > 1 ? 'són del domini: no són punts crítics' : 'és del domini: no és un punt crític'}.`);
+  /* 3. Els punts crítics: f'(x) = 0, a la fila 2 (els càlculs, a la 3). Primer, l'equació tal com es planteja (David). */
+  g.files[2] = F.membreEsquerre('e', 'f', 'x', 1) + K('ez', '0');
+  g.afegeix('Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.', {reanomena: pendent});
+  if (!pol) {
+    // Una fracció val 0 quan el numerador val 0 (i el denominador no, que ja és fora del domini).
+    g.files[2] = `\\dfrac{${F.polinomi('e', N)}}{${K('ed', texQuadrat(Q))}}` + R('eq', '=') + K('ez', '0');
+    g.afegeix('Substitueix $f\'(x)$ per la seva expressió.');
   }
+  const esFora = a => fora.some(r => r.igual(a));
+  const sol = F.resolEquacio(g, {fila: 2, treball: 3, P: 'e', termes: N, lila: true, serveix: a => !esFora(a),
+    text: pol ? 'Substitueix $f\'(x)$ per la seva expressió.' : 'Una fracció val $0$ quan el numerador val $0$: resol aquesta equació.',
+    final: s => {
+      const bons = s.filter(t => !esFora(t.valor)).map(t => t.valor), dolents = s.filter(t => esFora(t.valor)).map(t => t.valor);
+      return (bons.length ? `${bons.length > 1 ? 'Els punts crítics són' : 'L\'únic punt crític és'} ${llista(bons)}.` : '')
+        + (dolents.length ? `${bons.length ? ' ' : ''}${llista(dolents)} no ${dolents.length > 1 ? 'són del domini (les tatxem): no són punts crítics'
+          : 'és del domini (la tatxem): no és un punt crític'}.` : '');
+    }});
+  const critics = sol.filter(s => !esFora(s.valor));
 
   /* 4. La taula, a la fila 3. */
   const punts = fora.map(a => ({valor: a, critic: false}))
@@ -241,14 +255,15 @@ function passos(v) {
       [i(j)].concat(j < nI - 1 ? [p(j)] : []))).join(' & ');
     const cella = (nom, j) => (cel[nom][j] ? K(nom + j, cel[nom][j]) : '');
     return `\\begin{array}{${Array(2 * nI).fill('c').join('|')}} `
-      + [fila(K('Lx', 'x'), j => K('Hi' + j, capInterval(j)), j => 'x = ' + K('Hp' + j, texNombre(punts[j].valor))),
-        fila(K('Ld', 'f\'(x)'), j => cella('Di', j), j => cella('Dp', j)),
-        fila(K('Lf', 'f(x)'), j => cella('Fi', j), j => cella('Fp', j))].join(' \\\\ \\hline ')
+      + [fila(K('Lx', '\\boldsymbol{x}'), j => K('Hi' + j, capInterval(j)), j => 'x = ' + K('Hp' + j, texNombre(punts[j].valor))),
+        fila(K('Ld', '\\boldsymbol{f\'(x)}'), j => cella('Di', j), j => cella('Dp', j)),
+        fila(K('Lf', '\\boldsymbol{f(x)}'), j => cella('Fi', j), j => cella('Fp', j))].join(' \\\\ \\hline ')
       + ' \\end{array}';
   }
 
   g.files[2] = '';
   g.files[3] = taula();
+  g.classes[3] = 'separat';          // la taula, una mica separada (David)
   const quins = critics.length && fora.length ? 'Els punts crítics i els punts que no són del domini'
     : critics.length ? 'Els punts crítics' : 'Els punts que no són del domini';
   g.afegeix(punts.length
@@ -303,8 +318,9 @@ function passos(v) {
     punts.forEach((p, j) => {
       if (!p.critic) return;
       const [esquerra, dreta] = [cel.Di[j], cel.Di[j + 1]];
-      if (esquerra === '+' && dreta === '-') cel.Fp[j] = '\\text{màx}';
-      else if (esquerra === '-' && dreta === '+') cel.Fp[j] = '\\text{mín}';
+      // Paraules senceres, sense abreviatures (David).
+      if (esquerra === '+' && dreta === '-') cel.Fp[j] = '\\text{màxim}';
+      else if (esquerra === '-' && dreta === '+') cel.Fp[j] = '\\text{mínim}';
       else sense.push(p.valor);
     });
     const fi = sense.length ? ` En ${llista(sense)} no canvia: no hi ha ni màxim ni mínim.` : '';

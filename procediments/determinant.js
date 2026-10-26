@@ -9,14 +9,16 @@
      1. la regla de Sarrus: cada producte, marcat a la matriu (verd +,
         vermell −); cada producte fet; sense parèntesis; els termes
         agrupats: |A| és un polinomi en m;
-     2. |A| = 0: grau 1 o 2, directament; grau 3, factor comú o una arrel
-        entera (divisors del terme independent) i Ruffini, i l'equació de
-        segon grau que queda;
+     2. |A| = 0 (Matrius.passosArrels): l'equació es queda a la seva fila i
+        els càlculs baixen a les files lliures (la de treball): grau 1 o 2,
+        directament; grau 3, factor comú o una arrel entera (divisors del
+        terme independent) i Ruffini, i l'equació de segon grau que queda;
+        les solucions, en lila;
      3. la resposta: |A| = 0 per a aquests valors; A és invertible per a
         tots els altres.
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
    Claus: Mn, Mq, a<i><j> la matriu; S…, V…, C… Sarrus (vegeu matrius.js);
-   E…, P…, R…, Q… l'equació; Rs la resposta.
+   E…, P…, R…, W…, Q…, Y… l'equació; Rs la resposta.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -27,7 +29,9 @@ const Mt = arrel.Matrius;
 const {clau: K, rel: R} = F;
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({matriu: 0, sarrus: 1, calcul: 2, equacio: 3, prova: 4, ruffini: 5, segon: 6, resposta: 7});
+// Les files lliures (proves d'arrels, Ruffini, «m = r o …», treball) s'agafen per ordre a mesura que calen.
+const FILA = Object.freeze({matriu: 0, sarrus: 1, calcul: 2, equacio: 3, lliures: Object.freeze([4, 5, 6, 7]), resposta: 8});
+const FILES = 9;
 
 const EXEMPLES = Object.freeze([
   'm,1,1;1,m,1;1,1,m',                 // grau 3: Ruffini amb m = 1 (arrel doble)
@@ -85,7 +89,7 @@ const resum = v => { const {A, X} = matriu(v); return `A = ${Mt.texMatriuPetita(
 
 function passos(v) {
   const {A, X} = matriu(v);
-  const g = F.guio(8);
+  const g = F.guio(FILES);
   g.files[FILA.matriu] = K('Mn', 'A') + R('Mq', '=') + Mt.texMatriu(A, X);
   g.afegeix(`La matriu $A$ depèn del paràmetre $${X}$. El seu determinant, $|A|$, serà un polinomi en $${X}$.`);
   const {det} = Mt.passosSarrus(g, {A, X, nom: '|A|', files: FILA});
@@ -106,7 +110,7 @@ function passos(v) {
 arrel.Determinant = Object.freeze({
   titol: 'Determinant 3×3 amb un paràmetre (Sarrus)',
   categoria: 'algebra',
-  files: 8,
+  files: FILES,
   perDefecte: PER_DEFECTE,
   exemples: EXEMPLES,
   titolEditor: 'Tria una matriu',

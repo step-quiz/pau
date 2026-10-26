@@ -107,9 +107,9 @@ function passos(v) {
     const simple = a.signe() > 0 && M.mcd(Math.abs(c.num), a.num) === 1;     // c/a ja és el resultat
     g.afegeix(`Una sola solució: $\\lambda = ${a.igual(1) ? M.texNombre(c) : `\\dfrac{${M.texNombre(c)}}{${M.texNombre(a)}}`}${simple ? '' : ` = ${M.texNombre(l0)}`}$. `
       + 'Hi ha un sol punt comú.');
-    g.files[FILA.conclusio] = llista([K('Lv', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Lq', `Q = ${texPunt(Q)}`),
+    g.files[FILA.conclusio] = llista([K('Lv', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Lq', G.texPuntNom('Q', Q)),
       K('Lr', '\\text{La recta } r \\text{ talla el pla } \\pi \\text{ en el punt } Q')]);
-    g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ al punt genèric: és el punt d'intersecció, $Q = ${texPunt(Q)}$. La recta talla el pla en un punt (són secants).`);
+    g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ al punt genèric: és el punt d'intersecció, $${G.texPuntNom('Q', Q)}$. La recta talla el pla en un punt (són secants).`);
   } else if (!c.esZero()) {
     cas = 'paralela';
     g.files[FILA.conclusio] = llista([K('Lv', '\\text{cap valor de } \\lambda'), K('Lr', '\\text{La recta } r \\text{ és paral·lela al pla } \\pi')]);
@@ -123,8 +123,8 @@ function passos(v) {
   g.classes[FILA.conclusio] = 'final';          // la resposta (sense comprovacions opcionals: el David no les vol)
   g.afegeix({
     secant: 'La recta travessa el pla: el punt $Q$ és a tots dos.',
-    paralela: 'La recta no toca el pla: té la direcció d\'un vector del pla ($\\vec{u}$ és perpendicular a $\\vec{n}$), però passa per fora.',
-    continguda: 'La recta és dins del pla: té la direcció d\'un vector del pla ($\\vec{u}$ és perpendicular a $\\vec{n}$) i un punt seu, $P$, és del pla.',
+    paralela: 'La recta no toca el pla: té la direcció d\'un vector del pla (el seu vector director és perpendicular al vector normal del pla), però passa per fora.',
+    continguda: 'La recta és dins del pla: té la direcció d\'un vector del pla (el seu vector director és perpendicular al vector normal del pla) i un punt seu és del pla.',
   }[cas]);
 
   return g.passos;

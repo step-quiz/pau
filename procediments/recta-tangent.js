@@ -13,21 +13,26 @@
            recta-tangent.html?f=x^2-4x+5&x0=3&recta=normal
            recta-tangent.html?f=x^3-3x&m=9
 
-   La pissarra té dues files:
+   La pissarra té dues files (quatre amb un pendent donat):
      fila 0  l'equació de la recta: y − f(x₀) = f'(x₀)·(x − x₀) (o, a sobre,
              les rectes ja acabades, claus TF0, TF1…)
-     fila 1  el càlcul del moment: f(x₀), després f'(x) i f'(x₀); o f'(x) = m
+     fila 1  el càlcul del moment: f(x₀), després f'(x) i f'(x₀)
+     fila 2  amb un pendent donat, l'equació f'(x) = m, primer tal com es
+             planteja i després amb l'expressió de f'(x); es queda mentre es
+             resol (Formules.resolEquacio)
+     fila 3  la fila de treball d'aquesta equació; les solucions, en lila
    Quan un càlcul acaba, el resultat puja a l'equació i la fila 1 queda
    buida. Totes les línies que es veuen són igualtats certes: ho
    comprova proves/comprova.js.
 
    Claus de la fila 0 (equació):
      Ty y   Ts1 Tf1 Tl1 Ta1 Tr1  − f ( x₀ )   Teq =
-     Tf2 Tp2 Tl2 Ta2 Tr2  f ′ ( x₀ )          Tl3 Tx Ts3 Ta3 Tr3  ( x − x₀ )
+     Tf2 Tp2 Tl2 Ta2 Tr2  f ′ ( x₀ )          Tm3 Tl3 Tx Ts3 Ta3 Tr3  · ( x − x₀ )
      TV f(x₀)   TM f'(x₀)   TK constant de m(x − x₀)   TN terme independent final
      TZ el 0 quan el pendent és 0      Tn Tu  «−» i «1» de −1/f'(x₀)      TX la normal vertical
      Tc «no n'hi ha cap»               TF<i> una recta ja acabada
    Prefixos de la fila 1: G/g per a f(x₀), D/d per a f'(x), q per a la derivada.
+   Files 2 i 3: e… l'equació (em el pendent; Y… la còpia que es queda quieta).
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -170,7 +175,8 @@ function recta(g, f, x0, tipus, previ = '', mConegut = null) {
   const derDe = a => K('Tf2', 'f') + `^{${K('Tp2', '\\prime')}}` + K('Tl2', '(') + K('Ta2', a) + K('Tr2', ')');
   const pendentDe = a => (tipus === 'pendent' ? K('TM', texNombre(mt))
     : normal ? K('Tn', '-') + `\\dfrac{${K('Tu', '1')}}{${derDe(a)}}` : derDe(a));
-  const parentesi = (s, a) => '\\,' + K('Tl3', '(') + K('Tx', 'x') + O('Ts3', s) + K('Ta3', a) + K('Tr3', ')');
+  // Un producte per un parèntesi porta punt (David): m · (x − x₀).
+  const parentesi = (s, a) => O('Tm3', '\\cdot') + K('Tl3', '(') + K('Tx', 'x') + O('Ts3', s) + K('Ta3', a) + K('Tr3', ')');
 
   /* 1. La fórmula, amb x₀. */
   posa0(y + fDe('x_0') + igual + pendentDe('x_0') + parentesi('-', 'x_0'));
@@ -290,7 +296,7 @@ function recta(g, f, x0, tipus, previ = '', mConegut = null) {
   } else {
     posa0(esquerra + igual + K('TZ', '0'));
     g.afegeix('Qualsevol nombre multiplicat per $0$ dona $0$.',
-      {fusiona: {TZ: ['TM', 'Tl3', 'Tx', 'Ts3', 'Ta3', 'Tr3']}, cursor: {clic: 'TM'}});
+      {fusiona: {TZ: ['TM', 'Tm3', 'Tl3', 'Tx', 'Ts3', 'Ta3', 'Tr3']}, cursor: {clic: 'TM'}});
     if (!fx0.esZero()) {
       posa0(y + igual + (fx0.signe() < 0 ? K('Ts1', '-') : '') + K('TV', texNombre(fx0.abs())));
       g.afegeix(passaCap, {fusiona: {TV: ['TZ']}, cursor: {arrossega: 'TV'}});
@@ -329,20 +335,37 @@ function passosPendent(g, f, v) {
   g.files[1] = derX + F.derivadaBaixada('d', f);
   g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {cursor: {clic: 'dQ'}});
   const feta = F.derivadaFeta('d', 'q', f);
-  g.files[1] = feta.tex + R('Iq', '=') + K('Im', M_);
-  g.afegeix(`Iguala la derivada al pendent: $${texPolinomi(M.derivaTermes(f))} = ${M_}$.`, {fusiona: feta.fusiona, reanomena: feta.reanomena});
-  const sol = F.resolPolinomi(g, 1, 'e', equacioPendent(v), `Passa el $${M_}$ a l'altre costat, canviat de signe, i opera.`);
+  const d = M.derivaTermes(f);
+  g.files[1] = derX + feta.tex;
+  let pendents = {};
+  if (feta.multiplica) g.afegeix(`Multiplica: $f'(x) = ${texPolinomi(d)}$.`, {fusiona: feta.fusiona, reanomena: feta.reanomena});
+  else pendents = feta.reanomena;                           // el text no canvia: les claus noves van al pas següent
+  // L'equació, primer tal com es planteja (David): f'(x) = m. Es queda a la fila 2; els càlculs, a la fila 3.
+  const zero = m.esZero();
+  g.files[2] = F.membreEsquerre('e', 'f', 'x', 1) + K(zero ? 'ez' : 'em', M_);
+  g.afegeix(`Els punts que busques són les solucions de l'equació $f'(x) = ${M_}$.`, {reanomena: pendents});
+  const termes = equacioPendent(v);
+  let text = 'Substitueix $f\'(x)$ per la seva expressió.', opcions = {};
+  if (!zero) {
+    g.files[2] = F.polinomi('e', d) + R('eq', '=') + K('em', M_);
+    g.afegeix(text);
+    text = `Passa el $${M_}$ a l'altre costat, canviat de signe` + (d.some(t => t.n === 0) ? ', i opera.' : '.');
+    if (termes.some(t => t.n === 0)) opcions = {fusiona: {ec0: ['em']}};
+  }
+  const sol = F.resolEquacio(g, {fila: 2, treball: 3, P: 'e', termes, text, opcions, lila: true,
+    final: s => (s.length > 1 ? `Hi ha dos punts: ${s.map(t => `$x = ${texNombre(t.valor)}$`).join(' i ')}. Ara, la recta tangent a cadascun.`
+      : `Hi ha un sol punt: $x = ${texNombre(s[0].valor)}$.`)});
   if (!sol.length) {
     g.files[0] = K('Tc', '\\text{No n\'hi ha cap.}');
     g.classes[0] = 'final';
     g.afegeix(`L'equació no té solucions: cap punt de la gràfica té una recta tangent de pendent $${M_}$.`);
     return;
   }
-  const llista = sol.map(s => `$x = ${texNombre(s.valor)}$`).join(' i ');
-  g.completa(sol.length > 1 ? ` Hi ha dos punts: ${llista}. Ara, la recta tangent a cadascun.` : ` Hi ha un sol punt: ${llista}.`);
   const acabades = [];                                      // TeX amb claus de les rectes ja fetes
   sol.forEach((s, i) => {
     g.files[1] = '';
+    g.files[2] = '';
+    g.files[3] = '';
     const r = recta(g, f, s.valor, 'pendent', acabades.join(' \\\\[6pt] '), m);
     acabades.push(K('TF' + i, r.recta));
     if (i < sol.length - 1) {
@@ -357,7 +380,7 @@ function passosPendent(g, f, v) {
 
 function passos(v) {
   const f = termesDe(v);
-  const g = F.guio(2);
+  const g = F.guio(4);
   if (v.mode === 'pendent') {
     passosPendent(g, f, v);
   } else {
@@ -374,7 +397,7 @@ function passos(v) {
 arrel.RectaTangent = Object.freeze({
   titol: 'Recta tangent',
   categoria: 'analisi',
-  files: 2,
+  files: 4,
   perDefecte: PER_DEFECTE,
   exemples: EXEMPLES,
   titolEditor: 'Canvia la recta, la funció i el punt',

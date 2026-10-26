@@ -63,6 +63,15 @@ These came from David's feedback during development. Apply them by default.
 9. Catalan notation: decimal comma, `;` between interval endpoints, `\iff` (⟺), `ℝ`, `λ, μ` for line parameters, `Dom f = ℝ − {…}`, full words instead of `AV/AH/AO`, `màx/mín`, answers with units and %.
 10. Target devices: **Chromebooks (students) and Lenovo laptops (teachers)**, i.e. small landscape screens (~1280–1366 × 600–700 CSS px, often with zoom). The play controls and the step text must be visible without scrolling there (the engine's height fit does this, §4). Phones are secondary: David said (Oct 2026) it is not worth a big effort; the growth table (intervals + `x = a` columns) is wider than a phone on purpose, at his request. Still avoid gratuitous horizontal overflow.
 
+### 3b. Rules generalised to every page (audit, Oct 2026)
+David asked that an improvement made in one place be applied everywhere it fits. Already applied:
+- Points without «=»: `P(3, -5)`, `A(0, 3, -1)` (statements, board, captions); vectors written with their value directly, never «B − A».
+- Equations: write the bare named equation first («f'(x) = 0», «A'(x) = 0», «f'(x) = m», «f(x) = 0», «f(x) − g(x) = 0», «|A| = 0»), then substitute. While it is solved the equation stays on its row and the work goes to a working row below (`Formules.resolEquacio`, `Matrius.passosArrels`); products with «·» (`x · (x − 2) = 0`, also `2 · (x − 1)` in plane equations, `2 · (1 + λ)` in substitutions, `m · (x − x₀)` in the tangent line; matrix products stay juxtaposed except `I · X`); lilac only on the solutions; solutions outside the domain crossed out in red (optimisation, increase/decrease, integral parameter).
+- Board labels in words: «Àrea =», «Volum =», «màxim»/«mínim» in tables; table headers in bold.
+- A result such as «= 0» never alone on a new line (`enLinies` orphan rule).
+- No Cramer anywhere; no optional checks after the answer (f''(a) tests of an extremum the statement requires are not optional); no abbreviations (SCD/SCI/SI, AV/AH/AO).
+Pending (see `TODO.md`): 2×2 reduction format in `polinomi-condicions`, boxed values in `sistema-sci`, minimum board font 24 px, a lint section in the checker, updated mutations and browser tests.
+
 ## 4. Layout insights (phone, fonts, sketches)
 
 - Board font: largest size (30 px desktop, 22 px phone, min 12) at which the **widest TeX row of the whole procedure** fits (`ajusta`). One huge row shrinks *every* step → split long rows instead.

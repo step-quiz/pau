@@ -126,8 +126,8 @@ function passos(v) {
   const P = [0, 1, 2].map(j => (j === f ? M.Fraccio.de(0) : sol[altres.indexOf(j)]));
 
   /* El punt (sense comprovacions opcionals). */
-  g.files[FILA.comprovacio] = K('Pp', `P = ${texPunt(P)}`);
-  g.afegeix(`El punt: $P = ${texPunt(P)}$ (amb $${VARS[f]} = 0$).`);
+  g.files[FILA.comprovacio] = K('Pp', G.texPuntNom('P', P));          // sense signe igual (David)
+  g.afegeix(`El punt: $${G.texPuntNom('P', P)}$ (amb $${VARS[f]} = 0$).`);
 
   /* Les equacions de la recta. */
   const parametriques = VARS.map((x, j) => `${x} = ${Mt.texLineal([P[j], u[j]])}`);

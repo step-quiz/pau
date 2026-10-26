@@ -24,7 +24,8 @@
    transformant fins al resultat. Totes les línies que es veuen són
    certes: ho comprova proves/comprova.js.
 
-   Claus: F… f(x); w… Q(x) = 0 (Formules.resolPolinomi); V… domini;
+   Claus: F… f(x); w… Q(x) = 0 (Formules.resolEquacio: es queda a la fila 1 i els càlculs
+   baixen a la 2; Yw… la còpia que es queda); V… domini;
    L<i><m|p>{l,q,e} límit lateral a l'arrel i; Ip…, Im… límits a +∞ i
    a −∞; Om…, On… m i n; Sv<i>, Sh, So resum.
    ═══════════════════════════════════════════════════════════════════ */
@@ -180,7 +181,9 @@ function passos(v) {
   /* A. El domini (fila 1 → fila 2) i els límits laterals (fila 3). */
   const DOMINI = K('Vt', '\\text{Dom}\\,') + K('Vf', 'f') + R('Vq', '=') + K('VR', '\\mathbb{R}');
   dibuixa();
-  const sol = F.resolPolinomi(g, FILA.calcul, 'w', Q, `On s'anul·la el denominador? Resol $${tp(Q)} = 0$.`);
+  // L'equació es queda a la fila 1; els càlculs, a la 2 (on després anirà el domini). Les solucions, en lila.
+  const sol = F.resolEquacio(g, {fila: FILA.calcul, treball: FILA.domini, P: 'w', termes: Q, text: `On s'anul·la el denominador? Resol $${tp(Q)} = 0$.`,
+    lila: true, final: s => `El denominador val $0$ per a ${s.map(t => `$x = ${texNombre(t.valor)}$`).join(' i ')}.`});
   const arrels = sol.map(s => s.valor);
   g.files[FILA.calcul] = '';
   g.files[FILA.domini] = DOMINI + (sol.length

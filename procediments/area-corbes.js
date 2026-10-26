@@ -119,7 +119,8 @@ function passos(v) {
   g.afegeix(`Agrupa: $f(x) - g(x) = ${texPolinomi(h)}$.`);
 
   /* Els punts de tall: h(x) = 0. */
-  const arrels = Ig.passosTalls(g, {p, X: 'x', files: FILA, inici: 'Els punts de tall: $f(x) = g(x)$, és a dir, $f(x) - g(x) = 0$.'});
+  // Primer, l'equació tal com es planteja, f(x) − g(x) = 0 (David); després, amb l'expressió de la diferència.
+  const arrels = Ig.passosTalls(g, {p, X: 'x', files: FILA, nom: 'f(x) - g(x)', inici: 'Els punts de tall: $f(x) = g(x)$, és a dir, $f(x) - g(x) = 0$.'});
   const trossos = arrels.slice(1).map((r, k) => [arrels[k], r]);
   FILA.lliures.forEach(i => { g.files[i] = ''; });
   g.files[FILA.equacio] = K('Zf', 'f(x) = g(x)') + ':\\quad ' + K('Zs', arrels.map(r => `x = ${texNombre(r)}`).join(',\\ '));
@@ -148,10 +149,11 @@ function passos(v) {
 
   /* L'àrea. */
   const A = integrals.reduce((s, I) => s.suma(I.abs()), Fraccio.de(0));
-  g.files[FILA.area] = K('Al', 'A') + R('Aq', '=') + K('Aa', integrals.map(I => `\\left|${texNombre(I)}\\right|`).join(' + '))
+  // «Àrea =», no «A =» ni «S =» (David).
+  g.files[FILA.area] = K('Al', '\\text{Àrea}') + R('Aq', '=') + K('Aa', integrals.map(I => `\\left|${texNombre(I)}\\right|`).join(' + '))
     + (integrals.length > 1 ? R('Ar', '=') + K('Ab', integrals.map(I => texNombre(I.abs())).join(' + ')) : '') + R('As', '=') + K('Av', texNombre(A));
   g.classes[FILA.area] = 'final';
-  g.afegeix(`L'àrea és la suma dels valors absoluts. Resposta: $A = ${texNombre(A)}$ unitats quadrades.`);
+  g.afegeix(`L'àrea és la suma dels valors absoluts. Resposta: l'àrea és $${texNombre(A)}$ unitats quadrades.`);
   return g.passos;
 }
 

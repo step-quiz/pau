@@ -42,10 +42,10 @@ const {perId} = FIXOS;
 const FILA = Object.freeze({dades: 0, esquema: 1, recta: 2, generic: 3, substitucio: 4, desenvolupa: 5, equacio: 6, peu: 7, simetric: 8});
 
 const ENUNCIATS = {
-  'punt-pla': p => `Troba la projecció ortogonal del punt $P = ${texPunt(p.P)}$ sobre el pla $\\pi: ${texPla(p.pi)}$.`,
-  'simetric-pla': p => `Troba el punt simètric de $P = ${texPunt(p.P)}$ respecte del pla $\\pi: ${texPla(p.pi)}$.`,
-  'punt-recta': p => `Troba la projecció ortogonal del punt $P = ${texPunt(p.P)}$ sobre la recta $r: ${texRecta(p.r)}$ (el punt de la recta més proper a $P$).`,
-  'simetric-recta': p => `Troba el punt simètric de $P = ${texPunt(p.P)}$ respecte de la recta $r: ${texRecta(p.r)}$.`,
+  'punt-pla': p => `Troba la projecció ortogonal del punt $${G.texPuntNom('P', p.P)}$ sobre el pla $\\pi: ${texPla(p.pi)}$.`,
+  'simetric-pla': p => `Troba el punt simètric de $${G.texPuntNom('P', p.P)}$ respecte del pla $\\pi: ${texPla(p.pi)}$.`,
+  'punt-recta': p => `Troba la projecció ortogonal del punt $${G.texPuntNom('P', p.P)}$ sobre la recta $r: ${texRecta(p.r)}$ (el punt de la recta més proper a $P$).`,
+  'simetric-recta': p => `Troba el punt simètric de $${G.texPuntNom('P', p.P)}$ respecte de la recta $r: ${texRecta(p.r)}$.`,
 };
 
 const llista = (linies, espai = '6pt') => (linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0]);
@@ -54,7 +54,7 @@ function passos(valors) {
   const p = perId(valors.p);
   const g = F.guio(9);
   const pla = Boolean(p.pi);
-  g.files[FILA.dades] = llista([K('Dd0', `P = ${texPunt(p.P)}`), K('Dd1', pla ? `\\pi:\\ ${texPla(p.pi)}` : `r:\\ ${texRecta(p.r)}`)]);
+  g.files[FILA.dades] = llista([K('Dd0', G.texPuntNom('P', p.P)), K('Dd1', pla ? `\\pi:\\ ${texPla(p.pi)}` : `r:\\ ${texRecta(p.r)}`)]);
   g.afegeix('Primer, què dona l\'enunciat.');
   // El punt projectat es diu Q (David: Q, no H). El simètric P′ només surt si el demanen.
   const simetric = p.id.startsWith('simetric');
@@ -73,33 +73,36 @@ function passos(valors) {
         substitucio: 'El peu $Q$ és el punt de $s$ que és del pla: imposa que $P_{\\lambda}$ compleixi l\'equació de $\\pi$.'}});
     const l0 = c.quocient(a);
     Qp = s.P.map((x, i) => x.suma(s.u[i].producte(l0)));
-    g.files[FILA.peu] = K('Hl', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Hp', `Q = ${texPunt(Qp)}`);
+    g.files[FILA.peu] = K('Hl', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Hp', G.texPuntNom('Q', Qp));
     if (!simetric) g.classes[FILA.peu] = 'final';
-    g.afegeix(`$\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de $s$: és el peu de la perpendicular, $Q = ${texPunt(Qp)}$.`
-      + (simetric ? '' : ` Resposta: la projecció de $P$ sobre $\\pi$ és $Q = ${texPunt(Qp)}$.`));
+    g.afegeix(`$\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de $s$: és el peu de la perpendicular, $${G.texPuntNom('Q', Qp)}$.`
+      + (simetric ? '' : ` Resposta: la projecció de $P$ sobre $\\pi$ és $${G.texPuntNom('Q', Qp)}$.`));
   } else {
     /* El punt genèric de la recta, R_λ (mai X per a un punt: David), i la condició PR_λ · u = 0. */
     const r = p.r;
-    g.files[FILA.recta] = K('Xg', `R_{\\lambda} = ${G.texGeneric(r)}`);
+    g.files[FILA.recta] = K('Xg', `R_{\\lambda}${G.texGeneric(r)}`);          // un punt, sense «=» (David)
     g.afegeix('Un punt qualsevol de la recta: el punt genèric $R_{\\lambda}$.');
     const PR = {P: resta(r.P, p.P), u: r.u};
     const {a, c} = G.passosPuntGenericAlPla(g, {r: PR, pla: {n: r.u, D: null}, files: FILA, nom: '\\overrightarrow{PR_{\\lambda}}', etiqueta: '\\overrightarrow{PR_{\\lambda}} \\cdot \\vec{u}',
-      textos: {generic: 'El vector que va de $P$ a $R_{\\lambda}$: $R_{\\lambda} - P$.',
+      textos: {generic: 'El vector que va de $P$ a $R_{\\lambda}$: les coordenades de $R_{\\lambda}$ menys les de $P$.',
         substitucio: `$Q$ és el punt $R_{\\lambda}$ per al qual $\\overrightarrow{PR_{\\lambda}}$ és perpendicular a la recta: el producte escalar amb $\\vec{u} = ${texPunt(r.u)}$ ha de ser $0$, `
           + '$\\overrightarrow{PR_{\\lambda}} \\cdot \\vec{u} = 0$.'}});
     const l0 = c.quocient(a);
     Qp = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));
-    g.files[FILA.peu] = K('Hl', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Hp', `Q = ${texPunt(Qp)}`);
+    g.files[FILA.peu] = K('Hl', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Hp', G.texPuntNom('Q', Qp));
     if (!simetric) g.classes[FILA.peu] = 'final';
-    g.afegeix(`$\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de la recta: és la projecció, $Q = ${texPunt(Qp)}$.`
-      + (simetric ? '' : ` Resposta: $Q = ${texPunt(Qp)}$ (i la distància de $P$ a la recta és $|\\overrightarrow{PQ}|$).`));
+    g.afegeix(`$\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de la recta: és la projecció, $${G.texPuntNom('Q', Qp)}$.`
+      + (simetric ? '' : ` Resposta: $${G.texPuntNom('Q', Qp)}$ (i la distància de $P$ a la recta és $|\\overrightarrow{PQ}|$).`));
   }
   if (simetric) {
+    // Sense operar amb punts (David): Q és el punt mitjà, i cada coordenada de P′ és el doble de la de Q menys la de P.
     const S = Qp.map((q, i) => q.producte(2).resta(p.P[i]));
     const comps = Qp.map((q, i) => `2 \\cdot ${M.texEntreParentesis(q)} - ${M.texEntreParentesis(p.P[i])}`);
-    g.files[FILA.simetric] = F.enLinies(K('Sl', 'P\'') + R('Sq', '=') + K('Sf', '2Q - P'), [' = ' + K('Sc', `(${comps.join(',\\ ')})`), ' = ' + K('Sp', texPunt(S))]);
+    g.files[FILA.simetric] = K('Sl', 'P\'') + K('Sc', `(${comps.join(',\\ ')})`);
+    g.afegeix('$Q$ és el punt mitjà de $P$ i $P\'$: cada coordenada de $Q$ és la mitjana de les de $P$ i $P\'$. Per tant, cada coordenada de $P\'$ és el doble de la de $Q$ menys la de $P$.');
+    g.files[FILA.simetric] = K('Sl', 'P\'') + K('Sc', texPunt(S));
     g.classes[FILA.simetric] = 'final';
-    g.afegeix(`$Q$ és el punt mitjà de $P$ i $P'$: $Q = \\dfrac{P + P'}{2}$, i per tant $P' = 2Q - P$. Resposta: $P' = ${texPunt(S)}$.`);
+    g.afegeix(`Opera cada coordenada. Resposta: $${G.texPuntNom('P\'', S)}$.`);
   }
   return g.passos;
 }

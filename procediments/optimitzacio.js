@@ -9,7 +9,11 @@
      2. la condició que les lliga; s'aïlla una variable;
      3. se substitueix: la funció passa a dependre d'una sola variable;
      4. el domini d'aquesta variable;
-     5. la derivada i els candidats (f' = 0, dins del domini);
+     5. la derivada i els candidats: primer l'equació tal com es planteja,
+        «A'(x) = 0»; després, amb l'expressió de A'(x). L'equació es queda a
+        la fila 5 i els càlculs baixen a la 6, la de treball (que després
+        ocupa la resposta). Les solucions, en lila; les que no són del
+        domini, tatxades;
      6. la segona derivada diu si és un màxim o un mínim;
      7. la resposta: totes les mides i el valor òptim.
    Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, nombres)
@@ -18,16 +22,17 @@
      fila 0  l'enunciat, amb les frases marcades
      fila 1  la funció          fila 2  la condició
      fila 3  el domini          fila 4  la derivada (i la segona)
-     fila 5  el càlcul del moment
-     fila 6  la resposta, que es va omplint
+     fila 5  el càlcul del moment (l'equació A'(x) = 0, mentre es resol)
+     fila 6  la fila de treball de l'equació; després, la resposta, que es va omplint
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js,
    que té el seu propi model de cada problema.
 
    Cada problema és una llista de dades TeX (vegeu PROBLEMES). El guió el
    munta la funció passos(), igual per a tots.
-   Claus: Eo1…, Ec1… frases de l'enunciat, O… funció, L… condició, Dm domini, P… derivada, e… equació,
-   Ee equació escrita a mà, Se/Sw/Sz segona derivada, We i Fe càlculs,
-   Rx, Rw, Rf la resposta.
+   Claus: Eo1…, Ec1… frases de l'enunciat, O… funció, L… condició, Dm domini, P… derivada, e… equació
+   (eF, eP, ea, eX, eb el membre A'(x); eq, ez «= 0»; Y… la còpia que es queda), Ee equació escrita a mà,
+   Ew els passos escrits a mà de la fila de treball, u… l'equació polinòmica de la fila de treball,
+   Wv, Wq, Ws «v = candidat» escrit a mà, Se/Sw/Sz segona derivada, We i Fe càlculs, Rx, Rw, Rf la resposta.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -55,8 +60,12 @@ const {clau: K, rel: R} = F;
      domini {tex, text}
      derivada {tex, text}
      equacio {manual: [{tex, text}], polinomi: {termes, text}, candidat, descarta}
-             manual: passos escrits a mà (l'últim és «v = candidat» si no hi ha polinomi);
-             polinomi: es resol amb Formules.resolPolinomi; candidat: el valor (TeX) del domini
+             abans, el guió escriu «f'(v) = 0» tal com es planteja;
+             manual: passos escrits a mà: el primer, «… = 0», hi substitueix f'(v) (fila 5);
+                     els altres, a la fila de treball (l'últim és «v = candidat» si no hi ha polinomi);
+             polinomi: es resol amb Formules.resolEquacio (sense passos a mà, el seu text és el de
+                     substituir f'(v)); candidat: el valor (TeX) del domini; descarta: per què les
+                     altres solucions no serveixen (es tatxen)
      segona {tex, text, valor}  f''(v) i el càlcul «f''(candidat) = …»
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
@@ -81,8 +90,8 @@ const PROBLEMES = Object.freeze([
     substitucio: {tex: 'x \\cdot (40 - 2x)', text: 'Substitueix $y$ a la funció: ara l\'àrea només depèn de $x$.'},
     simplifica: [{tex: '40x - 2x^{2}', text: 'Fes el producte.'}],
     domini: {tex: '0 < x < 20', text: 'El domini: $x$ ha de ser positiu, i $y = 40 - 2x$ també, és a dir, $x < 20$.'},
-    derivada: {tex: '40 - 4x', text: 'Deriva la funció.'},
-    equacio: {polinomi: {termes: [{n: 1, c: -4}, {n: 0, c: 40}], text: 'Els candidats són les solucions de $A\'(x) = 0$.'}, candidat: '10'},
+    derivada: {tex: '-4x + 40', text: 'Deriva la funció (ordena els termes de més a menys grau).'},
+    equacio: {polinomi: {termes: [{n: 1, c: -4}, {n: 0, c: 40}], text: 'Substitueix $A\'(x)$ per la seva expressió.'}, candidat: '10'},
     segona: {tex: '-4', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'A\'\'(10) = -4'},
     altra: {calcul: 'y = 40 - 2 \\cdot 10 = 20', resposta: 'y = 20', text: 'Calcula l\'altra mida: $y = 40 - 2x$.'},
     optim: {calcul: 'A(10) = 40 \\cdot 10 - 2 \\cdot 10^{2} = 200', resposta: 'A = 200', text: 'Calcula l\'àrea màxima.'},
@@ -109,7 +118,7 @@ const PROBLEMES = Object.freeze([
     domini: {tex: '0 < x < 6', text: 'El domini: $x > 0$, i la base també ha de ser positiva: $12 - 2x > 0$, és a dir, $x < 6$.'},
     derivada: {tex: '12x^{2} - 96x + 144', text: 'Deriva la funció.'},
     equacio: {
-      polinomi: {termes: [{n: 2, c: 12}, {n: 1, c: -96}, {n: 0, c: 144}], text: 'Els candidats són les solucions de $V\'(x) = 0$.'},
+      polinomi: {termes: [{n: 2, c: 12}, {n: 1, c: -96}, {n: 0, c: 144}], text: 'Substitueix $V\'(x)$ per la seva expressió.'},
       candidat: '2', descarta: ' Però $x = 6$ no és del domini: la capsa no tindria base.',
     },
     segona: {tex: '24x - 96', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(2) = 24 \\cdot 2 - 96 = -48'},
@@ -138,7 +147,7 @@ const PROBLEMES = Object.freeze([
     derivada: {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2}', text: 'Deriva la funció: el $\\frac{1}{2}$ i el $\\pi$ es mantenen.'},
     equacio: {
       manual: [
-        {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2} = 0', text: 'Els candidats són les solucions de $V\'(r) = 0$.'},
+        {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2} = 0', text: 'Substitueix $V\'(r)$ per la seva expressió.'},
         {tex: '27\\pi - 3\\pi r^{2} = 0', text: 'Multiplica els dos membres per $2$.'},
       ],
       polinomi: {termes: [{n: 2, c: -3}, {n: 0, c: 27}], text: 'Divideix els dos membres per $\\pi$.'},
@@ -170,7 +179,7 @@ const PROBLEMES = Object.freeze([
     derivada: {tex: '40x - \\dfrac{320}{x^{2}}', text: 'Deriva la funció. Per derivar $\\frac{320}{x}$, escriu-la com una potència: $320x^{-1}$. La seva derivada és $-320x^{-2} = -\\frac{320}{x^2}$.'},
     equacio: {
       manual: [
-        {tex: '40x - \\dfrac{320}{x^{2}} = 0', text: 'Els candidats són les solucions de $C\'(x) = 0$.'},
+        {tex: '40x - \\dfrac{320}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
         {tex: '40x^{3} - 320 = 0', text: 'Multiplica els dos membres per $x^2$, que no és $0$.'},
         {tex: 'x^{3} = 8', text: 'Passa el $-320$ a l\'altre costat i divideix per $40$.'},
         {tex: 'x = \\sqrt[3]{8}', text: 'Fes l\'arrel cúbica.'},
@@ -205,7 +214,7 @@ const PROBLEMES = Object.freeze([
     derivada: {tex: '400 - 4\\pi r', text: 'Deriva la funció.'},
     equacio: {
       manual: [
-        {tex: '400 - 4\\pi r = 0', text: 'Els candidats són les solucions de $A\'(r) = 0$.'},
+        {tex: '400 - 4\\pi r = 0', text: 'Substitueix $A\'(r)$ per la seva expressió.'},
         {tex: '4\\pi r = 400', text: 'Passa $-4\\pi r$ a l\'altre costat.'},
         {tex: 'r = \\dfrac{100}{\\pi}', text: 'Divideix per $4\\pi$. Deixa el resultat amb $\\pi$: així és exacte.'},
       ],
@@ -235,9 +244,9 @@ const PROBLEMES = Object.freeze([
     substitucio: {tex: '(12 - y) \\cdot y^{2}', text: 'Substitueix $x$ a la funció: ara el producte només depèn de $y$.'},
     simplifica: [{tex: '12y^{2} - y^{3}', text: 'Fes el producte.'}],
     domini: {tex: '0 < y < 12', text: 'El domini: els dos nombres són positius, $y > 0$ i $x = 12 - y > 0$.'},
-    derivada: {tex: '24y - 3y^{2}', text: 'Deriva la funció.'},
+    derivada: {tex: '-3y^{2} + 24y', text: 'Deriva la funció (ordena els termes de més a menys grau).'},
     equacio: {
-      polinomi: {termes: [{n: 2, c: -3}, {n: 1, c: 24}], text: 'Els candidats són les solucions de $P\'(y) = 0$.'},
+      polinomi: {termes: [{n: 2, c: -3}, {n: 1, c: 24}], text: 'Substitueix $P\'(y)$ per la seva expressió.'},
       candidat: '8', descarta: ' Però $y = 0$ no és del domini: els nombres han de ser positius.',
     },
     segona: {tex: '24 - 6y', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'P\'\'(8) = 24 - 6 \\cdot 8 = -24'},
@@ -271,6 +280,9 @@ function lectura(p, marcades) {
 
 
 /* ── 3. PASSOS ─────────────────────────────────────────────────────── */
+
+/** Una fórmula de la pissarra, per al text de l'explicació: les fraccions, petites (\frac, no \dfrac). */
+const textual = tex => tex.replace(/\\dfrac/g, '\\frac');
 
 function passos(valors) {
   const p = perId(valors.p);
@@ -326,26 +338,47 @@ function passos(valors) {
   const textAillada = `$${w} = ${aillada.replace(/\\dfrac/g, '\\frac')}$`;
   g.afegeix(`${p.derivada.text} (Esborrem ${textAillada}: ara no ens cal. La recuperarem al final per calcular $${w}$.)`);
   const eq = p.equacio;
-  for (const pas of eq.manual || []) {
-    g.files[FILA.calcul] = K('Ee', pas.tex);
+  // Primer, l'equació tal com es planteja: A'(x) = 0 (el «=» i el «0», claus eq i ez, es queden). Els càlculs, a la fila de treball.
+  g.files[FILA.calcul] = F.membreEsquerre('e', f, v, 1) + K('ez', '0');
+  g.afegeix(`Els candidats són les solucions de l'equació $${f}'(${v}) = 0$.`);
+  const manual = eq.manual || [];
+  manual.forEach((pas, i) => {
+    if (i === 0) {
+      const esquerre = pas.tex.replace(/ = 0$/, '');
+      g.files[FILA.calcul] = K('Ee', esquerre) + R('eq', '=') + K('ez', '0');
+    } else if (i === manual.length - 1 && !eq.polinomi) {
+      const [, valor] = new RegExp(`^${v} = (.+)$`).exec(pas.tex);
+      g.files[FILA.resposta] = K('Wv', v) + R('Wq', '=') + K('Ws', valor);
+    } else {
+      g.files[FILA.resposta] = K('Ew', pas.tex);
+    }
     g.afegeix(pas.text);
-  }
-  let clauCandidat = 'Ee';
+  });
+  let clauCandidat = 'Ws';
   if (eq.polinomi) {
-    const solucions = F.resolPolinomi(g, FILA.calcul, 'e', eq.polinomi.termes, eq.polinomi.text, {}, v);
+    // Sense passos a mà, l'equació polinòmica es queda a la fila 5; si n'hi ha, ja es resol a la de treball.
+    const solucions = F.resolEquacio(g, manual.length
+      ? {fila: FILA.resposta, P: 'u', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v}
+      : {fila: FILA.calcul, treball: FILA.resposta, P: 'e', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v});
     clauCandidat = solucions.find(s => M.texNombre(s.valor) === eq.candidat).clau;
+    // Les solucions en lila; les que no són del domini, tatxades.
+    const fila = solucions[0].fila;
+    for (const s of solucions) (M.texNombre(s.valor) === eq.candidat ? F.marcaSolucio : F.tatxaSolucio)(g, fila, s.clau);
+    g.afegeix(F.textSolucions(solucions.map(s => s.valor), v) + (eq.descarta ? `${eq.descarta} La tatxem.` : ''));
+  } else {
+    F.marcaSolucio(g, FILA.resposta, 'Ws');
+    g.afegeix(`La solució és $${v} = ${textual(eq.candidat)}$.`);
   }
-  if (eq.descarta) g.completa(eq.descarta);
   g.files[FILA.calcul] = '';
   const rx = K('Rx', `${v} = ${eq.candidat}`);
   g.files[FILA.resposta] = rx;
-  g.afegeix(`L'únic candidat dins del domini és $${v} = ${eq.candidat}$.`, {reanomena: {Rx: clauCandidat}});
+  g.afegeix(`L'únic candidat dins del domini és $${v} = ${textual(eq.candidat)}$.`, {reanomena: {Rx: clauCandidat}});
 
   /* 6. La segona derivada decideix si és un màxim o un mínim. */
   g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.tex);
   g.afegeix(p.segona.text);
   g.files[FILA.calcul] = K('Se', p.segona.valor) + R('Sw', p.maxim ? '<' : '>') + K('Sz', '0');
-  g.afegeix(`Com que $${p.segona.valor.split(' = ')[0]} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${eq.candidat}$ hi ha un `
+  g.afegeix(`Com que $${textual(p.segona.valor.split(' = ')[0])} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${textual(eq.candidat)}$ hi ha un `
     + (p.maxim ? 'màxim (la gràfica té forma de ∩).' : 'mínim (la gràfica té forma de ∪).'), {cursor: {clic: 'Rx'}});
 
   /* 7. La resposta: l'altra variable (amb la condició, que torna a la fila 2) i el valor òptim (fila 6). */

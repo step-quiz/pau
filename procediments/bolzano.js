@@ -178,10 +178,12 @@ function passos(v) {
   /* 4. La bisecció. */
   const files = [];                       // files de la taula (TeX amb claus)
   const taula = () => {
-    g.files[FILA.taula] = '\\begin{array}{c|c|c} \\text{interval} & m & f(m) \\\\ \\hline '
+    // La capçalera, en negreta i amb majúscula; la taula, una mica separada (com la de la discussió de sistemes, David).
+    g.files[FILA.taula] = '\\begin{array}{c|c|c} \\textbf{Interval} & \\boldsymbol{m} & \\boldsymbol{f(m)} \\\\ \\hline '
       + files.map(c => c.join(' & ')).join(' \\\\[6pt] ') + ' \\end{array}';   // espai per als signes de sota
   };
   let [l, r, sl, sr] = [a, b, sa, sb];
+  g.classes[FILA.taula] = 'separat';
   files.push([K('T0i', intervalAmbSignes(l, r, sl, sr)), '', '']);
   taula();
   g.afegeix('Ara acota l\'arrel pel mètode de la bisecció: parteix l\'interval per la meitat, mira el signe de $f$ al punt mitjà, '

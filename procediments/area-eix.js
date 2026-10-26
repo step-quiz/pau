@@ -106,7 +106,8 @@ function passos(v) {
   /* On talla l'eix: f(x) = 0. */
   const p = coefs(v);
   while (p.length > 1 && p[p.length - 1].esZero()) p.pop();
-  const arrels = Ig.passosTalls(g, {p, X: 'x', files: FILA, inici: 'On talla l\'eix $OX$? Resol l\'equació $f(x) = 0$.'});
+  // Primer, l'equació tal com es planteja, f(x) = 0 (David); després, amb l'expressió de f(x).
+  const arrels = Ig.passosTalls(g, {p, X: 'x', files: FILA, nom: 'f(x)', inici: 'On talla l\'eix $OX$? Resol l\'equació $f(x) = 0$.'});
   const dins = arrels.filter(r => r.resta(a).signe() > 0 && b.resta(r).signe() > 0);
   const punts = [a].concat(dins, [b]);
   const trossos = punts.slice(1).map((r, k) => [punts[k], r]);
@@ -141,9 +142,10 @@ function passos(v) {
   const A = integrals.reduce((s, I) => s.suma(I.abs()), Fraccio.de(0));
   const abs = integrals.map(I => `\\left|${texNombre(I)}\\right|`).join(' + ');
   const sense = integrals.map(I => texNombre(I.abs())).join(' + ');
-  g.files[FILA.area] = K('Al', 'A') + R('Aq', '=') + K('Aa', abs) + (integrals.length > 1 ? R('Ar', '=') + K('Ab', sense) : '') + R('As', '=') + K('Av', texNombre(A));
+  // «Àrea =», no «A =» ni «S =» (David).
+  g.files[FILA.area] = K('Al', '\\text{Àrea}') + R('Aq', '=') + K('Aa', abs) + (integrals.length > 1 ? R('Ar', '=') + K('Ab', sense) : '') + R('As', '=') + K('Av', texNombre(A));
   g.classes[FILA.area] = 'final';
-  g.afegeix(`L'àrea és la suma dels valors absoluts de les integrals. Resposta: $A = ${texNombre(A)}$ unitats quadrades.`
+  g.afegeix(`L'àrea és la suma dels valors absoluts de les integrals. Resposta: l'àrea és $${texNombre(A)}$ unitats quadrades.`
     + (integrals.length > 1 && !integrals.reduce((s, I) => s.suma(I), Fraccio.de(0)).igual(A)
       ? ` (Sense separar els trossos, $\\int_{${v.a}}^{${v.b}} f(x)\\,dx = ${texNombre(integrals.reduce((s, I) => s.suma(I), Fraccio.de(0)))}$: no és l'àrea.)` : ''));
   return g.passos;
