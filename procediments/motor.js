@@ -601,8 +601,9 @@ function creaPissarra(r, nFiles, cursor, temps) {
         const nou = fantasma(elB, b);
         feines.push(anima(vell.el, [{transform: QUIET}, {transform: trasllat(a, b, escala)}], {duration: D}));
         feines.push(anima(vell.el, [{opacity: 1}, {offset: 0.5, opacity: 0}, {opacity: 0}], {duration: D, easing: 'ease-in-out'}));
-        feines.push(anima(nou.el, [{transform: trasllat(b, a, vell.mida / nou.mida), opacity: 0}, {offset: 0.38, opacity: 0}, {transform: QUIET, opacity: 1}],
-          {duration: D, easing: 'ease-in-out'}));
+        // El nou fa el mateix camí que el vell i amb la mateixa corba (si no, mentre es fonen es veuen dos símbols desplaçats: ho va veure el David).
+        feines.push(anima(nou.el, [{transform: trasllat(b, a, vell.mida / nou.mida)}, {transform: QUIET}], {duration: D}));
+        feines.push(anima(nou.el, [{opacity: 0}, {offset: 0.38, opacity: 0}, {opacity: 1}], {duration: D, easing: 'ease-in-out'}));
       }
     }
 

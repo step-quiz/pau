@@ -12,7 +12,7 @@
                          per la primera fila
      passosPlaNormal(g, …)       el pla per un punt amb vector normal
      passosProducteVectorial(g, …)  u × v = |i j k; u; v|, desenvolupat
-     passosCramer2(g, …)         un sistema 2×2 per Cramer
+     passosReduccio2(g, …)       un sistema 2×2 pel mètode de reducció (mai Cramer)
      passosPuntGenericAlPla(g, …)  el punt genèric d'una recta, imposat
                          a un pla: una equació aλ = c
      esquema(nom)               un esquema (SVG) per a la pissarra
@@ -64,10 +64,11 @@ function texEsquerre(n, D) {
   return termes.join('') || '0';
 }
 const texPla = ({n, D}) => `${texEsquerre(n, D)} = 0`;
-/** El primer membre d'un pla amb un punt en lloc de (x, y, z): «3 \cdot 1 - 1 \cdot 0 + 2 \cdot 1 - 5». */
+/** El primer membre d'un pla amb un punt en lloc de (x, y, z): «3 \cdot 1 - 2 + 2 \cdot 1 - 5» (sense «1 \cdot»). */
 function texSubstitucio(n, D, Q) {
   const termes = n.map((c, i) => [c, Q[i]]).filter(([c]) => !c.esZero()).map(([c, x], i) => {
-    const t = `${M.texNombre(c.abs())} \\cdot ${M.texEntreParentesis(x)}`;
+    // Sense «1 ·» (el David): «2 - 2 \cdot 3 + (-1)», no «1 \cdot 2 - 2 \cdot 3 + 1 \cdot (-1)».
+    const t = c.abs().igual(1) ? (i === 0 && c.signe() > 0 ? M.texNombre(x) : M.texEntreParentesis(x)) : `${M.texNombre(c.abs())} \\cdot ${M.texEntreParentesis(x)}`;
     return i === 0 ? (c.signe() < 0 ? '-' : '') + t : (c.signe() < 0 ? ` - ${t}` : ` + ${t}`);
   });
   if (D && !D.esZero()) termes.push(D.signe() > 0 ? ` + ${M.texNombre(D)}` : ` - ${M.texNombre(D.abs())}`);
@@ -114,6 +115,41 @@ function passosFormaGeneral(g, {P, n, files, escriuForma = true, text}) {
   return {n, D};
 }
 
+/*
+ * La regla de Sarrus d'un determinant amb la primera fila de símbols (\vec{i}, \vec{j}, \vec{k}, o
+ * x − a, y − b, z − c) i les altres dues de nombres (u, v). Sempre per Sarrus i amb claudàtors (David):
+ *   [s₀·u₁·v₂ + s₁·u₂·v₀ + s₂·u₀·v₁] − [s₂·u₁·v₀ + s₀·u₂·v₁ + s₁·u₀·v₂].
+ * Claus (prefix P): S<n> els productes, T<n> els seus valors, G<j> el coeficient agrupat de cada símbol.
+ */
+const SARRUS_SIMBOLS = Object.freeze([[0, 1, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0], [0, 2, 1], [1, 0, 2]]);   // [símbol, columna de u, columna de v]
+const ambParentesi = s => (/\s[+-]\s/.test(s) ? `(${s})` : s);
+/** c·s amb el signe davant («2(x - 1)», « - \vec{j}», « + 0»); si és el primer, sense « + ». */
+function texCoefSimbol(c, s, primer) {
+  if (c.esZero()) return primer ? '0' : ' + 0';
+  const a = c.abs();
+  const t = (a.igual(1) ? '' : M.texNombre(a) + (s.startsWith('\\vec') ? '\\,' : '')) + ambParentesi(s);
+  if (primer) return (c.signe() < 0 ? '-' : '') + t;
+  return c.signe() < 0 ? ` - ${t}` : ` + ${t}`;
+}
+function sarrusSimbolic(simbols, u, v, P) {
+  const productes = SARRUS_SIMBOLS.map(([j, b, c], n) => ({n, j, factors: `${ambParentesi(simbols[j])} \\cdot ${M.texEntreParentesis(u[b])} \\cdot ${M.texEntreParentesis(v[c])}`,
+    c: u[b].producte(v[c])}));
+  const claudators = (f, ambSigne) => [productes.slice(0, 3), productes.slice(3)].map((grup, q) => (q ? ' - ' : '') + '\\lbrack '
+    + grup.map((pr, i) => f(pr, i)).join(ambSigne ? '' : ' + ') + ' \\rbrack');
+  const texProductes = claudators(pr => K(`${P}S${pr.n}`, pr.factors), false);
+  const texValors = claudators((pr, i) => K(`${P}T${pr.n}`, texCoefSimbol(pr.c, simbols[pr.j], i === 0)), true);
+  // Sense claudàtors (el − canvia el signe dels del segon); els zeros desapareixen.
+  const sense = productes.map(pr => ({n: pr.n, j: pr.j, c: pr.n < 3 ? pr.c : pr.c.oposada()})).filter(t => !t.c.esZero());
+  const texSense = sense.length ? sense.map((t, i) => K(`${P}T${t.n}`, texCoefSimbol(t.c, simbols[t.j], i === 0))).join('') : K(`${P}T0`, '0');
+  const coefs = [0, 1, 2].map(j => sense.filter(t => t.j === j).reduce((x, t) => x.suma(t.c), fr(0)));
+  const fusiona = {};
+  [0, 1, 2].forEach(j => { if (!coefs[j].esZero()) fusiona[`${P}G${j}`] = sense.filter(t => t.j === j).map(t => `${P}T${t.n}`); });
+  const noNuls = [0, 1, 2].filter(j => !coefs[j].esZero());
+  const texAgrupat = noNuls.length ? noNuls.map((j, i) => K(`${P}G${j}`, texCoefSimbol(coefs[j], simbols[j], i === 0))).join('') : '0';
+  return {texProductes, texValors, texSense, texAgrupat, fusiona, coefs};
+}
+const TEXT_SARRUS = 'Regla de Sarrus, amb dos claudàtors: al primer, la diagonal principal i els dos triangles paral·lels; al segon (que es resta), la diagonal secundària i els seus dos triangles.';
+
 /**
  * El pla que passa per P i té els vectors directors v1 i v2: el determinant |X − P; v1; v2| = 0
  * (els tres vectors són al pla), desenvolupat per la primera fila. Files: det, desenvolupa, pla.
@@ -122,20 +158,21 @@ function passosPlaDeterminant(g, {P, v1, v2, files}) {
   const fila1 = VARS.map((v, i) => texMenys(v, P[i]));
   const texV = v => v.map(x => M.texNombre(x)).join(' & ');
   g.files[files.det] = K('Gd', `\\begin{vmatrix} ${fila1.join(' & ')} \\\\ ${texV(v1)} \\\\ ${texV(v2)} \\end{vmatrix}`) + R('Gq', '=') + K('Gz', '0');
-  g.afegeix(`Un punt $X = (x,\\ y,\\ z)$ és del pla si el vector $\\overrightarrow{PX} = (${fila1.join(',\\ ')})$ i els dos vectors directors són coplanaris: `
-    + 'el determinant que formen val $0$. A la primera fila, $\\overrightarrow{PX}$; a les altres, els vectors directors.');
-  // Desenvolupat per la primera fila: cada element pel seu menor, amb els signes + − +.
-  const menor = j => {
-    const cs = [0, 1, 2].filter(c => c !== j);
-    return [[v1[cs[0]], v1[cs[1]]], [v2[cs[0]], v2[cs[1]]]];
-  };
-  const texMenor = B => `\\begin{vmatrix} ${B.map(f => f.map(x => M.texNombre(x)).join(' & ')).join(' \\\\ ')} \\end{vmatrix}`;
-  const peces = fila1.map((f, j) => (j === 0 ? '' : j === 1 ? ' - ' : ' + ') + K(`Hm${j}`, `${f.length > 1 ? `(${f})` : f}\\,${texMenor(menor(j))}`));
-  g.files[files.desenvolupa] = F.enLinies('', peces, {final: R('Hq', '=') + K('Hz', '0')});
-  g.afegeix('Desenvolupa el determinant per la primera fila: cada element pel seu menor (el determinant que queda si tapes la seva fila i la seva columna), '
-    + 'amb els signes $+$, $-$, $+$.');
-  const n = [0, 1, 2].map(j => { const m = Mt.det2N(menor(j)); return j === 1 ? m.oposada() : m; });
-  const pla = passosFormaGeneral(g, {P, n, files, text: `Calcula els tres menors: $${n.map((c, j) => `${j === 1 ? '-' : ''}${texMenor(menor(j))} = ${M.texNombre(c)}`).join('$, $')}$.`});
+  g.afegeix(`Un punt qualsevol $G = (x,\\ y,\\ z)$ és del pla si el vector $\\overrightarrow{PG} = (${fila1.join(',\\ ')})$ i els dos vectors directors són coplanaris: `
+    + 'el determinant que formen val $0$. A la primera fila, $\\overrightarrow{PG}$; a les altres, els vectors directors.');
+  // Sempre per Sarrus (mai per adjunts), amb claudàtors.
+  const sr = sarrusSimbolic(fila1, v1, v2, 'H');
+  const zero = R('Hq', '=') + K('Hz', '0');
+  g.files[files.desenvolupa] = F.enLinies('', sr.texProductes, {final: zero});
+  g.afegeix(TEXT_SARRUS);
+  g.files[files.desenvolupa] = F.enLinies('', sr.texValors, {final: zero});
+  g.afegeix('Fes cada producte, dins del seu claudàtor.');
+  g.files[files.desenvolupa] = sr.texSense + zero;
+  g.afegeix('Treu els claudàtors: el $-$ de davant del segon canvia el signe de cada terme de dins. Els zeros desapareixen.');
+  g.files[files.desenvolupa] = sr.texAgrupat + zero;
+  g.afegeix(`Agrupa els termes de cada parèntesi: $${(sr.coefs.some(c => !c.esZero()) ? sr.texAgrupat : '0').replace(/\\htmlData\{[^}]*\}/g, '')} = 0$.`, {fusiona: sr.fusiona});
+  const n = sr.coefs;
+  const pla = passosFormaGeneral(g, {P, n, files, escriuForma: false});
   return Object.assign(pla, {nSenseSimplificar: n});
 }
 
@@ -159,22 +196,26 @@ const texIJK = w => w.map((c, j) => [c, j]).filter(([c]) => !c.esZero())
  */
 function passosProducteVectorial(g, {u, v, nom, files, P = 'V', text}) {
   const fila = w => w.map(x => M.texNombre(x)).join(' & ');
-  const menor = j => { const cs = [0, 1, 2].filter(c => c !== j); return [[u[cs[0]], u[cs[1]]], [v[cs[0]], v[cs[1]]]]; };
-  const inici = K(P + 'l', nom) + R(P + 'q', '=');
-  const det = K(P + 'd', `\\begin{vmatrix} ${UNITATS.join(' & ')} \\\\ ${fila(u)} \\\\ ${fila(v)} \\end{vmatrix}`);
-  g.files[files.producte] = inici + det;
+  const det = K(P + 'l', nom) + R(P + 'q', '=') + K(P + 'd', `\\begin{vmatrix} ${UNITATS.join(' & ')} \\\\ ${fila(u)} \\\\ ${fila(v)} \\end{vmatrix}`);
+  // La fila és sempre una llista de línies: el determinant no es mou quan se n'hi afegeix una.
+  const linies = ls => `\\begin{array}{l} ${ls.join(' \\\\[8pt] ')} \\end{array}`;
+  g.files[files.producte] = linies([det]);
   g.afegeix(text || 'El producte vectorial es calcula com un determinant: a la primera fila, els vectors $\\vec{i}$, $\\vec{j}$, $\\vec{k}$; a les altres dues, '
     + 'les components dels dos vectors.');
-  const peces = [det].concat([0, 1, 2].map(j => (j === 0 ? ' = ' : j === 1 ? ' - ' : ' + ') + K(`${P}m${j}`, `${UNITATS[j]}\\,${texVmatriu(menor(j))}`)));
-  g.files[files.producte] = F.enLinies(inici, peces);
-  g.afegeix('Desenvolupa el determinant per la primera fila: cada vector $\\vec{i}$, $\\vec{j}$, $\\vec{k}$ pel seu menor (tapa la seva fila i la seva columna), '
-    + 'amb els signes $+$, $-$, $+$.');
+  const sr = sarrusSimbolic(UNITATS, u, v, P);
+  g.files[files.producte] = linies([det, F.enLinies('= ', sr.texProductes)]);
+  g.afegeix(TEXT_SARRUS);
+  const inici = K(P + 'L', nom) + R(P + 'Q', '=');
+  g.files[files.valor] = F.enLinies(inici, sr.texValors);
+  g.afegeix('Fes cada producte, dins del seu claudàtor.');
+  g.files[files.valor] = inici + sr.texSense;
+  g.afegeix('Treu els claudàtors: el $-$ de davant del segon canvia el signe de cada terme de dins. Els zeros desapareixen.');
   const w = vectorial(u, v);
-  g.files[files.valor] = K(P + 'L', nom) + R(P + 'Q', '=') + K(P + 'c', texIJK(w)) + R(P + 'r', '=') + K(P + 'v', texPunt(w));
-  const m = [0, 1, 2].map(j => Mt.det2N(menor(j)));
-  g.afegeix(`Calcula els tres menors (diagonal principal menys diagonal secundària): $${m.map((x, j) => `${texVmatriu(menor(j))} = ${M.texNombre(x)}`).join('$, $')}$. `
-    + `El de $\\vec{j}$ porta el signe $-$: ${m[1].esZero() ? 'aquí és $0$' : `$-(${M.texNombre(m[1])}) = ${M.texNombre(m[1].oposada())}$`}. `
-    + `Les components són els coeficients de $\\vec{i}$, $\\vec{j}$ i $\\vec{k}$.`);
+  g.files[files.valor] = inici + K(P + 'c', texIJK(w));
+  g.afegeix('Agrupa els termes de $\\vec{i}$, els de $\\vec{j}$ i els de $\\vec{k}$.',
+    {fusiona: {[P + 'c']: Object.values(sr.fusiona).flat()}});
+  g.files[files.valor] = inici + K(P + 'c', texIJK(w)) + R(P + 'r', '=') + K(P + 'v', texPunt(w));
+  g.afegeix('Les components són els coeficients de $\\vec{i}$, $\\vec{j}$ i $\\vec{k}$.');
   return w;
 }
 
@@ -223,14 +264,14 @@ function texSubstitucioLineal(n, D, e, L = '\\lambda') {
  * la substitució (fila «substitucio»), sense parèntesis (fila «desenvolupa») i agrupada, aλ = c
  * (fila «equacio»), amb a = n · u i c = −(n · P + D). Els textos dels passos, a «textos»
  * (generic, substitucio), si cal canviar-los; «etiqueta», el que s'escriu davant de la substitució
- * («\overrightarrow{PX_{\lambda}} \cdot \vec{u} =»), si cal. Torna {a, c}.
+ * («\overrightarrow{PR_{\lambda}} \cdot \vec{u} =»), si cal. Torna {a, c}.
  */
-function passosPuntGenericAlPla(g, {r, pla, files, L = '\\lambda', nom = 'P_{\\lambda}', textos = {}, etiqueta = ''}) {
+function passosPuntGenericAlPla(g, {r, pla, files, L = '\\lambda', nom = 'P_{\\lambda}', textos = {}, etiqueta = '', davantGeneric = '', davantSubstitucio = ''}) {
   const e = r.P.map((x, i) => [x, r.u[i]]);
-  g.files[files.generic] = K('Gp', nom) + R('Gq', '=') + K('Gc', texGeneric(r, L));
+  g.files[files.generic] = davantGeneric + K('Gp', nom) + R('Gq', '=') + K('Gc', texGeneric(r, L));
   g.afegeix(textos.generic || `Un punt qualsevol de la recta, el punt genèric: cada valor de $${L}$ en dona un.`);
   const termes = pla.n.map((c, i) => [c, e[i]]).filter(([c]) => !c.esZero());
-  g.files[files.substitucio] = (etiqueta ? K('Gn', etiqueta) + R('Go', '=') : '') + K('Gs', texSubstitucioLineal(pla.n, pla.D, e, L)) + R('Gt', '=') + K('Gz', '0');
+  g.files[files.substitucio] = davantSubstitucio + (etiqueta ? K('Gn', etiqueta) + R('Go', '=') : '') + K('Gs', texSubstitucioLineal(pla.n, pla.D, e, L)) + R('Gt', '=') + K('Gz', '0');
   g.afegeix(textos.substitucio || `Imposa que $${nom}$ sigui del pla: a l'equació del pla, canvia $x$, $y$, $z$ per les coordenades de $${nom}$. Queda una equació en $${L}$.`);
   // Sense parèntesis: cada coeficient per cada terme.
   const peces = [];
@@ -289,37 +330,102 @@ function pecesQuocientArrel(N, S, P) {
 }
 
 /**
- * Un sistema de 2 equacions amb 2 incògnites, S = [[a, b, c], [d, e, f]] (a·v₁ + b·v₂ = c), de
- * determinant no nul, resolt per Cramer: una línia per incògnita a la fila «fila»,
- * «x = \dfrac{|c b; f e|}{|a b; d e|} = \dfrac{-6}{-3} = 2». «vars» són els noms en TeX; «claus», els
- * noms per a les claus, si el TeX no hi va bé («\lambda» → «l»). Torna la solució [v₁, v₂].
+ * Un sistema de 2 equacions amb 2 incògnites, S = [[a, b, c], [d, e, f]] (a·v₁ + b·v₂ = c), amb solució
+ * única, pel mètode de reducció de 4t d'ESO, sense matrius (mai Cramer: David). Es fa desaparèixer
+ * la incògnita amb els multiplicadors més petits (els del mínim comú múltiple dels coeficients;
+ * per 1 no s'escriu: l'equació es copia), se sumen les equacions (ratlla a sobre del resultat),
+ * s'aïlla l'altra incògnita, se substitueix en una equació (millor la que té coeficient ±1) i
+ * s'aïlla la primera. Si una equació només té una incògnita, es fa servir directament.
+ * Tot a la fila «fila», línia a línia. Torna la solució [v₁, v₂].
  */
-function passosCramer2(g, {S, vars, claus = vars, fila, P = 'X'}) {
-  const A = S.map(f => f.slice(0, 2));
-  const D = Mt.det2N(A);
+function passosReduccio2(g, {S, vars, fila, P = 'X'}) {
+  const [E1, E2] = S;
+  const eq = e => Mt.texEquacio(e.slice(0, 2), e[2], vars);
   const linies = [];
-  const pinta = () => { g.files[fila] = linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[12pt] ')} \\end{array}` : linies[0]; };
-  return vars.map((v, k) => {
-    const B = A.map((f, i) => f.map((x, j) => (j === k ? S[i][2] : x)));
-    const N = Mt.det2N(B);
-    const sol = N.quocient(D);
-    const c = P + claus[k];
-    const inici = K(`${c}l`, v) + R(`${c}q`, '=');
-    const peces = [K(`${c}a`, `\\dfrac{${texVmatriu(B)}}{${texVmatriu(A)}}`)];
-    linies[k] = F.enLinies(inici, peces);
+  const pinta = () => { g.files[fila] = `\\begin{array}{rl} ${linies.join(' \\\\[6pt] ')} \\end{array}`; };
+  const linia = (etiqueta, tex) => `${etiqueta} & ${K(`${P}${linies.length}`, tex)}`;
+  const enter = x => x.den === 1;
+  let unica, q;                                            // l'equació d'una sola incògnita, i la incògnita (0 o 1)
+  const sola = [E1, E2].find(E => E[0].esZero() || E[1].esZero());
+  if (sola) {
+    unica = sola;
+    q = sola[0].esZero() ? 1 : 0;
+    linies.push(linia('', eq(unica)));
     pinta();
-    g.afegeix(`Regla de Cramer: $${v}$ és un quocient de determinants. A baix, el del sistema; a dalt, el mateix amb la columna de $${v}$ `
-      + 'canviada per la dels termes independents.');
-    const fraccio = D.igual(1) ? M.texNombre(N) : `\\dfrac{${M.texNombre(N)}}{${M.texNombre(D)}}`;
-    peces.push(' = ' + K(`${c}b`, fraccio));
-    const irreductible = !D.igual(1) && D.signe() > 0 && M.mcd(Math.abs(N.num), D.num) === 1 && N.esEnter();
-    if (!D.igual(1) && !irreductible) peces.push(' = ' + K(`${c}c`, M.texNombre(sol)));
-    linies[k] = F.enLinies(inici, peces);
+    g.afegeix(`Una de les equacions només té una incògnita: $${eq(unica)}$. D'aquí es treu $${vars[q]}$.`);
+  } else {
+    // Per a cada incògnita, els multiplicadors més petits que en fan oposats els coeficients
+    // (amb el mínim comú múltiple, com a 4t d'ESO); es fa desaparèixer la que en té de més petits.
+    const opcions = [0, 1].map(j => {
+      const a = E1[j], c = E2[j];
+      const d = enter(a) && enter(c) ? M.mcd(Math.abs(a.num), Math.abs(c.num)) : 1;
+      let m1 = c.oposada().quocient(d), m2 = a.quocient(d);
+      if (m1.signe() < 0 && m2.signe() < 0) { m1 = m1.oposada(); m2 = m2.oposada(); }
+      return {j, m1, m2, cost: Math.abs(m1.valor()) + Math.abs(m2.valor()), cops: [m1, m2].filter(m => !m.igual(1)).length};
+    });
+    // Els multiplicadors més petits; si empaten, la que en té menys que no siguin 1 (sumar directament, si es pot).
+    const millor = (o, p) => o.cost - p.cost || o.cops - p.cops;
+    const {j: e, m1, m2} = millor(opcions[1], opcions[0]) < 0 ? opcions[1] : opcions[0];
+    q = 1 - e;
+    const A = E1.map(x => x.producte(m1)), B = E2.map(x => x.producte(m2));
+    unica = A.map((x, k) => x.suma(B[k]));
+    const per = m => (m.signe() < 0 ? `(${M.texNombre(m)})` : M.texNombre(m));
+    // Multiplicar per 1 no canvia res: l'equació es copia tal com és.
+    linies.push(linia(m1.igual(1) ? '' : `\\small (${eq(E1)}) \\cdot ${per(m1)}:`, eq(A)));
+    linies.push(linia(m2.igual(1) ? '' : `\\small (${eq(E2)}) \\cdot ${per(m2)}:`, eq(B)));
     pinta();
-    g.afegeix(`Calcula els dos determinants: $${Mt.texDet2N(B)} = ${M.texNombre(N)}$ i $${Mt.texDet2N(A)} = ${M.texNombre(D)}$. `
-      + `Per tant, $${v} = ${M.texNombre(sol)}$.`);
-    return sol;
-  });
+    const v = vars[e];
+    const quines = [m1.igual(1) ? '' : `multiplica la primera equació per $${M.texNombre(m1)}$`, m2.igual(1) ? '' : `${m1.igual(1) ? 'multiplica ' : ''}la segona per $${M.texNombre(m2)}$`].filter(Boolean);
+    g.afegeix(quines.length
+      ? `Mètode de reducció: perquè $${v}$ desaparegui en sumar, ${quines.join(' i ')}${quines.length === 1 ? ' (l\'altra equació es queda igual)' : ''}. `
+        + `Així els coeficients de $${v}$ queden oposats: $${M.texNombre(A[e])}$ i $${M.texNombre(B[e])}$.`
+      : `Mètode de reducció: els coeficients de $${v}$ ja són oposats ($${M.texNombre(A[e])}$ i $${M.texNombre(B[e])}$). Escriu les dues equacions una sota l'altra.`);
+    linies.push('\\hline ' + linia('', eq(unica)));          // la ratlla de la suma, just a sobre del resultat
+    pinta();
+    g.afegeix(`Suma les dues equacions: $${v}$ desapareix.`);
+  }
+  const e = 1 - q;
+  const sq = unica[2].quocient(unica[q]);
+  if (!unica[q].igual(1)) {
+    linies.push(linia('', `${vars[q]} = ${M.texNombre(sq)}`));
+    pinta();
+    g.afegeix(`Divideix per $${M.texNombre(unica[q])}$: $${vars[q]} = ${M.texNombre(sq)}$.`);
+  }
+  // L'altra incògnita: a una equació que la tingui (millor si el seu coeficient és 1 o −1), la trobada pel seu valor.
+  const candidates = [E1, E2].filter(E => E !== unica && !E[e].esZero());
+  const Ex = candidates.find(E => E[e].abs().igual(1)) || candidates[0];
+  const [ce, cq, c] = [Ex[e], Ex[q], Ex[2]];
+  const resta = c.resta(cq.producte(sq));
+  const se = resta.quocient(ce);
+  const quina = Ex === E1 ? 'primera' : 'segona';
+  if (!cq.esZero()) {
+    const numeric = primer => {
+      const a = cq.abs();
+      const t = a.igual(1) ? (primer && cq.signe() > 0 ? M.texNombre(sq) : M.texEntreParentesis(sq)) : `${M.texNombre(a)} \\cdot ${M.texEntreParentesis(sq)}`;
+      return primer ? (cq.signe() < 0 ? '-' : '') + t : (cq.signe() < 0 ? ` - ${t}` : ` + ${t}`);
+    };
+    const esquerre = e === 0 ? Mt.termeVar(ce, vars[e], true) + numeric(false) : numeric(true) + Mt.termeVar(ce, vars[e], false);
+    linies.push(linia('', `${esquerre} = ${M.texNombre(c)}`));
+    pinta();
+    g.afegeix(`Substitueix $${vars[q]} = ${M.texNombre(sq)}$ a la ${quina} equació.`);
+    linies.push(linia('', `${Mt.termeVar(ce, vars[e], true)} = ${M.texNombre(resta)}`));
+    pinta();
+    g.afegeix('Passa el nombre a l\'altre costat, canviat de signe.');
+  } else if (ce.igual(1)) {
+    linies.push(linia('', `${vars[e]} = ${M.texNombre(se)}`));
+    pinta();
+    g.afegeix(`La ${quina} equació ja dona $${vars[e]} = ${M.texNombre(se)}$.`);
+  } else {
+    linies.push(linia('', eq(Ex)));
+    pinta();
+    g.afegeix(`La ${quina} equació només té $${vars[e]}$.`);
+  }
+  if (!ce.igual(1)) {
+    linies.push(linia('', `${vars[e]} = ${M.texNombre(se)}`));
+    pinta();
+    g.afegeix(`Divideix per $${M.texNombre(ce)}$: $${vars[e]} = ${M.texNombre(se)}$.`);
+  }
+  return e === 0 ? [se, sq] : [sq, se];
 }
 
 
@@ -337,7 +443,8 @@ const fletxa = (x1, y1, x2, y2, classe = 'vector') => {
 /** Un text; «π_1» posa l'1 com a subíndex. */
 const sub = t => t.replace(/_([^_]+)$/, '<tspan class="sub" dy="4">$1</tspan>');
 const text = (x, y, t, classe = '') => `<text x="${x}" y="${y}"${classe ? ` class="${classe}"` : ''}>${sub(t)}</text>`;
-const pla = (punts, nom, x, y) => `<polygon class="pla" points="${punts.map(q => q.join(',')).join(' ')}"/>` + (nom ? text(x, y, nom) : '');
+/** Un pla (paral·lelogram). «classe»: 'pla' o 'pla2' (un segon pla, d'un altre color). */
+const pla = (punts, nom, x, y, classe = 'pla') => `<polygon class="${classe}" points="${punts.map(q => q.join(',')).join(' ')}"/>` + (nom ? text(x, y, nom) : '');
 const puntSvg = (x, y) => `<circle class="punt" cx="${x}" cy="${y}" r="3"/>`;
 /** L'esquema: 300 d'ample; [dalt, baix] és la franja vertical que ocupa el dibuix (sense marges buits). */
 const svg = (cos, [dalt, baix] = [0, 170]) => `<svg viewBox="0 ${dalt} 300 ${baix - dalt}" xmlns="http://www.w3.org/2000/svg" role="img">${cos}</svg>`;
@@ -356,10 +463,10 @@ const vectors = (x, y, ...noms) => noms.map((nom, i) => {
 }).join('');
 
 const ESQUEMES = Object.freeze({
-  /** Tres punts del pla: els vectors AB i AC hi són, i també AX per a qualsevol punt X del pla. */
+  /** Tres punts del pla: els vectors AB i AC hi són, i també AG per a qualsevol punt G del pla (mai X per a un punt). */
   'tres-punts': () => svg(pla([[20, 130], [200, 130], [280, 60], [100, 60]], 'π', 250, 125)
     + puntSvg(80, 110) + text(64, 126, 'A') + puntSvg(170, 115) + text(172, 132, 'B') + puntSvg(150, 75) + text(140, 70, 'C')
-    + fletxa(80, 110, 168, 115) + fletxa(80, 110, 148, 76) + puntSvg(215, 90) + text(220, 86, 'X') + fletxa(80, 110, 213, 90, 'discontinua'), [52, 140]),
+    + fletxa(80, 110, 168, 115) + fletxa(80, 110, 148, 76) + puntSvg(215, 90) + text(220, 86, 'G') + fletxa(80, 110, 213, 90, 'discontinua'), [52, 140]),
   /** Una recta perpendicular a un pla: el seu vector director és el vector normal del pla. */
   'perpendicular': () => svg(pla([[20, 130], [200, 130], [280, 70], [100, 70]], 'π', 252, 122)
     + `<line class="recta" x1="150" y1="165" x2="150" y2="10"/>` + text(158, 18, 'r') + puntSvg(150, 100) + text(130, 116, 'P')
@@ -395,9 +502,9 @@ const ESQUEMES = Object.freeze({
   'recta-continguda': () => svg(pla([[20, 135], [200, 135], [280, 75], [100, 75]], 'π', 250, 128)
     + `<line class="recta" x1="45" y1="122" x2="262" y2="88"/>` + text(266, 90, 'r') + puntSvg(95, 114) + text(84, 130, 'P')
     + fletxa(95, 114, 155, 104.6) + vectors(128, 128, 'u') + fletxa(200, 97.5, 200, 40) + vectors(207, 56, 'n'), [25, 140]),
-  /** Dues rectes que es tallen en un punt X. */
+  /** Dues rectes que es tallen en un punt R (mai X per a un punt: David). */
   'rectes-es-tallen': () => svg(`<line class="recta" x1="30" y1="130" x2="270" y2="50"/><line class="recta" x1="50" y1="30" x2="250" y2="150"/>`
-    + text(274, 52, 'r') + text(252, 162, 's') + puntSvg(150, 90) + text(146, 116, 'X')
+    + text(274, 52, 'r') + text(252, 162, 's') + puntSvg(150, 90) + text(146, 116, 'R')
     + fletxa(150, 90, 210, 70) + vectors(196, 62, 'u') + fletxa(150, 90, 201.4, 120.9) + vectors(212, 120, 'v'), [20, 165]),
   /** Dues rectes que es creuen: no es tallen i no són paral·leles (s passa per darrere de r). */
   'rectes-es-creuen': () => svg(`<line class="recta" x1="30" y1="120" x2="270" y2="60"/>`
@@ -413,9 +520,9 @@ const ESQUEMES = Object.freeze({
   /** La distància d'un punt a un pla: el segment perpendicular, del punt al seu peu H. */
   'distancia-punt-pla': () => svg(pla([[20, 135], [200, 135], [280, 75], [100, 75]], 'π', 250, 128)
     + `<line class="discontinua" x1="150" y1="30" x2="150" y2="105"/><path class="recta" d="M150 95h8v8"/>` + puntSvg(150, 30) + text(158, 34, 'P')
-    + puntSvg(150, 105) + text(156, 122, 'H') + text(136, 72, 'd'), [15, 140]),
+    + puntSvg(150, 105) + text(156, 122, 'Q') + text(136, 72, 'd'), [15, 140]),
   /** Els dos plans paral·lels a π a distància d: un a cada banda. */
-  'plans-a-distancia': () => svg(pla([[30, 50], [190, 50], [260, 20], [100, 20]], 'π′_1', 226, 46) + pla([[30, 105], [190, 105], [260, 75], [100, 75]], 'π', 230, 100)
+  'plans-a-distancia': () => svg(pla([[30, 50], [190, 50], [260, 20], [100, 20]], 'π′_1', 226, 46) + pla([[30, 105], [190, 105], [260, 75], [100, 75]], 'π', 230, 100, 'pla2')
     + pla([[30, 160], [190, 160], [260, 130], [100, 130]], 'π′_2', 226, 156)
     + `<line class="discontinua" x1="145" y1="35" x2="145" y2="90"/><line class="discontinua" x1="145" y1="90" x2="145" y2="145"/>`
     + text(151, 68, 'd') + text(151, 124, 'd'), [12, 168]),
@@ -430,16 +537,26 @@ const ESQUEMES = Object.freeze({
     + `<line class="discontinua" x1="190" y1="50" x2="190" y2="130"/><path class="recta" d="M190 120h8v10"/>`
     + puntSvg(80, 130) + text(70, 148, 'Q') + puntSvg(190, 50) + text(184, 42, 'P') + fletxa(80, 130, 150, 130) + vectors(110, 150, 'u')
     + fletxa(80, 130, 188, 51.5) + text(196, 98, 'd'), [30, 158]),
-  /** La projecció d'un punt sobre un pla (el peu H de la perpendicular) i el simètric P′. */
+  /** La projecció d'un punt sobre un pla: el peu Q de la perpendicular (David: Q, no H). Sense P′: no el demanen. */
   'projeccio-pla': () => svg(pla([[20, 115], [200, 115], [280, 65], [100, 65]], 'π', 252, 108)
+    + `<line class="recta" x1="150" y1="10" x2="150" y2="90"/><path class="recta" d="M150 80h8v8"/>`
+    + puntSvg(150, 25) + text(158, 29, 'P') + puntSvg(150, 90) + text(156, 106, 'Q')
+    + fletxa(150, 25, 150, 55) + vectors(124, 50, 'n'), [0, 120]),
+  /** El simètric d'un punt respecte d'un pla: Q és el punt mitjà de P i P′. */
+  'simetric-pla': () => svg(pla([[20, 115], [200, 115], [280, 65], [100, 65]], 'π', 252, 108)
     + `<line class="recta" x1="150" y1="10" x2="150" y2="90"/><line class="discontinua" x1="150" y1="90" x2="150" y2="170"/><path class="recta" d="M150 80h8v8"/>`
-    + puntSvg(150, 25) + text(158, 29, 'P') + puntSvg(150, 90) + text(156, 106, 'H') + puntSvg(150, 155) + text(158, 160, 'P′')
+    + puntSvg(150, 25) + text(158, 29, 'P') + puntSvg(150, 90) + text(156, 106, 'Q') + puntSvg(150, 155) + text(158, 160, 'P′')
     + fletxa(150, 25, 150, 55) + vectors(124, 50, 'n'), [0, 175]),
-  /** La projecció d'un punt sobre una recta (el punt H més proper) i el simètric P′. */
+  /** La projecció d'un punt sobre una recta: el punt Q de la recta més proper a P. Sense P′: no el demanen. */
   'projeccio-recta': () => svg(`<line class="recta" x1="25" y1="100" x2="275" y2="100"/>` + text(279, 104, 'r')
+    + `<line class="discontinua" x1="150" y1="25" x2="150" y2="100"/><path class="recta" d="M150 90h10v10"/>`
+    + puntSvg(150, 30) + text(158, 34, 'P') + puntSvg(150, 100) + text(156, 118, 'Q')
+    + fletxa(70, 100, 120, 100) + vectors(88, 90, 'u'), [15, 125]),
+  /** El simètric d'un punt respecte d'una recta: Q és el punt mitjà de P i P′. */
+  'simetric-recta': () => svg(`<line class="recta" x1="25" y1="100" x2="275" y2="100"/>` + text(279, 104, 'r')
     + `<line class="discontinua" x1="150" y1="25" x2="150" y2="175"/><path class="recta" d="M150 90h10v10"/>`
-    + puntSvg(150, 30) + text(158, 34, 'P') + puntSvg(150, 100) + text(156, 118, 'H') + puntSvg(150, 170) + text(158, 174, 'P′')
-    + puntSvg(70, 100) + text(64, 118, 'Q') + fletxa(70, 100, 120, 100) + vectors(88, 90, 'u'), [15, 180]),
+    + puntSvg(150, 30) + text(158, 34, 'P') + puntSvg(150, 100) + text(156, 118, 'Q') + puntSvg(150, 170) + text(158, 174, 'P′')
+    + fletxa(70, 100, 120, 100) + vectors(88, 90, 'u'), [15, 180]),
   /** L'àrea d'un triangle: la meitat del paral·lelogram de costats AB i AC. */
   'triangle': () => svg(`<polygon class="pla" points="50,140 210,120 120,40"/>`
     + `<line class="discontinua" x1="210" y1="120" x2="280" y2="20"/><line class="discontinua" x1="120" y1="40" x2="280" y2="20"/>`
@@ -461,7 +578,7 @@ const ESQUEMES = Object.freeze({
     + puntSvg(150, 115) + text(130, 132, 'P_0') + puntSvg(150, 71.4) + text(156, 66, 'Q_0') + `<path class="recta" d="M150 105h9v9"/>`, [12, 165]),
   /** Dos plans que es tallen en una recta: el vector director de la recta és perpendicular als dos vectors normals. */
   'dos-plans': () => svg(pla([[15, 150], [205, 150], [285, 95], [95, 95]], 'π_1', 252, 144)
-    + pla([[55, 168], [245, 168], [245, 48], [55, 48]], 'π_2', 62, 66) + `<line class="recta" x1="30" y1="122" x2="268" y2="122"/>` + text(272, 126, 'r')
+    + pla([[55, 168], [245, 168], [245, 48], [55, 48]], 'π_2', 62, 66, 'pla2') + `<line class="recta" x1="30" y1="122" x2="268" y2="122"/>` + text(272, 126, 'r')
     + puntSvg(150, 122) + fletxa(150, 122, 212, 122) + vectors(194, 140, 'u') + fletxa(150, 122, 150, 64) + vectors(157, 76, 'n_1')
     + fletxa(150, 122, 110, 150) + vectors(84, 164, 'n_2'), [30, 172]),
 });
@@ -474,7 +591,7 @@ arrel.Geometria = Object.freeze({
   VARS, punt, resta, suma, escala, escalar, vectorial, esZero, factorComu, vectorSimple,
   texPunt, texMenys, texEsquerre, texPla, texSubstitucio, texRecta, texGeneric,
   passosPlaDeterminant, passosPlaNormal, passosFormaGeneral,
-  UNITATS, texIJK, passosProducteVectorial, passosCramer2, texEscalar, passosPuntGenericAlPla, texProporcio, texSubstitucioLineal,
+  UNITATS, texIJK, passosProducteVectorial, passosReduccio2, texEscalar, passosPuntGenericAlPla, texProporcio, texSubstitucioLineal,
   arrelQuadrada, texArrel, texModul, modul2, pecesQuocientArrel,
   esquema, ESQUEMES,
 });

@@ -2,13 +2,13 @@ import subprocess, shutil, os, tempfile
 # Run from anywhere: python3 procediments/proves/mutacions/<this file>
 ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MUT=[
- ('geometria.js', "const n = [0, 1, 2].map(j => { const m = Mt.det2N(menor(j)); return j === 1 ? m.oposada() : m; });", "const n = [0, 1, 2].map(j => Mt.det2N(menor(j)));", 'oblida el signe − del segon menor'),
- ('geometria.js', "    const cs = [0, 1, 2].filter(c => c !== j);", "    const cs = [0, 1, 2].filter(c => c !== (j + 1) % 3);", 'menor equivocat'),
+ ('geometria.js', "c: pr.n < 3 ? pr.c : pr.c.oposada()}))", "c: pr.c}))", 'Sarrus: treu el segon claudàtor sense canviar signes'),
+ ('geometria.js', "const SARRUS_SIMBOLS = Object.freeze([[0, 1, 2], [1, 2, 0],", "const SARRUS_SIMBOLS = Object.freeze([[0, 1, 2], [1, 0, 2],", 'Sarrus: un triangle equivocat'),
  ('geometria.js', "  const D = escalar(n, P).oposada();", "  const D = escalar(n, P);", 'D amb el signe canviat'),
  ('pla.js', "pla = G.passosPlaNormal(g, {P: p.P, n: p.r.u, files: FILA,", "pla = G.passosPlaNormal(g, {P: p.P, n: p.r.P, files: FILA,", 'perpendicular amb un punt com a normal'),
  ('pla.js', "    const Mm = p.A.map((x, i) => x.suma(p.B[i]).quocient(2));", "    const Mm = p.A.map((x, i) => x.suma(p.B[i]));", 'punt mitjà sense dividir'),
  ('pla.js', "    const D = G.escalar(n, p.P).oposada();", "    const D = G.escalar(n, p.P);", 'paral·lel: D amb el signe canviat'),
- ('pla.js', "      comprova = [['A', p.A], ['B', p.B], ['C', p.C]];", "      comprova = [['A', p.B], ['B', p.B], ['C', p.C]];", 'comprovació amb un altre punt'),
+ ('geometria.js', "const coefs = [0, 1, 2].map(j => sense.filter(t => t.j === j)", "const coefs = [0, 1, 2].map(j => sense.filter(t => t.j === (j + 1) % 3)", 'Sarrus: agrupa amb el símbol equivocat'),
  ('pla.js', "      [P, v1, v2] = [p.r.P, p.r.u, p.pi.n];", "      [P, v1, v2] = [p.r.P, p.r.u, p.r.P];", 'conté-perpendicular sense la normal'),
  ('geometria.js', "  const fila1 = VARS.map((v, i) => texMenys(v, P[i]));", "  const fila1 = VARS.map((v, i) => texMenys(v, P[i].oposada()));", 'determinant amb x + a'),
 ]

@@ -3,14 +3,16 @@ import subprocess, shutil, os, tempfile
 ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MUT=[
  ('projeccions.js', "    const s = {P: p.P, u: p.pi.n};", "    const s = {P: p.P, u: p.P};", 'perpendicular amb el punt com a vector'),
- ('projeccions.js', "    H = s.P.map((x, i) => x.suma(s.u[i].producte(l0)));", "    H = s.P.map((x, i) => x.resta(s.u[i].producte(l0)));", 'H amb −λ'),
- ('projeccions.js', "    const PX = {P: resta(X.P, p.P), u: X.u};", "    const PX = {P: resta(p.P, X.P), u: X.u};", 'PX girat'),
- ('projeccions.js', "    H = X.P.map((x, i) => x.suma(X.u[i].producte(l0)));", "    H = p.P.map((x, i) => x.suma(X.u[i].producte(l0)));", 'H des de P'),
- ('projeccions.js', "    const S = H.map((h, i) => h.producte(2).resta(p.P[i]));", "    const S = H.map((h, i) => h.producte(2).suma(p.P[i]));", 'simètric 2H + P'),
- ('projeccions.js', "`2 \\\\cdot ${M.texEntreParentesis(h)} - ${M.texEntreParentesis(p.P[i])}`", "`2 \\\\cdot ${M.texEntreParentesis(p.P[i])} - ${M.texEntreParentesis(h)}`", 'components de 2P − H'),
- ('projeccions.js', "    if (p.id === 'punt-pla') g.classes[FILA.peu] = 'final';", "", 'resposta sense destacar'),
+ ('projeccions.js', "    Qp = s.P.map((x, i) => x.suma(s.u[i].producte(l0)));", "    Qp = s.P.map((x, i) => x.resta(s.u[i].producte(l0)));", 'Q amb −λ'),
+ ('projeccions.js', "    const PR = {P: resta(r.P, p.P), u: r.u};", "    const PR = {P: resta(p.P, r.P), u: r.u};", 'PR girat'),
+ ('projeccions.js', "    Qp = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));", "    Qp = p.P.map((x, i) => x.suma(r.u[i].producte(l0)));", 'Q des de P'),
+ ('projeccions.js', "    const S = Qp.map((q, i) => q.producte(2).resta(p.P[i]));", "    const S = Qp.map((q, i) => q.producte(2).suma(p.P[i]));", 'simètric 2Q + P'),
+ ('projeccions.js', "`2 \\\\cdot ${M.texEntreParentesis(q)} - ${M.texEntreParentesis(p.P[i])}`", "`2 \\\\cdot ${M.texEntreParentesis(p.P[i])} - ${M.texEntreParentesis(q)}`", 'components de 2P − Q'),
+ ('projeccions.js', "    if (!simetric) g.classes[FILA.peu] = 'final';\n    g.afegeix(`$\\\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de $s$", "    g.afegeix(`$\\\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de $s$", 'resposta sense destacar'),
  ('geometria.js', "  const a = escalar(pla.n, r.u), c = escalar(pla.n, r.P).suma(pla.D || fr(0)).oposada();", "  const a = escalar(pla.n, r.u), c = escalar(pla.n, r.P).oposada();", 'oblida D a l\'equació'),
+ ('projeccions.js', "G.esquema(`${simetric ? 'simetric' : 'projeccio'}-", "G.esquema(`${'simetric'}-", 'P′ a l\'esquema encara que no el demanin'),
 ]
+
 det=0
 for f,a,b,nom in MUT:
     d=os.path.join(tempfile.gettempdir(), 'pau-mutacio-mproj'); shutil.rmtree(d, ignore_errors=True); shutil.copytree(ORIG, d, ignore=shutil.ignore_patterns('mutacions', 'navegador', 'eines'))

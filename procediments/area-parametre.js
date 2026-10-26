@@ -67,7 +67,7 @@ function passos(valors) {
     g.afegeix('Iguala-ho a $27$ i aïlla $k$: una equació de primer grau.');
     g.files[FILA.resposta] = K('Rk', 'k = 2');
     g.classes[FILA.resposta] = 'final';
-    g.afegeix('Resposta: $k = 2$. (Comprovació: $\\int_0^3 (2x^2 + 2x)\\,dx = 18 + 9 = 27$.)');
+    g.afegeix('Resposta: $k = 2$.');
   } else {
     g.files[FILA.dades] = K('Dd', 'f(x) = kx - x^2,\\quad k > 0,\\quad A = 36');
     g.afegeix('Per calcular l\'àrea entre la corba i l\'eix, primer cal saber on el talla. Tot dependrà de $k$.');

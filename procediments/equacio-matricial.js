@@ -162,7 +162,7 @@ function passos(valors) {
     + (caben ? '.' : `: ${sumes.flatMap((f, i) => f.map((t, j) => `$x_{${i + 1}${j + 1}} = ${t} = ${M.texNombre(dd.X[i][j])}$`)).join(', ')}.`));
   g.files[FILA.resposta] = K('Sn', 'X') + R('Sq', '=') + K('Sv', texM(dd.X));
   g.classes[FILA.resposta] = 'final';
-  g.afegeix(`Resposta: $X = ${texM(dd.X)}$. (Pots comprovar-ho: substitueix-la a l'equació de l'enunciat.)`, {cursor: {arrossega: 'Ps', fins: 'Sv'}});
+  g.afegeix(`Resposta: $X = ${texM(dd.X)}$.`, {cursor: {arrossega: 'Ps', fins: 'Sv'}});
   return g.passos;
 }
 

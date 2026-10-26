@@ -15,8 +15,8 @@
    perp-recta, paralel, mediador)
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
    Claus: Dd les dades; e<i> els elements (punt i vectors); Gd, Gq, Gz el
-   determinant; Hm<j>, Hf, Hq, Hz el desenvolupament; Pe, Pq, Pz el pla;
-   Ce<i> la comprovació.
+   determinant; Hm<j>, Hf, Hq, Hz el desenvolupament; Pe, Pq, Pz el pla.
+   Sense comprovacions (el David no les vol).
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -65,7 +65,7 @@ const ENUNCIATS = {
 
 /** La idea de cada esquema (el text del pas que el mostra). */
 const IDEES = {
-  'tres-punts': '$A$, $B$ i $C$ són del pla; per tant, els vectors $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ hi són, i també $\\overrightarrow{AX}$ per a qualsevol punt $X$ del pla.',
+  'tres-punts': '$A$, $B$ i $C$ són del pla; per tant, els vectors $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ hi són, i també $\\overrightarrow{AG}$ per a qualsevol punt $G$ del pla.',
   'punt-recta': 'La recta és dins del pla: el seu vector director $\\vec{u}$ hi és. I el vector que va d\'un punt $Q$ de la recta fins a $P$, també.',
   'dues-rectes': 'Les dues rectes són dins del pla: els seus vectors directors, $\\vec{u}$ i $\\vec{v}$, són dos vectors directors del pla.',
   'conte-perpendicular': 'El pla $\\sigma$ que busquem conté la recta i és perpendicular a $\\pi$: el vector normal de $\\pi$, $\\vec{n}$, és paral·lel a $\\sigma$. Ja tenim dos vectors directors: $\\vec{u}$ i $\\vec{n}$.',
@@ -96,7 +96,7 @@ function passos(valors) {
   g.files[FILA.esquema] = G.esquema(p.esquema);
   g.afegeix(IDEES[p.esquema]);
   const elements = linies => { g.files[FILA.elements] = llista(linies.map((l, i) => K(`e${i}`, l))); };
-  let pla, comprova = [];
+  let pla;
 
   if (['tres', 'punt-recta', 'rectes', 'conte-perp'].includes(p.id)) {
     /* Un punt i dos vectors directors: el determinant. */
@@ -105,23 +105,19 @@ function passos(valors) {
       [P, v1, v2] = [p.A, resta(p.B, p.A), resta(p.C, p.A)];
       elements([`P = A = ${texPunt(P)}`, texDif('AB', p.A, p.B, 'A', 'B'), texDif('AC', p.A, p.C, 'A', 'C')]);
       g.afegeix('Un punt, $A$, i dos vectors del pla: $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ (van d\'un punt del pla a un altre). Com que $A$, $B$ i $C$ no estan alineats, no són proporcionals.');
-      comprova = [['A', p.A], ['B', p.B], ['C', p.C]];
     } else if (p.id === 'punt-recta') {
       [P, v1, v2] = [p.r.P, p.r.u, resta(p.P, p.r.P)];
       elements([`Q = ${texPunt(P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, texDif('QP', p.r.P, p.P, 'Q', 'P')]);
       g.afegeix('Un punt de la recta, $Q$, que també és del pla; el vector director de la recta, $\\vec{u}$; i el vector que va de $Q$ a $P$.');
-      comprova = [['P', p.P], ['Q', p.r.P], ['Q + \\vec{u}', p.r.P.map((x, i) => x.suma(p.r.u[i]))]];
     } else if (p.id === 'rectes') {
       [P, v1, v2] = [p.r.P, p.r.u, p.s.u];
       elements([`P = ${texPunt(P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, `\\vec{v} = ${texPunt(v2)}`]);
       g.afegeix('Un punt d\'una de les rectes (és del pla) i els dos vectors directors, $\\vec{u}$ i $\\vec{v}$: les dues rectes són al pla.');
-      comprova = [['P', p.r.P], ['Q', p.s.P]];
     } else {
       [P, v1, v2] = [p.r.P, p.r.u, p.pi.n];
       elements([`P = ${texPunt(P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, `\\vec{n}_{\\pi} = ${texPunt(v2)}`]);
       g.afegeix('Un punt de la recta i el seu vector director, $\\vec{u}$ (la recta és al pla). El segon vector director: el vector normal de $\\pi$. '
         + 'Si el pla que busquem és perpendicular a $\\pi$, la recta perpendicular a $\\pi$ (la de direcció $\\vec{n}_{\\pi}$) hi és paral·lela.');
-      comprova = [['P', p.r.P], ['P + \\vec{u}', p.r.P.map((x, i) => x.suma(p.r.u[i]))]];
     }
     pla = G.passosPlaDeterminant(g, {P, v1, v2, files: FILA});
   } else if (p.id === 'perp-recta') {
@@ -129,7 +125,6 @@ function passos(valors) {
     g.afegeix('Si la recta és perpendicular al pla, el seu vector director és perpendicular al pla: és un vector normal. (Mira l\'esquema.)');
     pla = G.passosPlaNormal(g, {P: p.P, n: p.r.u, files: FILA, text: 'Un pla de vector normal $\\vec{n} = (A,\\ B,\\ C)$ que passa per $P = (a,\\ b,\\ c)$: '
       + '$A(x - a) + B(y - b) + C(z - c) = 0$.'});
-    comprova = [['P', p.P]];
   } else if (p.id === 'paralel') {
     const n = p.pi.n;
     elements([`P = ${texPunt(p.P)}`, `\\vec{n} = \\vec{n}_{\\pi} = ${texPunt(n)}`]);
@@ -143,23 +138,19 @@ function passos(valors) {
     g.files[FILA.pla] = K('Pe', G.texEsquerre(n, D)) + R('Pq', '=') + K('Pz', '0');
     g.afegeix('Posa el valor de $D$ a l\'equació.');
     pla = {n, D};
-    comprova = [['P', p.P]];
   } else {
     const Mm = p.A.map((x, i) => x.suma(p.B[i]).quocient(2));
     const AB = resta(p.B, p.A);
     elements([`M = \\left(\\tfrac{${M.texNombre(p.A[0])} + ${M.texNombre(p.B[0])}}{2},\\ \\tfrac{${M.texNombre(p.A[1])} + ${M.texNombre(p.B[1])}}{2},\\ \\tfrac{${M.texNombre(p.A[2])} + ${M.texNombre(p.B[2])}}{2}\\right) = ${texPunt(Mm)}`,
       `\\vec{n} = ${texDif('AB', p.A, p.B, 'A', 'B')}`]);
     g.afegeix('El pla mediador és perpendicular al segment $AB$ pel seu punt mitjà $M$: un vector normal és $\\overrightarrow{AB}$ (mira l\'esquema). '
-      + '(També es pot fer amb un punt genèric $X$: els que compleixen $d(X, A) = d(X, B)$.)');
+      + '(També es pot fer amb un punt qualsevol $G$: els que compleixen $d(G, A) = d(G, B)$.)');
     pla = G.passosPlaNormal(g, {P: Mm, n: AB, files: FILA, text: 'Pla de vector normal $\\overrightarrow{AB}$ que passa per $M$: $A(x - a) + B(y - b) + C(z - c) = 0$.'});
-    comprova = [['M', Mm]];
   }
 
-  /* La comprovació: els punts que ha de contenir el compleixen. */
-  const linies = comprova.map(([nom, Q], i) => K(`Ce${i}`, `${nom}:\\quad ${G.texSubstitucio(pla.n, pla.D, Q)} = 0`));
-  g.files[FILA.comprovacio] = llista(linies);
+  // Sense comprovacions opcionals (David: quan es troba la solució, s'ha acabat).
   g.classes[FILA.pla] = 'final';
-  g.afegeix(`Resposta: $${G.texPla(pla)}$. Comprovació: ${comprova.length > 1 ? 'els punts que ha de contenir compleixen' : 'el punt compleix'} l'equació.`);
+  g.afegeix(`Resposta: $${G.texPla(pla)}$.`);
   return g.passos;
 }
 

@@ -10,11 +10,11 @@
      1. F(x) = ∫ f(x) dx: la regla ∫ xⁿ dx = xⁿ⁺¹/(n + 1) terme a terme,
         i la primitiva simplificada, + C (totes les primitives);
      2. la condició: F(x₀) = y₀, amb F(x₀) calculada pas a pas; en surt C;
-     3. la resposta, i la comprovació: F(x₀) = y₀.
+     3. la resposta (sense comprovació: el David no en vol).
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
    Claus: Ff f(x) (prefix p); Gl… F(x) =, i la integral (prefix i) i la
    primitiva (prefix j); Hc… la condició (prefix q, i k per a la C); Cc el valor de C; Rp la
-   resposta (prefix r); Tl… la comprovació (prefix t).
+   resposta (prefix r).
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -101,21 +101,12 @@ function passos(v) {
   g.afegeix(Fx0.esZero() ? `$F(${X})$ sense la $C$ val $0$: $C = ${texNombre(y0)}$.`
     : `Aïlla $C$: el $${texNombre(Fx0)}$ passa a l'altre costat canviat de signe. $C = ${texNombre(C0)}$.`);
 
-  /* La resposta i la comprovació. */
+  /* La resposta. */
   const resposta = C0.esZero() ? Fx : M.termes(M.sumaPolinomis(M.coeficientsDe(Fx), [C0]));
   g.files[FILA.resposta] = F.membreEsquerre('Rl', 'F', 'x') + F.polinomi('r', resposta);
   g.classes[FILA.resposta] = 'final';
   g.afegeix(`Posa $C = ${texNombre(C0)}$ a $F(x)$. Resposta: $F(x) = ${texPolinomi(resposta)}$.`);
-  const T = F.membreEsquerre('T', 'F', X);
-  g.files[FILA.comprovacio] = T + F.substituit('t', resposta, x0);
-  g.afegeix(`Comprovació: calcula $F(${X})$ amb la primitiva que has trobat.`);
-  g.files[FILA.comprovacio] = T + F.avaluat('t', resposta, x0);
-  g.afegeix('Calcula cada terme.', {fusiona: F.fusionsAvaluat('t', resposta)});
-  if (resposta.length > 1) {
-    g.files[FILA.comprovacio] = T + F.resultat('t', y0);
-    g.afegeix(`$F(${X}) = ${texNombre(y0)}$, com havia de ser.`, {fusiona: F.fusionsResultat('t', resposta, x0)});
-  }
-  return g.passos;
+  return g.passos;                      // sense comprovacions opcionals (David)
 }
 
 arrel.Primitiva = Object.freeze({

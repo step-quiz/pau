@@ -8,11 +8,11 @@ MUT=[
  ('recta-pla.js', "    l0 = c.quocient(a);", "    l0 = c.quocient(a).oposada();", 'λ amb el signe canviat'),
  ('recta-pla.js', "    Q = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));", "    Q = r.P.map((x, i) => x.suma(r.u[i]).producte(l0));", 'Q = (P + u)·λ'),
  ('recta-pla.js', "  } else if (!c.esZero()) {", "  } else if (c.esZero()) {", 'paral·lela i continguda girades'),
- ('recta-pla.js', "  const punt = cas === 'secant' ? ['Q', Q] : ['P', r.P];", "  const punt = cas === 'secant' ? ['Q', r.P] : ['P', r.P];", 'comprovació de Q amb el punt P'),
- ('geometria.js', "`${M.texEntreParentesis(x)} \\\\cdot ${M.texEntreParentesis(v[i])}`", "`${M.texEntreParentesis(x)} \\\\cdot ${M.texEntreParentesis(v[(i + 1) % 3])}`", 'producte escalar amb les components desaparellades'),
+ ('recta-pla.js', "davantSubstitucio: 'P \\\\in \\\\pi:\\\\quad '", "davantSubstitucio: 'P \\\\in r:\\\\quad '", 'diu P ∈ r davant de la substitució al pla'),
+ ('recta-pla.js', "llista([K('Lv', `\\\\lambda = ${M.texNombre(l0)}`)", "llista([K('Lv', `\\\\lambda = ${M.texNombre(l0.oposada())}`)", 'λ escrit amb el signe canviat'),
  ('recta-pla.js', "{secant: 'recta-secant', paralela: 'recta-paralela',", "{secant: 'recta-paralela', paralela: 'recta-paralela',", 'esquema d\'un altre cas'),
  ('geometria.js', "Mt.texLineal([a, u[i]], l)", "Mt.texLineal([a, u[(i + 1) % 3]], l)", 'punt genèric amb el vector desordenat'),
- ('recta-pla.js', "${M.texNombre(a)}${a.esZero() ? '' : ' \\\\neq 0'}`);", "${M.texNombre(a)} \\\\neq 0`);", 'u · n ≠ 0 sempre'),
+ ('recta-pla.js', "K('Lr', '\\\\text{La recta } r \\\\text{ talla el pla } \\\\pi \\\\text{ en el punt } Q')", "K('Lr', '\\\\text{La recta } r \\\\text{ és paral·lela al pla } \\\\pi')", 'secant escrita com a paral·lela'),
 ]
 det=0
 for f,a,b,nom in MUT:

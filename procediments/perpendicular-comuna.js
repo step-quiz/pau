@@ -5,7 +5,7 @@
    r: P + λu i s: Q + μv, no paral·leles. Amb els punts genèrics P_λ i
    Q_μ: el vector P_λQ_μ ha de ser perpendicular a u i a v,
       P_λQ_μ · u = 0,   P_λQ_μ · v = 0,
-   un sistema 2×2 en λ i μ (Cramer). Els peus P₀ ∈ r i Q₀ ∈ s; la
+   un sistema 2×2 en λ i μ (mètode de reducció, mai Cramer). Els peus P₀ ∈ r i Q₀ ∈ s; la
    perpendicular comuna, P₀ + t·P₀Q₀; la distància, |P₀Q₀|. Si les
    rectes es tallen, P₀ = Q₀: la distància és 0, i la perpendicular
    comuna passa per aquest punt amb la direcció de u × v.
@@ -13,7 +13,7 @@
    (cada recta: un punt i el vector director).
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
    Claus: Dr, Ds les dades; Ga, Gb els punts genèrics; Gv el vector;
-   Ca, Cb les condicions; E1, E2 el sistema; Xl…, Xm… Cramer; Pa, Pb
+   Ca, Cb les condicions; E1, E2 el sistema; X<n> la reducció; Pa, Pb
    els peus; Mn… la distància; V… el producte vectorial; Rp la recta.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
@@ -28,7 +28,7 @@ const {texPunt, resta, escalar} = G;
 const L = '\\lambda', MU = '\\mu';
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({dades: 0, esquema: 1, generics: 2, vector: 3, condicions: 4, cramer: 5, peus: 6, distancia: 7, producte: 8, valor: 9, perpendicular: 10});
+const FILA = Object.freeze({dades: 0, esquema: 1, generics: 2, vector: 3, condicions: 4, reduccio: 5, peus: 6, distancia: 7, producte: 8, valor: 9, perpendicular: 10});
 
 const EXEMPLES = Object.freeze([
   {r: '3,0,0;1,-1,0', s: '1,3,2;1,0,-1'},     // es creuen: λ = -2, μ = 1, d = √3
@@ -113,7 +113,7 @@ function passos(v) {
   const S = [r.u, s.u].map(w => [escalar(w, e.map(x => x[1])), escalar(w, e.map(x => x[2])), escalar(w, e.map(x => x[0])).oposada()]);
   g.files[FILA.condicions] = `\\left\\{\\begin{array}{l} ${S.map((f, i) => K(`E${i + 1}`, Mt.texEquacio(f.slice(0, 2), f[2], [L, MU]))).join(' \\\\ ')} \\end{array}\\right.`;
   g.afegeix('Treu els parèntesis i agrupa: un sistema de 2 equacions amb 2 incògnites, $\\lambda$ i $\\mu$.');
-  const [l0, m0] = G.passosCramer2(g, {S, vars: [L, MU], claus: ['l', 'm'], fila: FILA.cramer});
+  const [l0, m0] = G.passosReduccio2(g, {S, vars: [L, MU], fila: FILA.reduccio});
   const P0 = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));
   const Q0 = s.P.map((x, i) => x.suma(s.u[i].producte(m0)));
   g.files[FILA.peus] = llista([K('Pa', `P_0 = P_{${M.texNombre(l0)}} = ${texPunt(P0)}`), K('Pb', `Q_0 = Q_{${M.texNombre(m0)}} = ${texPunt(Q0)}`)]);

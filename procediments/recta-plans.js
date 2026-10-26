@@ -8,15 +8,15 @@
        desenvolupat per la primera fila (u és perpendicular a tots dos);
      · un punt: una incògnita val 0 (la que té component de n₁ × n₂ no
        nul·la: el sistema 2×2 que queda té aquest determinant, llevat del
-       signe) i Cramer;
-     · la comprovació del punt i les equacions de la recta.
+       signe) i el sistema 2×2 pel mètode de reducció (mai Cramer);
+     · el punt i les equacions de la recta (sense comprovacions).
    Adreça: recta-plans.html?S=1,1,-1,1;2,-1,1,5 (una equació per fila:
    «1,1,-1,1» és x + y − z = 1).
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
    Claus: Q<i> les equacions; N<i> els normals; Vl, Vq, Vd, Vm<j> el
    determinant; VL, VQ, Vc, Vr, Vv el resultat; Ul, Uq, Uv el vector
-   director; Fz i S<i> el sistema reduït; X<v>… Cramer; Pp el punt i
-   Ce<i> la comprovació; Rv, Rp les equacions de la recta.
+   director; Fz i S<i> el sistema reduït; X<n> la reducció; Pp el punt;
+   Rv, Rp les equacions de la recta.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -29,7 +29,7 @@ const {clau: K, rel: R} = F;
 const {texPunt, VARS} = G;
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({dades: 0, esquema: 1, normals: 2, producte: 3, valor: 4, punt: 5, cramer: 6, comprovacio: 7, recta: 8});
+const FILA = Object.freeze({dades: 0, esquema: 1, normals: 2, producte: 3, valor: 4, punt: 5, reduccio: 6, comprovacio: 7, recta: 8});
 
 const EXEMPLES = Object.freeze([
   '1,1,-1,1;2,-1,1,5',      // u = (0, -3, -3) ∥ (0, 1, 1); z = 0
@@ -94,7 +94,11 @@ function passos(v) {
   g.files[FILA.esquema] = G.esquema('dos-plans');
   g.afegeix('La recta és dins dels dos plans. Per això, el seu vector director $\\vec{u}$ és perpendicular als dos vectors normals, $\\vec{n}_1$ i $\\vec{n}_2$. '
     + 'I el producte vectorial $\\vec{n}_1 \\times \\vec{n}_2$ és, precisament, un vector perpendicular a tots dos.');
-  g.files[FILA.normals] = K('N1', `\\vec{n}_1 = ${texPunt(n1)}`) + ',\\qquad ' + K('N2', `\\vec{n}_2 = ${texPunt(n2)}`);
+  // Primer, els dos plans per separat (David); després, el vector normal de cadascun.
+  const plans = S.map((e, i) => K(`P${i + 1}`, `\\pi_${i + 1}:\\ ${Mt.texEquacio(e.slice(0, 3), e[3])}`));
+  g.files[FILA.normals] = llista(plans);
+  g.afegeix('Els dos plans que formen la recta, cadascun amb la seva equació.');
+  g.files[FILA.normals] = llista(plans.map((p, i) => `${p}\\ \\Rightarrow\\ ${K(`N${i + 1}`, `\\vec{n}_${i + 1} = ${texPunt([n1, n2][i])}`)}`));
   g.afegeix('El vector normal de cada pla: els coeficients de $x$, $y$ i $z$ de la seva equació. No són proporcionals: els plans no són paral·lels, i es tallen en una recta.');
 
   /* El vector director: el producte vectorial dels normals. */
@@ -109,25 +113,21 @@ function passos(v) {
   g.afegeix(k === 1 ? 'Aquest és un vector director de la recta: $\\vec{u} = ' + texPunt(u) + '$.'
     : `Qualsevol vector proporcional (no nul) també és director. Divideix per $${k}$ i queda un vector més senzill: $\\vec{u} = ${texPunt(u)}$.`);
 
-  /* Un punt: una incògnita val 0 i el sistema 2×2 que queda, per Cramer. */
+  /* Un punt: una incògnita val 0 i el sistema 2×2 que queda, pel mètode de reducció. */
   const f = [2, 1, 0].find(j => !w[j].esZero());
   const altres = [0, 1, 2].filter(j => j !== f);
   const vars = altres.map(j => VARS[j]);
   const S2 = S.map(e => [e[altres[0]], e[altres[1]], e[3]]);
   const texS2 = S2.map((e, i) => K(`S${i + 1}`, Mt.texEquacio(e.slice(0, 2), e[2], vars)));
   g.files[FILA.punt] = K('Fz', `${VARS[f]} = 0`) + ':\\ ' + `\\left\\{\\begin{array}{l} ${texS2.join(' \\\\ ')} \\end{array}\\right.`;
-  const D2 = Mt.det2N(S2.map(e => e.slice(0, 2)));
-  const signe = f === 1 ? 'l\'oposada de la component' : 'la component';
-  g.afegeix(`Falta un punt: una solució qualsevol de les dues equacions. Dona un valor a una incògnita, per exemple $${VARS[f]} = 0$, i queda un sistema 2×2. `
-    + `El seu determinant, $${Mt.texDet2N(S2.map(e => e.slice(0, 2)))} = ${M.texNombre(D2)}$, és ${signe} $${VARS[f]}$ de $\\vec{n}_1 \\times \\vec{n}_2$: no és $0$, i té solució única.`
+  g.afegeix(`Falta un punt: una solució qualsevol de les dues equacions. Dona un valor a una incògnita, per exemple $${VARS[f]} = 0$, i queda un sistema 2×2 amb solució única.`
     + (f !== 2 ? ` (Amb $z = 0$ no es podria: la component $z$ de $\\vec{n}_1 \\times \\vec{n}_2$ és $0$, i el sistema no tindria solució única.)` : ''));
-  const sol = G.passosCramer2(g, {S: S2, vars, fila: FILA.cramer});
+  const sol = G.passosReduccio2(g, {S: S2, vars, fila: FILA.reduccio});
   const P = [0, 1, 2].map(j => (j === f ? M.Fraccio.de(0) : sol[altres.indexOf(j)]));
 
-  /* La comprovació: P compleix les dues equacions. */
-  const comprova = S.map((e, i) => K(`Ce${i + 1}`, `\\pi_${i + 1}:\\quad ${G.texSubstitucio(normal(e), null, P)} = ${M.texNombre(e[3])}`));
-  g.files[FILA.comprovacio] = llista([K('Pp', `P = ${texPunt(P)}`)].concat(comprova));
-  g.afegeix(`El punt: $P = ${texPunt(P)}$ (amb $${VARS[f]} = 0$). Comprova que és de la recta: compleix les dues equacions.`);
+  /* El punt (sense comprovacions opcionals). */
+  g.files[FILA.comprovacio] = K('Pp', `P = ${texPunt(P)}`);
+  g.afegeix(`El punt: $P = ${texPunt(P)}$ (amb $${VARS[f]} = 0$).`);
 
   /* Les equacions de la recta. */
   const parametriques = VARS.map((x, j) => `${x} = ${Mt.texLineal([P[j], u[j]])}`);

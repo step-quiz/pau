@@ -2,19 +2,19 @@ import subprocess, shutil, os, tempfile
 # Run from anywhere: python3 procediments/proves/mutacions/<this file>
 ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MUT=[
- ('geometria.js', "(j === 0 ? ' = ' : j === 1 ? ' - ' : ' + ') + K(`${P}m${j}`", "(j === 0 ? ' = ' : ' + ') + K(`${P}m${j}`", 'desenvolupament sense el signe −'),
- ('geometria.js', "  const menor = j => { const cs = [0, 1, 2].filter(c => c !== j); return [[u[", "  const menor = j => { const cs = [0, 1, 2].filter(c => c !== 2 - j); return [[u[", 'menors del producte equivocats'),
+ ('geometria.js', "c: pr.n < 3 ? pr.c : pr.c.oposada()}))", "c: pr.c}))", 'Sarrus: treu el segon claudàtor sense canviar signes'),
+ ('geometria.js', "const SARRUS_SIMBOLS = Object.freeze([[0, 1, 2], [1, 2, 0],", "const SARRUS_SIMBOLS = Object.freeze([[0, 1, 2], [1, 0, 2],", 'Sarrus: un triangle equivocat'),
  ('geometria.js', "const vectorial = (u, v) => [u[1].producte(v[2]).resta(u[2].producte(v[1])),", "const vectorial = (u, v) => [u[2].producte(v[1]).resta(u[1].producte(v[2])),", 'producte vectorial amb la x canviada de signe'),
  ('recta-plans.js', "  const u = w.map(x => x.quocient(k));", "  const u = w.map((x, j) => (j === 0 ? x : x.quocient(k)));", 'simplifica només algunes components'),
  ('recta-plans.js', "  const f = [2, 1, 0].find(j => !w[j].esZero());", "  const f = 2;", 'sempre z = 0'),
  ('recta-plans.js', "  const S2 = S.map(e => [e[altres[0]], e[altres[1]], e[3]]);", "  const S2 = S.map(e => [e[altres[1]], e[altres[0]], e[3]]);", 'sistema reduït amb les columnes girades'),
- ('geometria.js', "    const B = A.map((f, i) => f.map((x, j) => (j === k ? S[i][2] : x)));", "    const B = A.map((f, i) => f.map((x, j) => (j !== k ? S[i][2] : x)));", 'Cramer: canvia l\'altra columna'),
- ('geometria.js', "    const sol = N.quocient(D);", "    const sol = D.quocient(N);", 'Cramer: quocient girat'),
+ ('geometria.js', "      let m1 = c.oposada().quocient(d), m2 = a.quocient(d);", "      let m1 = c.quocient(d), m2 = a.quocient(d);", 'reducció: els coeficients no queden oposats'),
+ ('geometria.js', "  const resta = c.resta(cq.producte(sq));", "  const resta = c.suma(cq.producte(sq));", 'reducció: passa el nombre sense canviar el signe'),
  ('recta-plans.js', "sol[altres.indexOf(j)]));", "sol[1 - altres.indexOf(j)]));", 'punt amb les coordenades girades'),
- ('recta-plans.js', "`\\\\pi_${i + 1}:\\\\quad ${G.texSubstitucio(normal(e), null, P)}", "`\\\\pi_${i + 1}:\\\\quad ${G.texSubstitucio(normal(S[0]), null, P)}", 'comprovació sempre amb el primer pla'),
+ ('recta-plans.js', "${Mt.texEquacio(e.slice(0, 3), e[3])}`));", "${Mt.texEquacio(S[0].slice(0, 3), S[0][3])}`));", 'π₂ escrit amb l\'equació de π₁'),
  ('recta-plans.js', "`${x} = ${Mt.texLineal([P[j], u[j]])}`", "`${x} = ${Mt.texLineal([u[j], P[j]])}`", 'paramètriques amb punt i vector girats'),
- ('recta-plans.js', "  const signe = f === 1 ? 'l\\'oposada de la component' : 'la component';", "  const signe = 'la component';", 'text: el determinant sempre és la component'),
- ('recta-plans.js', "K('N2', `\\\\vec{n}_2 = ${texPunt(n2)}`)", "K('N2', `\\\\vec{n}_2 = ${texPunt(n1)}`)", 'n₂ copiat de n₁'),
+ ('recta-plans.js', "K('Fz', `${VARS[f]} = 0`)", "K('Fz', `${VARS[2]} = 0`)", 'escriu z = 0 encara que se\'n fixi una altra'),
+ ('recta-plans.js', "texPunt([n1, n2][i])", "texPunt([n1, n1][i])", 'n₂ copiat de n₁'),
 ]
 det=0
 for f,a,b,nom in MUT:

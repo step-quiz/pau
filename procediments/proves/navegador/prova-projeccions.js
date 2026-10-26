@@ -76,7 +76,16 @@ const estat = p => p.evaluate(() => {
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(1));
     const fig = await p.$eval('.fila.figura svg', e => ({w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height, t: e.textContent}));
-    ok(fig.w > 150 && fig.w <= 420 && fig.h > 50 && /π/.test(fig.t) && /H/.test(fig.t) && /P′/.test(fig.t), 'sketch drawn: ' + JSON.stringify(fig));
+    ok(fig.w > 150 && fig.w <= 420 && fig.h > 50 && /π/.test(fig.t) && /Q/.test(fig.t) && !/H/.test(fig.t) && /P′/.test(fig.t), 'sketch drawn: ' + JSON.stringify(fig));
+    // «punt-pla» only asks for the projection: its sketch has Q and no P′ (David).
+    await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
+    await p.waitForTimeout(200);
+    await p.evaluate(() => procediment.salta(1));
+    const fig0 = await p.$eval('.fila.figura svg', e => e.textContent);
+    ok(/Q/.test(fig0) && !/P′/.test(fig0), 'projection sketch without P′: ' + fig0);
+    await p.evaluate(() => document.querySelectorAll('.exemple')[1].click());
+    await p.waitForTimeout(200);
+    await p.evaluate(() => procediment.salta(1));
     await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'proj-esquema.png')});
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();

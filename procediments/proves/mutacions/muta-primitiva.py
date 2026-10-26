@@ -9,7 +9,7 @@ MUT=[
  ('primitiva.js', "M.sumaPolinomis(M.coeficientsDe(Fx), [C0])", "M.sumaPolinomis(M.coeficientsDe(Fx), [C0.oposada()])", 'resposta amb −C'),
  ('primitiva.js', "F.op('Hm', Fx0.signe() < 0 ? '+' : '-')", "F.op('Hm', Fx0.signe() < 0 ? '-' : '+')", 'aïllar C sense canviar el signe'),
  ('formules.js', "(esU(a) ? '' : clau(P + 'c0', texNombre(a))) + clau(P + 'v0', 'x');", "(esU(a) ? '' : clau(P + 'c0', texNombre(a))) + clau(P + 'v0', '');", 'la constant no dona cx'),
- ('primitiva.js', "g.files[FILA.primitiva] = Gl + F.integralRegla('i', f) + F.mesC('i');", "g.files[FILA.primitiva] = Gl + F.integralRegla('i', f);", 'oblida la C'),
+ ('formules.js', "  const ambC = C ? mesC('i') : '';", "  const ambC = '';", 'oblida la C'),
 ]
 det=0
 for f,a,b,nom in MUT:

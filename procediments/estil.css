@@ -74,6 +74,8 @@ button{font:inherit; color:inherit}
 }
 .enunciat{margin:0; max-width:68ch}
 .enunciat .katex{font-size:1.08em}
+/* Una fórmula dins d'un text mai es parteix en dues línies (David: «això no ha de passar mai»): salta sencera a la línia següent */
+.enunciat .katex, .fila.text .katex, .text-pas .katex, .avis .katex{white-space:nowrap}
 .avis{
   margin:0; padding:10px 14px; border-radius:8px; font-size:.9rem;
   background:#fff7ea; border:1px solid #f1d3a8; color:#7a4510;
@@ -110,6 +112,7 @@ button{font:inherit; color:inherit}
 .fila .katex{font-size:1em}
 .fila[hidden]{display:none}                                                    /* una fila que cap pas del guió fa servir */
 .fila.final{background:var(--cat-fons); box-shadow:inset 0 0 0 1.5px var(--cat); margin-block:.3em}   /* una mica separada de les files del costat */
+.fila.separat{margin-top:.9em}                                                  /* p. ex. la taula final, separada dels càlculs */
 .fila.destacat{background:var(--cat-fons)}                                       /* un resultat que cal recordar (p. ex. ±∞ per a l'esbós) */
 .fila.prova{position:absolute; left:0; top:0; visibility:hidden}               /* per mesurar les línies */
 .amaga-claus [data-k]{visibility:hidden}                                          /* durant una transició */
@@ -126,8 +129,9 @@ button{font:inherit; color:inherit}
 .marca-condicio, .marca-doble{background:rgba(16,185,129,.24); box-shadow:0 0 0 2px rgba(16,185,129,.24)}
 /* Esquemes (SVG) a la pissarra: mida limitada, colors de la pàgina */
 .fila.figura{display:flex; justify-content:center}
-.fila.figura svg{width:max(14em, 260px); max-width:100%; height:auto; overflow:visible}   /* creix amb la lletra de la pissarra; mai més petit que 260 px */
+.fila.figura svg{width:max(21em, 400px); max-width:min(100%, calc(100vw - 40px)); height:auto; overflow:visible}   /* grans (David): creix amb la lletra de la pissarra; mai més petit que 400 px */
 .fila.figura .pla{fill:var(--cat-fons); stroke:var(--cat); stroke-width:1.2}
+.fila.figura .pla2{fill:rgba(79,70,229,.10); stroke:#4f46e5; stroke-width:1.2}   /* un segon pla, d'un altre color */
 .fila.figura .vector{stroke:var(--cat); stroke-width:2.2; fill:none}
 .fila.figura .punta{fill:var(--cat)}
 .fila.figura .sobre{stroke:var(--cat); stroke-width:1.3; fill:none}
@@ -283,6 +287,8 @@ button{font:inherit; color:inherit}
   .etiqueta, .sufix{height:42px}
   .valor{height:42px; min-width:50px; font-size:22px}
   .text-pas{font-size:15px}
+  /* Al mòbil (secundari, David), una fórmula llarga del text del pas no hi cap sencera: es pot partir (pel =) abans que fer sortir la pàgina de la pantalla */
+  .text-pas .katex{white-space:normal}
 }
 @media (prefers-reduced-motion: reduce){
   .cursor, .torna, .boto{transition:none}

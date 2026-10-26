@@ -4,20 +4,20 @@
    r: P + λu i s: Q + μv.
      · Els vectors directors: proporcionals (paral·leles o coincidents)
        o no (es tallen o es creuen).
-     · No proporcionals: els punts genèrics iguals, P + λu = Q + μv, són
-       3 equacions amb λ i μ. Dues (de determinant no nul) per Cramer;
-       la tercera, amb aquests λ i μ: si es compleix, es tallen (el punt
-       X); si no, es creuen. Comprovació: el determinant de PQ, u, v
-       (0 si són en un mateix pla).
+     · No proporcionals: les equacions paramètriques de r i de s; els
+       punts genèrics iguals, P + λu = Q + μv, són 3 equacions amb λ i μ.
+       Dues (no proporcionals) pel mètode de reducció; la tercera, amb
+       aquests λ i μ, destacada: si es compleix, es tallen (el punt R);
+       si no, es creuen.
      · Proporcionals: el punt genèric de r igual a Q: el mateix λ a les
        tres equacions (Q és de r: coincidents) o no (paral·leles).
-       Comprovació: PQ proporcional a u, o no.
+     · Sense comprovacions (el David no les vol).
    Adreça: dues-rectes.html?r=1,0,2;1,1,-1&s=2,3,-1;1,-1,1 (cada recta:
    un punt i el vector director).
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
-   Claus: Dr, Ds les dades; Ku, Kv, Kp els vectors directors; Ia, Ib la
-   igualtat; E<i> les equacions; Xl…, Xm… Cramer; Tq la tercera
-   equació; Lv, Lr la conclusió; Cq, Cd la comprovació.
+   Claus: Dr, Ds les dades; Ku, Kv, Kp els vectors directors; Pr, Ps les
+   equacions paramètriques; Ia, Ib la igualtat; E<i> les equacions; X<n>
+   la reducció; Tq la tercera equació; Lv, Lr la conclusió.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -31,7 +31,7 @@ const {texPunt, resta} = G;
 const L = '\\lambda', MU = '\\mu';
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({dades: 0, direccions: 1, igualtat: 2, sistema: 3, cramer: 4, tercera: 5, conclusio: 6, esquema: 7, comprovacio: 8});
+const FILA = Object.freeze({dades: 0, direccions: 1, igualtat: 2, sistema: 3, reduccio: 4, tercera: 5, conclusio: 6, esquema: 7, comprovacio: 8});
 
 const EXEMPLES = Object.freeze([
   {r: '1,0,2;1,1,-1', s: '2,3,-1;1,-1,1'},     // es tallen
@@ -39,7 +39,7 @@ const EXEMPLES = Object.freeze([
   {r: '1,2,0;1,-1,2', s: '0,1,1;-2,2,-4'},     // paral·leles
   {r: '1,0,1;2,1,-1', s: '5,2,-1;-4,-2,2'},    // coincidents
   {r: '0,0,0;2,0,2', s: '1,-2,2;0,2,-1'},      // es tallen, λ fraccionari
-  {r: '1,0,0;0,1,1', s: '2,0,1;0,1,-1'},       // es creuen: la 1a equació és 0 = 1 (no cal Cramer)
+  {r: '1,0,0;0,1,1', s: '2,0,1;0,1,-1'},       // es creuen: la 1a equació és 0 = 1 (no cal resoldre res)
 ].map(v => Object.freeze(v)));
 const PER_DEFECTE = EXEMPLES[0];
 const MAXIM = 99;
@@ -83,6 +83,7 @@ const texDades = ({r, s}) => [`r:\\ ${G.texRecta(r)}`, `s:\\ ${G.texRecta(s, MU)
 const enunciat = v => { const t = texDades(dades(v)); return `Estudia la posició relativa de les rectes $${t[0]}$ i $${t[1]}$. Si es tallen, troba el punt d'intersecció.`; };
 const resum = v => `\\scriptsize \\begin{array}{l} ${texDades(dades(v)).join(' \\\\ ')} \\end{array}`;
 
+const VARS_R = ['x', 'y', 'z'];
 const llista = (linies, espai = '6pt') => (linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0]);
 const sistema = linies => `\\left\\{\\begin{array}{l} ${linies.join(' \\\\ ')} \\end{array}\\right.`;
 
@@ -101,10 +102,15 @@ function passos(v) {
       + ': les rectes no tenen la mateixa direcció. Es tallen o es creuen.');
   const PQ = resta(s.P, r.P);
   const generic = G.texGeneric(r);
+  // Abans d'igualar res, les equacions paramètriques de les dues rectes (David).
+  const parametriques = (nomR, R0, l, k) => K(k, `${nomR}: \\left\\{\\begin{array}{l} ${VARS_R.map((x, i) => `${x} = ${Mt.texLineal([R0.P[i], R0.u[i]], l)}`).join(' \\\\ ')} \\end{array}\\right.`);
+  const filaParam = parametriques('r', r, L, 'Pr') + '\\qquad ' + parametriques('s', s, MU, 'Ps');
+  g.files[FILA.igualtat] = filaParam;
+  g.afegeix('Les equacions paramètriques de les dues rectes: les de $r$, amb el paràmetre $\\lambda$, i les de $s$, amb el paràmetre $\\mu$.');
 
   if (prop.proporcionals) {
     /* Paral·leles o coincidents: Q és de r? */
-    g.files[FILA.igualtat] = K('Ia', generic) + ' = ' + K('Ib', texPunt(s.P));
+    g.files[FILA.igualtat] = llista([filaParam, K('Ia', generic) + ' = ' + K('Ib', texPunt(s.P))], '12pt');
     g.afegeix('Són coincidents si el punt $Q$ de $s$ també és de $r$. Iguala el punt genèric de $r$ a $Q$.');
     const eqs = [0, 1, 2].map(i => K(`E${i + 1}`, `${Mt.texLineal([r.P[i], r.u[i]])} = ${M.texNombre(s.P[i])}`));
     g.files[FILA.sistema] = sistema(eqs);
@@ -115,26 +121,21 @@ function passos(v) {
     const coincidents = cert && valors.every(x => x.igual(valors[0]));
     g.files[FILA.sistema] = sistema([0, 1, 2].map(i => K(`E${i + 1}`, r.u[i].esZero() ? Mt.texEquacio([r.u[i]], PQ[i], [L]) : `${L} = ${M.texNombre(sols[i])}`)));
     g.afegeix('Aïlla $\\lambda$ a cada equació' + (sols.some(x => !x) ? ' (on el coeficient de $\\lambda$ és $0$, queda una igualtat de nombres)' : '') + '.');
+    // La resposta, amb una frase (David: res de notació de conjunts).
     g.files[FILA.conclusio] = llista(coincidents
-      ? [K('Lv', '\\text{el mateix } \\lambda\\ \\Rightarrow\\ Q \\in r'), K('Lr', 'r = s')]
-      : [K('Lv', '\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r'), K('Lr', 'r \\parallel s')]);
+      ? [K('Lv', '\\text{el mateix } \\lambda\\ \\Rightarrow\\ Q \\in r'), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ són coincidents}')]
+      : [K('Lv', '\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r'), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ són paral·leles}')]);
     g.afegeix(coincidents ? 'Totes les equacions donen el mateix $\\lambda$: $Q$ és de $r$. Les rectes tenen la mateixa direcció i un punt comú: són la mateixa recta (coincidents).'
       : 'No hi ha cap $\\lambda$ que compleixi les tres equacions: $Q$ no és de $r$. Les rectes tenen la mateixa direcció però no cap punt comú: són paral·leles.');
     g.files[FILA.esquema] = G.esquema(coincidents ? 'rectes-coincidents' : 'rectes-paraleles');
-    g.afegeix(coincidents ? 'Una sola recta: $P$ i $Q$ en són dos punts.' : 'Dues rectes amb la mateixa direcció, a una certa distància.');
-    const pq = G.texProporcio(r.u, PQ, '\\vec{u}', '\\overrightarrow{PQ}', 'u', 'PQ');
-    g.files[FILA.comprovacio] = llista([K('Cq', `\\overrightarrow{PQ} = Q - P = ${texPunt(PQ)}`),
-      K('Cd', pq.tex + (pq.proporcionals ? '\\ \\Rightarrow\\ \\overrightarrow{PQ} \\parallel \\vec{u}' : '\\ \\Rightarrow\\ \\overrightarrow{PQ} \\nparallel \\vec{u}'))]);
     g.classes[FILA.conclusio] = 'final';
-    g.afegeix(coincidents ? 'Comprovació: el vector $\\overrightarrow{PQ}$ té la direcció de $\\vec{u}$ (Q és a la recta que passa per P amb direcció $\\vec{u}$). Són coincidents.'
-      : 'Comprovació: el vector $\\overrightarrow{PQ}$ no té la direcció de $\\vec{u}$: $Q$ no és de $r$. Són paral·leles.');
+    g.afegeix(coincidents ? 'Una sola recta: $P$ i $Q$ en són dos punts.' : 'Dues rectes amb la mateixa direcció, a una certa distància.');
     return g.passos;
   }
 
   /* Es tallen o es creuen: P + λu = Q + μv. */
-  g.files[FILA.igualtat] = F.enLinies(K('Ia', generic), [' = ' + K('Ib', G.texGeneric(s, MU))]);
-  g.afegeix('Un punt comú seria de les dues rectes: iguala el punt genèric de $r$ (amb $\\lambda$) i el de $s$ (amb $\\mu$). '
-    + 'Cada recta té el seu paràmetre.');
+  g.files[FILA.igualtat] = llista([filaParam, F.enLinies(K('Ia', generic), [' = ' + K('Ib', G.texGeneric(s, MU))])], '12pt');
+  g.afegeix('Un punt comú seria de les dues rectes alhora: iguala les coordenades de les dues rectes. Cada recta té el seu paràmetre.');
   g.files[FILA.sistema] = sistema([0, 1, 2].map(i => K(`E${i + 1}`, `${Mt.texLineal([r.P[i], r.u[i]])} = ${Mt.texLineal([s.P[i], s.u[i]], MU)}`)));
   g.afegeix('Una equació per coordenada: 3 equacions amb 2 incògnites, $\\lambda$ i $\\mu$.');
   const S = [0, 1, 2].map(i => [r.u[i], s.u[i].oposada(), PQ[i]]);           // uλ − vμ = Q − P
@@ -152,34 +153,34 @@ function passos(v) {
     const [i, j] = [[0, 1], [0, 2], [1, 2]].find(([a, b]) => !det(a, b).esZero());
     const k = [0, 1, 2].find(c => c !== i && c !== j);
     g.files[FILA.sistema] = sistema([0, 1, 2].map(c => texE(c, c === k ? 'tria' : 'mes')));
-    g.afegeix(`Resol el sistema de les equacions ${i + 1} i ${j + 1} (en verd): el seu determinant, $${Mt.texDet2N([S[i].slice(0, 2), S[j].slice(0, 2)])} = ${M.texNombre(det(i, j))}$, no és $0$. `
+    g.afegeix(`Resol el sistema de les equacions ${i + 1} i ${j + 1} (en verd), que no són proporcionals. `
       + `Després, mira si la solució també compleix l'equació ${k + 1} (en groc).`);
-    [l0, m0] = G.passosCramer2(g, {S: [S[i], S[j]], vars: [L, MU], claus: ['l', 'm'], fila: FILA.cramer});
+    [l0, m0] = G.passosReduccio2(g, {S: [S[i], S[j]], vars: [L, MU], fila: FILA.reduccio});
     const vk = S[k][0].producte(l0).suma(S[k][1].producte(m0));
     tallen = vk.igual(S[k][2]);
-    const sub = G.texSubstitucio(S[k].slice(0, 2), null, [l0, m0]) || '0';
-    g.files[FILA.tercera] = K('Tq', `${k + 1}\\text{a}:\\quad ${sub} = ${M.texNombre(vk)}${tallen ? '' : ` \\neq ${M.texNombre(S[k][2])}`}`);
-    g.afegeix(`L'equació ${k + 1} amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$: ${tallen ? `es compleix (val $${M.texNombre(S[k][2])}$). Hi ha un punt comú.`
-      : `no es compleix (hauria de valer $${M.texNombre(S[k][2])}$). El sistema no té solució: no hi ha cap punt comú.`}`);
+    // La tercera equació, destacada: si es compleix, el sistema té solució única (verd); si no, no en té (vermell).
+    const trivial = S[k][0].esZero() && S[k][1].esZero();          // «0 = 0»: es compleix sempre
+    const tq = trivial ? '0 = 0' : `${Mt.texEquacio(S[k].slice(0, 2), S[k][2], [L, MU])}\\ \\Rightarrow\\ ${G.texSubstitucio(S[k].slice(0, 2), null, [l0, m0])} = ${M.texNombre(vk)}${tallen ? '' : ` \\neq ${M.texNombre(S[k][2])}`}`;
+    g.files[FILA.tercera] = K('Tq', tq, tallen ? 'mes' : 'menys') + (tallen ? '\\quad \\text{(es compleix!)}' : '\\quad \\text{(no es compleix)}');
+    g.afegeix(trivial ? `La ${k + 1}a equació és $0 = 0$: es compleix sempre, també amb aquesta solució. `
+      + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
+      : tallen ? `Ara la ${k + 1}a equació, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. Per sort, també es compleix! `
+      + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
+      : `Ara la ${k + 1}a equació, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$: no es compleix (hauria de valer $${M.texNombre(S[k][2])}$). `
+        + 'El sistema de les tres equacions no té solució: no hi ha cap punt comú.');
   }
-  let X = null;
+  // El punt de tall es diu R (David: mai X per a un punt); la resposta, amb una frase (res de r ∩ s = {R}).
   if (tallen) {
-    X = r.P.map((x, c) => x.suma(r.u[c].producte(l0)));
-    g.files[FILA.conclusio] = llista([K('Lv', `${L} = ${M.texNombre(l0)}\\ \\Rightarrow\\ X = ${texPunt(X)}`), K('Lr', 'r \\cap s = \\{X\\}')]);
-    g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ al punt genèric de $r$ (o $\\mu = ${M.texNombre(m0)}$ al de $s$): és el punt d'intersecció, $X = ${texPunt(X)}$. Les rectes es tallen.`);
+    const Rp = r.P.map((x, c) => x.suma(r.u[c].producte(l0)));
+    g.files[FILA.conclusio] = llista([K('Lv', `${L} = ${M.texNombre(l0)}\\ \\Rightarrow\\ R = ${texPunt(Rp)}`), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ es tallen en el punt } R')]);
+    g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ a les equacions paramètriques de $r$ (o $\\mu = ${M.texNombre(m0)}$ a les de $s$): és el punt de tall, $R = ${texPunt(Rp)}$. Les rectes $r$ i $s$ es tallen en el punt $R$.`);
   } else {
-    g.files[FILA.conclusio] = llista([K('Lv', 'r \\cap s = \\varnothing,\\quad \\vec{u} \\nparallel \\vec{v}'), K('Lr', 'r \\text{ i } s \\text{ es creuen}')]);
-    g.afegeix('Cap punt comú i direccions diferents: les rectes es creuen (no són en un mateix pla).');
+    g.files[FILA.conclusio] = K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ es creuen}');
+    g.afegeix('No tenen cap punt comú i tenen direccions diferents: les rectes $r$ i $s$ es creuen (no són en un mateix pla).');
   }
   g.files[FILA.esquema] = G.esquema(tallen ? 'rectes-es-tallen' : 'rectes-es-creuen');
-  g.afegeix(tallen ? 'Dues rectes que es tallen en un punt $X$: són en un mateix pla.' : 'Dues rectes que es creuen: $s$ passa per davant o per darrere de $r$ sense tocar-la.');
-  const B = [PQ, r.u, s.u];
-  const D3 = Mt.det3N(B);
-  g.files[FILA.comprovacio] = llista([K('Cq', `\\overrightarrow{PQ} = Q - P = ${texPunt(PQ)}`),
-    F.enLinies(K('Cd', Mt.texVmatriuN(B)) + ' = ', [K('Cs', Mt.texSarrusN(B))], {final: ' = ' + K('Cv', M.texNombre(D3) + (D3.esZero() ? '' : ' \\neq 0'))})], '10pt');
-  g.classes[FILA.conclusio] = 'final';
-  g.afegeix(`Comprovació: el determinant de $\\overrightarrow{PQ}$, $\\vec{u}$ i $\\vec{v}$ (per Sarrus) ${D3.esZero() ? 'val $0$: els tres vectors són en un mateix pla, i les rectes també (es tallen)'
-    : 'no val $0$: els tres vectors no són en un mateix pla, i les rectes tampoc (es creuen)'}.`);
+  g.classes[FILA.conclusio] = 'final';      // la resposta; sense comprovacions opcionals (David)
+  g.afegeix(tallen ? 'Dues rectes que es tallen en un punt $R$: són en un mateix pla.' : 'Dues rectes que es creuen: $s$ passa per davant o per darrere de $r$ sense tocar-la.');
   return g.passos;
 }
 
