@@ -47,7 +47,8 @@ const TEMPS = Object.freeze({
 /** Corba de moviment (acceleració i frenada suaus). */
 const CORBA = 'cubic-bezier(.45,.05,.25,1)';
 /** Mida de la lletra de la pissarra (px). Es redueix si la línia més llarga no hi cap. */
-const MIDA = Object.freeze({gran: 30, petita: 22, minima: 12, pantallaPetita: '(max-width: 520px)'});
+const MIDA = Object.freeze({gran: 30, petita: 22, minima: 12, pantallaPetita: '(max-width: 520px)',
+  minimaAlcada: 18});   // a pantalla gran, la lletra es redueix fins a 18 px perquè el pas més alt i els controls hi càpiguen
 
 /** Categories del web (index.html): clau → nom. */
 const CATEGORIES = Object.freeze({
@@ -197,6 +198,7 @@ function construeixPagina(proc, contenidor) {
     velocitat: element('select', {id: 'velocitat'}),
     numPas: element('span', {class: 'num-pas'}),
     textPas: element('span', {class: 'text-pas'}),
+    controls: element('div', {class: 'controls'}),
     editor: element('div', {class: 'editor'}),
     resum: element('p', {class: 'resum'}),
     errorEditor: element('p', {class: 'error-editor', role: 'status', hidden: ''}),
@@ -206,6 +208,20 @@ function construeixPagina(proc, contenidor) {
     r.velocitat.append(element('option', {value: valor, text: nom, selected: valor === '1' ? '' : null}));
   }
   r.escenari = element('div', {class: 'escenari'}, [r.pissarra, r.efectes, r.cursor]);
+  // El reproductor i l'explicació, junts: si la pissarra és més alta que la finestra, es queden enganxats a baix.
+  r.explicacio = element('p', {class: 'explicacio', 'aria-live': 'polite'}, [r.numPas, r.textPas]);
+  r.controls.append(
+    element('div', {class: 'reproductor'}, [
+      element('div', {class: 'botons'}, [r.reinicia, r.anterior, r.reprodueix, r.seguent]),
+      r.punts,
+      element('label', {class: 'velocitat', for: 'velocitat', text: 'Velocitat '}, [r.velocitat]),
+    ]),
+    r.explicacio);
+  r.marcaControls = element('div', {class: 'marca-controls', 'aria-hidden': 'true'});   // si no es veu, els controls estan enganxats
+  if (typeof IntersectionObserver === 'function') {
+    new IntersectionObserver(([e]) => r.controls.classList.toggle('enganxat', !e.isIntersecting && e.boundingClientRect.top > 0))
+      .observe(r.marcaControls);
+  }
 
   const cami = ['PAU Matemàtiques', 'Procediments pas a pas', CATEGORIES[proc.categoria]].filter(Boolean).join(' · ');
   contenidor.replaceChildren(
@@ -217,12 +233,8 @@ function construeixPagina(proc, contenidor) {
       r.avis,
       r.enunciat,
       r.escenari,
-      element('div', {class: 'reproductor'}, [
-        element('div', {class: 'botons'}, [r.reinicia, r.anterior, r.reprodueix, r.seguent]),
-        r.punts,
-        element('label', {class: 'velocitat', for: 'velocitat', text: 'Velocitat '}, [r.velocitat]),
-      ]),
-      element('p', {class: 'explicacio', 'aria-live': 'polite'}, [r.numPas, r.textPas]),
+      r.controls,
+      r.marcaControls,
       element('section', {class: 'targeta', 'aria-labelledby': 'titol-editor'}, [
         element('h2', {id: 'titol-editor', text: proc.titolEditor || 'Canvia les dades'}),
         r.editor, r.resum, r.errorEditor, r.exemples,
@@ -303,6 +315,11 @@ function creaCursor(escenari, el, temps) {
 function creaPissarra(r, nFiles, cursor, temps) {
   let capa = null;                        // capa visible: les files del pas actual
   let usades = null;                      // les files que fa servir algun pas del guió (les altres no ocupen lloc)
+  let renders = new Map();                // TeX → HTML de KaTeX: cada fila es renderitza un sol cop per guió
+  const renderitza = tex => {
+    if (!renders.has(tex)) renders.set(tex, katex.renderToString(tex, OPCIONS_PISSARRA));
+    return renders.get(tex);
+  };
 
   function dibuixaCapa(pas) {
     const c = element('div', {class: 'capa'});
@@ -311,7 +328,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
       const figura = tex && esFilaFigura(tex);
       const fila = element('div', {class: 'fila' + (tex && esFilaText(tex) ? ' text' : '') + (figura ? ' figura' : '') + (pas.classes[i] ? ' ' + pas.classes[i] : '')});
       if (usades && !usades.has(i)) fila.hidden = true;
-      if (tex) fila.innerHTML = figura ? tex : esFilaText(tex) ? textAmbFrases(tex.slice(1)) : katex.renderToString(tex, OPCIONS_PISSARRA);
+      if (tex) fila.innerHTML = figura ? tex : esFilaText(tex) ? textAmbFrases(tex.slice(1)) : renderitza(tex);
       c.append(fila);
     }
     return c;
@@ -323,19 +340,29 @@ function creaPissarra(r, nFiles, cursor, temps) {
     r.pissarra.replaceChildren(capa);
   }
 
-  /** Tria la mida de la lletra perquè la línia més llarga de tots els passos hi càpiga, i quines files fa servir el guió. */
+  /**
+   * Tria la mida de la lletra, i quines files fa servir el guió:
+   *  1. amplada: la línia més llarga de tots els passos hi ha de cabre;
+   *  2. alçada (només a pantalla gran): el pas més alt de la pissarra, el
+   *     reproductor i l'explicació han de cabre a la finestra, a sota de la
+   *     capçalera i de l'enunciat; la lletra no baixa de MIDA.minimaAlcada.
+   *     Si tot i així no hi cap, el reproductor queda enganxat a baix (estil.css).
+   */
   function ajusta(passos) {
+    renders = new Map();
     usades = new Set();
     for (const pas of passos) pas.files.forEach((tex, i) => { if (tex) usades.add(i); });
-    const base = matchMedia(MIDA.pantallaPetita).matches ? MIDA.petita : MIDA.gran;
-    r.pissarra.style.setProperty('--mida', base + 'px');
+    const petita = matchMedia(MIDA.pantallaPetita).matches;
+    const base = petita ? MIDA.petita : MIDA.gran;
+    const posaMida = px => r.pissarra.style.setProperty('--mida', px + 'px');
+    posaMida(base);
     const prova = element('div', {class: 'fila prova'});
     r.pissarra.append(prova);
     let maxim = 0;
     for (const pas of passos) {
       for (const tex of pas.files) {
         if (!tex || esFilaText(tex) || esFilaFigura(tex)) continue;          // el text i els esquemes s'ajusten sols a l'amplada
-        prova.innerHTML = katex.renderToString(tex, OPCIONS_PISSARRA);
+        prova.innerHTML = renderitza(tex);
         maxim = Math.max(maxim, prova.firstElementChild.getBoundingClientRect().width);
       }
     }
@@ -343,7 +370,35 @@ function creaPissarra(r, nFiles, cursor, temps) {
     const estil = getComputedStyle(r.pissarra);
     const disponible = r.pissarra.clientWidth - parseFloat(estil.paddingLeft) - parseFloat(estil.paddingRight) - 12;
     const factor = maxim > 0 ? Math.min(1, disponible / maxim) : 1;
-    r.pissarra.style.setProperty('--mida', Math.max(MIDA.minima, Math.floor(base * factor)) + 'px');
+    let mida = Math.max(MIDA.minima, Math.floor(base * factor));
+    posaMida(mida);
+    if (petita || mida <= MIDA.minimaAlcada) return;
+
+    // L'alçada. Les files de fórmules creixen amb la lletra, però les de text no: es repeteix el càlcul unes quantes vegades.
+    const alcadaMaxima = () => {
+      const mesura = element('div', {class: 'capa mesura'});
+      r.pissarra.append(mesura);
+      let h = 0;
+      for (const pas of passos) {
+        mesura.replaceChildren(...dibuixaCapa(pas).children);
+        h = Math.max(h, mesura.getBoundingClientRect().height);
+      }
+      mesura.remove();
+      return h + r.pissarra.offsetHeight - r.pissarra.clientHeight;     // + les vores
+    };
+    const dalt = r.escenari.getBoundingClientRect().top + scrollY;
+    // A sota: el gap, els controls (que poden estar enganxats: només se'n mira l'alçada) i marge perquè l'explicació tingui unes tres línies.
+    const gap = parseFloat(getComputedStyle(r.controls.parentNode).rowGap) || 0;
+    const sota = gap + r.controls.offsetHeight + Math.max(0, 72 - r.explicacio.offsetHeight) + 8;
+    const lloc = innerHeight - dalt - sota;
+    for (let i = 0; i < 4; i++) {
+      const alt = alcadaMaxima();
+      if (alt <= lloc) break;
+      const nova = Math.max(MIDA.minimaAlcada, Math.floor(mida * lloc / alt));
+      if (nova >= mida) break;
+      mida = nova;
+      posaMida(mida);
+    }
   }
 
   /* Símbols amb clau d'una capa, i les seves posicions. */

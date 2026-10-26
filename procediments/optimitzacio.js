@@ -318,8 +318,13 @@ function passos(valors) {
   g.afegeix(p.domini.text);
 
   /* 5. La derivada (fila 4) i els candidats (fila 5). */
+  // La condició aïllada, ara, és soroll: s'esborra, i es recupera al pas 7 per calcular w.
+  const aillada = p.condicio[p.condicio.length - 1].aillada;
+  const filaCondicio = K('Lw', w) + R('Lq', '=') + K('Lr', aillada);
+  g.files[FILA.condicio] = '';
   g.files[FILA.derivada] = membre(1) + K('Pe', p.derivada.tex);
-  g.afegeix(p.derivada.text);
+  const textAillada = `$${w} = ${aillada.replace(/\\dfrac/g, '\\frac')}$`;
+  g.afegeix(`${p.derivada.text} (Esborrem ${textAillada}: ara no ens cal. La recuperarem al final per calcular $${w}$.)`);
   const eq = p.equacio;
   for (const pas of eq.manual || []) {
     g.files[FILA.calcul] = K('Ee', pas.tex);
@@ -343,7 +348,9 @@ function passos(valors) {
   g.afegeix(`Com que $${p.segona.valor.split(' = ')[0]} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${eq.candidat}$ hi ha un `
     + (p.maxim ? 'màxim (la gràfica té forma de ∩).' : 'mínim (la gràfica té forma de ∪).'), {cursor: {clic: 'Rx'}});
 
-  /* 7. La resposta: l'altra variable i el valor òptim (fila 6). */
+  /* 7. La resposta: l'altra variable (amb la condició, que torna a la fila 2) i el valor òptim (fila 6). */
+  g.files[FILA.condicio] = filaCondicio;
+  g.afegeix(`Per calcular $${w}$, recupera la condició aïllada: ${textAillada}.`);
   g.files[FILA.calcul] = K('We', p.altra.calcul);
   g.afegeix(p.altra.text);
   g.files[FILA.calcul] = '';

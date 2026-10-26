@@ -7,7 +7,8 @@
 
    Mètode, en dos blocs, com a classe:
    A) Asímptotes verticals: lligades al domini. Als punts on Q(x) = 0,
-      els límits laterals (k/0⁻ o k/0⁺) diuen cap a on van les branques.
+      els límits laterals (±∞, directament; el signe del numerador i del
+      denominador es raona al text) diuen cap a on van les branques.
    B) Asímptotes horitzontals i obliqües: un càlcul a l'infinit. Primer,
       lim f(x) a +∞ i a −∞ (manen els termes de grau més alt): si és un
       nombre L, y = L és l'asímptota horitzontal; si és infinit, es
@@ -192,7 +193,7 @@ function passos(v) {
 
   const branques = [];                 // per a l'esbós
   if (!arrels.length) {
-    linies.resum.push(K('Sv0', '\\text{AV: no n\'hi ha}'));
+    linies.resum.push(K('Sv0', '\\text{No hi ha asímptotes verticals}'));
     pas('Com que $f$ existeix a tot arreu, no hi ha asímptotes verticals.');
   }
   arrels.forEach((r, i) => {
@@ -204,18 +205,17 @@ function passos(v) {
       const lim = pr.signe() * sq;
       resultats.push(lim);
       const esquerra = `${LIM(`${X}^{${s < 0 ? '-' : '+'}}`)} f(x)`;
-      const frac = `\\dfrac{${texNombre(pr)}}{0^{${sq < 0 ? '-' : '+'}}}`;
       // Un valor de prova, si x = r ∓ 0,1 s'escriu bé en decimal.
       const t = r.suma(new Fraccio(s, 10)), tt = M.texDecimal(t), qt = M.texDecimal(valQ(t));
       const prova = tt !== null && qt !== null && tt.length <= 6 ? ` (per exemple, en $x = ${tt}$ val $${qt}$)` : '';
       const costat = s < 0 ? 'Per l\'esquerra' : 'Per la dreta';
-      linies.laterals.push(linia(pre, esquerra, frac));
-      pas(`${costat} de $x = ${X}$: el numerador tendeix a $${texNombre(pr)}$, i el denominador, $${tp(Q)}$, tendeix a $0$. `
-        + `${s < 0 ? 'A l\'esquerra' : 'A la dreta'} de $${X}$ el denominador és ${paraulaSigne(sq)}${prova}: tendeix a $0^{${sq < 0 ? '-' : '+'}}$.`);
-      linies.laterals[linies.laterals.length - 1] = linia(pre, esquerra, frac) + R(pre + 'r', '=') + K(pre + 'v', INF(lim));
-      pas(`Un nombre ${paraulaSigne(pr.signe())} dividit per un nombre molt petit i ${paraulaSigne(sq)} dona un nombre molt gran i ${paraulaSigne(lim)}: $${INF(lim)}$.`);
+      // Directament el resultat, ±∞; el raonament (numerador → k, denominador → 0 amb un signe) va al text.
+      linies.laterals.push(linia(pre, esquerra, INF(lim)));
+      pas(`${costat} de $x = ${X}$: el numerador tendeix a $${texNombre(pr)}$, i el denominador, $${tp(Q)}$, tendeix a $0$ `
+        + `amb valors ${paraulaSigne(sq) === 'positiu' ? 'positius' : 'negatius'}${prova}. `
+        + `Un nombre ${paraulaSigne(pr.signe())} dividit per un nombre molt petit i ${paraulaSigne(sq)} dona un nombre molt gran i ${paraulaSigne(lim)}: $${INF(lim)}$.`);
     }
-    linies.resum.push(K('Sv' + i, `\\text{AV: } x = ${X}`));
+    linies.resum.push(K('Sv' + i, `\\text{Asímptota vertical d'equació } x = ${X}`));
     const branca = l => (l < 0 ? 'baixa cap a $-\\infty$' : 'puja cap a $+\\infty$');
     branques.push(`a prop de $x = ${X}$, per l'esquerra la branca ${branca(resultats[0])} i per la dreta ${branca(resultats[1])}`);
     pas(`Els límits laterals són infinits: $x = ${X}$ és una asímptota vertical. Per l'esquerra, la gràfica ${branca(resultats[0])}, `
@@ -244,12 +244,12 @@ function passos(v) {
   /* L'asímptota horitzontal, i el que diuen els límits infinits per a l'esbós. */
   const limMenys = l.finit ? l : limitInfinit(P, Q, -1);
   if (l.finit) {
-    linies.resum.push(K('Sh', `\\text{AH: } y = ${texNombre(l.finit)}`));
+    linies.resum.push(K('Sh', `\\text{Asímptota horitzontal d'equació } y = ${texNombre(l.finit)}`));
     pas(`El límit a l'infinit és un nombre, $${texNombre(l.finit)}$: la recta $y = ${texNombre(l.finit)}$ és una asímptota horitzontal, a $+\\infty$ i a $-\\infty$.`);
-    linies.resum.push(K('So', '\\text{AO: no n\'hi ha}'));
+    linies.resum.push(K('So', '\\text{No hi ha asímptotes obliqües}'));
     pas('Si hi ha asímptota horitzontal, no n\'hi ha d\'obliqua: totes dues diuen com és $f$ quan $x$ és molt gran, i només pot ser d\'una manera.');
   } else {
-    linies.resum.push(K('Sh', '\\text{AH: no n\'hi ha}'));
+    linies.resum.push(K('Sh', '\\text{No hi ha asímptotes horitzontals}'));
     g.classes[FILA.infinit] = 'destacat';
     pas(`El límit és infinit: no hi ha asímptota horitzontal. Però el resultat serveix per a l'esbós: quan $x \\to +\\infty$, $f(x) \\to ${INF(l.infinit)}$, `
       + `i quan $x \\to -\\infty$, $f(x) \\to ${INF(limMenys.infinit)}$.`);
@@ -281,7 +281,7 @@ function passos(v) {
       pas('Opera el numerador. El terme de grau més alt s\'anul·la: per això $m$ és el que és.');
       for (const [dreta, text] of ln.passos) { linies.obliqua[1] = linia('On', 'n', dreta); pas(text); }
       const recta = tp(M.termes([n, m]));
-      linies.resum.push(K('So', `\\text{AO: } y = ${recta}`));
+      linies.resum.push(K('So', `\\text{Asímptota obliqua d'equació } y = ${recta}`));
       pas(`$m = ${texNombre(m)}$ i $n = ${texNombre(n)}$ són nombres: la recta $y = ${recta}$ és una asímptota obliqua. Quan $x$ és molt gran, la gràfica s'hi acosta.`);
       branques.push(`a l'infinit, la gràfica s'acosta a la recta $y = ${recta}$`);
     } else {
@@ -291,7 +291,7 @@ function passos(v) {
       pas('Potser hi ha una asímptota obliqua, $y = mx + n$. El pendent seria el nombre $m = \\lim \\frac{f(x)}{x}$. '
         + `Dividir $f(x)$ per $x$ és multiplicar el denominador per $x$: $x \\cdot ${factor(Q)} = ${tp(xQ)}$.`);
       for (const [dreta, text] of lm.passos) { linies.obliqua[0] = linia('Om', esquerra, dreta); pas(text); }
-      linies.resum.push(K('So', '\\text{AO: no n\'hi ha}'));
+      linies.resum.push(K('So', '\\text{No hi ha asímptotes obliqües}'));
       pas('El límit és infinit, i $m$ ha de ser un nombre: no hi ha asímptota obliqua (a $-\\infty$ passa el mateix). '
         + 'La gràfica creix més de pressa que qualsevol recta: és una branca parabòlica.');
     }

@@ -696,6 +696,7 @@ function comprovaExtrems(passos, v, nom) {
       pla = textPla(tex);
       linies++;
       if (fila <= 1) {
+        if (fila === 1 && pla === "f'(x)=0") return;      // l'equació dels punts crítics, tal com es planteja
         if (pla.includes('f')) identitat(pla, on);
         else comprova(solucionsDeFila(pla) === critics, () => `${on}: «${pla}» no té per solucions els punts crítics (${critics})`);
         return;
@@ -844,14 +845,14 @@ function comprovaCreixement(passos, v, nom) {
         const [cap, derivada, funcio] = cellesDeTaula(tex);
         comprova(cap.length === 2 * nI && cap[0] === 'x' && derivada[0] === "f'(x)" && funcio[0] === 'f(x)', () => `${on}: forma de la taula`);
         for (let j = 0; j < nI; j++) {
-          const esperatCap = nI === 1 ? '(-∞,+∞)' : j === 0 ? '-∞' : j === nI - 1 ? '+∞' : '';
-          comprova(cap[1 + 2 * j] === esperatCap, () => `${on}: capçalera de l'interval ${j + 1}: «${cap[1 + 2 * j]}»`);
+          comprovaInterval(cap[1 + 2 * j], j, `${on}: capçalera de l'interval ${j + 1}`);
           const s = derivada[1 + 2 * j], fl = funcio[1 + 2 * j];
           comprova(s === '' || s === (signes[j] > 0 ? '+' : '-'), () => `${on}: signe de f' a l'interval ${j + 1}: «${s}»`);
           comprova(fl === '' || fl === (signes[j] > 0 ? '↗' : '↘'), () => `${on}: fletxa a l'interval ${j + 1}: «${fl}»`);
           if (j === nI - 1) break;
-          const p = punts[j], c = cap[2 + 2 * j], dp = derivada[2 + 2 * j], fp = funcio[2 + 2 * j];
-          comprova(conjunt([valor(c)]) === conjunt([p]), () => `${on}: punt ${j + 1}: «${c}»`);
+          const p = punts[j], cx = cap[2 + 2 * j], dp = derivada[2 + 2 * j], fp = funcio[2 + 2 * j];
+          const c = cx.startsWith('x=') ? cx.slice(2) : '';
+          comprova(c !== '' && conjunt([valor(c)]) === conjunt([p]), () => `${on}: punt ${j + 1}: «${cx}» (ha de ser «x = …»)`);
           const esperatF = fora(p) ? '∄'
             : signes[j] > 0 && signes[j + 1] < 0 ? '«màx»' : signes[j] < 0 && signes[j + 1] > 0 ? '«mín»' : '';
           comprova(dp === '' || dp === (fora(p) ? '∄' : '0'), () => `${on}: f' al punt ${c}: «${dp}»`);
@@ -1525,6 +1526,11 @@ function valorLimit(text, cap, P, Q) {
   if (text === '+∞' || text === '-∞') return text;
   return conjunt([exacte(M.llegeix(text, {variables: []}), {variables: {}, funcions: {}})]);
 }
+/** Les línies del resum d'asímptotes que diuen que no n'hi ha (en text pla), i de quin tipus és cada línia. */
+const RESUM_SENSE = {V: '«Nohihaasímptotesverticals»', H: '«Nohihaasímptoteshoritzontals»', O: '«Nohihaasímptotesobliqües»'};
+const tipusResum = l => (/^«Asímptotavertical|^«Nohihaasímptotesverticals/.test(l) ? 'V'
+  : /^«Asímptotahoritzontal|^«Nohihaasímptoteshoritzontals/.test(l) ? 'H'
+    : /^«Asímptotaobliqua|^«Nohihaasímptotesobliqües/.test(l) ? 'O' : null);
 /** Línies d'un «\begin{array}{l} … \end{array}», en text pla. */
 const liniesDArray = tex => {
   const m = /^\\begin\{array\}\{l\}(.*)\\end\{array\}$/.exec(tex.trim());
@@ -1579,12 +1585,13 @@ function comprovaAsimptotes(passos, v, nom) {
         comprova(m && conjunt(m[1] ? m[1].split(',').map(valor) : []) === conjunt(arrelsQ), () => `${on}: domini «${textPla(tex)}»`);
       } else if (fila === FILA.laterals) {
         for (const l of liniesDArray(tex)) {
-          const m = /^lim_x→(.+)\^\(([+-])\)f\(x\)=\(\((.+)\)\/\(0\^\(([+-])\)\)\)(?:=([+-])∞)?$/.exec(l);
+          // Directament el resultat (sense la notació k/0⁻): lim_{x→a^±} f(x) = ±∞.
+          const m = /^lim_x→(.+)\^\(([+-])\)f\(x\)=([+-])∞$/.exec(l);
           if (!m) throw new Error(`línia «${l}» no prevista`);
           const valor = t => exacte(M.llegeix(t, {variables: []}), {variables: {}, funcions: {}});
-          const a = valor(m[1]), s = m[2] === '-' ? -1 : 1, k = valor(m[3]), sq = m[4] === '-' ? -1 : 1;
-          comprova(arrelsQ.some(r => r.igual(a)) && val(P)(a).igual(k) && !k.esZero() && signeCostat(a, s) === sq
-            && (!m[5] || (m[5] === '-' ? -1 : 1) === k.signe() * sq), () => `${on}: «${l}» és fals`);
+          const a = valor(m[1]), s = m[2] === '-' ? -1 : 1;
+          const k = arrelsQ.some(r => r.igual(a)) ? val(P)(a) : fr(0);
+          comprova(!k.esZero() && (m[3] === '-' ? -1 : 1) === k.signe() * signeCostat(a, s), () => `${on}: «${l}» és fals`);
         }
       } else if (fila === FILA.infinit || fila === FILA.obliqua) {
         for (const l of liniesDArray(tex)) {
@@ -1607,14 +1614,14 @@ function comprovaAsimptotes(passos, v, nom) {
         const valor = t => exacte(M.llegeix(t, {variables: []}), {variables: {}, funcions: {}});
         for (const l of liniesDArray(tex)) {
           let m;
-          if ((m = /^«AV:»x=(.+)$/.exec(l))) comprova(arrelsQ.some(r => r.igual(valor(m[1]))), () => `${on}: «${l}» no és una asímptota vertical`);
-          else if (l === "«AV:non'hiha»") comprova(!arrelsQ.length, () => `${on}: diu que no hi ha asímptotes verticals`);
-          else if ((m = /^«AH:»y=(.+)$/.exec(l))) comprova(AH && valor(m[1]).igual(AH), () => `${on}: «${l}» és fals`);
-          else if (l === "«AH:non'hiha»") comprova(!AH, () => `${on}: sí que hi ha asímptota horitzontal`);
-          else if ((m = /^«AO:»y=(.+)$/.exec(l))) {
+          if ((m = /^«Asímptotaverticald'equació»x=(.+)$/.exec(l))) comprova(arrelsQ.some(r => r.igual(valor(m[1]))), () => `${on}: «${l}» no és una asímptota vertical`);
+          else if (l === RESUM_SENSE.V) comprova(!arrelsQ.length, () => `${on}: diu que no hi ha asímptotes verticals`);
+          else if ((m = /^«Asímptotahoritzontald'equació»y=(.+)$/.exec(l))) comprova(AH && valor(m[1]).igual(AH), () => `${on}: «${l}» és fals`);
+          else if (l === RESUM_SENSE.H) comprova(!AH, () => `${on}: sí que hi ha asímptota horitzontal`);
+          else if ((m = /^«Asímptotaobliquad'equació»y=(.+)$/.exec(l))) {
             const recta = M.polinomi(M.llegeix(m[1]));
             comprova(AO && recta && conjunt([recta[1] || fr(0)]) === conjunt([AO.m]) && conjunt([recta[0] || fr(0)]) === conjunt([AO.n]), () => `${on}: «${l}» és fals`);
-          } else if (l === "«AO:non'hiha»") comprova(!AO, () => `${on}: sí que hi ha asímptota obliqua`);
+          } else if (l === RESUM_SENSE.O) comprova(!AO, () => `${on}: sí que hi ha asímptota obliqua`);
           else throw new Error(`línia «${l}» no prevista`);
         }
       }
@@ -1626,7 +1633,7 @@ function comprovaAsimptotes(passos, v, nom) {
   const final = passos[passos.length - 1];
   const resum = liniesDArray(final.files[FILA.resum]);
   comprova(final.classes[FILA.resum] === 'final', () => `${nom}: el resum no està destacat`);
-  comprova(resum.filter(l => l.startsWith('«AV:')).length === Math.max(1, arrelsQ.length) && resum.some(l => l.startsWith('«AH:')) && resum.some(l => l.startsWith('«AO:')),
+  comprova(resum.filter(l => tipusResum(l) === 'V').length === Math.max(1, arrelsQ.length) && resum.some(l => tipusResum(l) === 'H') && resum.some(l => tipusResum(l) === 'O'),
     () => `${nom}: al resum hi falten asímptotes: ${resum}`);
   comprova((final.classes[FILA.infinit] === 'destacat') === !AH, () => `${nom}: la fila dels límits a l'infinit s'ha de destacar si i només si són infinits`);
   comprova(liniesDArray(final.files[FILA.laterals] || '\\begin{array}{l}\\end{array}').length === 2 * arrelsQ.length || (!arrelsQ.length && !final.files[FILA.laterals]),
@@ -1662,7 +1669,7 @@ seccio('asímptotes', () => {
     linies += comprovaAsimptotes(llista, v, nom);
     passos += llista.length;
     const res = liniesDArray(llista[llista.length - 1].files[Asimptotes.FILA.resum]).join();
-    tipus.add((res.includes('«AH:»') ? 'H' : '') + (res.includes('«AO:»') ? 'O' : '') + (res.includes("«AV:non'hiha»") ? '' : 'V'));
+    tipus.add((res.includes("«Asímptotahoritzontal") ? 'H' : '') + (res.includes("«Asímptotaobliqua") ? 'O' : '') + (res.includes(RESUM_SENSE.V) ? '' : 'V'));
   }
   comprova(['HV', 'OV', 'V', 'H', 'O'].every(t => tipus.has(t)), () => `la mostra no té tots els tipus de casos: ${[...tipus]}`);
   return `${valids} casos vàlids, ${passos} passos, ${linies} línies comprovades (tipus: ${[...tipus].sort().join(' ')})`;

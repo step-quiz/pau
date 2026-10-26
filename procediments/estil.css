@@ -101,6 +101,7 @@ button{font:inherit; color:inherit}
 .pissarra{position:relative; padding:18px 22px 14px; font-size:var(--mida, 30px)}
 .capa{width:100%}
 .capa.nova{position:absolute; left:0; top:0; padding:inherit; visibility:hidden}  /* la capa del pas següent, mentre es prepara */
+.capa.mesura{position:absolute; left:0; top:0; padding:inherit; visibility:hidden}  /* per mesurar l'alçada de cada pas (motor.js, ajusta) */
 .fila{
   min-height:2.2em; display:flex; align-items:center; white-space:nowrap;
   border-radius:10px; padding:.15em .45em; margin:0 -.45em;
@@ -174,6 +175,14 @@ button{font:inherit; color:inherit}
 
 
 /* ── REPRODUCTOR ───────────────────────────────────────────────────── */
+/* El reproductor i l'explicació: si la pissarra no hi cap, es queden enganxats a baix de la finestra */
+.controls{
+  position:sticky; bottom:0; z-index:6;
+  display:flex; flex-direction:column; gap:16px;
+  background:var(--bg); padding-block:6px 8px; margin-block:-6px -8px;
+}
+.controls.enganxat{box-shadow:0 -8px 14px -10px rgba(15,23,42,.35)}
+.marca-controls{height:1px; margin-top:-17px}          /* just a sota dels controls; anul·la el gap de .contingut */
 .reproductor{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px}
 .botons{display:flex; gap:6px}
 .boto{

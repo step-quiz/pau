@@ -117,8 +117,11 @@ function passos(v) {
   }
 
   /* 2. Els punts crítics: f'(x) = 0, a la fila 1. Si no s'ha multiplicat, les claus noves de la fila 0 van aquí. */
-  const solucions = F.resolPolinomi(g, 1, 'e', d1, 'Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.',
+  // Primer l'equació tal com es planteja, f'(x) = 0; després, amb l'expressió de f'(x). El «=» i el «0» (claus eq, ez) es queden.
+  g.files[1] = F.membreEsquerre('e', 'f', 'x', 1) + K('ez', '0');
+  g.afegeix('Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.',
     {reanomena: feta1.multiplica ? {} : feta1.reanomena});
+  const solucions = F.resolPolinomi(g, 1, 'e', d1, 'Substitueix $f\'(x)$ per la seva expressió.');
 
   g.files[1] = '';
   if (!solucions.length) {

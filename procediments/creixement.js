@@ -234,14 +234,14 @@ function passos(v) {
   const vores = j => [j === 0 ? null : punts[j - 1].valor, j === nI - 1 ? null : punts[j].valor];
   const cel = {Di: Array(nI).fill(''), Dp: Array(nI - 1).fill(''), Fi: Array(nI).fill(''), Fp: Array(nI - 1).fill('')};
 
-  /** Capçalera d'un interval: −∞ al primer, +∞ a l'últim; els del mig, buits (els delimiten els punts). */
-  const capInterval = j => (nI === 1 ? '(-\\infty,\\ +\\infty)' : j === 0 ? '-\\infty' : j === nI - 1 ? '+\\infty' : '');
+  /** Capçalera d'un interval: l'interval sencer, (−∞, a), (a, b) o (b, +∞). */
+  const capInterval = j => texInterval(...vores(j));
   function taula() {
     const fila = (etiqueta, i, p) => [etiqueta].concat(...Array.from({length: nI}, (_, j) =>
       [i(j)].concat(j < nI - 1 ? [p(j)] : []))).join(' & ');
     const cella = (nom, j) => (cel[nom][j] ? K(nom + j, cel[nom][j]) : '');
     return `\\begin{array}{${Array(2 * nI).fill('c').join('|')}} `
-      + [fila(K('Lx', 'x'), j => (capInterval(j) ? K('Hi' + j, capInterval(j)) : ''), j => K('Hp' + j, texNombre(punts[j].valor))),
+      + [fila(K('Lx', 'x'), j => K('Hi' + j, capInterval(j)), j => 'x = ' + K('Hp' + j, texNombre(punts[j].valor))),
         fila(K('Ld', 'f\'(x)'), j => cella('Di', j), j => cella('Dp', j)),
         fila(K('Lf', 'f(x)'), j => cella('Fi', j), j => cella('Fp', j))].join(' \\\\ \\hline ')
       + ' \\end{array}';
@@ -284,7 +284,7 @@ function passos(v) {
         + (directe ? '' : R('nq', '=') + K('nR', texNombre(val))) + R('nw', positiu ? '>' : '<') + K('nz', '0');
       g.afegeix(`Interval $${texInterval(a, b)}$: tria'n un valor, per exemple $x = ${T}$, i `
         + (pol ? `calcula $f'(${T})$.` : 'calcula el numerador de $f\'$. Només cal el seu signe: el denominador és un quadrat, i sempre és positiu.'),
-      {cursor: {clic: j < nI - 1 ? 'Hp' + j : (nI > 1 ? 'Hp' + (j - 1) : null)}});
+      {cursor: {clic: 'Hi' + j}});
       cel.Di[j] = positiu ? '+' : '-';
       g.files[2] = '';
       g.files[3] = taula();

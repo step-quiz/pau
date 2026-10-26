@@ -138,7 +138,7 @@ function passos(v) {
   g.files[FILA.funcio] = F.membreEsquerre('F', 'f', 'x') + F.polinomi('P', f);
   g.afegeix('El teorema de Bolzano diu: si $f$ és contínua en $[a, b]$ i $f(a)$ i $f(b)$ tenen signes contraris, '
     + 'llavors hi ha almenys un $c \\in (a, b)$ amb $f(c) = 0$. Comprova les dues condicions.');
-  g.files[FILA.continuitat] = F.filaText(`$f$ és un polinomi, i els polinomis són funcions contínues a tota la recta: $f$ és contínua en $[${v.a}, ${v.b}]$.`);
+  g.files[FILA.continuitat] = F.filaText(`$f$ és contínua en $[${v.a}, ${v.b}]$ perquè és una funció polinòmica i és contínua a $\\mathbb{R}$.`);
   g.afegeix('Primera condició: la continuïtat.');
 
   /* 2. f(a) i f(b), pas a pas, amb el signe. */
