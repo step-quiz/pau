@@ -111,7 +111,7 @@ function passos(v) {
   g.afegeix('Ha de ser perpendicular a les dues rectes: el producte escalar amb $\\vec{u}$ i amb $\\vec{v}$ ha de ser $0$.');
   // Les dues equacions agrupades: (w·e_λ)λ + (w·e_μ)μ = −w·e_c.
   const S = [r.u, s.u].map(w => [escalar(w, e.map(x => x[1])), escalar(w, e.map(x => x[2])), escalar(w, e.map(x => x[0])).oposada()]);
-  g.files[FILA.condicions] = `\\left\\{\\begin{array}{l} ${S.map((f, i) => K(`E${i + 1}`, Mt.texEquacio(f.slice(0, 2), f[2], [L, MU]))).join(' \\\\ ')} \\end{array}\\right.`;
+  g.files[FILA.condicions] = G.texSistemaEq(S.map((f, i) => K(`E${i + 1}`, Mt.texEquacio(f.slice(0, 2), f[2], [L, MU]))));
   g.afegeix('Treu els parèntesis i agrupa: un sistema de 2 equacions amb 2 incògnites, $\\lambda$ i $\\mu$.');
   const [l0, m0] = G.passosReduccio2(g, {S, vars: [L, MU], fila: FILA.reduccio});
   const P0 = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));

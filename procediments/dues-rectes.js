@@ -136,37 +136,37 @@ function passos(v) {
   /* Es tallen o es creuen: P + λu = Q + μv. */
   g.files[FILA.igualtat] = llista([filaParam, F.enLinies(K('Ia', generic), [' = ' + K('Ib', G.texGeneric(s, MU))])], '12pt');
   g.afegeix('Un punt comú seria de les dues rectes alhora: iguala les coordenades de les dues rectes. Cada recta té el seu paràmetre.');
-  g.files[FILA.sistema] = sistema([0, 1, 2].map(i => K(`E${i + 1}`, `${Mt.texLineal([r.P[i], r.u[i]])} = ${Mt.texLineal([s.P[i], s.u[i]], MU)}`)));
+  g.files[FILA.sistema] = G.texSistemaEq([0, 1, 2].map(i => K(`E${i + 1}`, `${Mt.texLineal([r.P[i], r.u[i]])} = ${Mt.texLineal([s.P[i], s.u[i]], MU)}`)));
   g.afegeix('Una equació per coordenada: 3 equacions amb 2 incògnites, $\\lambda$ i $\\mu$.');
   const S = [0, 1, 2].map(i => [r.u[i], s.u[i].oposada(), PQ[i]]);           // uλ − vμ = Q − P
   const texE = (i, marca = '') => K(`E${i + 1}`, Mt.texEquacio(S[i].slice(0, 2), S[i][2], [L, MU]), marca);
-  g.files[FILA.sistema] = sistema([0, 1, 2].map(i => texE(i)));
+  g.files[FILA.sistema] = G.texSistemaEq([0, 1, 2].map(i => texE(i)));
   g.afegeix('Passa les incògnites a l\'esquerra i els nombres a la dreta.');
   const impossible = [0, 1, 2].find(c => S[c][0].esZero() && S[c][1].esZero() && !S[c][2].esZero());
   let tallen = false, l0 = null, m0 = null;
   if (impossible !== undefined) {
     // Una equació «0 = c» amb c ≠ 0: el sistema no té solució, sense fer res més.
-    g.files[FILA.sistema] = sistema([0, 1, 2].map(c => texE(c, c === impossible ? 'menys' : '')));
-    g.afegeix(`L'equació ${impossible + 1} és $0 = ${M.texNombre(S[impossible][2])}$: no es compleix mai. El sistema no té solució: no hi ha cap punt comú.`);
+    g.files[FILA.sistema] = G.texSistemaEq([0, 1, 2].map(c => texE(c, c === impossible ? 'menys' : '')));
+    g.afegeix(`L'equació $${G.texEq(impossible + 1)}$ és $0 = ${M.texNombre(S[impossible][2])}$: no es compleix mai. El sistema no té solució: no hi ha cap punt comú.`);
   } else {
     const det = (i, j) => Mt.det2N([S[i].slice(0, 2), S[j].slice(0, 2)]);
     const [i, j] = [[0, 1], [0, 2], [1, 2]].find(([a, b]) => !det(a, b).esZero());
     const k = [0, 1, 2].find(c => c !== i && c !== j);
-    g.files[FILA.sistema] = sistema([0, 1, 2].map(c => texE(c, c === k ? 'tria' : 'mes')));
-    g.afegeix(`Resol el sistema de les equacions ${i + 1} i ${j + 1} (en verd), que no són proporcionals. `
-      + `Després, mira si la solució també compleix l'equació ${k + 1} (en groc).`);
-    [l0, m0] = G.passosReduccio2(g, {S: [S[i], S[j]], vars: [L, MU], fila: FILA.reduccio});
+    g.files[FILA.sistema] = G.texSistemaEq([0, 1, 2].map(c => texE(c, c === k ? 'tria' : 'mes')));
+    g.afegeix(`Resol el sistema de les equacions $${G.texEq(i + 1)}$ i $${G.texEq(j + 1)}$ (en verd), que no són proporcionals. `
+      + `Després, mira si la solució també compleix l'equació $${G.texEq(k + 1)}$ (en groc).`);
+    [l0, m0] = G.passosReduccio2(g, {S: [S[i], S[j]], vars: [L, MU], fila: FILA.reduccio, eqs: [i + 1, j + 1]});
     const vk = S[k][0].producte(l0).suma(S[k][1].producte(m0));
     tallen = vk.igual(S[k][2]);
     // La tercera equació, destacada: si es compleix, el sistema té solució única (verd); si no, no en té (vermell).
     const trivial = S[k][0].esZero() && S[k][1].esZero();          // «0 = 0»: es compleix sempre
     const tq = trivial ? '0 = 0' : `${Mt.texEquacio(S[k].slice(0, 2), S[k][2], [L, MU])}\\ \\Rightarrow\\ ${G.texSubstitucio(S[k].slice(0, 2), null, [l0, m0])} = ${M.texNombre(vk)}${tallen ? '' : ` \\neq ${M.texNombre(S[k][2])}`}`;
     g.files[FILA.tercera] = K('Tq', tq, tallen ? 'mes' : 'menys') + (tallen ? '\\quad \\text{(es compleix!)}' : '\\quad \\text{(no es compleix)}');
-    g.afegeix(trivial ? `La ${k + 1}a equació és $0 = 0$: es compleix sempre, també amb aquesta solució. `
+    g.afegeix(trivial ? `L'equació $${G.texEq(k + 1)}$ és $0 = 0$: es compleix sempre, també amb aquesta solució. `
       + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
-      : tallen ? `Ara la ${k + 1}a equació, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. Per sort, també es compleix! `
+      : tallen ? `Ara l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. Per sort, també es compleix! `
       + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
-      : `Ara la ${k + 1}a equació, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$: no es compleix (hauria de valer $${M.texNombre(S[k][2])}$). `
+      : `Ara l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$: no es compleix (hauria de valer $${M.texNombre(S[k][2])}$). `
         + 'El sistema de les tres equacions no té solució: no hi ha cap punt comú.');
   }
   // El punt de tall es diu R (David: mai X per a un punt); la resposta, amb una frase (res de r ∩ s = {R}).

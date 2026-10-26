@@ -119,7 +119,7 @@ function passos(v) {
   const vars = altres.map(j => VARS[j]);
   const S2 = S.map(e => [e[altres[0]], e[altres[1]], e[3]]);
   const texS2 = S2.map((e, i) => K(`S${i + 1}`, Mt.texEquacio(e.slice(0, 2), e[2], vars)));
-  g.files[FILA.punt] = K('Fz', `${VARS[f]} = 0`) + ':\\ ' + `\\left\\{\\begin{array}{l} ${texS2.join(' \\\\ ')} \\end{array}\\right.`;
+  g.files[FILA.punt] = K('Fz', `${VARS[f]} = 0`) + ':\\ ' + G.texSistemaEq(texS2);
   g.afegeix(`Falta un punt: una solució qualsevol de les dues equacions. Dona un valor a una incògnita, per exemple $${VARS[f]} = 0$, i queda un sistema 2×2 amb solució única.`
     + (f !== 2 ? ` (Amb $z = 0$ no es podria: la component $z$ de $\\vec{n}_1 \\times \\vec{n}_2$ és $0$, i el sistema no tindria solució única.)` : ''));
   const sol = G.passosReduccio2(g, {S: S2, vars, fila: FILA.reduccio});

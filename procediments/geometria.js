@@ -338,21 +338,32 @@ function pecesQuocientArrel(N, S, P) {
  * s'aïlla la primera. Si una equació només té una incògnita, es fa servir directament.
  * Tot a la fila «fila», línia a línia. Torna la solució [v₁, v₂].
  */
-function passosReduccio2(g, {S, vars, fila, P = 'X'}) {
+/** «(EQ.2)», d'un altre color (David): el nom d'una equació d'un sistema, a la seva dreta i a la reducció. */
+const COLOR_EQ = '#b45309';
+const texEq = k => `\\textcolor{${COLOR_EQ}}{\\text{(EQ.${k})}}`;
+/** Un sistema amb el nom de cada equació a la dreta: «−2λ + μ = 5   (EQ.1)». linies: TeX de cada equació. */
+const texSistemaEq = (linies, inici = 1) => `\\left\\{\\begin{array}{ll} ${linies.map((l, i) => `${l} & \\quad ${texEq(inici + i)}`).join(' \\\\ ')} \\end{array}\\right.`;
+
+function passosReduccio2(g, {S, vars, fila, P = 'X', eqs = [1, 2]}) {
   const [E1, E2] = S;
   const eq = e => Mt.texEquacio(e.slice(0, 2), e[2], vars);
   const linies = [];
   const pinta = () => { g.files[fila] = `\\begin{array}{rl} ${linies.join(' \\\\[6pt] ')} \\end{array}`; };
   const linia = (etiqueta, tex) => `${etiqueta} & ${K(`${P}${linies.length}`, tex)}`;
+  // Les etiquetes: «(EQ.2) · (−2):», o «(EQ.1):» si no es multiplica (David).
+  const nomEq = E => eqs[E === E1 ? 0 : 1];
+  const etiqueta = (E, m) => `${texEq(nomEq(E))}${m && !m.igual(1) ? ` \\cdot ${m.signe() < 0 ? `(${M.texNombre(m)})` : M.texNombre(m)}` : ''}:`;
+  // Quan ja es té el valor d'una incògnita, es requadra (David).
+  const caixa = t => `\\boxed{${t}}`;
   const enter = x => x.den === 1;
   let unica, q;                                            // l'equació d'una sola incògnita, i la incògnita (0 o 1)
   const sola = [E1, E2].find(E => E[0].esZero() || E[1].esZero());
   if (sola) {
     unica = sola;
     q = sola[0].esZero() ? 1 : 0;
-    linies.push(linia('', eq(unica)));
+    linies.push(linia(etiqueta(sola), unica[q].igual(1) ? caixa(eq(unica)) : eq(unica)));
     pinta();
-    g.afegeix(`Una de les equacions només té una incògnita: $${eq(unica)}$. D'aquí es treu $${vars[q]}$.`);
+    g.afegeix(`L'equació ${texEqText(nomEq(sola))} només té una incògnita: $${eq(unica)}$. D'aquí es treu $${vars[q]}$.`);
   } else {
     // Per a cada incògnita, els multiplicadors més petits que en fan oposats els coeficients
     // (amb el mínim comú múltiple, com a 4t d'ESO); es fa desaparèixer la que en té de més petits.
@@ -369,25 +380,23 @@ function passosReduccio2(g, {S, vars, fila, P = 'X'}) {
     q = 1 - e;
     const A = E1.map(x => x.producte(m1)), B = E2.map(x => x.producte(m2));
     unica = A.map((x, k) => x.suma(B[k]));
-    const per = m => (m.signe() < 0 ? `(${M.texNombre(m)})` : M.texNombre(m));
-    // Multiplicar per 1 no canvia res: l'equació es copia tal com és.
-    linies.push(linia(m1.igual(1) ? '' : `\\small (${eq(E1)}) \\cdot ${per(m1)}:`, eq(A)));
-    linies.push(linia(m2.igual(1) ? '' : `\\small (${eq(E2)}) \\cdot ${per(m2)}:`, eq(B)));
+    linies.push(linia(etiqueta(E1, m1), eq(A)));
+    linies.push(linia(etiqueta(E2, m2), eq(B)));
     pinta();
     const v = vars[e];
-    const quines = [m1.igual(1) ? '' : `multiplica la primera equació per $${M.texNombre(m1)}$`, m2.igual(1) ? '' : `${m1.igual(1) ? 'multiplica ' : ''}la segona per $${M.texNombre(m2)}$`].filter(Boolean);
+    const quines = [m1.igual(1) ? '' : `multiplica ${texEqText(eqs[0])} per $${M.texNombre(m1)}$`, m2.igual(1) ? '' : `${m1.igual(1) ? 'multiplica ' : ''}${texEqText(eqs[1])} per $${M.texNombre(m2)}$`].filter(Boolean);
     g.afegeix(quines.length
       ? `Mètode de reducció: perquè $${v}$ desaparegui en sumar, ${quines.join(' i ')}${quines.length === 1 ? ' (l\'altra equació es queda igual)' : ''}. `
         + `Així els coeficients de $${v}$ queden oposats: $${M.texNombre(A[e])}$ i $${M.texNombre(B[e])}$.`
       : `Mètode de reducció: els coeficients de $${v}$ ja són oposats ($${M.texNombre(A[e])}$ i $${M.texNombre(B[e])}$). Escriu les dues equacions una sota l'altra.`);
-    linies.push('\\hline ' + linia('', eq(unica)));          // la ratlla de la suma, just a sobre del resultat
+    linies.push('\\hline ' + linia('', unica[q].igual(1) ? caixa(eq(unica)) : eq(unica)));   // la ratlla de la suma, just a sobre del resultat
     pinta();
     g.afegeix(`Suma les dues equacions: $${v}$ desapareix.`);
   }
   const e = 1 - q;
   const sq = unica[2].quocient(unica[q]);
   if (!unica[q].igual(1)) {
-    linies.push(linia('', `${vars[q]} = ${M.texNombre(sq)}`));
+    linies.push(linia('', caixa(`${vars[q]} = ${M.texNombre(sq)}`)));
     pinta();
     g.afegeix(`Divideix per $${M.texNombre(unica[q])}$: $${vars[q]} = ${M.texNombre(sq)}$.`);
   }
@@ -397,7 +406,8 @@ function passosReduccio2(g, {S, vars, fila, P = 'X'}) {
   const [ce, cq, c] = [Ex[e], Ex[q], Ex[2]];
   const resta = c.resta(cq.producte(sq));
   const se = resta.quocient(ce);
-  const quina = Ex === E1 ? 'primera' : 'segona';
+  const quina = texEqText(nomEq(Ex));
+  const valorE = `${vars[e]} = ${M.texNombre(se)}`;
   if (!cq.esZero()) {
     const numeric = primer => {
       const a = cq.abs();
@@ -405,28 +415,31 @@ function passosReduccio2(g, {S, vars, fila, P = 'X'}) {
       return primer ? (cq.signe() < 0 ? '-' : '') + t : (cq.signe() < 0 ? ` - ${t}` : ` + ${t}`);
     };
     const esquerre = e === 0 ? Mt.termeVar(ce, vars[e], true) + numeric(false) : numeric(true) + Mt.termeVar(ce, vars[e], false);
-    linies.push(linia('', `${esquerre} = ${M.texNombre(c)}`));
+    linies.push(linia(etiqueta(Ex), `${esquerre} = ${M.texNombre(c)}`));
     pinta();
-    g.afegeix(`Substitueix $${vars[q]} = ${M.texNombre(sq)}$ a la ${quina} equació.`);
-    linies.push(linia('', `${Mt.termeVar(ce, vars[e], true)} = ${M.texNombre(resta)}`));
+    g.afegeix(`Substitueix $${vars[q]} = ${M.texNombre(sq)}$ a ${quina}.`);
+    const aillat = `${Mt.termeVar(ce, vars[e], true)} = ${M.texNombre(resta)}`;
+    linies.push(linia('', ce.igual(1) ? caixa(aillat) : aillat));
     pinta();
     g.afegeix('Passa el nombre a l\'altre costat, canviat de signe.');
   } else if (ce.igual(1)) {
-    linies.push(linia('', `${vars[e]} = ${M.texNombre(se)}`));
+    linies.push(linia(etiqueta(Ex), caixa(valorE)));
     pinta();
-    g.afegeix(`La ${quina} equació ja dona $${vars[e]} = ${M.texNombre(se)}$.`);
+    g.afegeix(`${quina[0].toUpperCase()}${quina.slice(1)} ja dona $${valorE}$.`);
   } else {
-    linies.push(linia('', eq(Ex)));
+    linies.push(linia(etiqueta(Ex), eq(Ex)));
     pinta();
-    g.afegeix(`La ${quina} equació només té $${vars[e]}$.`);
+    g.afegeix(`${quina[0].toUpperCase()}${quina.slice(1)} només té $${vars[e]}$.`);
   }
   if (!ce.igual(1)) {
-    linies.push(linia('', `${vars[e]} = ${M.texNombre(se)}`));
+    linies.push(linia('', caixa(valorE)));
     pinta();
-    g.afegeix(`Divideix per $${M.texNombre(ce)}$: $${vars[e]} = ${M.texNombre(se)}$.`);
+    g.afegeix(`Divideix per $${M.texNombre(ce)}$: $${valorE}$.`);
   }
   return e === 0 ? [se, sq] : [sq, se];
 }
+/** «l'equació (EQ.2)» per al text del pas, amb el mateix color. */
+const texEqText = k => `l'equació $${texEq(k)}$`;
 
 
 /* ── 4. ESQUEMES ───────────────────────────────────────────────────── */
@@ -571,6 +584,12 @@ const ESQUEMES = Object.freeze({
   'quart-vertex': () => svg(`<polygon class="pla" points="40,150 200,160 260,110"/>` + `<line class="recta" x1="20" y1="30" x2="285" y2="60"/>` + text(288, 64, 'r')
     + `<line class="discontinua" x1="40" y1="150" x2="120" y2="39"/><line class="discontinua" x1="200" y1="160" x2="120" y2="39"/><line class="discontinua" x1="260" y1="110" x2="120" y2="39"/>`
     + puntSvg(40, 150) + text(26, 162, 'A') + puntSvg(200, 160) + text(204, 176, 'B') + puntSvg(260, 110) + text(266, 114, 'C') + puntSvg(120, 39) + text(110, 28, 'D_λ'), [15, 180]),
+  /** Les dues solucions del quart vèrtex: els tetraedres ABCD₁ (a sobre del pla ABC) i ABCD₂ (a sota), amb D₁ i D₂ sobre r. */
+  'quart-vertex-solucions': () => svg(`<polygon class="pla" points="50,120 190,135 250,95"/>` + `<line class="recta" x1="137" y1="0" x2="173" y2="235"/>` + text(124, 10, 'r')
+    + `<line class="cat-recta" x1="50" y1="120" x2="170" y2="215"/><line class="cat-recta" x1="190" y1="135" x2="170" y2="215"/><line class="discontinua" x1="250" y1="95" x2="170" y2="215"/>`
+    + `<line class="recta" x1="50" y1="120" x2="140" y2="20"/><line class="recta" x1="190" y1="135" x2="140" y2="20"/><line class="recta" x1="250" y1="95" x2="140" y2="20"/>`
+    + puntSvg(50, 120) + text(34, 128, 'A') + puntSvg(190, 135) + text(196, 148, 'B') + puntSvg(250, 95) + text(256, 100, 'C')
+    + puntSvg(140, 20) + text(148, 20, 'D_1', 'cat') + puntSvg(170, 215) + text(178, 222, 'D_2', 'cat'), [-5, 240]),
   /** La perpendicular comuna de dues rectes que es creuen: talla r a P₀ i s a Q₀, en angle recte. */
   'perpendicular-comuna': () => svg(`<line class="recta" x1="25" y1="135" x2="275" y2="95"/><line class="recta" x1="60" y1="20" x2="130" y2="60"/>`
     + `<line class="discontinua" x1="130" y1="60" x2="170" y2="82.9"/><line class="recta" x1="170" y1="82.9" x2="250" y2="128.6"/>`
@@ -591,7 +610,7 @@ arrel.Geometria = Object.freeze({
   VARS, punt, resta, suma, escala, escalar, vectorial, esZero, factorComu, vectorSimple,
   texPunt, texMenys, texEsquerre, texPla, texSubstitucio, texRecta, texGeneric,
   passosPlaDeterminant, passosPlaNormal, passosFormaGeneral,
-  UNITATS, texIJK, passosProducteVectorial, passosReduccio2, texEscalar, passosPuntGenericAlPla, texProporcio, texSubstitucioLineal,
+  UNITATS, texIJK, passosProducteVectorial, passosReduccio2, texEq, texSistemaEq, COLOR_EQ, texEscalar, passosPuntGenericAlPla, texProporcio, texSubstitucioLineal,
   arrelQuadrada, texArrel, texModul, modul2, pecesQuocientArrel,
   esquema, ESQUEMES,
 });

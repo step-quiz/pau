@@ -170,7 +170,8 @@ function textPla(tex) {
           }
           case '\\pi': s += '(pi)'; break;
           case '\\text': case '\\textbf': { const t = grup(); s += t.trim() === 'o' ? '|' : `«${t}»`; break; }
-          case '\\boldsymbol': s += grup(); break;
+          case '\\boldsymbol': case '\\boxed': s += grup(); break;
+          case '\\textcolor': grup(); s += grup(); break;          // el color no compta
           case '\\cdot': s += '*'; break;
           case '\\prime': s += "'"; break;
           case '\\frac': case '\\dfrac': { const a = grup(), b = grup(); s += `((${a})/(${b}))`; break; }
@@ -3693,11 +3694,20 @@ function comprovaReduccio(grups, S2, vars, on, tex) {
   const sol = [S2[0][2].producte(S2[1][1]).resta(S2[0][1].producte(S2[1][2])).quocient(D), S2[0][0].producte(S2[1][2]).resta(S2[0][2].producte(S2[1][0])).quocient(D)];
   const nom = v => ({λ: 'l', μ: 'n'})[v] || v;
   comprova(!/vmatrix|Cramer/.test(tex), () => `${on}: hi ha determinants (Cramer)`);
+  // Les equacions es diuen «(EQ.n)», d'un altre color, i els dos valors trobats van requadrats (David).
+  comprova(/\\textcolor\{#b45309\}\{\\text\{\(EQ\.\d\)\}\}/.test(tex) && !/\\small \(/.test(tex), () => `${on}: falten les etiquetes (EQ.n)`);
+  const caixes = [...tex.matchAll(/\\boxed\{([^{}]*)\}/g)].map(m => textPla(m[1]).replace(/λ/g, 'l').replace(/μ/g, 'n'));
+  if (caixes.length) {
+    const esperades = vars.map((v, q) => `${nom(v)}=${textPla(M.texNombre(sol[q]))}`);
+    comprova(caixes.every(c => esperades.includes(c)) && new Set(caixes).size === caixes.length, () => `${on}: requadres ${caixes.join(', ')} (havien de ser ${esperades.join(', ')})`);
+  }
   for (const k of Object.keys(grups).filter(c => /^X\d+$/.test(c))) {
     const pla = textPla(grups[k].tex).replace(/λ/g, 'l').replace(/μ/g, 'n');
     const [e, d] = pla.split('=');
     const valor = exacte(M.llegeix(`(${e})-(${d})`, {variables: vars.map(nom)}), {variables: Object.fromEntries(vars.map((v, q) => [nom(v), sol[q]])), funcions: {}});
     comprova(valor.esZero(), () => `${on}: «${textPla(grups[k].tex)}» no és certa per a la solució`);
+    // Una línia «λ = valor» (el valor trobat) ha d'anar requadrada.
+    if (vars.some((v, q) => pla === `${nom(v)}=${textPla(M.texNombre(sol[q]))}`)) comprova(grups[k].tex.startsWith('\\boxed{'), () => `${on}: «${textPla(grups[k].tex)}» no està requadrat`);
   }
   return sol;
 }
@@ -4653,10 +4663,13 @@ function comprovaAreaVolum(passos, p, nom) {
           let m;
           if ((m = /^([ABCD])=(\(.*\))$/.exec(l))) comprova(igualsV(vectorPla(m[2]), p[m[1]]), () => `${on}: «${l}»`);
           else if ((m = /^r:\(x,y,z\)=(\(.*?\))\+λ(\(.*\))$/.exec(l))) comprova(igualsV(vectorPla(m[1]), p.r.P) && igualsV(vectorPla(m[2]), p.r.u), () => `${on}: «${l}»`);
-          else comprova(/^V=/.test(l) && M.llegeixNombre(l.slice(2)).igual(p.V), () => `${on}: «${l}»`);
+          else comprova(/^«Volum»=/.test(l) && M.llegeixNombre(l.slice(8)).igual(p.V), () => `${on}: «${l}»`);
         }
       } else if (fila === FILA.esquema) {
         comprova(tex === Geometria.esquema(tri ? 'triangle' : p.id), () => `${on}: no és l'esquema`);
+      } else if (fila === FILA.dibuix) {
+        // Les dues solucions del quart vèrtex, dibuixades sota la resposta (David).
+        comprova(p.id === 'quart-vertex' && tex === Geometria.esquema('quart-vertex-solucions') && i === passos.length - 1, () => `${on}: no és el dibuix de les dues solucions`);
       } else if (fila === FILA.vectors) {
         for (const [k, X, Y, n] of [['Ea', p.A, p.B, 'AB'], ['Eb', p.A, p.C, 'AC'], ['Ec', p.A, p.D, 'AD']]) {
           if (!grups[k]) continue;
@@ -4680,7 +4693,7 @@ function comprovaAreaVolum(passos, p, nom) {
         if (p.id === 'tetraedre') {
           const B = cossosVmatrix(grups.Md.tex)[0].map(f => f.map(c => M.llegeixNombre(c)));
           const D3 = det(p.D);
-          comprova(grups.Mn.tex === '[\\overrightarrow{AB}, \\overrightarrow{AC}, \\overrightarrow{AD}]' && [AB, AC, dif(p.A, p.D)].every((f, a) => igualsV(B[a], f))
+          comprova(grups.Mn.tex === '\\det(\\overrightarrow{AB}, \\overrightarrow{AC}, \\overrightarrow{AD})' && [AB, AC, dif(p.A, p.D)].every((f, a) => igualsV(B[a], f))
             && valorXYZD(pt('Ms'), {}).igual(D3) && (!grups.Mv || M.llegeixNombre(pt('Mv')).igual(D3)), () => `${on}: el producte mixt no és cert`);
         } else {
           const f = t => det(Dl(t));
@@ -4689,9 +4702,9 @@ function comprovaAreaVolum(passos, p, nom) {
           if (grups.Mv) comprova(!/[()]/.test(pt('Mv')), () => `${on}: encara hi ha parèntesis`);
         }
       } else if (fila === FILA.formula) {
-        comprova(grups.Fl.tex === (tri ? 'S' : 'V'), () => `${on}: no és ${tri ? 'S' : 'V'}`);
+        comprova(grups.Fl.tex === (tri ? '\\text{Àrea}' : '\\text{Volum}'), () => `${on}: no és «Àrea» o «Volum»`);
         if (grups.Fg) comprova(grups.Fg.tex === (tri ? '\\dfrac{1}{2}\\left|\\overrightarrow{AB} \\times \\overrightarrow{AC}\\right|'
-          : '\\dfrac{1}{6}\\left|[\\overrightarrow{AB}, \\overrightarrow{AC}, \\overrightarrow{AD}]\\right|'), () => `${on}: la fórmula no és la que toca`);
+          : '\\dfrac{1}{6}\\left|\\det(\\overrightarrow{AB}, \\overrightarrow{AC}, \\overrightarrow{AD})\\right|'), () => `${on}: la fórmula no és la que toca`);
         if (p.id === 'quart-vertex') {
           comprova(ts.every(t => radicalIgual(radicalAmb(pt('Fs'), 'λ', t), radical(det(Dl(t)).abs().quocient(6)))) && M.llegeixNombre(pt('Fd')).igual(p.V), () => `${on}: «${pt('Fs')}» no és el volum amb D_λ`);
           if (grups.Fa) {
