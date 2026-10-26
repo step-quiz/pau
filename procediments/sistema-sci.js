@@ -1,24 +1,26 @@
 /* ═══════════════════════════════════════════════════════════════════
-   sistema-sci.js — Procediment: un sistema compatible indeterminat
-   (3 equacions, 3 incògnites, rang 2) i el seu conjunt de solucions
+   sistema-sci.js — Procediment: resoldre un sistema (3 equacions, 3
+   incògnites) que és compatible indeterminat, pel mètode de Gauss
    ───────────────────────────────────────────────────────────────────
    Dades: els coeficients i el terme independent de cada equació, per
    files, triats entre els exemples o escrits a l'adreça:
        sistema-sci.html?S=1,1,1,2;1,-1,2,1;2,0,3,3
-   (la fila «1,1,1,2» és x + y + z = 2). Només sistemes amb rang(A) =
-   rang(A*) = 2: les solucions depenen d'un sol paràmetre (a les PAU,
-   mai de dos).
-   Passos:
-     1. A i A*; un menor d'ordre 2 no nul de A (rang ≥ 2); orlat amb la
-        columna que falta, és |A| = 0 (rang A = 2); orlat amb la dels
-        termes independents, també 0 (rang A* = 2): Rouché, SCI;
-     2. es treu l'equació que no és al menor; la incògnita que no és a
-        les columnes del menor és el paràmetre λ; el sistema 2×2 que
-        queda, per Cramer; el conjunt de solucions, (x, y, z) = (…).
+   (la fila «1,1,1,2» és x + y + z = 2). Només sistemes amb infinites
+   solucions que depenen d'un sol paràmetre (a les PAU, mai de dos).
+   Mètode (el del David: «Resol» → esglaonar; mai Cramer, i aquí tampoc
+   rangs ni Rouché, que són per a «Discuteix»):
+     1. la matriu ampliada A*, esglaonada per Gauss (pivots, Fᵢ → a·Fᵢ − b·Fⱼ,
+        cada matriu nova amb les operacions al costat);
+     2. l'última fila és tota de zeros: 0 = 0, sempre cert. Queden dues
+        equacions per a tres incògnites: sistema compatible indeterminat;
+     3. s'allibera la incògnita sense pivot (z = λ) i se substitueix
+        cap amunt: cada incògnita en funció de λ;
+     4. el conjunt de solucions, (x, y, z) = (f₁(λ), f₂(λ), λ), i escrit
+        com l'equació vectorial d'una recta, P + λ·v.
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
-   Claus: Q<i> les equacions; Mn, Mq, a<i><j> la matriu A*; N<t>… els
-   menors; Rr la fila de Rouché; G… el sistema 2×2; X<v>… Cramer;
-   S… les solucions (vegeu matrius.js).
+   Claus: Q<i> les equacions; Gn, Gq, G<t>a<i><j> les matrius de Gauss;
+   E<i> el sistema esglaonat; C<n>… els càlculs; V<j> els valors; S…, L…
+   les solucions i la recta.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
 'use strict';
@@ -29,7 +31,7 @@ const Mt = arrel.Matrius;
 const {clau: K, rel: R} = F;
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({sistema: 0, matriu: 1, menors: 2, rouche: 3, reduit: 4, cramer: 5, solucio: 6});
+const FILA = Object.freeze({sistema: 0, gauss: 1, esglaonat: 2, calcul: 3, valors: 4, solucio: 5, recta: 6});
 
 const EXEMPLES = Object.freeze([
   '1,1,1,2;1,-1,2,1;2,0,3,3',        // la 3a és la suma de les altres; solucions amb fraccions
@@ -43,14 +45,6 @@ const PER_DEFECTE = EXEMPLES[0];
 
 /** El sistema dels valors: S (3 files [a, b, c, d], Fraccio). */
 const sistema = v => Mt.nombres(Mt.llegeixMatriu(v.S, 3, 4).A);
-
-/** El primer menor d'ordre 2 no nul de A: {fs, cs}. */
-function menor(S) {
-  for (const fs of [[0, 1], [0, 2], [1, 2]]) for (const cs of [[0, 1], [0, 2], [1, 2]]) {
-    if (!Mt.det2N(Mt.submatriu(S, fs, cs)).esZero()) return {fs, cs};
-  }
-  return null;
-}
 
 function valida(v) {
   let S;
@@ -89,63 +83,90 @@ const resum = v => `\\scriptsize ${texSistemaNet(sistema(v))}`;
 function passos(v) {
   const S = sistema(v);
   const g = F.guio(7);
-  const {fs, cs} = menor(S);
-  const r3 = [0, 1, 2].find(i => !fs.includes(i)), f = [0, 1, 2].find(j => !cs.includes(j));
-  const nom = Mt.INCOGNITES;
-  const pintaSistema = (marques = {}) => { g.files[FILA.sistema] = Mt.texSistema(S, {marca: i => marques[i] || ''}); };
-  const pintaMatriu = (marques = {}) => {
-    g.files[FILA.matriu] = K('Mn', 'A^*') + R('Mq', '=') + Mt.texAmpliada(S, {marca: (i, j) => marques[`${i}${j}`] || ''});
+  const nom = Mt.INCOGNITES, L = Mt.LAMBDA;
+  const {passos: gauss, B, pivots} = Mt.passosGauss(S);
+
+  g.files[FILA.sistema] = Mt.texSistema(S);
+  g.afegeix('Un sistema de 3 equacions amb 3 incògnites. Per resoldre\'l, esglaona la matriu ampliada pel mètode de Gauss.');
+
+  /* 1. Gauss: cada matriu nova, a sota, amb les operacions al costat de les files que canvien. */
+  const cadena = (fins, marca) => { g.files[FILA.gauss] = Mt.texCadenaGauss(S, gauss, {fins, marca}); };
+  cadena(0);
+  g.afegeix('La matriu ampliada $A^*$: els coeficients de les incògnites i, després de la ratlla, els termes independents.');
+  gauss.forEach((pas, t) => { cadena(t + 1); g.afegeix(pas.text); });
+
+  /* 2. L'última fila: 0 = 0. Sistema compatible indeterminat. */
+  cadena(gauss.length, i => (i === 2 ? 'tria' : ''));
+  g.files[FILA.esglaonat] = Mt.texSistema(B, {P: 'E', marca: i => (i === 2 ? 'tria' : '')});
+  g.afegeix('Ja està esglaonada. Torna-la a escriure com a sistema: l\'última fila és tota de zeros, és a dir, $0 = 0$, que sempre és cert. '
+    + 'Queden només dues equacions per a tres incògnites: és un sistema compatible indeterminat (té infinites solucions).');
+  cadena(gauss.length);
+  g.files[FILA.esglaonat] = Mt.texSistema(B.slice(0, 2), {P: 'E'});
+  g.afegeix('L\'equació $0 = 0$ no diu res: treu-la.');
+
+  /* 3. S'allibera la incògnita sense pivot, i se substitueix cap amunt. */
+  const f = [0, 1, 2].find(j => !pivots.some(q => q.columna === j));
+  const valor = [];                                   // cada incògnita, com a polinomi [c0, c1] en λ
+  valor[f] = [M.Fraccio.de(0), M.Fraccio.de(1)];
+  const valors = [K(`V${f}`, `${nom[f]} = ${L}`)];
+  const pintaValors = () => { g.files[FILA.valors] = `\\begin{array}{l} ${valors.join(' \\\\[8pt] ')} \\end{array}`; };
+  pintaValors();
+  g.afegeix(`Allibera una incògnita: la que no té pivot, $${nom[f]}$. Pot valer qualsevol nombre, i l'anomenem $\\lambda$: $${nom[f]} = \\lambda$.`);
+
+  const zero = M.Fraccio.de(0);
+  const sumaQ = (p, q) => [(p[0] || zero).suma(q[0] || zero), (p[1] || zero).suma(q[1] || zero)];
+  const perQ = (p, c) => [(p[0] || zero).producte(c), (p[1] || zero).producte(c)];
+  /** Un sumand c·(valor de j) amb el seu signe davant: « + \lambda», « - 2 \cdot \dfrac{1 + \lambda}{2}». */
+  const sumand = (c, j, primer) => {
+    const signe = c.signe() < 0 ? (primer ? '-' : ' - ') : (primer ? '' : ' + ');
+    const a = c.abs();
+    if (j === f) return signe + (a.igual(1) ? '' : M.texNombre(a)) + L;
+    return signe + (a.igual(1) ? '' : `${M.texNombre(a)} \\cdot `) + Mt.texLinealFactor(valor[j]);
   };
-  const marquesMenor = extra => {
-    const m = {};
-    for (const i of fs) for (const j of cs) m[`${i}${j}`] = 'mes';
-    if (extra !== undefined) {
-      for (const j of cs.concat([extra])) m[`${r3}${j}`] = 'tria';
-      for (const i of fs) m[`${i}${extra}`] = 'tria';
+  [...pivots].reverse().forEach(({fila, columna: pc}, n) => {
+    const fl = B[fila], a = fl[pc], d = fl[3];
+    const altres = [0, 1, 2].filter(j => j !== pc && !fl[j].esZero());
+    const P = `C${n}`;
+    const passosC = [];
+    const ja = altres.filter(j => j !== f).map(j => `$${nom[j]} = ${Mt.texLinealQ(valor[j])}$`);
+    const quina = fila === 0 ? 'la primera' : 'la segona';
+    const terme = Mt.termeVar(a, nom[pc], true);
+    if (altres.length) {
+      passosC.push([`${terme}${altres.map(j => sumand(fl[j], j, false)).join('')} = ${M.texNombre(d)}`,
+        `Ara $${nom[pc]}$, de ${quina} equació: substitueix-hi ${ja.concat(altres.includes(f) ? [`$${nom[f]} = \\lambda$`] : []).join(' i ')}.`]);
+      const dreta = (d.esZero() ? '' : M.texNombre(d)) + altres.map((j, k) => sumand(fl[j].oposada(), j, d.esZero() && k === 0)).join('');
+      passosC.push([`${terme} = ${dreta}`, `Deixa sol el terme amb $${nom[pc]}$: els altres passen a l'altre costat, canviats de signe.`]);
+    } else {
+      passosC.push([`${terme} = ${M.texNombre(d)}`, `Ara $${nom[pc]}$, de ${quina} equació, que només té $${nom[pc]}$.`]);
     }
-    return m;
-  };
-  pintaSistema();
-  g.afegeix('Un sistema de 3 equacions amb 3 incògnites. Abans de resoldre\'l, mira com són les solucions amb el teorema de Rouché–Frobenius: '
-    + 'compara el rang de la matriu dels coeficients, $A$, amb el de l\'ampliada, $A^*$.');
-  pintaMatriu();
-  g.afegeix('La matriu ampliada $A^*$: els coeficients de les incògnites (això és $A$) i, després de la ratlla, la columna dels termes independents.');
+    const R_ = altres.reduce((acc, j) => sumaQ(acc, perQ(valor[j], fl[j].oposada())), [d, zero]);
+    const opera = `${terme} = ${Mt.texLinealQ(R_)}`;
+    if (opera !== passosC[passosC.length - 1][0]) passosC.push([opera, 'Opera el costat de la dreta.']);
+    valor[pc] = perQ(R_, M.Fraccio.de(1).quocient(a));
+    if (!a.igual(1)) passosC.push([`${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`, `Divideix per $${M.texNombre(a)}$.`]);
+    const lin = [];
+    passosC.forEach(([tex, text], k) => {
+      lin.push(K(`${P}${k}`, tex));
+      g.files[FILA.calcul] = `\\begin{array}{l} ${lin.join(' \\\\[8pt] ')} \\end{array}`;
+      g.afegeix(text);
+    });
+    g.files[FILA.calcul] = '';
+    valors.push(K(`V${pc}`, `${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`));
+    pintaValors();
+    g.afegeix(`Ja tenim $${nom[pc]} = ${Mt.texLinealQ(valor[pc])}$.`, {fusiona: {[`V${pc}`]: [`${P}${passosC.length - 1}`]}});
+  });
 
-  /* Els rangs, orlant un menor d'ordre 2 no nul. */
-  const linies = [];
-  const pintaMenors = () => { g.files[FILA.menors] = linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[10pt] ')} \\end{array}` : linies[0]; };
-  const B2 = Mt.submatriu(S, fs, cs);
-  const D = Mt.det2N(B2);
-  linies.push(K('N0m', Mt.texVmatriuN(B2)) + R('N0q', '=') + K('N0p', Mt.texDet2N(B2)) + R('N0r', '=') + K('N0v', `${M.texNombre(D)} \\neq 0`));
-  pintaMatriu(marquesMenor());
-  pintaMenors();
-  g.afegeix(`Un menor d'ordre 2 de $A$ que no val $0$: el de les equacions ${fs[0] + 1} i ${fs[1] + 1} i les columnes de $${nom[cs[0]]}$ i $${nom[cs[1]]}$ `
-    + `(verd). Per tant, $\\text{rang}(A) \\ge 2$ i $\\text{rang}(A^*) \\ge 2$.`);
-  const orla = (j, t, nomM) => {
-    const cols = cs.concat([j]).sort((a, b) => a - b);
-    const B = Mt.submatriu(S, [0, 1, 2], cols);
-    pintaMatriu(marquesMenor(j));
-    linies.push(F.enLinies((nomM ? K(`N${t}n`, nomM) + R(`N${t}e`, '=') : '') + K(`N${t}m`, Mt.texVmatriuN(B)) + R(`N${t}q`, '='),
-      [K(`N${t}p`, Mt.texSarrusN(B))], {final: R(`N${t}r`, '=') + K(`N${t}v`, M.texNombre(Mt.det3N(B)))}));
-    pintaMenors();
-  };
-  orla(f, 1, '|A|');
-  g.afegeix(`Orla'l amb l'equació ${r3 + 1} i la columna de $${nom[f]}$ (groc): és tot $|A|$. Per Sarrus, val $0$. `
-    + 'Per tant, $\\text{rang}(A) = 2$.');
-  orla(3, 2, '');
-  g.afegeix(`Ara orla'l amb l'equació ${r3 + 1} i la columna dels termes independents: també val $0$. Els dos menors d'ordre 3 de $A^*$ que orlen `
-    + 'el menor no nul valen $0$: $\\text{rang}(A^*) = 2$.');
-  pintaMatriu(marquesMenor());
-  g.files[FILA.rouche] = K('Rr', '\\text{rang}(A) = \\text{rang}(A^*) = 2 < 3');
-  g.afegeix('Teorema de Rouché–Frobenius: els dos rangs són iguals (el sistema és compatible), però més petits que el nombre d\'incògnites, $3$. '
-    + 'És un sistema compatible indeterminat: té infinites solucions, que depenen de $3 - 2 = 1$ paràmetre.');
-
-  /* La resolució. */
-  pintaMatriu();
-  const {exemple, components} = Mt.passosSCI(g, {S, fs, cs, files: FILA, pintaSistema});
+  /* 4. El conjunt de solucions, i l'equació vectorial d'una recta. */
+  const comps = [0, 1, 2].map(j => Mt.texLinealQ(valor[j]));
+  g.files[FILA.solucio] = K('Sl', '(x,\\ y,\\ z)') + R('Sq', '=') + K('Sv', `\\left(${comps.join(',\\ ')}\\right)`) + ',\\quad ' + K('Sp', '\\lambda \\in \\mathbb{R}');
   g.classes[FILA.solucio] = 'final';
-  g.afegeix(`Resposta: les solucions són $(x,\\ y,\\ z) = \\left(${components.join(',\\ ')}\\right)$, per a qualsevol $\\lambda \\in \\mathbb{R}$. `
-    + `Cada valor de $\\lambda$ dona una solució: per exemple, amb $\\lambda = 1$, $(${exemple.join(',\\ ')})$.`);
+  g.afegeix('El conjunt de solucions: $(x,\\ y,\\ z) = (f_1(\\lambda),\\ f_2(\\lambda),\\ \\lambda)$. Cada valor de $\\lambda$ dona una solució.');
+  const num = c => (c.esEnter() ? M.texNombre(c) : `${c.signe() < 0 ? '-' : ''}\\dfrac{${Math.abs(c.num)}}{${c.den}}`);
+  const punt = [0, 1, 2].map(j => valor[j][0]), vector = [0, 1, 2].map(j => valor[j][1]);
+  g.files[FILA.recta] = K('Ll', '(x,\\ y,\\ z)') + R('Lq', '=') + K('Lp', `\\left(${punt.map(num).join(',\\ ')}\\right)`) + ' + ' + K('Lv', `\\lambda \\left(${vector.map(num).join(',\\ ')}\\right)`);
+  g.classes[FILA.recta] = 'final';
+  g.afegeix('Separa la part sense $\\lambda$ i la part amb $\\lambda$: és l\'equació vectorial d\'una recta. El conjunt de solucions és la recta que passa pel punt '
+    + `$(${punt.map(num).join(',\\ ')})$ (la solució amb $\\lambda = 0$) i té vector director $(${vector.map(num).join(',\\ ')})$.`);
   return g.passos;
 }
 

@@ -70,16 +70,16 @@ const estat = p => p.evaluate(() => {
       await p.screenshot({path: path.join(SHOTS, `sci-ex${e + 1}-final.png`), fullPage: true});
     }
     ok(await p.evaluate(() => location.search) === '?S=1,1,-1,0;2,-1,1,0;1,-2,2,0', 'address follows the examples: ' + await p.evaluate(() => location.search));
-    // Marks: example 1, step 4: the 2×2 minor green, bordered with row 3 and column z (yellow); step 7: equation 3 red.
+    // Gauss: at the step «Ja està esglaonada», the zero row of the last matrix is yellow and the system has «0 = 0» (yellow); no determinants, ranks or Cramer anywhere.
     await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
     await p.waitForTimeout(200);
-    await p.evaluate(() => procediment.salta(3));
-    const marques = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
-    ok(marques.join() === 'a11:mes,a12:mes,a13:tria,a21:mes,a22:mes,a23:tria,a31:tria,a32:tria,a33:tria', 'bordering with column z: ' + marques.join(' '));
-    await p.evaluate(() => procediment.salta(6));
-    const marques2 = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
-    ok(marques2.join() === 'Q1:mes,Q2:mes,Q3:menys', 'equation 3 dropped: ' + marques2.join(' '));
-    await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'sci-marques.png')});
+    const pasZero = await p.evaluate(() => SistemaSCI.passos(procediment.valors).findIndex(q => /0 = 0/.test(q.files[SistemaSCI.FILA.esglaonat] || '')));
+    await p.evaluate(i => procediment.salta(i), pasZero);
+    const marques = (await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
+    ok(marques.filter(m => /^G\d+a3\d:tria$/.test(m)).length === 4 && marques.includes('E3:tria'), 'zero row and 0 = 0 in yellow: ' + marques.join(' '));
+    await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'sci-zero.png')});
+    const text = await p.evaluate(() => SistemaSCI.passos(procediment.valors).map(q => q.files.join(' ')).join(' '));
+    ok(!/vmatrix|rang|Cramer/.test(text), 'no determinants, ranks or Cramer');
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();
   }
@@ -94,7 +94,7 @@ const estat = p => p.evaluate(() => {
     await context.close();
   }
   {
-    const {p, context, consola} = await obre(nav, '', {width: 375, height: 760});
+    const {p, context, consola} = await obre(nav, '', {width: 1366, height: 650});
     let pitjor = 0, total = 0;
     const n = await p.$$eval('.exemple', b => b.length);
     for (let e = 0; e < n; e++) {
@@ -103,11 +103,11 @@ const estat = p => p.evaluate(() => {
       const t = await p.evaluate(() => procediment.total);
       for (let i = 0; i < t; i++) { await p.evaluate(j => procediment.salta(j), i); pitjor = Math.max(pitjor, (await estat(p)).desborda); total++; }
     }
-    ok(pitjor <= 0, `phone: ${total} steps without overflow (${pitjor})`);
+    ok(pitjor <= 0, `laptop 1366×650: ${total} steps without overflow (${pitjor})`);
     await p.evaluate(() => document.querySelectorAll('.exemple')[2].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(99));
-    await p.screenshot({path: path.join(SHOTS, 'sci-mobil-ex3-final.png'), fullPage: true});
+    await p.screenshot({path: path.join(SHOTS, 'sci-portatil-ex3-final.png'), fullPage: true});
     ok(await p.$$eval('.editor', e => e.every(x => x.hidden)) && await p.textContent('.exemples span') === 'Sistemes:', 'no editor; chips titled «Sistemes:»');
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();

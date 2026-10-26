@@ -145,8 +145,10 @@ function passos(v) {
   const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|', inici: `On és $|A| = 0$? Per a aquests valors, $\\text{rang}(A) < 3$.`}).map(r => r.num);
 
   /* La taula, que es va omplint. */
-  const files = [[K('T0a', X), K('T0b', '\\text{rang}(A)'), K('T0c', '\\text{rang}(A^*)'), K('T0d', '\\text{tipus de sistema}')]];
+  // La capçalera, en negreta; la taula, una mica separada dels càlculs (classe «separat»).
+  const files = [[K('T0a', `\\boldsymbol{${X}}`), K('T0b', '\\textbf{rang}\\boldsymbol{(A)}'), K('T0c', '\\textbf{rang}\\boldsymbol{(A^*)}'), K('T0d', '\\textbf{Tipus de sistema}')]];
   const taula = () => {
+    g.classes[FILA.taula] = 'separat';
     g.files[FILA.taula] = `\\begin{array}{c|c|c|c} ${files.map(f => f.join(' & ')).join(' \\\\ \\hline ')} \\end{array}`;
   };
 
@@ -218,7 +220,7 @@ function passos(v) {
   });
 
   g.files[FILA.cas] = '';
-  g.classes[FILA.taula] = 'final';
+  g.classes[FILA.taula] = 'separat final';
   g.afegeix('Resposta: la taula resumeix la discussió.' + (arrels.some(r => cas(S, r).rA === 2 && cas(S, r).rS === 2)
     ? ' (Per resoldre un cas compatible indeterminat, vegeu el procediment «Sistema compatible indeterminat».)' : ''));
   return g.passos;

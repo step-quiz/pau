@@ -91,7 +91,7 @@ const estat = p => p.evaluate(() => {
     await context.close();
   }
   {
-    const {p, context, consola} = await obre(nav, '', {width: 375, height: 760});
+    const {p, context, consola} = await obre(nav, '', {width: 1366, height: 650});
     let pitjor = 0, total = 0;
     const n = await p.$$eval('.exemple', b => b.length);
     for (let e = 0; e < n; e++) {
@@ -100,7 +100,7 @@ const estat = p => p.evaluate(() => {
       const t = await p.evaluate(() => procediment.total);
       for (let i = 0; i < t; i++) { await p.evaluate(j => procediment.salta(j), i); pitjor = Math.max(pitjor, (await estat(p)).desborda); total++; }
     }
-    ok(pitjor <= 0, `phone: ${total} steps without overflow (${pitjor})`);
+    ok(pitjor <= 0, `laptop 1366×650 (phones are secondary): ${total} steps without overflow (${pitjor})`);
     await p.evaluate(() => document.querySelectorAll('.exemple')[8].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(99));

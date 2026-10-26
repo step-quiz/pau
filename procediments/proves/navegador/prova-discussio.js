@@ -73,10 +73,12 @@ const estat = p => p.evaluate(() => {
     // Example 1, step 15 (m = −1): the 2×2 minor green; step 16: bordered with the column of constants (yellow).
     await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
     await p.waitForTimeout(200);
-    await p.evaluate(() => procediment.salta(14));
+    // El pas del menor verd (i el següent, l'orlat): es busquen pel contingut, no pel número del pas.
+    const pasMenor = await p.evaluate(() => Discussio.passos(procediment.valors).findIndex(q => /marca=mes/.test(q.files[Discussio.FILA.cas] || '') && !/marca=tria/.test(q.files[Discussio.FILA.cas] || '')));
+    await p.evaluate(i => procediment.salta(i), pasMenor);
     const marques = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
     ok(marques.length === 4 && marques.every(m => /^K0a\d\d:mes$/.test(m)), 'm = −1: a green 2×2 minor: ' + marques.join(' '));
-    await p.evaluate(() => procediment.salta(15));
+    await p.evaluate(i => procediment.salta(i), pasMenor + 1);
     const marques2 = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
     ok(marques2.length === 9 && marques2.filter(m => m.endsWith(':tria')).length === 5 && marques2.some(m => /^K0a\d4:tria$/.test(m)), 'bordered with the column of constants: ' + marques2.join(' '));
     await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'disc-marques.png')});
@@ -96,7 +98,7 @@ const estat = p => p.evaluate(() => {
     await context.close();
   }
   {
-    const {p, context, consola} = await obre(nav, '', {width: 375, height: 760});
+    const {p, context, consola} = await obre(nav, '', {width: 1366, height: 650});
     let pitjor = 0, total = 0;
     const n = await p.$$eval('.exemple', b => b.length);
     for (let e = 0; e < n; e++) {
@@ -105,7 +107,7 @@ const estat = p => p.evaluate(() => {
       const t = await p.evaluate(() => procediment.total);
       for (let i = 0; i < t; i++) { await p.evaluate(j => procediment.salta(j), i); pitjor = Math.max(pitjor, (await estat(p)).desborda); total++; }
     }
-    ok(pitjor <= 0, `phone: ${total} steps without overflow (${pitjor})`);
+    ok(pitjor <= 0, `laptop 1366×650 (phones are secondary): ${total} steps without overflow (${pitjor})`);
     await p.evaluate(() => document.querySelectorAll('.exemple')[2].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(99));

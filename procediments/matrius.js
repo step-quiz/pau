@@ -12,9 +12,9 @@
                           l'equació de segon grau (Formules.resolPolinomi)
      problemaArrels(p)    null si passosArrels el sap resoldre
      texSistema, texAmpliada   un sistema de 3 equacions i la seva A*
-     passosSCI(g, …)      un sistema compatible indeterminat (rang 2):
-                          l'equació que sobra, el paràmetre λ, Cramer i
-                          el conjunt de solucions
+     passosGauss(S)       esglaonar la matriu ampliada pel mètode de Gauss
+                          (pivots, Fᵢ → a·Fᵢ − b·Fⱼ, files de zeros al final).
+                          Mai Cramer (David).
 
    Un element d'una matriu és un polinomi en el paràmetre X (una lletra:
    a, k, m, p o t): els seus coeficients exactes [c0, c1] (Fraccio),
@@ -505,109 +505,102 @@ function texAmpliada(S, {P = '', marca = () => '', X = null} = {}) {
   return `\\left(\\begin{array}{rrr|r} ${files.join(' \\\\ ')} \\end{array}\\right)`;
 }
 
-/**
- * Els passos d'un sistema compatible indeterminat (rang 2), quan ja tenim un menor d'ordre 2
- * no nul de A (files fs, columnes cs): treure l'equació que sobra, la incògnita que queda fora
- * del menor és el paràmetre λ, el sistema de 2×2 que queda, Cramer per a cada incògnita i el
- * conjunt de solucions. «pintaSistema(marques)» redibuixa el sistema amb aquestes marques
- * ({fila: 'mes' | 'menys'}). Files: reduit, cramer, solucio. Torna {solucio: [p_x, p_y, p_z]}:
- * cada incògnita com a polinomi en λ (de grau ≤ 1).
- */
-function passosSCI(g, {S, fs, cs, files, pintaSistema}) {
-  const [r1, r2] = fs, [c1, c2] = cs;
-  const r3 = [0, 1, 2].find(i => !fs.includes(i));
-  const f = [0, 1, 2].find(j => !cs.includes(j));
-  const nom = INCOGNITES;
+/* ── 7. MÈTODE DE GAUSS ────────────────────────────────────────────── */
+/*
+   Esglaonar una matriu de nombres enters (3 files; 4 columnes per a una ampliada), sempre amb el
+   mateix algorisme, com el vol el David (sense fraccions ni dreceres):
+     · columna per columna, el pivot és el primer element no nul a partir de la fila que toca;
+       només es canvien files si l'element de la fila que toca és 0;
+     · per fer un zero sota el pivot p, a la fila i (element e): Fᵢ → a·Fᵢ + b·Fⱼ, amb a = p i
+       b = −e (sempre una suma; a i b poden ser negatius; no es simplifica mai);
+     · les files de zeros queden al final.
+   Cada pas: {B (la matriu nova), etiquetes: [TeX o '' per fila], ops: [{i, a, j, b}], text}.
+*/
 
-  /* L'equació que sobra. */
-  pintaSistema({[r1]: 'mes', [r2]: 'mes', [r3]: 'menys'});
-  g.afegeix(`L'equació ${r3 + 1} no aporta res de nou: és combinació de les altres dues (per això el menor d'ordre 3 que la conté val $0$). `
-    + `Treu-la, i queda't amb les equacions ${r1 + 1} i ${r2 + 1}, les del menor no nul.`);
-
-  /* La incògnita de fora del menor és el paràmetre. */
-  const linia = (k, ambLambda) => {
-    const i = fs[k];
-    const termes = [];
-    for (const j of [0, 1, 2]) {
-      const c = S[i][j];
-      if (c.esZero() || (j === f && !ambLambda)) continue;
-      termes.push(K(`G${k}${j === f ? 'l' : nom[j]}`, termeVar(c, j === f ? LAMBDA : nom[j], termes.length === 0)));
-    }
-    const esquerre = termes.length ? termes.join('') : K(`G${k}o`, '0');
-    let dret;
-    if (ambLambda || S[i][f].esZero()) dret = K(`G${k}d`, M.texNombre(S[i][3]));
-    else if (S[i][3].esZero()) dret = K(`G${k}l`, termeVar(S[i][f].oposada(), LAMBDA, true));
-    else dret = K(`G${k}d`, M.texNombre(S[i][3])) + K(`G${k}l`, termeVar(S[i][f].oposada(), LAMBDA, false));
-    return esquerre + R(`G${k}q`, '=') + dret;
-  };
-  const sistema2 = ambLambda => `\\left\\{\\begin{array}{l} ${linia(0, ambLambda)} \\\\ ${linia(1, ambLambda)} \\end{array}\\right.`;
-  const capLambda = S[r1][f].esZero() && S[r2][f].esZero();
-  g.files[files.reduit] = sistema2(true);
-  g.afegeix(`La incògnita que no és a les columnes del menor, $${nom[f]}$, passa a ser el paràmetre: $${nom[f]} = \\lambda$ (pot valer qualsevol nombre). `
-    + (capLambda ? `Aquí $${nom[f]}$ no surt a les dues equacions que queden.` : 'Escriu-ho a les dues equacions que queden.'));
-  if (!capLambda) {
-    g.files[files.reduit] = sistema2(false);
-    g.afegeix(`Passa els termes amb $\\lambda$ a l'altre costat (hi arriben canviats de signe): queda un sistema de 2 equacions amb 2 incògnites, $${nom[c1]}$ i $${nom[c2]}$.`);
-  }
-
-  /* Cramer per a cada incògnita. */
-  const Mn = [[S[r1][c1], S[r1][c2]], [S[r2][c1], S[r2][c2]]];
-  const D = Mn[0][0].producte(Mn[1][1]).resta(Mn[0][1].producte(Mn[1][0]));
-  const b = [r1, r2].map(i => [S[i][3], S[i][f].oposada()]);              // els termes independents, en λ
-  const texV = B => `\\begin{vmatrix} ${B.map(fl => fl.map(e => (Array.isArray(e) ? texLineal(e) : M.texNombre(e))).join(' & ')).join(' \\\\ ')} \\end{vmatrix}`;
-  const fac = e => (Array.isArray(e) ? texFactorLineal(e) : M.texEntreParentesis(e));
-  const per = (e, c) => (Array.isArray(e) ? e.map(x => x.producte(c)) : null);
-  const linies = [];
-  const solucio = [];
-  const pinta = () => { g.files[files.cramer] = linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[12pt] ')} \\end{array}` : linies[0]; };
-  [c1, c2].forEach((v, n) => {
-    // La matriu del numerador: la columna de la incògnita, canviada pels termes independents.
-    const B = n === 0 ? [[b[0], Mn[0][1]], [b[1], Mn[1][1]]] : [[Mn[0][0], b[0]], [Mn[1][0], b[1]]];
-    const num = n === 0 ? sumaP(per(b[0], Mn[1][1]), oposatP(per(b[1], Mn[0][1]))) : sumaP(per(b[1], Mn[0][0]), oposatP(per(b[0], Mn[1][0])));
-    const texNum = n === 0 ? `${fac(b[0])} \\cdot ${fac(Mn[1][1])} - ${fac(Mn[0][1])} \\cdot ${fac(b[1])}`
-      : `${fac(Mn[0][0])} \\cdot ${fac(b[1])} - ${fac(b[0])} \\cdot ${fac(Mn[1][0])}`;
-    const P = `X${nom[v]}`;
-    const inici = K(P + 'l', nom[v]) + R(P + 'q', '=');
-    const peces = [K(P + 'a', `\\dfrac{${texV(B)}}{${texV(Mn)}}`)];
-    linies.push(F.enLinies(inici, peces));
-    pinta();
-    g.afegeix(`Regla de Cramer: $${nom[v]}$ és un quocient de determinants. A baix, el menor (el determinant del sistema); a dalt, el mateix, `
-      + `però amb la columna de $${nom[v]}$ canviada per la dels termes independents.`);
-    const sobre = t => (D.igual(U) ? t : `\\dfrac{${t}}{${M.texNombre(D)}}`);   // sobre 1 no cal escriure la fracció
-    peces.push(' = ' + K(P + 'b', sobre(texNum)));
-    linies[n] = F.enLinies(inici, peces);
-    pinta();
-    g.afegeix('Calcula els dos determinants d\'ordre 2: el producte de la diagonal principal menys el de la secundària.');
-    const cru = sobre(texLineal(num));
-    peces.push(' = ' + K(P + 'c', cru));
-    const fi = texQuocientLineal(num, D);
-    if (fi !== cru) peces.push(' = ' + K(P + 'r', fi));
-    linies[n] = F.enLinies(inici, peces);
-    pinta();
-    g.afegeix(`Opera el numerador${fi !== cru ? ' i simplifica' : ''}: $${nom[v]} = ${fi}$.`);
-    solucio[v] = num.map(c => c.quocient(D));
-  });
-  solucio[f] = [ZERO, U];
-
-  /* El conjunt de solucions. */
-  const components = [0, 1, 2].map(j => (j === f ? LAMBDA : texQuocientLineal(solucio[j].map(c => c.producte(D)), D)));
-  g.files[files.solucio] = F.enLinies(K('Sl', '(x,\\ y,\\ z)') + R('Sq', '='), [K('Sv', `\\left(${components.join(',\\ ')}\\right),`)],
-    {final: '\\ ' + K('Sp', '\\lambda \\in \\mathbb{R}')});
-  const exemple = [0, 1, 2].map(j => M.texNombre(valorP(solucio[j], 1)));          // la solució amb λ = 1
-  return {solucio, exemple, components};
+/** «F_2 + (-2)F_1», «3F_3 + (-2)F_2», «-2F_3 + 4F_2»: a·Fᵢ + b·Fⱼ, sempre com a suma. */
+function texCombinacio(a, i, b, j) {
+  const coef = (c, primer) => (c === 1 ? '' : c === -1 ? (primer ? '-' : '(-1)') : c < 0 && !primer ? `(${c})` : String(c));
+  return `${coef(a, true)}F_${i + 1} + ${coef(b, false)}F_${j + 1}`;
 }
 
+function passosGauss(S) {
+  let B = S.map(f => f.slice());
+  const passos = [];
+  const nC = B[0].length;
+  const nom = c => (c < 3 && nC === 4 ? `la columna de $${INCOGNITES[c]}$` : c === 3 && nC === 4 ? 'la columna dels termes independents' : `la columna ${c + 1}`);
+  const copia = () => B.map(f => f.slice());
+  const intercanvi = (i, k, text) => {
+    [B[i], B[k]] = [B[k], B[i]];
+    const et = ['', '', ''];
+    et[i] = `F_${i + 1} \\leftrightarrow F_${k + 1}`;
+    et[k] = `F_${k + 1} \\leftrightarrow F_${i + 1}`;
+    passos.push({B: copia(), etiquetes: et, ops: [{canvi: [i, k]}], text});
+  };
+  let r = 0;
+  const pivots = [];
+  for (let c = 0; c < nC && r < 3; c++) {          // també l'última columna: «0 0 0 | 3» i «0 0 0 | 5» encara no és esglaonada
+    const k = [0, 1, 2].find(i => i >= r && !B[i][c].esZero());
+    if (k === undefined) continue;
+    if (k !== r) intercanvi(r, k, `A ${nom(c)}, l'element de la fila ${r + 1} és $0$ i no pot ser pivot: canvia l'ordre de les files ${r + 1} i ${k + 1}.`);
+    pivots.push({fila: r, columna: c});
+    const p = B[r][c];
+    const et = ['', '', ''], ops = [], textos = [];
+    for (let i = r + 1; i < 3; i++) {
+      const e = B[i][c];
+      if (e.esZero()) continue;
+      const a = p.num, b = -e.num;                       // a·e + b·p = 0
+      B[i] = B[i].map((x, q) => x.producte(a).suma(B[r][q].producte(b)));
+      et[i] = texCombinacio(a, i, b, r);
+      ops.push({i, a, j: r, b});
+      textos.push(`$F_${i + 1} \\to ${et[i]}$`);
+    }
+    if (ops.length) {
+      passos.push({B: copia(), etiquetes: et, ops,
+        text: `Zeros a sota del pivot de ${nom(c)}, el $${M.texNombre(p)}$ de la fila ${r + 1}: per a cada fila, multiplica-la pel pivot i suma-li `
+          + `la fila del pivot multiplicada per l'oposat del nombre que vols anul·lar. ${textos.join(' i ')}.`});
+    }
+    r++;
+  }
+  // Les files de zeros, al final.
+  const zero = f => f.every(x => x.esZero());
+  for (let i = 0; i < 2; i++) if (zero(B[i]) && !zero(B[i + 1])) intercanvi(i, i + 1, 'Passa la fila de zeros al final.');
+  return {passos, B, pivots};
+}
+
+/**
+ * La cadena de Gauss, com a fila de la pissarra: «A^* = (…)» i, a sota, «∼ (…)» amb les operacions al
+ * costat de les files que canvien, fins al pas «fins». «marca(i, j)», per a la darrera matriu.
+ */
+function texCadenaGauss(S, passos, {fins = passos.length, nom = 'A^*', marca = () => ''} = {}) {
+  const etiquetes = et => `\\quad\\begin{array}{l} ${et.map(e => (e ? `\\small ${e}` : '')).join(' \\\\ ')} \\end{array}`;
+  const linies = [K('Gn', nom) + R('Gq', '=') + texAmpliada(S, {P: 'G0', marca: fins === 0 ? marca : () => ''})];
+  for (let t = 1; t <= fins; t++) {
+    linies.push(`\\sim ${texAmpliada(passos[t - 1].B, {P: `G${t}`, marca: t === fins ? marca : () => ''})}${etiquetes(passos[t - 1].etiquetes)}`);
+  }
+  return `\\begin{array}{l} ${linies.join(' \\\\[10pt] ')} \\end{array}`;
+}
+
+/** p (polinomi de grau ≤ 1 en λ, coeficients Fraccio) en TeX, amb una sola fracció si cal: «\dfrac{3 - 3\lambda}{2}», «1 + \lambda». */
+function texLinealQ(p) {
+  const c = [p[0] || ZERO, p[1] || ZERO];
+  const D = c.reduce((d, x) => d * x.den / M.mcd(d, x.den), 1);
+  if (D === 1) return texLineal(c);
+  return texQuocientLineal(c.map(x => x.producte(D)), new Fraccio(D));
+}
+/** Com a sumand: entre parèntesis si té dos termes i no és una fracció. */
+const texLinealFactor = p => { const t = texLinealQ(p); return t.startsWith('\\dfrac') ? t : texFactorLineal([p[0] || ZERO, p[1] || ZERO]); };
 
 /* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
 
 arrel.Matrius = Object.freeze({
   PARAMETRES, MAX_ELEMENT, SARRUS,
-  sumaP, producteP, oposatP, valorP, texP, textP, texEntrada, texFactor,
+  sumaP, producteP, oposatP, texP, textP, texEntrada, texFactor,
   llegeixMatriu, textMatriu, clauElement, texMatriu, texMatriuPetita,
   determinant, passosSarrus,
   divisors, ruffini, problemaArrels, passosArrels, texSolucions,
   nombres, submatriu, texVmatriuN, det2N, texDet2N, productesSarrusN, det3N, texSarrusN, rangN,
-  INCOGNITES, termeVar, texLineal, texQuocientLineal, texEquacio, texSistema, texAmpliada, passosSCI,
+  INCOGNITES, LAMBDA, termeVar, texLineal, texQuocientLineal, texEquacio, texSistema, texAmpliada,
+  passosGauss, texCombinacio, texCadenaGauss, texLinealQ, texLinealFactor, valorP,
 });
 
 })(globalThis);
