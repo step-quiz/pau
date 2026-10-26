@@ -23,7 +23,7 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'matrius.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'matrius.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
 const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio, PolinomiCondicions, Bolzano, Asimptotes, ProbabilitatTotal, Bayes, Binomial, Matrius, Determinant, Rang, SistemaSCI, Discussio, Inversa, EquacioMatricial, Esglaonar, Geometria, Pla, RectaPlans, RectaPla, DuesRectes, Distancies, Projeccions, AreaVolum, PerpendicularComuna, Primitiva, Barrow, AreaEix, AreaCorbes, AreaParametre} = globalThis;
@@ -3596,6 +3596,35 @@ function vectorIJK(t) {
 /** Determinant 3×3 amb una primera fila de vectors unitaris: la component m de |e; u; v|, per Laplace. */
 const componentDet = (u, v, m) => detLaplace([[0, 1, 2].map(j => fr(j === m ? 1 : 0)), u, v]);
 /** Els operands que van després de cada «*» d'un text pla (un nombre o un grup entre parèntesis): {inici, fi, text}. */
+/**
+ * «2-2*3+(-1)+1» (Geometria.texSubstitucio en text pla): els coeficients no nuls de «coefs», en
+ * ordre, per als valors corresponents (sense «1 ·»: si el coeficient és ±1, només el valor, amb el
+ * signe), i D al final si no és 0. Torna si és exactament així.
+ */
+function substitucioCorrecta(e, coefs, valors, D) {
+  const termes = [];
+  let nivell = 0, inici = 0;
+  for (let i = 0; i < e.length; i++) {
+    const ch = e[i];
+    if (ch === '(') nivell++;
+    else if (ch === ')') nivell--;
+    else if ((ch === '+' || ch === '-') && nivell === 0 && i > 0 && !'*('.includes(e[i - 1])) { termes.push(e.slice(inici, i)); inici = i; }
+  }
+  termes.push(e.slice(inici));
+  const parells = coefs.map((c, j) => [c, valors[j]]).filter(([c]) => !c.esZero());
+  const ambD = D && !D.esZero();
+  if (termes.length !== parells.length + (ambD ? 1 : 0)) return false;
+  const net = t => t.replace(/^\+/, '');
+  if (ambD && !valorXYZD(net(termes[termes.length - 1]), {}).igual(D)) return false;
+  return parells.every(([c, x], j) => {
+    const t = termes[j];
+    const cos = t.replace(/^[+-]/, '');
+    const k = cos.indexOf('*');
+    if (k < 0) return c.abs().igual(1) && valorXYZD(net(t), {}).igual(c.producte(x));
+    return !c.abs().igual(1) && (t[0] === '-' ? -1 : 1) === c.signe() && M.llegeixNombre(cos.slice(0, k)).igual(c.abs()) && valorXYZD(cos.slice(k + 1), {}).igual(x);
+  });
+}
+
 function operandsDeProductes(e) {
   const r = [];
   for (let i = 0; i < e.length; i++) {
@@ -3612,38 +3641,65 @@ function operandsDeProductes(e) {
   return r;
 }
 
+/** Un tros de TeX amb \vec{i}, \vec{j}, \vec{k} com a vector [a, b, c] (i, j, k es llegeixen com x, y, z). */
+function formaIJK(tex) {
+  const pla = textPla(tex.replace(/\\vec\{([ijk])\}/g, (_, u) => ({i: 'x', j: 'y', k: 'z'})[u]));
+  const val = (x, y, z) => valorXYZ(pla, {x: fr(x), y: fr(y), z: fr(z), t: fr(0)});
+  const c0 = val(0, 0, 0);
+  comprova(c0.esZero(), () => `«${pla}» té un terme sense i, j ni k`);
+  return [val(1, 0, 0), val(0, 1, 0), val(0, 0, 1)].map(x => x.resta(c0));
+}
+/** El que hi ha després del «=» de nivell superior d'una línia (fora de claus). */
+const despresIgual = tex => { const i = tex.indexOf('\\mathrel{\\htmlData{k='); const j = tex.indexOf('}}', i); return i < 0 ? tex : tex.slice(j + 2); };
+
 /**
  * La fila del producte vectorial a × b (Geometria.passosProducteVectorial, claus V…): el nom; el
- * determinant |i j k; a; b|; i, si hi és, el desenvolupament: cada terme amb el seu vector unitari,
- * el seu menor i el signe escrit (+ − +), i la suma val a × b (calculat aquí per Laplace).
+ * determinant |i j k; a; b|; i, si hi és, la regla de Sarrus amb claudàtors: cada producte VS<n>
+ * és el de la seva posició (el símbol de la primera fila per dos nombres), i la línia sencera val
+ * a × b (calculat aquí per Laplace).
  */
 function comprovaFilaProducte(tex, grups, a, b, nom, on) {
   comprova(grups.Vl.tex === nom, () => `${on}: no és ${nom}`);
   const files = /\\begin\{vmatrix\}(.*)\\end\{vmatrix\}/.exec(grups.Vd.tex)[1].split('\\\\').map(f => f.split('&').map(c => c.trim()));
   comprova(files.length === 3 && iguals(files[0], ['\\vec{i}', '\\vec{j}', '\\vec{k}'])
     && [a, b].every((v, k) => igualsV(files[k + 1].map(c => M.llegeixNombre(textPla(c))), v)), () => `${on}: el determinant no és |i j k; ${nom}|`);
-  const termes = [0, 1, 2].filter(j => grups[`Vm${j}`]);
-  if (!termes.length) return;
-  comprova(termes.length === 3, () => `${on}: el desenvolupament no té els tres termes`);
-  let suma = [fr(0), fr(0), fr(0)];
-  for (const j of termes) {
-    const m = /^\\vec\{([ijk])\}\\,\\begin\{vmatrix\}(.*)\\end\{vmatrix\}$/.exec(grups[`Vm${j}`].tex);
-    const B = m[2].split('\\\\').map(f => f.split('&').map(c => M.llegeixNombre(textPla(c.trim()))));
-    const cs = [0, 1, 2].filter(c => c !== j);
-    comprova(m[1] === 'ijk'[j] && B.length === 2 && [a, b].every((v, k) => igualsV(B[k], cs.map(c => v[c]))), () => `${on}: el menor de ${'ijk'[j]} no és el que toca`);
-    // El signe escrit davant del terme.
-    const abans = tex.slice(0, tex.indexOf(`\\htmlData{k=Vm${j}}`)).trimEnd();
-    comprova(abans.endsWith(j === 1 ? '-' : j === 0 ? '=' : '+'), () => `${on}: el signe de ${'ijk'[j]} no és el que toca`);
-    const valor = detMenor(B).producte(abans.endsWith('-') ? -1 : 1);
-    suma = suma.map((x, c) => (c === 'ijk'.indexOf(m[1]) ? x.suma(valor) : x));
-  }
-  comprova(igualsV(suma, [0, 1, 2].map(c => componentDet(a, b, c))), () => `${on}: el desenvolupament no val ${nom}`);
+  const n = [0, 1, 2, 3, 4, 5].filter(k => grups[`VS${k}`]).length;
+  if (!n) return;
+  comprova(n === 6, () => `${on}: la regla de Sarrus no té els sis productes`);
+  const POS = [[0, 1, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0], [0, 2, 1], [1, 0, 2]];
+  POS.forEach(([j, p, q], k) => {
+    const esperat = [0, 1, 2].map(c => (c === j ? a[p].producte(b[q]) : fr(0)));
+    comprova(grups[`VS${k}`] && igualsV(formaIJK(grups[`VS${k}`].tex), esperat), () => `${on}: el producte ${k + 1} de Sarrus no és el que toca`);
+  });
+  const linia = (tex.split('\\\\[8pt]')[1] || '');
+  comprova(linia && igualsV(formaIJK(linia.replace(/\\begin\{array\}\{l\}|\\end\{array\}|\\\\\[4pt\]|\\qquad/g, '').replace(/^\s*=\s*/, '')), [0, 1, 2].map(c => componentDet(a, b, c))),
+    () => `${on}: la regla de Sarrus no val ${nom}`);
 }
-/** La fila del resultat d'un producte vectorial: «a × b = −3i + … = (−3, …)», amb a × b calculat per Laplace. */
-function comprovaFilaValorProducte(grups, a, b, nom, on) {
+/** La fila del resultat d'un producte vectorial (claus V…): cada versió val a × b (Laplace); al final, «= … i + … = (…)». */
+function comprovaFilaValorProducte(grups, a, b, nom, on, tex) {
   const w = [0, 1, 2].map(c => componentDet(a, b, c));
   comprova(grups.VL.tex === nom, () => `${on}: no és ${nom}`);
-  comprova(igualsV(vectorIJK(textPla(grups.Vc.tex)), w) && igualsV(vectorPla(textPla(grups.Vv.tex)), w), () => `${on}: ${nom} no és ${w.map(x => x.num)}`);
+  if (grups.Vv) comprova(igualsV(vectorIJK(textPla(grups.Vc.tex)), w) && igualsV(vectorPla(textPla(grups.Vv.tex)), w), () => `${on}: ${nom} no és ${w.map(x => x.num)}`);
+  else if (tex) comprova(igualsV(formaIJK(despresIgual(tex).replace(/\\begin\{array\}\{l\}|\\end\{array\}|\\\\\[4pt\]|\\qquad/g, '')), w), () => `${on}: «${textPla(tex)}» no val ${nom}`);
+}
+
+/**
+ * Un sistema 2×2 resolt pel mètode de reducció (Geometria.passosReduccio2, claus X<n>): cada línia és una
+ * equació certa per a la solució (calculada aquí); no hi ha determinants ni quocients de Cramer. «vars»: els
+ * noms en text pla (x, y, z, λ, μ). Torna la solució.
+ */
+function comprovaReduccio(grups, S2, vars, on, tex) {
+  const D = S2[0][0].producte(S2[1][1]).resta(S2[0][1].producte(S2[1][0]));
+  const sol = [S2[0][2].producte(S2[1][1]).resta(S2[0][1].producte(S2[1][2])).quocient(D), S2[0][0].producte(S2[1][2]).resta(S2[0][2].producte(S2[1][0])).quocient(D)];
+  const nom = v => ({λ: 'l', μ: 'n'})[v] || v;
+  comprova(!/vmatrix|Cramer/.test(tex), () => `${on}: hi ha determinants (Cramer)`);
+  for (const k of Object.keys(grups).filter(c => /^X\d+$/.test(c))) {
+    const pla = textPla(grups[k].tex).replace(/λ/g, 'l').replace(/μ/g, 'n');
+    const [e, d] = pla.split('=');
+    const valor = exacte(M.llegeix(`(${e})-(${d})`, {variables: vars.map(nom)}), {variables: Object.fromEntries(vars.map((v, q) => [nom(v), sol[q]])), funcions: {}});
+    comprova(valor.esZero(), () => `${on}: «${textPla(grups[k].tex)}» no és certa per a la solució`);
+  }
+  return sol;
 }
 
 /**
@@ -3686,13 +3742,16 @@ function comprovaRectaPlans(passos, v, nom) {
         comprova(tex.startsWith('<svg') && tex.endsWith('</svg>'), () => `${on}: no és un esquema`);
       } else if (fila === FILA.normals) {
         [1, 2].forEach(k => {
+          const [e, d] = pla(`P${k}`).replace(`(pi)_${k}:`, '').split('=');
+          comprova(pla(`P${k}`).startsWith(`(pi)_${k}:`) && igualsV(coeficientsAfins(`(${e})-(${d})`), S[k - 1].slice(0, 3).concat([S[k - 1][3].oposada()])), () => `${on}: «${pla(`P${k}`)}» no és el pla ${k}`);
+          if (!grups[`N${k}`]) return;
           const [esq, dre] = pla(`N${k}`).split('=');
           comprova(esq === `«n»_${k}` && igualsV(vectorPla(dre), n[k - 1]), () => `${on}: «${pla(`N${k}`)}» no és el vector normal del pla ${k}`);
         });
       } else if (fila === FILA.producte) {
         comprovaFilaProducte(tex, grups, n[0], n[1], '\\vec{n}_1 \\times \\vec{n}_2', on);
       } else if (fila === FILA.valor) {
-        comprovaFilaValorProducte(grups, n[0], n[1], '\\vec{n}_1 \\times \\vec{n}_2', on);
+        comprovaFilaValorProducte(grups, n[0], n[1], '\\vec{n}_1 \\times \\vec{n}_2', on, tex);
         if (grups.Uv) {
           const u = vectorPla(pla('Uv'));
           comprova(pla('Ul') === '«u»' && director(u), () => `${on}: «${pla('Uv')}» no és un vector director de la recta`);
@@ -3716,34 +3775,16 @@ function comprovaRectaPlans(passos, v, nom) {
         });
         const D2 = detMenor(sistema2.map(f => f.slice(0, 2)));
         comprova(!D2.esZero(), () => `${on}: el sistema reduït no té solució única`);
-        // El text (quan la fila apareix): el determinant i quina component de n₁ × n₂ és.
-        if (i > 0 && passos[i - 1].files[fila] === tex) return;
-        const m = /El seu determinant, \$[^$]* = (-?\d+)\$, és (la component|l'oposada de la component) \$([xyz])\$/.exec(pas.text);
-        comprova(m && fr(Number(m[1])).igual(D2) && m[3] === x && w[fixa.j].producte(m[2] === 'la component' ? 1 : -1).igual(D2),
-          () => `${on}: el text del determinant no és cert: ${pas.text}`);
-      } else if (fila === FILA.cramer) {
-        const A2 = sistema2.map(f => f.slice(0, 2)), b2 = sistema2.map(f => f[2]);
+      } else if (fila === FILA.reduccio) {
         const vars = [0, 1, 2].filter(j => j !== fixa.j).map(j => 'xyz'[j]);
-        vars.forEach((x, k) => {
-          const g = grups[`X${x}a`];
-          if (!g) return;
-          comprova(pla(`X${x}l`) === x, () => `${on}: la línia de ${x} no comença per ${x}`);
-          const mats = cossosVmatrix(g.tex).map(B => B.map(f => f.map(c => M.llegeixNombre(c))));
-          const Bnum = A2.map((f, a) => f.map((c, b) => (b === k ? b2[a] : c)));
-          comprova(mats.length === 2 && mats[0].every((f, a) => igualsV(f, Bnum[a])) && mats[1].every((f, a) => igualsV(f, A2[a])),
-            () => `${on}: el quocient de Cramer de ${x} no és el que toca`);
-          const valors = [`X${x}a`, `X${x}b`, `X${x}c`].filter(c => grups[c]).map(c => valorXYZD(textPla(ambMenorsCalculats(grups[c].tex)), {}));
-          comprova(valors.every(y => y.igual(valors[0])), () => `${on}: la cadena de ${x} no és certa`);
-          Pcramer[x] = valors[0];
-        });
-        if (vars.every(x => Pcramer[x])) {
-          comprova(sistema2.every(f => f[0].producte(Pcramer[vars[0]]).suma(f[1].producte(Pcramer[vars[1]])).igual(f[2])), () => `${on}: no és la solució del sistema reduït`);
-        }
+        const sol = comprovaReduccio(grups, sistema2, vars, on, tex);
+        vars.forEach((x, k) => { Pcramer[x] = sol[k]; });
       } else if (fila === FILA.comprovacio) {
         const P = vectorPla(pla('Pp').split('=')[1]);
         comprova(pla('Pp').startsWith('P=') && deLaRecta(P) && P[fixa.j].igual(fixa.val)
           && [0, 1, 2].every(j => j === fixa.j || P[j].igual(Pcramer['xyz'[j]])), () => `${on}: «${pla('Pp')}» no és el punt calculat`);
         Ppunt = P;
+        comprova(!grups.Ce1 && !grups.Ce2, () => `${on}: no s'han d'escriure comprovacions`);
         [1, 2].filter(k => grups[`Ce${k}`]).forEach(k => {
           const [nomC, resta] = pla(`Ce${k}`).split(':');
           const [e, d] = resta.split('=');
@@ -3851,10 +3892,12 @@ function comprovaRectaPla(passos, v, nom) {
         comprova(nomP === '(pi)' && z === '0' && igualsV(coeficientsAfins(e), fp), () => `${on}: «${pla('Dp')}» no és el pla de les dades`);
       } else if (fila === FILA.generic) {
         const cs = partsPerComes(/^\((.*)\)$/.exec(pla('Gc'))[1]);
-        comprova(grups.Gp.tex === 'P_{\\lambda}' && cs.length === 3 && ts.every(t => cs.every((e, j) => valorXYZD(e, {t}).igual(Pl(t)[j]))),
+        // «P ∈ r:  P_r = (…)» (com ho diu el David).
+        comprova(tex.startsWith('P \\in r:\\quad ') && grups.Gp.tex === 'P_r' && cs.length === 3 && ts.every(t => cs.every((e, j) => valorXYZD(e, {t}).igual(Pl(t)[j]))),
           () => `${on}: «${pla('Gc')}» no és el punt genèric P + λu`);
       } else if (fila === FILA.substitucio || fila === FILA.desenvolupa) {
         const [esq, z] = fila === FILA.substitucio ? ['Gs', 'Gz'] : ['Gx', 'Gw'];
+        if (fila === FILA.substitucio) comprova(tex.startsWith('P \\in \\pi:\\quad '), () => `${on}: falta «P ∈ π:» davant de la substitució`);
         comprova(pla(z) === '0' && ts.every(t => valorXYZD(pla(esq), {t}).igual(f(t))), () => `${on}: «${pla(esq)} = 0» no és el pla al punt genèric`);
         if (fila === FILA.desenvolupa) comprova(!/[()]/.test(pla(esq)), () => `${on}: encara hi ha parèntesis`);
       } else if (fila === FILA.equacio) {
@@ -3869,14 +3912,15 @@ function comprovaRectaPla(passos, v, nom) {
             const Q = vectorPla(pla('Lq').split('=')[1]);
             comprova(pla('Lq').startsWith('Q=') && igualsV(Q, Pl(l0)) && escalarV(n, Q).suma(D).esZero(), () => `${on}: «${pla('Lq')}» no és el punt d'intersecció`);
           }
-          comprova(!Lr || Lr === 'r \\cap \\pi = \\{Q\\}', () => `${on}: la posició no és «es tallen»`);
+          comprova(!Lr || Lr === '\\text{La recta } r \\text{ talla el pla } \\pi \\text{ en el punt } Q', () => `${on}: la posició no és «es tallen»`);
         } else {
           comprova(Lv === (cas === 'paralela' ? '\\text{cap valor de } \\lambda' : '\\text{tots els valors de } \\lambda') && !grups.Lq, () => `${on}: «${Lv}» no és el cas`);
-          comprova(Lr === (cas === 'paralela' ? 'r \\cap \\pi = \\varnothing \\ \\Rightarrow\\ r \\parallel \\pi' : 'r \\subset \\pi'), () => `${on}: «${Lr}» no és la posició`);
+          comprova(Lr === (cas === 'paralela' ? '\\text{La recta } r \\text{ és paral·lela al pla } \\pi' : '\\text{La recta } r \\text{ està continguda en el pla } \\pi'), () => `${on}: «${Lr}» no és la posició`);
         }
       } else if (fila === FILA.esquema) {
         comprova(tex === Geometria.esquema({secant: 'recta-secant', paralela: 'recta-paralela', continguda: 'recta-continguda'}[cas]), () => `${on}: no és l'esquema del cas`);
       } else if (fila === FILA.comprovacio) {
+        comprova(false, () => `${on}: no s'han d'escriure comprovacions`);
         const [esq, expr, val] = pla('Cu').split('=');
         comprova(esq === '«u»*«n»' && expr === textPla(Geometria.texEscalar(u, n)) && valorXYZD(expr, {}).igual(a)
           && val === (a.esZero() ? '0' : `${textPla(M.texNombre(a))}≠0`), () => `${on}: «${pla('Cu')}» no és u · n`);
@@ -4024,6 +4068,14 @@ function comprovaDuesRectes(passos, v, nom) {
         const diu = llegeixProporcio(m[1], u, w, '\\vec{u}', '\\vec{v}', 'u', 'v');
         comprova(diu === (m[2] === '') && diu === paral, () => `${on}: la proporcionalitat de u i v no és certa`);
       } else if (fila === FILA.igualtat) {
+        // Les equacions paramètriques de r i de s (sempre, abans d'igualar).
+        for (const [k, R0, d, l, nomR] of [['Pr', P, u, 't', 'r'], ['Ps', Q, w, 's', 's']]) {
+          const m = /^([rs]):\{l(.*?)\.?$/.exec(pla(k).replace(/«|»/g, ''));
+          const eqs = m ? m[2].split(';') : [];
+          comprova(m && m[1] === nomR && eqs.length === 3 && eqs.every((e, j) => { const [x, ex] = e.split('='); return x === 'xyz'[j] && ts.every(([a]) => valorXYZD(ex.replace(/μ/g, 's'), {[l]: a}).igual(R0[j].suma(d[j].producte(a)))); }),
+            () => `${on}: «${pla(k)}» no són les equacions paramètriques de ${nomR}`);
+        }
+        if (!grups.Ia) return;
         const generic = (t, R0, d, l) => partsPerComes(/^\((.*)\)$/.exec(t)[1]).map(e => ts.map(([a]) => valorXYZD(e, {[l]: a})));
         const esPunt = (t, R0, d, l) => generic(t, R0, d, l).every((vs, j) => vs.every((x, c) => x.igual(R0[j].suma(d[j].producte(ts[c][0])))));
         comprova(esPunt(pla('Ia'), P, u, 't'), () => `${on}: «${pla('Ia')}» no és el punt genèric de r`);
@@ -4052,47 +4104,48 @@ function comprovaDuesRectes(passos, v, nom) {
           const c = marques.indexOf('menys');
           comprova(S[c][0].esZero() && S[c][1].esZero() && !S[c][2].esZero() && marques.filter(Boolean).length === 1, () => `${on}: l'equació en vermell no és «0 = c»`);
         }
-      } else if (fila === FILA.cramer) {
-        const A2 = parell.map(f => f.slice(0, 2)), b2 = parell.map(f => f[2]);
-        ['l', 'm'].forEach((x, k) => {
-          if (!grups[`X${x}a`]) return;
-          const mats = cossosVmatrix(grups[`X${x}a`].tex).map(B => B.map(f => f.map(c => M.llegeixNombre(c))));
-          const Bnum = A2.map((f, a) => f.map((c, b) => (b === k ? b2[a] : c)));
-          comprova(pla(`X${x}l`) === (k ? 'μ' : 'λ') && mats.length === 2 && mats[0].every((f, a) => igualsV(f, Bnum[a])) && mats[1].every((f, a) => igualsV(f, A2[a])),
-            () => `${on}: el quocient de Cramer de ${k ? 'μ' : 'λ'} no és el que toca`);
-          const valors = [`X${x}a`, `X${x}b`, `X${x}c`].filter(c => grups[c]).map(c => valorXYZD(textPla(ambMenorsCalculats(grups[c].tex)), {}));
-          comprova(valors.every(y => y.igual(valors[0])), () => `${on}: la cadena de ${k ? 'μ' : 'λ'} no és certa`);
-          sol[x] = valors[0];
-        });
-        if (sol.l && sol.m) comprova(parell.every(f => f[0].producte(sol.l).suma(f[1].producte(sol.m)).igual(f[2])), () => `${on}: no és la solució del sistema`);
+      } else if (fila === FILA.reduccio) {
+        const [l0, m0] = comprovaReduccio(grups, parell, ['λ', 'μ'], on, tex);
+        sol = {l: l0, m: m0};
       } else if (fila === FILA.tercera) {
         const S = [0, 1, 2].map(c => [u[c], w[c].oposada(), PQ[c]]);
-        const [cap, resta] = pla('Tq').split(':');
-        const [e, val, ...neq] = resta.split('=');
+        // «-λ - μ = -3 ⇒ -2 - 1 = -3» (verd si es compleix) o «… = 1 ≠ 3» (vermell); «0 = 0» si no té incògnites.
+        const f0 = S[tercera];
+        comprova(tex.endsWith(grups.Tq.marca === 'mes' ? '\\quad \\text{(es compleix!)}' : '\\quad \\text{(no es compleix)}'), () => `${on}: falta dir si es compleix`);
+        if (f0[0].esZero() && f0[1].esZero()) {
+          comprova(pla('Tq') === '0=0' && f0[2].esZero() && grups.Tq.marca === 'mes', () => `${on}: «${pla('Tq')}» no és la tercera equació (0 = 0)`);
+          return;
+        }
+        const [eq, sub] = pla('Tq').split('⇒');
+        const [e0, d0] = eq.split('=');
         const f = S[tercera];
-        const noNuls = [0, 1].filter(j => !f[j].esZero());
-        const ops = operandsDeProductes(e);
+        const ff = ([t, s_]) => valorXYZD(`(${e0})-(${d0})`, {t, s: s_});
+        comprova(ts.every(p_ => ff(p_).igual(f[0].producte(p_[0]).suma(f[1].producte(p_[1])).resta(f[2]))), () => `${on}: «${eq}» no és la tercera equació`);
+        const [e, val, ...neq] = sub.split('=');
         const vk = f[0].producte(sol.l).suma(f[1].producte(sol.m));
         const [valor, diferent] = val.split('≠');
-        comprova(cap === `${tercera + 1}«a»` && igualsV(ops.map(o => valorXYZD(o.text, {})), noNuls.map(j => [sol.l, sol.m][j]))
-          && valorXYZD(e, {}).igual(vk) && M.llegeixNombre(valor).igual(vk)
+        comprova(substitucioCorrecta(e, f.slice(0, 2), [sol.l, sol.m], null)
+          && valorXYZD(e, {}).igual(vk) && M.llegeixNombre(valor).igual(vk) && grups.Tq.marca === (vk.igual(f[2]) ? 'mes' : 'menys')
           && (vk.igual(f[2]) ? diferent === undefined : M.llegeixNombre(diferent).igual(f[2])) && !neq.length, () => `${on}: «${pla('Tq')}» no és la tercera equació amb λ i μ`);
       } else if (fila === FILA.conclusio) {
-        const Lv = grups.Lv.tex, Lr = grups.Lr ? grups.Lr.tex : null;
+        const Lr = grups.Lr ? grups.Lr.tex : null;
+        comprova(!/\\cap|\\varnothing|\\subset/.test(tex), () => `${on}: notació de conjunts a la resposta`);
         if (cas === 'tallen') {
-          const m = /^λ=(.*)⇒X=(\(.*\))$/.exec(pla('Lv'));
+          const m = /^λ=(.*)⇒R=(\(.*\))$/.exec(pla('Lv'));
           const l0 = valorXYZD(m[1], {}), X = vectorPla(m[2]);
           comprova(l0.igual(sol.l) && igualsV(X, P.map((x, j) => x.suma(u[j].producte(l0)))) && paralV(X.map((x, j) => x.resta(Q[j])), w), () => `${on}: «${pla('Lv')}» no és el punt d'intersecció`);
-          comprova(Lr === 'r \\cap s = \\{X\\}', () => `${on}: la posició no és «es tallen»`);
+          comprova(Lr === '\\text{Les rectes } r \\text{ i } s \\text{ es tallen en el punt } R', () => `${on}: la posició no és «es tallen»`);
         } else {
-          const esperat = {creuen: ['r \\cap s = \\varnothing,\\quad \\vec{u} \\nparallel \\vec{v}', 'r \\text{ i } s \\text{ es creuen}'],
-            paraleles: ['\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r', 'r \\parallel s'],
-            coincidents: ['\\text{el mateix } \\lambda\\ \\Rightarrow\\ Q \\in r', 'r = s']}[cas];
-          comprova(Lv === esperat[0] && Lr === esperat[1], () => `${on}: «${Lv}», «${Lr}» no és el cas (${cas})`);
+          // La resposta, amb una frase (David: res de r ∩ s).
+          const esperat = {creuen: [undefined, '\\text{Les rectes } r \\text{ i } s \\text{ es creuen}'],
+            paraleles: ['\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r', '\\text{Les rectes } r \\text{ i } s \\text{ són paral·leles}'],
+            coincidents: ['\\text{el mateix } \\lambda\\ \\Rightarrow\\ Q \\in r', '\\text{Les rectes } r \\text{ i } s \\text{ són coincidents}']}[cas];
+          comprova((grups.Lv ? grups.Lv.tex : undefined) === esperat[0] && Lr === esperat[1], () => `${on}: «${grups.Lv && grups.Lv.tex}», «${Lr}» no és el cas (${cas})`);
         }
       } else if (fila === FILA.esquema) {
         comprova(tex === Geometria.esquema({tallen: 'rectes-es-tallen', creuen: 'rectes-es-creuen', paraleles: 'rectes-paraleles', coincidents: 'rectes-coincidents'}[cas]), () => `${on}: no és l'esquema del cas`);
       } else if (fila === FILA.comprovacio) {
+        comprova(false, () => `${on}: no s'han d'escriure comprovacions`);
         comprova(pla('Cq').startsWith('«PQ»=Q-P=') && igualsV(vectorPla(pla('Cq').split('=')[2]), PQ), () => `${on}: «${pla('Cq')}» no és Q − P`);
         if (paral) {
           const m = /^(.*)\\ \\Rightarrow\\ \\overrightarrow\{PQ\} \\(n?)parallel \\vec\{u\}$/.exec(grups.Cd.tex);
@@ -4370,7 +4423,7 @@ function comprovaDistancies(passos, p, nom) {
       } else if (fila === FILA.producte) {
         comprovaFilaProducte(tex, grups, p.P.map((x, j) => x.resta(p.r.P[j])), p.r.u, '\\overrightarrow{QP} \\times \\vec{u}', on);
       } else if (fila === FILA.valor) {
-        comprovaFilaValorProducte(grups, p.P.map((x, j) => x.resta(p.r.P[j])), p.r.u, '\\overrightarrow{QP} \\times \\vec{u}', on);
+        comprovaFilaValorProducte(grups, p.P.map((x, j) => x.resta(p.r.P[j])), p.r.u, '\\overrightarrow{QP} \\times \\vec{u}', on, tex);
       } else if (fila === FILA.formula) {
         const noms = {'punt-pla': 'd(P, \\pi)', 'punt-pla-arrel': 'd(P, \\pi)', 'plans-paralels': 'd(\\pi_1, \\pi_2) = d(P, \\pi_2)', 'plans-secants': 'd(\\pi_1, \\pi_2)',
           'recta-paralela': 'd(r, \\pi) = d(P, \\pi)', 'recta-secant': 'd(r, \\pi)', 'plans-distancia': "d(\\pi, \\pi')", 'punts-recta': 'd(P_{\\lambda}, \\pi)', 'punt-recta': 'd(P, r)'};
@@ -4400,11 +4453,7 @@ function comprovaDistancies(passos, p, nom) {
           // La substitució: el pla al punt, i el mòdul del vector normal.
           const m = /^\\dfrac\{\\left\|(.*)\\right\|\}\{(.*)\}$/.exec(grups.Fs.tex);
           const e = textPla(m[1]);
-          const ops = operandsDeProductes(e);
-          const noNuls = [0, 1, 2].filter(j => !pla.n[j].esZero());
-          const ambVars = ops.reduceRight((t, o, k) => t.slice(0, o.inici) + 'xyz'[noNuls[k]] + t.slice(o.fi), e);
-          comprova(igualsV(ops.map(o => valorXYZD(o.text, {})), noNuls.map(j => punt[j])) && igualsV(coeficientsAfins(ambVars), pla.n.concat([pla.D]))
-            && m[2] === Geometria.texModul(pla.n), () => `${on}: «${pla_('Fs')}» no és el pla al punt, sobre el mòdul de n`);
+          comprova(substitucioCorrecta(e, pla.n, punt, pla.D) && m[2] === Geometria.texModul(pla.n), () => `${on}: «${pla_('Fs')}» no és el pla al punt, sobre el mòdul de n`);
         }
         if (grups.Fs && p.id === 'punt-recta') {
           const w = creuV(p.P.map((x, j) => x.resta(p.r.P[j])), p.r.u);
@@ -4480,8 +4529,9 @@ seccio('distàncies', () => {
 /**
  * Veritat d'un guió de projeccions. Model independent: la projecció sobre un pla,
  * H = P − ((n·P + D)/|n|²)·n; sobre una recta, H = Q + (((P − Q)·u)/|u|²)·u; el simètric, 2H − P.
+ * A la pissarra el punt projectat es diu Q (David), i l'esquema mostra P′ només als simètrics.
  * La funció de λ que s'iguala a 0: n·(P + λn) + D (pla) o u·((Q − P) + λu) (recta). Files: les
- * dades; la recta perpendicular o el punt genèric de la recta; el punt genèric (o PX_λ); la condició
+ * dades; la recta perpendicular o el punt genèric de la recta; el punt genèric (o PR_λ); la condició
  * (la mateixa funció de λ, i sense parèntesis); aλ = c; λ i H; P′ (cada component, 2h − p).
  */
 function comprovaProjeccions(passos, p, nom) {
@@ -4515,21 +4565,21 @@ function comprovaProjeccions(passos, p, nom) {
           comprova(m && igualsV(vectorPla(m[1]), p.r.P) && igualsV(vectorPla(m[2]), p.r.u), () => `${on}: «${pt('Dd1')}» no és la recta`);
         }
       } else if (fila === FILA.esquema) {
-        comprova(tex === Geometria.esquema(pla ? 'projeccio-pla' : 'projeccio-recta'), () => `${on}: no és l'esquema`);
+        comprova(tex === Geometria.esquema(`${p.id.startsWith('simetric') ? 'simetric' : 'projeccio'}-${pla ? 'pla' : 'recta'}`), () => `${on}: no és l'esquema`);
       } else if (fila === FILA.recta) {
         if (pla) {
           const m = recta(pt('Rs'));
           comprova(pt('Rs').startsWith('s:') && m && igualsV(vectorPla(m[1]), p.P) && igualsV(vectorPla(m[2]), p.pi.n), () => `${on}: «${pt('Rs')}» no és la perpendicular per P`);
         } else {
           const [nomX, cos] = pt('Xg').split('=');
-          comprova(nomX === 'X_λ' && esGeneric(cos, p.r.P, p.r.u), () => `${on}: «${pt('Xg')}» no és el punt genèric de r`);
+          comprova(nomX === 'R_λ' && esGeneric(cos, p.r.P, p.r.u), () => `${on}: «${pt('Xg')}» no és el punt genèric de r`);
         }
       } else if (fila === FILA.generic) {
-        comprova(grups.Gp.tex === (pla ? 'P_{\\lambda}' : '\\overrightarrow{PX_{\\lambda}}') && esGeneric(pt('Gc'), base, dir), () => `${on}: «${pt('Gc')}» no és el que toca`);
+        comprova(grups.Gp.tex === (pla ? 'P_{\\lambda}' : '\\overrightarrow{PR_{\\lambda}}') && esGeneric(pt('Gc'), base, dir), () => `${on}: «${pt('Gc')}» no és el que toca`);
       } else if (fila === FILA.substitucio || fila === FILA.desenvolupa) {
         const [esq, z] = fila === FILA.substitucio ? ['Gs', 'Gz'] : ['Gx', 'Gw'];
         comprova(pt(z) === '0' && ts.every(t => valorXYZD(pt(esq), {t}).igual(f(t))), () => `${on}: «${pt(esq)} = 0» no és la condició`);
-        if (fila === FILA.substitucio) comprova(pla ? !grups.Gn : grups.Gn.tex === '\\overrightarrow{PX_{\\lambda}} \\cdot \\vec{u}', () => `${on}: l'etiqueta de la condició`);
+        if (fila === FILA.substitucio) comprova(pla ? !grups.Gn : grups.Gn.tex === '\\overrightarrow{PR_{\\lambda}} \\cdot \\vec{u}', () => `${on}: l'etiqueta de la condició`);
         if (fila === FILA.desenvolupa) comprova(!/[()]/.test(pt(esq)), () => `${on}: encara hi ha parèntesis`);
       } else if (fila === FILA.equacio) {
         const d = M.llegeixNombre(pt('Gd'));
@@ -4538,13 +4588,13 @@ function comprovaProjeccions(passos, p, nom) {
         const l0 = M.llegeixNombre(pt('Hl').split('=')[1]);
         const Hd = vectorPla(pt('Hp').split('=')[1]);
         const B = pla ? p.P : p.r.P;
-        comprova(pt('Hl').startsWith('λ=') && f(l0).esZero() && pt('Hp').startsWith('H=') && igualsV(Hd, H) && igualsV(Hd, B.map((x, j) => x.suma(dir[j].producte(l0)))),
+        comprova(pt('Hl').startsWith('λ=') && f(l0).esZero() && pt('Hp').startsWith('Q=') && igualsV(Hd, H) && igualsV(Hd, B.map((x, j) => x.suma(dir[j].producte(l0)))),
           () => `${on}: «${pt('Hl')} ⇒ ${pt('Hp')}» no és el peu`);
       } else if (fila === FILA.simetric) {
         const cs = partsPerComes(/^\((.*)\)$/.exec(pt('Sc'))[1]);
-        comprova(grups.Sl.tex === "P'" && grups.Sf.tex === '2H - P' && cs.length === 3 && cs.every((e, j) => valorXYZD(e, {}).igual(Sim[j]))
+        comprova(grups.Sl.tex === "P'" && grups.Sf.tex === '2Q - P' && cs.length === 3 && cs.every((e, j) => valorXYZD(e, {}).igual(Sim[j]))
           && cs.every((e, j) => e === `2*${textPla(M.texEntreParentesis(H[j]))}-${textPla(M.texEntreParentesis(p.P[j]))}`) && igualsV(vectorPla(pt('Sp')), Sim),
-        () => `${on}: P′ no és 2H − P`);
+        () => `${on}: P′ no és 2Q − P`);
       }
     } catch (e) {
       comprova(false, () => `${on}: no es pot llegir «${tex.slice(0, 120)}»: ${e.message}`);
@@ -4625,7 +4675,7 @@ function comprovaAreaVolum(passos, p, nom) {
       } else if (fila === FILA.producte) {
         comprovaFilaProducte(tex, grups, AB, AC, '\\overrightarrow{AB} \\times \\overrightarrow{AC}', on);
       } else if (fila === FILA.valor) {
-        comprovaFilaValorProducte(grups, AB, AC, '\\overrightarrow{AB} \\times \\overrightarrow{AC}', on);
+        comprovaFilaValorProducte(grups, AB, AC, '\\overrightarrow{AB} \\times \\overrightarrow{AC}', on, tex);
       } else if (fila === FILA.mixt) {
         if (p.id === 'tetraedre') {
           const B = cossosVmatrix(grups.Md.tex)[0].map(f => f.map(c => M.llegeixNombre(c)));
@@ -4696,7 +4746,7 @@ seccio('àrea i volum', () => {
  * Veritat d'un guió de la perpendicular comuna. Model independent: d² = det(PQ, u, v)² / |u × v|²
  * (Laplace); es tallen si det = 0. Files: les dades; l'esquema; els punts genèrics; el vector
  * Q_μ − P_λ (funció de λ i μ); les condicions (· u i · v) i el sistema (la mateixa funció);
- * Cramer (les matrius del sistema i la solució); els peus (de la seva recta, i P₀Q₀ perpendicular
+ * la reducció (cada línia és certa per a la solució); els peus (de la seva recta, i P₀Q₀ perpendicular
  * a u i a v); la distància (cada tros val d) o «P₀ = Q₀ ⇒ d = 0»; el producte vectorial (si es
  * tallen); la perpendicular comuna (per P₀, amb una direcció perpendicular a u i a v).
  */
@@ -4753,18 +4803,10 @@ function comprovaPerpendicularComuna(passos, v, nom) {
             return [f(fr(1), fr(0)).resta(c0), f(fr(0), fr(1)).resta(c0), c0.oposada()];
           });
         }
-      } else if (fila === FILA.cramer) {
-        const A2 = sistema.map(f => f.slice(0, 2)), b2 = sistema.map(f => f[2]);
-        ['l', 'm'].forEach((x, k) => {
-          if (!grups[`X${x}a`]) return;
-          const mats = cossosVmatrix(grups[`X${x}a`].tex).map(B => B.map(f => f.map(c => M.llegeixNombre(c))));
-          const Bnum = A2.map((f, a) => f.map((c, b) => (b === k ? b2[a] : c)));
-          comprova(mats.length === 2 && mats[0].every((f, a) => igualsV(f, Bnum[a])) && mats[1].every((f, a) => igualsV(f, A2[a])), () => `${on}: el quocient de Cramer no és el que toca`);
-          const valors = [`X${x}a`, `X${x}b`, `X${x}c`].filter(c => grups[c]).map(c => valorXYZD(textPla(ambMenorsCalculats(grups[c].tex)), {}));
-          comprova(valors.every(y => y.igual(valors[0])), () => `${on}: la cadena no és certa`);
-          sol[x] = valors[0];
-        });
-        if (sol.l && sol.m) comprova(sistema.every(f => f[0].producte(sol.l).suma(f[1].producte(sol.m)).igual(f[2])), () => `${on}: no és la solució del sistema`);
+      } else if (fila === FILA.reduccio) {
+        // El sistema 2×2 pel mètode de reducció (mai Cramer): totes les línies són certes per a la solució.
+        const [l0, m0] = comprovaReduccio(grups, sistema, ['λ', 'μ'], on, tex);
+        sol = {l: l0, m: m0};
       } else if (fila === FILA.peus) {
         const [a1, a2, a3] = pt('Pa').split('='), [b1, b2, b3] = pt('Pb').split('=');
         P0 = vectorPla(a3); Q0 = vectorPla(b3);
@@ -4786,7 +4828,7 @@ function comprovaPerpendicularComuna(passos, v, nom) {
       } else if (fila === FILA.producte) {
         comprovaFilaProducte(tex, grups, u, w, '\\vec{u} \\times \\vec{v}', on);
       } else if (fila === FILA.valor) {
-        comprovaFilaValorProducte(grups, u, w, '\\vec{u} \\times \\vec{v}', on);
+        comprovaFilaValorProducte(grups, u, w, '\\vec{u} \\times \\vec{v}', on, tex);
       } else if (fila === FILA.perpendicular) {
         const m = /^p:\(x,y,z\)=(\(.*?\))\+t(\(.*\))$/.exec(pt('Rp'));
         const A0 = vectorPla(m[1]), dir = vectorPla(m[2]);
@@ -5056,6 +5098,108 @@ function comprovaFilaPrimitiva(tex, g, Fm, on, F = 'F') {
 }
 
 /**
+ * Les files d'Integrals.passosTalls («equacio», «prova», «ruffini», «segon», «treball») per a un
+ * polinomi de coeficients «coefs» (grau ≤ 3) en X. Model: les arrels (arrelsX). L'equació (també la
+ * factoritzada, amb «·») té les solucions de p = 0 (i la sencera és proporcional a p); cada prova
+ * d'arrel és certa, d'un divisor, i s'atura a la primera arrel; Ruffini, columna a columna, amb
+ * l'arrel trobada; «segon» («x = r o (la resta) = 0») té totes les solucions; «treball» té, sempre,
+ * les mateixes solucions que l'equació que s'hi resol (la de «segon» després de la «o», o, de grau
+ * ≤ 2, la de «equacio»), i aquesta és el quocient de Ruffini. Al final, en lila, totes les
+ * solucions i només nombres (mai el factor x).
+ */
+function comprovadorTalls({passos, FILA, X, coefs, nom}) {
+  const totes = conjunt(arrelsX(coefs) || []);
+  const grau = coefs.reduce((g, c, k) => (c.esZero() ? g : k), -1);
+  const proporcional = text => {
+    const q = M.polinomi(M.llegeix(text, {variables: [X]}), X);
+    const j = coefs.findIndex(c => !c.esZero());
+    if (!q || !q[j] || q[j].esZero()) return false;
+    const r = coefs[j].quocient(q[j]);
+    return coefs.every((c, i) => c.igual((q[i] || fr(0)).producte(r)));
+  };
+  let provaArrel = null, resta = null, taulaFinal = null;
+  const paper = tex => (tex.includes('{k=Pv0}') ? 'prova' : tex.startsWith('\\begin{array}{r|') ? 'ruffini' : tex.includes('{k=Wv}') ? 'segon' : 'treball');
+  const restaDe = pas => {           // les solucions de l'equació que es resol a la fila de treball
+    const sg = FILA.lliures.map(f => pas.files[f]).find(t => t && paper(t) === 'segon');
+    if (sg) { const pla = textPla(sg); return solucionsX(pla.slice(pla.indexOf('|') + 1), X); }
+    return totes;
+  };
+  function fila(tex, filaPissarra, i, on) {
+    const pas = passos[i];
+    const fila = filaPissarra === FILA.equacio ? 'equacio' : FILA.lliures.includes(filaPissarra) ? paper(tex) : null;
+    if (fila === 'equacio') {
+      const pla = textPla(tex);
+      comprova(solucionsX(pla, X) === totes, () => `${on}: «${pla}» no té les solucions de l'equació (${totes})`);
+      const pEq = /^[^=|±]*=0$/.test(pla) && !pla.includes('*(') && M.polinomi(M.llegeix(pla.split('=')[0], {variables: [X]}), X);
+      if (pEq && pEq.length - 1 === grau) comprova(proporcional(pla.split('=')[0]), () => `${on}: «${pla}» no és el polinomi (per un nombre)`);
+      comprova(!/(\)|[a-z])\(/.test(pla), () => `${on}: «${pla}»: el producte s'escriu amb «·»`);
+    } else if (fila === 'prova') {
+      const ls = tex.startsWith('\\begin{array}') ? liniesDArray(tex) : [textPla(tex)];
+      const eq = textPla(pas.files[FILA.equacio]).split('=')[0];
+      ls.forEach((l, q) => {
+        const m = new RegExp(`^${X}=(-?\\d+):(.*)=(-?\\d+)(≠0)?$`).exec(l);
+        if (!m) throw new Error(`prova «${l}» no prevista`);
+        const c = fr(Number(m[1])), v_ = fr(Number(m[3]));
+        comprova(valorX(m[2], X, c).igual(v_) && valorX(eq, X, c).igual(v_) && Boolean(m[4]) === !v_.esZero(), () => `${on}: «${l}» és fals`);
+        const c0 = M.polinomi(M.llegeix(eq, {variables: [X]}), X)[0];
+        comprova(c0.esEnter() && c0.num % Number(m[1]) === 0, () => `${on}: ${m[1]} no és un divisor del terme independent`);
+        comprova(q === ls.length - 1 || !v_.esZero(), () => `${on}: després d'una arrel no cal provar-ne més`);
+        if (v_.esZero()) provaArrel = c;
+      });
+    } else if (fila === 'ruffini') {
+      const m = /^\\begin\{array\}\{r\|r+\}(.*)\\end\{array\}$/.exec(tex.trim());
+      if (!m) throw new Error('taula de Ruffini no prevista');
+      const [dalt, mig, baix] = m[1].replace('\\hline', '').split('\\\\').map(f => f.split('&').map(c => textPla(c.trim())));
+      const nums = f => f.slice(1).map(c => (c === '' ? null : fr(Number(c))));
+      const [D, Mg, B] = [nums(dalt), nums(mig), nums(baix)];
+      const r = fr(Number(mig[0]));
+      const eq = textPla(pas.files[FILA.equacio]);
+      const q = !eq.includes('*(') && M.polinomi(M.llegeix(eq.split('=')[0], {variables: [X]}), X);
+      comprova(eq.includes('*(') || (q && D.length === 4 && D.every((c, k) => c && c.igual(q[3 - k] || fr(0)))), () => `${on}: a dalt no hi ha els coeficients de l'equació`);
+      comprova(provaArrel && r.igual(provaArrel), () => `${on}: l'arrel ${mig[0]} no és la que s'ha trobat`);
+      B.forEach((b, k) => {
+        if (b === null) return;
+        comprova(k === 0 ? b.igual(D[0]) && Mg[0] === null : Mg[k] && Mg[k].igual(B[k - 1].producte(r)) && b.igual(D[k].suma(Mg[k])), () => `${on}: la columna ${k + 1} de Ruffini és falsa`);
+      });
+      taulaFinal = {B};
+    } else if (fila === 'segon') {
+      const pla = textPla(tex);
+      comprova(solucionsX(pla, X) === totes, () => `${on}: «${pla}» no té totes les solucions de l'equació (${totes})`);
+      if (pla.includes('|')) {
+        const s = restaDe(pas);
+        if (resta === null) resta = s;
+        comprova(s === resta, () => `${on}: l'equació que queda ha canviat`);
+      }
+    } else if (fila === 'treball') {
+      const pla = textPla(tex);
+      const s = restaDe(pas);
+      comprova(solucionsX(pla, X) === s, () => `${on}: «${pla}» no té les solucions de l'equació que s'hi resol (${s})`);
+    } else return false;
+    return true;
+  }
+  function final() {
+    const files = [FILA.equacio].concat(FILA.lliures);
+    const teLila = q => files.some(f => (q.files[f] || '').includes('marca=solucio'));
+    const ultim = passos.filter(teLila).pop();
+    const lila = [];
+    if (ultim) for (const f of files) {
+      for (const m of (ultim.files[f] || '').matchAll(/\\htmlData\{k=(\w+),marca=solucio\}\{/g)) {
+        const t = textPla(grupsAmbClau(ultim.files[f])[m[1]].tex);
+        const n = t.includes('=') ? t.split('=')[1] : t;
+        comprova(/^-?[\d(]/.test(n), () => `${nom}: en lila hi ha «${t}», que no és una solució`);
+        lila.push(M.llegeixNombre(n));
+      }
+    }
+    comprova(conjunt(lila) === totes, () => `${nom}: les solucions en lila (${conjunt(lila)}) no són les de l'equació (${totes})`);
+    if (taulaFinal) {
+      comprova(taulaFinal.B.every(b => b !== null) && taulaFinal.B[3].esZero(), () => `${nom}: la taula de Ruffini no acaba amb residu 0`);
+      comprova(resta !== null && conjunt(arrelsX(taulaFinal.B.slice(0, 3).reverse()) || []) === resta, () => `${nom}: l'equació que queda no és el quocient`);
+    }
+  }
+  return {fila, final};
+}
+
+/**
  * Veritat d'un guió d'àrea entre una corba i l'eix. Model: les arrels racionals de f (arrelsX), les de
  * dins de (a, b) parteixen l'interval; a cada tros el signe de f és constant (comprovat en sis punts);
  * I_k per Barrow amb una primitiva Fm; A = Σ |I_k|. Files: f; la gràfica; f(x) = 0 resolta
@@ -5080,7 +5224,7 @@ function comprovaAreaEix(passos, v, nom) {
   }
   const Is = trossos.map(([l, r]) => Fm(r).resta(Fm(l)));
   const A = Is.reduce((s, I) => s.suma(I.abs()), fr(0));
-  const comprovador = comprovadorArrels({passos, FILA, X: 'x', coefs: p, textPla, liniesDArray, nom});
+  const comprovador = comprovadorTalls({passos, FILA, X: 'x', coefs: p, nom});
   let linies = 0;
   passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
     if (!tex) return;
@@ -5091,24 +5235,14 @@ function comprovaAreaEix(passos, v, nom) {
       if (fila === FILA.funcio) {
         const [esq, dre] = textPla(tex).split('=');
         comprova(esq === 'f(x)' && PUNTS_X.every(x => valorAmb(dre, {x}).igual(val(x))), () => `${on}: no és f`);
-      } else if (fila === FILA.grafica) {
-        comprova(tex.startsWith('<svg') && tex.endsWith('</svg>'), () => `${on}: no és una gràfica`);
-      } else if (!resum && [FILA.equacio, FILA.prova, FILA.ruffini, FILA.segon].includes(fila)) {
+      } else if (!resum && (fila === FILA.equacio || FILA.lliures.includes(fila))) {
         comprova(comprovador.fila(tex, fila, i, on), () => `${on}: fila de les arrels no prevista`);
       } else if (fila === FILA.equacio) {
         const g = grupsAmbClau(tex);
         const sols = textPla(g.Zs.tex);
         comprova(g.Zf.tex === 'f(x) = 0' && (arrels.length ? sols === arrels.map(r => `x=${textPla(M.texNombre(r))}`).join(',') : g.Zs.tex === '\\text{cap solució}'), () => `${on}: «${sols}» no són els talls`);
-      } else if (fila === FILA.signes) {
-        const ls = tex.startsWith('\\begin{array}') ? liniesDArray(tex) : [textPla(tex)];
-        comprova(ls.length === trossos.length, () => `${on}: no hi ha un tros per línia`);
-        ls.forEach((l, k) => {
-          const m = /^\[(.*),(.*)\]:f\((.*)\)=(.*)([<>])0$/.exec(l);
-          const [lk, rk] = trossos[k];
-          const x = valorAmb(m[3], {}), fx = valorAmb(m[4], {});
-          comprova(valorAmb(m[1], {}).igual(lk) && valorAmb(m[2], {}).igual(rk) && x.resta(lk).signe() > 0 && rk.resta(x).signe() > 0 && fx.igual(val(x)) && (m[5] === '>') === (fx.signe() > 0),
-            () => `${on}: «${l}» no és el tros ${k + 1} amb el signe de f`);
-        });
+      } else if (fila === FILA.grafica && tex.startsWith('<svg')) {
+        comprova(tex.endsWith('</svg>'), () => `${on}: no és una gràfica`);
       } else if (fila === FILA.primitiva) {
         comprovaFilaPrimitiva(tex, val, Fm, on);
       } else if (fila === FILA.integrals) {
@@ -5201,7 +5335,7 @@ function comprovaAreaCorbes(passos, v, nom) {
   }
   const Is = trossos.map(([l, r]) => Hm(r).resta(Hm(l)));
   const A = Is.reduce((s, I) => s.suma(I.abs()), fr(0));
-  const comprovador = comprovadorArrels({passos, FILA, X: 'x', coefs: p, textPla, liniesDArray, nom});
+  const comprovador = comprovadorTalls({passos, FILA, X: 'x', coefs: p, nom});
   let linies = 0;
   passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
     if (!tex) return;
@@ -5213,26 +5347,16 @@ function comprovaAreaCorbes(passos, v, nom) {
         const [lf, lg] = liniesDArray(tex);
         const [ef, df] = lf.split('='), [eg, dg] = lg.split('=');
         comprova(ef === 'f(x)' && eg === 'g(x)' && PUNTS_X.every(x => valorAmb(df, {x}).igual(M.valorTermes(f, x)) && valorAmb(dg, {x}).igual(M.valorTermes(gt, x))), () => `${on}: no són f i g`);
-      } else if (fila === FILA.grafica) {
-        comprova(tex.startsWith('<svg') && tex.endsWith('</svg>'), () => `${on}: no és una gràfica`);
       } else if (fila === FILA.diferencia) {
         const [esq, dre] = textPla(tex).split('=');
         comprova(esq === 'f(x)-g(x)' && PUNTS_X.every(x => valorAmb(dre, {x}).igual(val(x))), () => `${on}: «${textPla(tex)}» no és f − g`);
-      } else if (!resum && [FILA.equacio, FILA.prova, FILA.ruffini, FILA.segon].includes(fila)) {
+      } else if (!resum && (fila === FILA.equacio || FILA.lliures.includes(fila))) {
         comprova(comprovador.fila(tex, fila, i, on), () => `${on}: fila de les arrels no prevista`);
       } else if (fila === FILA.equacio) {
         const g = grupsAmbClau(tex);
         comprova(g.Zf.tex === 'f(x) = g(x)' && textPla(g.Zs.tex) === arrels.map(r => `x=${textPla(M.texNombre(r))}`).join(','), () => `${on}: «${textPla(g.Zs.tex)}» no són els talls`);
-      } else if (fila === FILA.signes) {
-        const ls = tex.startsWith('\\begin{array}') ? liniesDArray(tex) : [textPla(tex)];
-        comprova(ls.length === trossos.length, () => `${on}: no hi ha un tros per línia`);
-        ls.forEach((l, k) => {
-          const m = /^\[(.*),(.*)\]:f\((.*)\)-g\((.*)\)=(.*)([<>])0$/.exec(l);
-          const [lk, rk] = trossos[k];
-          const x = valorAmb(m[3], {}), hx = valorAmb(m[5], {});
-          comprova(valorAmb(m[1], {}).igual(lk) && valorAmb(m[2], {}).igual(rk) && valorAmb(m[4], {}).igual(x) && x.resta(lk).signe() > 0 && rk.resta(x).signe() > 0
-            && hx.igual(val(x)) && (m[6] === '>') === (hx.signe() > 0), () => `${on}: «${l}» no és el tros ${k + 1} amb el signe de f − g`);
-        });
+      } else if (fila === FILA.grafica && tex.startsWith('<svg')) {
+        comprova(tex.endsWith('</svg>'), () => `${on}: no és una gràfica`);
       } else if (fila === FILA.primitiva) {
         comprovaFilaPrimitiva(tex, val, Hm, on, 'H');
       } else if (fila === FILA.integrals) {
@@ -5365,8 +5489,7 @@ function comprovaAreaParametre(passos, p, nom) {
         }
       } else if (fila === FILA.barrow) {
         const parts = senseInt(g.Bk.tex).split('=');
-        const inici = p.id === 'parabola' ? 1 : 0;
-        comprova(p.id !== 'parabola' || parts[0] === 'A', () => `${on}: no és A`);
+        const inici = 0;
         comprova(ks.every(k => PUNTS_X.every(x => valorAmb(parts[inici], {x, k}).igual(fx(x, k)))), () => `${on}: l'integrand no és f`);
         comprova(parts[inici + 1] === (p.id === 'coeficient' ? 'F(3)-F(0)' : 'F(k)-F(0)'), () => `${on}: «${parts[inici + 1]}» no és Barrow`);
         comprova(parts.slice(inici + 2).every(e => ks.every(k => valorAmb(e, {k}).igual(I(k)))), () => `${on}: «${parts.join('=')}» no val la integral`);
@@ -5374,16 +5497,44 @@ function comprovaAreaParametre(passos, p, nom) {
         const pla = textPla(tex);
         if (p.id === 'limit') {
           comprova(solucionsX(pla, 'k') === conjunt(sols), () => `${on}: «${pla}» no té les solucions de I(k) = V (${conjunt(sols)})`);
+          comprova(passos.slice(0, i).some(q => q.files[FILA.equacio]) || pla === 'k^(2)+k=6',
+            () => `${on}: «${pla}»: primer cal escriure k² + k = 6 (la integral val 6)`);
         } else {
           const eqs = pla.split('⇒');
+          // |…| (l'àrea, valor absolut de la integral): es llegeix el de dins i se'n pren el valor absolut.
+          const amb = (t, vars) => (/^\|.*\|$/.test(t) ? valorAmb(t.slice(1, -1), vars).abs() : valorAmb(t, vars));
           const [l0, r0] = eqs[0].split('=');
-          comprova(ks.every(k => valorAmb(l0, {k}).igual(I(k))) && valorAmb(r0, {}).igual(p.V), () => `${on}: «${eqs[0]}» no és I(k) = V`);
+          comprova(ks.every(k => amb(l0, {k}).igual(p.id === 'parabola' ? I(k).abs() : I(k))) && valorAmb(r0, {}).igual(p.V), () => `${on}: «${eqs[0]}» no és I(k) = V`);
+          comprova(p.id !== 'parabola' || /^\|.*\|$/.test(l0), () => `${on}: l'àrea és el valor absolut de la integral`);
           eqs.forEach(e => {
             const costats = e.split('=');
             if (costats[0] === 'k') comprova(costats.slice(1).every(c => valorAmb(c, {}).igual(k0)), () => `${on}: «${e}»: k no és ${k0.num}/${k0.den}`);
-            else comprova(valorAmb(costats[0], {k: k0}).igual(valorAmb(costats[1], {k: k0})) && (p.id === 'parabola' || !valorAmb(costats[0], {k: k0.suma(1)}).igual(valorAmb(costats[1], {k: k0.suma(1)}))), () => `${on}: «${e}» no té la solució k = ${k0.num}`);
+            else comprova(amb(costats[0], {k: k0}).igual(valorAmb(costats[1], {k: k0})) && (p.id === 'parabola' || !amb(costats[0], {k: k0.suma(1)}).igual(valorAmb(costats[1], {k: k0.suma(1)}))), () => `${on}: «${e}» no té la solució k = ${k0.num}`);
           });
         }
+      } else if (fila === FILA.treball) {
+        // Els càlculs de l'equació (que es queda a la seva fila): les mateixes solucions. Al final, les que
+        // no compleixen k > 0, tatxades: totes ho són, i només elles, i només quan ja hi ha la resposta.
+        comprova(p.id === 'limit' && pas.files[FILA.equacio], () => `${on}: fila de treball sense equació a sobre`);
+        const tatxades = [];
+        const sense = tex.replace(/\\textcolor\{#b91c1c\}\{\\cancel\{/g, '⟪').replace(/\}\}(?=\\quad\\text\{o\}|$)/g, m => m);
+        let net = '', profunditat = 0, dins = null;
+        for (let q = 0; q < sense.length; q++) {
+          const c = sense[q];
+          if (c === '⟪') { dins = ''; profunditat = 0; continue; }
+          if (dins !== null) {
+            if (c === '{') profunditat++;
+            if (c === '}') { if (profunditat === 0) { tatxades.push(dins); net += dins; dins = null; q++; continue; } profunditat--; }
+            dins += c;
+          } else net += c;
+        }
+        comprova(solucionsX(textPla(net), 'k') === conjunt(sols), () => `${on}: «${textPla(net)}» no té les solucions de I(k) = V (${conjunt(sols)})`);
+        const dolentes = sols.filter(k => k.signe() <= 0);
+        if (tatxades.length) {
+          comprova(conjunt(tatxades.map(t => M.llegeixNombre(textPla(t).split('=')[1]))) === conjunt(dolentes) && pas.files[FILA.resposta],
+            () => `${on}: les solucions tatxades no són les que no compleixen k > 0`);
+        }
+        if (i === passos.length - 1) comprova(tatxades.length === dolentes.length, () => `${on}: al final, cal tatxar ${conjunt(dolentes)}`);
       } else if (fila === FILA.resposta) {
         const pla = textPla(tex);
         const m = /^(k>0⇒)?k=(.*)$/.exec(pla);

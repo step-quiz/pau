@@ -1,0 +1,10 @@
+/* integrals.css — Estil propi de les pàgines de càlcul integral (area-eix, area-corbes,
+   area-parametre). Va després d'estil.css i no canvia res de les altres pàgines.
+   Lletra mínima de la pissarra (David: «surt absurdament petit»): motor.js la redueix fins a
+   18 px perquè hi càpiguen totes les files; aquí no baixa de 24 px a pantalla gran, i la
+   pissarra fa servir la seva pròpia barra de desplaçament (el motor ja hi porta la fila que
+   canvia). Si alguna fila és més ampla que la pissarra, s'hi pot desplaçar de costat. */
+@media (min-width:521px){
+  .pissarra{font-size:max(var(--mida, 30px), 24px)}
+  .escenari{overflow-x:auto}
+}

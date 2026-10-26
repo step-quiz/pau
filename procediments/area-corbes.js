@@ -8,17 +8,18 @@
    Adreça: area-corbes.html?f=x^2&g=x+2
 
    Passos:
-     1. la gràfica, amb la regió ombrejada;
-     2. h(x) = f(x) − g(x);
-     3. els punts de tall: h(x) = 0 (Matrius.passosArrels);
-     4. a cada tros entre dos talls, quina corba va per sobre (el signe
-        de h en el punt mitjà);
-     5. una primitiva H(x) de h (C = 0);
-     6. la integral de h a cada tros, per Barrow;
-     7. l'àrea: la suma dels valors absoluts.
+     1. h(x) = f(x) − g(x);
+     2. els punts de tall: h(x) = 0 (Integrals.passosTalls: l'equació es
+        queda a la vista i els càlculs van a la fila de treball);
+     3. la gràfica (on hi havia els càlculs de l'equació), amb la
+        regió ombrejada;
+     4. una primitiva H(x) de h (C = 0);
+     5. la integral de h a cada tros, per Barrow;
+     6. l'àrea: la suma dels valors absoluts. No es mira quina corba va
+        per sobre a cada tros (David): el valor absolut ja ho resol.
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
    Claus: Ff…, Fg… f i g (prefixos p, q); Dl… la diferència (prefix h);
-   Z… els talls; S<k> el signe; Gl… H(x) (prefixos i, j); J<k> les
+   Z… els talls; Gl… H(x) (prefixos i, j); J<k> les
    integrals; A… l'àrea.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
@@ -29,6 +30,7 @@ const F = arrel.Formules;
 const Dd = arrel.Dades;
 const Mt = arrel.Matrius;
 const Gr = arrel.Grafiques;
+const Ig = arrel.Integrals;
 const {Fraccio, texNombre, texEntreParentesis, texPolinomi} = M;
 const {clau: K, rel: R} = F;
 
@@ -56,7 +58,7 @@ function valida(v) {
   if (h.length < 2) return h[0].esZero() ? 'Les dues funcions són iguals: no tanquen cap regió.' : 'f(x) − g(x) és constant: les corbes no es tallen.';
   const problema = Mt.problemaArrels(h);
   if (problema === 'irracionals' || problema === 'sense arrel entera') return 'Els punts de tall no són nombres racionals: aquest procediment no els pot trobar exactament. Tria unes altres funcions.';
-  const talls = Mt.passosArrels(F.guio(4), {p: h, X: 'x', files: {equacio: 0, prova: 1, ruffini: 2, segon: 3}, inici: ''});
+  const talls = Ig.passosTalls(F.guio(5), {p: h, X: 'x', files: {equacio: 0, lliures: [1, 2, 3, 4]}, inici: ''});
   if (talls.length < 2) return 'Les corbes s\'han de tallar almenys en dos punts per tancar una regió.';
   return null;
 }
@@ -91,8 +93,9 @@ const enunciat = v => `Calcula l'àrea de la regió tancada per les corbes $y = 
 const resum = v => `f(x) = ${texPolinomi(termesF(v))},\\ \\ g(x) = ${texPolinomi(termesG(v))}`;
 
 /** Files de la pissarra: les de la resolució de h(x) = 0 es reaprofiten després. */
-const FILA = Object.freeze({funcions: 0, grafica: 1, diferencia: 2, equacio: 3, prova: 4, ruffini: 5, segon: 6, area: 7,
-  signes: 4, primitiva: 5, integrals: 6});
+const FILA = Object.freeze({funcions: 0, diferencia: 1, equacio: 2, lliures: Object.freeze([3, 4, 5, 6]),
+  grafica: 3, primitiva: 4, integrals: 5, area: 6});
+const FILES = 7;
 
 const llista = (linies, espai = '8pt') => (linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0]);
 const texInterval = (l, r) => `[${texNombre(l)},\\ ${texNombre(r)}]`;
@@ -103,7 +106,7 @@ function passos(v) {
   const p = diferencia(v), h = M.termes(p);
   const Hx = M.integraTermes(h);
   const val = x => M.valorTermes(h, x), Hv = x => M.valorTermes(Hx, x);
-  const g = F.guio(8);
+  const g = F.guio(FILES);
   g.files[FILA.funcions] = llista([F.membreEsquerre('Ff', 'f', 'x') + F.polinomi('p', f), F.membreEsquerre('Fg', 'g', 'x') + (gt.length ? F.polinomi('q', gt) : K('q0', '0'))]);
   g.afegeix('L\'àrea entre dues corbes: la integral de la diferència, $f(x) - g(x)$, entre els punts on es tallen. On $g$ va per sobre de $f$, la diferència és negativa: '
     + 'cal separar els trossos i sumar-ne els valors absoluts.');
@@ -116,9 +119,9 @@ function passos(v) {
   g.afegeix(`Agrupa: $f(x) - g(x) = ${texPolinomi(h)}$.`);
 
   /* Els punts de tall: h(x) = 0. */
-  const arrels = Mt.passosArrels(g, {p, X: 'x', files: FILA, inici: 'Els punts de tall: $f(x) = g(x)$, és a dir, $f(x) - g(x) = 0$.'});
+  const arrels = Ig.passosTalls(g, {p, X: 'x', files: FILA, inici: 'Els punts de tall: $f(x) = g(x)$, és a dir, $f(x) - g(x) = 0$.'});
   const trossos = arrels.slice(1).map((r, k) => [arrels[k], r]);
-  [FILA.prova, FILA.ruffini, FILA.segon].forEach(i => { g.files[i] = ''; });
+  FILA.lliures.forEach(i => { g.files[i] = ''; });
   g.files[FILA.equacio] = K('Zf', 'f(x) = g(x)') + ':\\quad ' + K('Zs', arrels.map(r => `x = ${texNombre(r)}`).join(',\\ '));
   g.afegeix(`Les corbes es tallen a $${arrels.map(r => `x = ${texNombre(r)}`).join('$, $')}$: la regió va de $x = ${texNombre(arrels[0])}$ a $x = ${texNombre(arrels[arrels.length - 1])}$`
     + (trossos.length > 1 ? `, en ${trossos.length} trossos.` : '.'));
@@ -128,13 +131,6 @@ function passos(v) {
   g.files[FILA.grafica] = Gr.grafica({corbes: [{termes: f, nom: 'f'}, {termes: gt, nom: 'g'}], x: Gr.finestra(arrels), marques: arrels,
     zones: trossos.map(([l, r], k) => ({l, r, dalt: signes[k] > 0 ? 0 : 1, baix: signes[k] > 0 ? 1 : 0, classe: signes[k] > 0 ? 'zona' : 'zona2'}))});
   g.afegeix('La regió que tanquen les dues corbes.');
-
-  /* Quina va per sobre a cada tros. */
-  g.files[FILA.signes] = llista(trossos.map(([l, r], k) => {
-    const m = l.suma(r).quocient(2), hm = val(m);
-    return K(`S${k}`, `${texInterval(l, r)}:\\quad f\\left(${texNombre(m)}\\right) - g\\left(${texNombre(m)}\\right) = ${texNombre(hm)} ${hm.signe() > 0 ? '> 0' : '< 0'}`);
-  }));
-  g.afegeix(`A cada tros, una de les corbes va per sobre: ${trossos.map(([l, r], k) => `a $${texInterval(l, r)}$, ${signes[k] > 0 ? '$f$' : '$g$'}`).join('; ')}.`);
 
   /* Una primitiva de h, i la integral de cada tros. */
   F.passosIntegral(g, FILA.primitiva, F.membreEsquerre('G', 'H', 'x'), h, {C: false,
@@ -147,7 +143,7 @@ function passos(v) {
       + `${texNombre(Hv(r))} - ${texEntreParentesis(Hv(l))} = ${texNombre(I)}`));
     g.files[FILA.integrals] = llista(linies, '12pt');
     g.afegeix(`Barrow al tros $${texInterval(l, r)}$: $H(${texNombre(r)}) = ${texNombre(Hv(r))}$ i $H(${texNombre(l)}) = ${texNombre(Hv(l))}$.`
-      + (I.signe() < 0 ? ' Surt negativa: aquí $g$ va per sobre.' : ''));
+      + (I.signe() < 0 ? ' Surt negativa: per això l\'àrea suma els valors absoluts.' : ''));
   });
 
   /* L'àrea. */
@@ -162,7 +158,7 @@ function passos(v) {
 arrel.AreaCorbes = Object.freeze({
   titol: 'Àrea entre dues corbes',
   categoria: 'analisi',
-  files: 8,
+  files: FILES,
   perDefecte: PER_DEFECTE,
   exemples: EXEMPLES,
   titolEditor: 'Canvia les funcions',

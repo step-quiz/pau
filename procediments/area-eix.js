@@ -7,17 +7,18 @@
    Adreça: area-eix.html?f=x^3-4x&a=-2&b=2
 
    Passos:
-     1. la gràfica, amb la zona ombrejada;
-     2. on talla l'eix: f(x) = 0 (Matrius.passosArrels: factor comú,
-        Ruffini, segon grau); les arrels de dins de (a, b) parteixen
-        l'interval en trossos;
-     3. el signe de f a cada tros (en el punt mitjà);
-     4. una primitiva F(x) (C = 0);
-     5. la integral de cada tros, per Barrow;
-     6. l'àrea: la suma dels valors absoluts (on f < 0, la integral és
-        negativa; sense separar, els trossos es compensarien).
+     1. on talla l'eix: f(x) = 0 (Integrals.passosTalls: l'equació es
+        queda a la vista i els càlculs van a la fila de treball; factor
+        comú, Ruffini, segon grau); les arrels de dins de (a, b)
+        parteixen l'interval en trossos;
+     2. la gràfica (on hi havia els càlculs de l'equació), amb els
+        trossos ombrejats;
+     3. una primitiva F(x) (C = 0);
+     4. la integral de cada tros, per Barrow;
+     5. l'àrea: la suma dels valors absoluts. No es mira el signe de f a
+        cada tros (David): el valor absolut ja ho resol.
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
-   Claus: Ff… f(x) (prefix p); Z… les arrels; S<k> el signe de cada tros;
+   Claus: Ff… f(x) (prefix p); Z… les arrels;
    Gl… F(x) (prefixos i, j); J<k> la integral de cada tros; A… l'àrea.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
@@ -28,6 +29,7 @@ const F = arrel.Formules;
 const Dd = arrel.Dades;
 const Mt = arrel.Matrius;
 const Gr = arrel.Grafiques;
+const Ig = arrel.Integrals;
 const {Fraccio, texNombre, texEntreParentesis, texPolinomi} = M;
 const {clau: K, rel: R} = F;
 
@@ -79,9 +81,14 @@ const escriuAdreca = v => ({f: Dd.textFuncio(v), a: String(v.a), b: String(v.b)}
 const enunciat = v => `Calcula l'àrea de la regió limitada per la corba $y = ${texPolinomi(termesDe(v))}$, l'eix $OX$ i les rectes $x = ${v.a}$ i $x = ${v.b}$.`;
 const resum = v => `y = ${texPolinomi(termesDe(v))},\\ \\ [${v.a}, ${v.b}]`;
 
-/** Files de la pissarra: les tres de la resolució de f(x) = 0 es reaprofiten després. */
-const FILA = Object.freeze({funcio: 0, grafica: 1, equacio: 2, prova: 3, ruffini: 4, segon: 5, area: 6,
-  signes: 3, primitiva: 4, integrals: 5});
+/**
+ * Files de la pissarra. Per resoldre f(x) = 0, l'equació (equacio) i les files «lliures», que
+ * Integrals.passosTalls fa servir per ordre (proves, Ruffini, «x = r o …», treball). Després es
+ * reaprofiten: la gràfica, F(x), les integrals i l'àrea. Cap fila buida entre dues d'escrites.
+ */
+const FILA = Object.freeze({funcio: 0, equacio: 1, lliures: Object.freeze([2, 3, 4, 5]),
+  grafica: 2, primitiva: 3, integrals: 4, area: 5});
+const FILES = 6;
 
 const llista = (linies, espai = '8pt') => (linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0]);
 const texInterval = (l, r) => `[${texNombre(l)},\\ ${texNombre(r)}]`;
@@ -91,7 +98,7 @@ function passos(v) {
   const Fx = M.integraTermes(f);
   const val = x => M.valorTermes(f, x), Fv = x => M.valorTermes(Fx, x);
   const [a, b] = [Fraccio.de(v.a), Fraccio.de(v.b)];
-  const g = F.guio(7);
+  const g = F.guio(FILES);
   g.files[FILA.funcio] = F.membreEsquerre('Ff', 'f', 'x') + F.polinomi('p', f);
   g.afegeix(`L'àrea entre la corba i l'eix $OX$, de $x = ${v.a}$ a $x = ${v.b}$. On $f$ és negativa, la integral surt negativa: `
     + 'cal separar els trossos on $f$ canvia de signe i sumar-ne els valors absoluts.');
@@ -99,11 +106,11 @@ function passos(v) {
   /* On talla l'eix: f(x) = 0. */
   const p = coefs(v);
   while (p.length > 1 && p[p.length - 1].esZero()) p.pop();
-  const arrels = Mt.passosArrels(g, {p, X: 'x', files: FILA, inici: 'On talla l\'eix $OX$? Resol l\'equació $f(x) = 0$.'});
+  const arrels = Ig.passosTalls(g, {p, X: 'x', files: FILA, inici: 'On talla l\'eix $OX$? Resol l\'equació $f(x) = 0$.'});
   const dins = arrels.filter(r => r.resta(a).signe() > 0 && b.resta(r).signe() > 0);
   const punts = [a].concat(dins, [b]);
   const trossos = punts.slice(1).map((r, k) => [punts[k], r]);
-  [FILA.prova, FILA.ruffini, FILA.segon].forEach(i => { g.files[i] = ''; });
+  FILA.lliures.forEach(i => { g.files[i] = ''; });
   g.files[FILA.equacio] = K('Zf', 'f(x) = 0') + ':\\quad ' + K('Zs', arrels.length ? arrels.map(r => `x = ${texNombre(r)}`).join(',\\ ') : '\\text{cap solució}');
   g.afegeix((arrels.length ? `La corba talla l'eix a $${arrels.map(r => `x = ${texNombre(r)}`).join('$, $')}$. ` : 'La corba no talla l\'eix. ')
     + (dins.length ? `Dins de l'interval $(${v.a}, ${v.b})$ hi ha $${dins.map(r => `x = ${texNombre(r)}`).join('$ i $')}$: parteix${dins.length > 1 ? 'en' : ''} l'interval en ${trossos.length} trossos.`
@@ -116,13 +123,6 @@ function passos(v) {
     zones: trossos.map(([l, r], k) => ({l, r, dalt: 0, baix: null, classe: signes[k] > 0 ? 'zona' : 'zona2'}))});
   g.afegeix('La regió, ombrejada: d\'un color on la corba és per sobre de l\'eix ($f > 0$), i d\'un altre on és per sota ($f < 0$).');
 
-  /* El signe de f a cada tros. */
-  g.files[FILA.signes] = llista(trossos.map(([l, r], k) => {
-    const m = l.suma(r).quocient(2), fm = val(m);
-    return K(`S${k}`, `${texInterval(l, r)}:\\quad f\\left(${texNombre(m)}\\right) = ${texNombre(fm)} ${fm.signe() > 0 ? '> 0' : '< 0'}`);
-  }));
-  g.afegeix('A cada tros, $f$ no canvia de signe: n\'hi ha prou de mirar-lo en un punt (el del mig).');
-
   /* Una primitiva, i la integral de cada tros. */
   F.passosIntegral(g, FILA.primitiva, F.membreEsquerre('G', 'F', 'x'), f, {C: false,
     textos: {indicada: 'Una primitiva de $f$ (amb $C = 0$), per aplicar la regla de Barrow a cada tros.', feta: `Simplifica: $F(x) = ${texPolinomi(Fx)}$.`}});
@@ -134,7 +134,7 @@ function passos(v) {
       + `${texNombre(Fv(r))} - ${texEntreParentesis(Fv(l))} = ${texNombre(I)}`));
     g.files[FILA.integrals] = llista(linies, '12pt');
     g.afegeix(`Barrow al tros $${texInterval(l, r)}$: $F(${texNombre(r)}) = ${texNombre(Fv(r))}$ i $F(${texNombre(l)}) = ${texNombre(Fv(l))}$.`
-      + (I.signe() < 0 ? ' Surt negativa: aquí $f < 0$.' : ''));
+      + (I.signe() < 0 ? ' Surt negativa: per això l\'àrea suma els valors absoluts.' : ''));
   });
 
   /* L'àrea: la suma dels valors absoluts. */
@@ -152,7 +152,7 @@ function passos(v) {
 arrel.AreaEix = Object.freeze({
   titol: 'Àrea entre una corba i l\'eix OX',
   categoria: 'analisi',
-  files: 7,
+  files: FILES,
   perDefecte: PER_DEFECTE,
   exemples: EXEMPLES,
   titolEditor: 'Canvia la funció i l\'interval',
