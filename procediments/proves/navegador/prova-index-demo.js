@@ -1,5 +1,5 @@
 // Browser checks for the DEMO buttons of index.html. Usage: node procediments/proves/navegador/prova-index-demo.js <repo> [shots]
-// comprova enllaços (existeixen), hover, que no s'obre la llista d'exercicis.
+// comprova enllaços (existeixen), hover, que no s'obre la llista d'exercicis, i el botó PROBLEMES.
 const {chromium} = require('playwright'); const path = require('path'); const fs = require('fs');
 const arrel = path.resolve(process.argv[2]); const out = process.argv[3] || 'captures-index';
 fs.mkdirSync(out, {recursive: true});
@@ -27,12 +27,14 @@ fs.mkdirSync(out, {recursive: true});
       await p.keyboard.press('Escape');
       if (await p.locator('#demo-dlg').evaluate(d => d.open)) fail(`${cat}: Escape no tanca`);
     }
-    // clic fora tanca; clic a la targeta (fora del botó) encara obre la llista
+    // clic fora tanca; clic a la targeta (fora dels botons) no fa res; PROBLEMES obre la llista
     await p.locator('.demo-btn[data-demo=algebra]').click();
     await p.mouse.click(5, 5);
     if (await p.locator('#demo-dlg').evaluate(d => d.open)) fail('clic fora no tanca');
     await p.locator('.cat-card[data-cat=algebra] h2').click();
-    if (!await p.locator('#v-list').evaluate(v => v.classList.contains('active'))) fail('la targeta ja no obre la llista');
+    if (await p.locator('#v-list').evaluate(v => v.classList.contains('active'))) fail('la targeta encara obre la llista');
+    await p.locator('.problemes-btn[data-problemes=algebra]').click();
+    if (!await p.locator('#v-list').evaluate(v => v.classList.contains('active'))) fail('PROBLEMES no obre la llista');
     await p.close();
   }
   // tots els .html de procediments/ hi són
