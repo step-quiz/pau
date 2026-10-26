@@ -72,7 +72,8 @@ const estat = p => p.evaluate(() => {
     await context.close();
   }
   {
-    const {p, context, consola} = await obre(nav, '', {width: 375, height: 760});
+    // La taula (intervals i «x = a») no cap en un mòbil, i el David ho accepta (Chromebooks i portàtils): es prova a 1366 × 650.
+    const {p, context, consola} = await obre(nav, '', {width: 1366, height: 650});
     let pitjor = 0, total = 0;
     const n = await p.$$eval('.exemple', b => b.length);
     for (let e = 0; e < n; e++) {
@@ -81,21 +82,21 @@ const estat = p => p.evaluate(() => {
       const t = await p.evaluate(() => procediment.total);
       for (let i = 0; i < t; i++) { await p.evaluate(j => procediment.salta(j), i); pitjor = Math.max(pitjor, (await estat(p)).desborda); total++; }
     }
-    ok(pitjor <= 0, `phone: ${total} steps without overflow (${pitjor})`);
+    ok(pitjor <= 0, `laptop 1366×650: ${total} steps without overflow (${pitjor})`);
     await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(99));
-    await p.screenshot({path: path.join(SHOTS, 'c-mobil-ex1-final.png'), fullPage: true});
+    await p.screenshot({path: path.join(SHOTS, 'c-portatil-ex1-final.png'), fullPage: true});
     await context.close();
   }
   {
     // The widest table: four points.
-    const {p, context} = await obre(nav, '?f=x^2/(x^2+x-2)', {width: 375, height: 760});
+    const {p, context} = await obre(nav, '?f=x^2/(x^2+x-2)', {width: 1366, height: 650});
     const t = await p.evaluate(() => procediment.total);
     let pitjor = 0;
     for (let i = 0; i < t; i++) { await p.evaluate(j => procediment.salta(j), i); pitjor = Math.max(pitjor, (await estat(p)).desborda); }
-    ok(pitjor <= 0, `phone, four-point table: no overflow (${pitjor}), font ${await p.$eval('.pissarra', e => e.style.getPropertyValue('--mida'))}`);
-    await p.screenshot({path: path.join(SHOTS, 'c-mobil-4punts-final.png'), fullPage: true});
+    ok(pitjor <= 0, `laptop 1366×650, four-point table: no overflow (${pitjor}), font ${await p.$eval('.pissarra', e => e.style.getPropertyValue('--mida'))}`);
+    await p.screenshot({path: path.join(SHOTS, 'c-portatil-4punts-final.png'), fullPage: true});
     await context.close();
   }
   {

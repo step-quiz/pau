@@ -25,7 +25,7 @@
    certes: ho comprova proves/comprova.js.
 
    Claus: F… f(x); w… Q(x) = 0 (Formules.resolPolinomi); V… domini;
-   L<i><m|p>{l,q,e,r,v} límit lateral a l'arrel i; Ip…, Im… límits a +∞ i
+   L<i><m|p>{l,q,e} límit lateral a l'arrel i; Ip…, Im… límits a +∞ i
    a −∞; Om…, On… m i n; Sv<i>, Sh, So resum.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {

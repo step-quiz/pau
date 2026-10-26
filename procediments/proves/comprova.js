@@ -787,7 +787,8 @@ const extrem = (text, valor) => (text === '-∞' || text === '+∞' ? text : con
  * Veritat d'un guió de creixement. Fila 0: el domini. Fila 1: identitats
  * (f, f'). Fila 2: equacions amb les solucions de Q = 0 (abans de la
  * derivada) o del numerador de f' = 0 (després), o un valor de prova
- * amb el seu signe. Fila 3: la taula: capçalera completa i cada cel·la,
+ * amb el seu signe. Fila 3: la taula: capçalera completa (cada interval
+ * i cada punt «x = a») i cada cel·la,
  * si no és buida, correcta. Fila 4: la conclusió.
  */
 function comprovaCreixement(passos, v, nom) {
