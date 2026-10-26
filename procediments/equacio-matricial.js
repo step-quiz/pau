@@ -7,9 +7,9 @@
    Passos:
      1. aïllar X amb lletres, a la mateixa fila (com amb nombres, però
         amb compte amb l'ordre): passar B a l'altre costat; treure X
-        factor comú (X = IX, i X queda al mateix costat); multiplicar per
+        factor comú (X = I · X, i X queda al mateix costat); multiplicar per
         la inversa pel costat on és la matriu (l'esquerra o la dreta);
-        M⁻¹M = I i IX = X;
+        M⁻¹M = I i I · X = X (sempre amb el punt: «IX» semblaria un nombre romà);
      2. calcular: la matriu de l'altre costat; la matriu M (si és A + I,
         A − 2I…); |M|; M⁻¹ = (1/|M|)·(d −b; −c a); el producte, en l'ordre
         bo, files per columnes.
@@ -108,21 +108,24 @@ function passos(valors) {
   if (p.c) {
     Mx = `(${K('qA', 'A')}${K('qc', ` ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}I`)})`;
     eq(e ? Mx + X : X + Mx, dretaC + (p.beta ? termeB(true) : ''));
-    g.afegeix(`Treu $X$ factor comú. Compte: $X = ${e ? 'IX' : 'XI'}$ ($I$ és la matriu identitat), i la $X$ queda a ${e ? 'la dreta' : 'l\'esquerra'} en tots dos termes: `
-      + (e ? `$AX ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}IX = (${nomM(p)})X$.` : `$XA ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}XI = X(${nomM(p)})$.`));
+    g.afegeix(`Treu $X$ factor comú. Compte: $X = ${e ? 'I \\cdot X' : 'X \\cdot I'}$ ($I$ és la matriu identitat), i la $X$ queda a ${e ? 'la dreta' : 'l\'esquerra'} en tots dos termes: `
+      + (e ? `$AX ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}I \\cdot X = (${nomM(p)})X$.` : `$XA ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}X \\cdot I = X(${nomM(p)})$.`));
   }
   const dretaTot = dretaC + (p.beta ? termeB(true) : '');
   const inv = k => K(k, `${nomMp(p)}^{-1}`);
   const dretaP = p.beta ? `(${dretaTot})` : dretaTot;
-  eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? inv('qR') + dretaP : dretaP + inv('qR'));
+  // Els parèntesis del membre de la dreta, destacats el primer cop: molts alumnes se'ls obliden.
+  const dretaMarcada = p.beta ? `${F.marca('(', 'tria')}${dretaTot}${F.marca(')', 'tria')}` : dretaTot;
+  eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? inv('qR') + dretaMarcada : dretaMarcada + inv('qR'));
   g.afegeix(`Multiplica els dos costats per $${nomMp(p)}^{-1}$ ${e ? 'per l\'esquerra' : 'per la dreta'}: ${e ? 'a l\'esquerra' : 'a la dreta'} de $X$ hi ha $${nomM(p)}$, `
-    + `i la inversa s'hi ha de posar al costat. Als dos membres pel mateix costat: ${e ? 'davant' : 'darrere'}.`);
+    + `i la inversa s'hi ha de posar al costat. Als dos membres pel mateix costat: ${e ? 'davant' : 'darrere'}.`
+    + (p.beta ? ` Compte amb els parèntesis: la inversa multiplica tot el membre de la dreta, $${texR(p)}$, i no només $${texKappa(p)}${nomDreta(p)}$. Molts alumnes se'ls obliden.` : ''));
   const fusio = {qI: ['qL', 'qA'].concat(p.c ? ['qc'] : [])};
-  eq(e ? K('qI', 'I') + X : X + K('qI', 'I'), e ? inv('qR') + dretaP : dretaP + inv('qR'));
+  eq(e ? K('qI', 'I') + ' \\cdot ' + X : X + ' \\cdot ' + K('qI', 'I'), e ? inv('qR') + dretaP : dretaP + inv('qR'));
   g.afegeix(`$${e ? `${nomMp(p)}^{-1}${nomMp(p)}` : `${nomMp(p)}${nomMp(p)}^{-1}`} = I$, la matriu identitat.`, {fusiona: fusio});
   eq(X, e ? inv('qR') + dretaP : dretaP + inv('qR'));
   const formula = e ? `${nomMp(p)}^{-1}${texRp(p)}` : `${texRp(p)}${nomMp(p)}^{-1}`;
-  g.afegeix(`$${e ? 'IX' : 'XI'} = X$: ja tenim $X$ aïllada, $X = ${formula}$. Ara, els càlculs.`);
+  g.afegeix(`$${e ? 'I \\cdot X' : 'X \\cdot I'} = X$: ja tenim $X$ aïllada, $X = ${formula}$. Ara, els càlculs.`);
 
   /* 2. Els càlculs. */
   const mats = [['A', dd.A], ['B', dd.B]].concat(dd.C ? [['C', dd.C]] : []);
@@ -153,7 +156,7 @@ function passos(valors) {
   g.afegeix(`Ara el producte, en aquest ordre: $X = ${formula}$. ${e ? 'La inversa va primer.' : 'La inversa va darrere.'}`);
   // Les sumes, a la pissarra si hi caben (al mòbil); si no, al text, i a la pissarra el resultat.
   const texSumes = texM(sumes.map(f => f.map(() => null)), (x, i, j) => sumes[i][j]);
-  const caben = F.ampleTex(texSumes) <= 300;
+  const caben = F.ampleTex(texSumes) <= 460;
   g.files[FILA.producte] = F.enLinies('', [K('Pn', 'X'), ' = ' + K('Pf', formula), ' = ' + K('Pm', texM(P1) + texM(P2)), ' = ' + K('Ps', caben ? texSumes : texM(dd.X))]);
   g.afegeix('Files per columnes: cada element del resultat és una fila de la primera matriu per una columna de la segona'
     + (caben ? '.' : `: ${sumes.flatMap((f, i) => f.map((t, j) => `$x_{${i + 1}${j + 1}} = ${t} = ${M.texNombre(dd.X[i][j])}$`)).join(', ')}.`));

@@ -74,10 +74,10 @@ const estat = p => p.evaluate(() => {
     await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(3));
-    const marques = (await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
+    const marques = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
     ok(marques.join() === 'a11:mes,a12:mes,a13:tria,a21:mes,a22:mes,a23:tria,a31:tria,a32:tria,a33:tria', 'bordering with column z: ' + marques.join(' '));
     await p.evaluate(() => procediment.salta(6));
-    const marques2 = (await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
+    const marques2 = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
     ok(marques2.join() === 'Q1:mes,Q2:mes,Q3:menys', 'equation 3 dropped: ' + marques2.join(' '));
     await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'sci-marques.png')});
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));

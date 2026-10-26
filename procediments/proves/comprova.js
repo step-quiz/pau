@@ -115,6 +115,8 @@ function textPla(tex) {
           case '\\htmlData': grup(); break;          // l'atribut k=…; el contingut és el grup següent
           case '\\mathbin': case '\\mathrel': case '\\left': case '\\right': case '\\,': case '\\ ': case '\\quad': break;
           case '\\pm': s += '±'; break;
+          case '\\lbrack': s += '('; break;            // els claudàtors de Sarrus: [p₁ + p₂ + p₃] − [p₄ + p₅ + p₆]
+          case '\\rbrack': s += ')'; break;
           case '\\qquad': break;
           case '\\mathbb': grup(); s += 'ℝ'; break;
           case '\\{': s += '{'; break;
@@ -2277,6 +2279,7 @@ function comprovadorArrels({passos, FILA, X, coefs, textPla, liniesDArray, nom})
     const pas = passos[i];
     if (fila === FILA.equacio) {
       const pla = textPla(tex);
+      if (/^\|[^|]*\|=0$/.test(pla) && !pla.slice(1, pla.indexOf('|', 1)).replace(/A|I|L-|-L/g, '').length) return true;   // «|A| = 0», «|A − λI| = 0», tal com es planteja
       comprova(solucionsX(pla, X) === solucionsDet, () => `${on}: «${pla}» no té les solucions de |A| = 0 (${solucionsDet})`);
       const grauDet = coefsDet.reduce((g, c, k) => (c.esZero() ? g : k), -1);
       const pEq = !pla.includes('|') && !pla.includes('±') && /^[^=]*=0$/.test(pla) && M.polinomi(M.llegeix(pla.split('=')[0], {variables: [X]}), X);
@@ -2297,7 +2300,7 @@ function comprovadorArrels({passos, FILA, X, coefs, textPla, liniesDArray, nom})
         if (v_.esZero()) provaArrel = c;
       });
     } else if (fila === FILA.ruffini) {
-      const m = /^\\begin\{array\}\{r\|r+\|r\}(.*)\\end\{array\}$/.exec(tex.trim());
+      const m = /^\\begin\{array\}\{r\|r+\}(.*)\\end\{array\}$/.exec(tex.trim());          // una sola línia vertical
       if (!m) throw new Error('taula de Ruffini no prevista');
       const [dalt, mig, baix] = m[1].replace('\\hline', '').split('\\\\').map(f => f.split('&').map(c => textPla(c.trim())));
       const nums = f => f.slice(1).map(c => (c === '' ? null : fr(Number(c))));
@@ -2320,6 +2323,21 @@ function comprovadorArrels({passos, FILA, X, coefs, textPla, liniesDArray, nom})
     return true;
   }
   function final() {
+    // Les solucions trobades, en lila (marca «solucio»): cadascuna és una solució, i hi són totes.
+    // (el pas on es marquen: després, algunes pàgines reaprofiten aquestes files)
+    const teLila = q => [FILA.equacio, FILA.prova, FILA.segon].some(f => (q.files[f] || '').includes('marca=solucio'));
+    const ultim = passos.filter(teLila).pop() || passos[passos.length - 1];
+    const lila = [];
+    for (const f of [FILA.equacio, FILA.prova, FILA.segon]) {
+      for (const m of (ultim.files[f] || '').matchAll(/\\htmlData\{k=(\w+),marca=solucio\}\{/g)) {
+        const g_ = grupsAmbClau(ultim.files[f])[m[1]];
+        let t = textPla(g_.tex);
+        if (t.includes('=')) t = t.split('=')[1];
+        lila.push(new RegExp(`^${X}(\\^\\(\\d\\))?$`).test(t) ? fr(0) : M.llegeixNombre(t));
+      }
+    }
+    comprova(lila.every(v => solucionsDet.split(',').includes(conjunt([v]))) && conjunt(lila) === solucionsDet,
+      () => `${nom}: les solucions en lila (${conjunt(lila)}) no són les de l'equació (${solucionsDet})`);
     // La taula de Ruffini, completa i amb residu 0; el quocient és l'equació de segon grau.
     if (taulaFinal) {
       comprova(taulaFinal.B.every(b => b !== null) && taulaFinal.B[3].esZero(), () => `${nom}: la taula de Ruffini no acaba amb residu 0`);
@@ -2403,8 +2421,10 @@ function comprovaDeterminant(passos, v, nom, opcions = {}) {
         if (n === 6) comprova(igualDet(pla.slice(nomD.length)), () => `${on}: «${pla}» no és |A|`);
         // Els signes dels productes: + els tres primers, − els tres últims.
         const ops = tex.replace(/\\htmlData\{[^}]*\}\{(?:[^{}]|\{[^{}]*\})*\}/g, 'P').replace(/\\begin\{array\}\{l\}|\\end\{array\}|\\\\\[4pt\]|\\qquad|\\mathrel|\{|\}|=|\s/g, '');
-        comprova(ops === 'PPP' + ['+', '+', '-', '-', '-'].slice(0, n - 1).map(o => o + 'P').join(''),
-          () => `${on}: els signes dels productes («${ops}»)`);
+        // Els claudàtors: [P + P + P] - [P + P + P], cada un tancat després de l'últim producte que ja hi és.
+        const esperatOps = Array.from({length: n}, (_, k) => (k === 0 ? '\\lbrack' : k === 3 ? '-\\lbrack' : '+') + 'P'
+          + (k === Math.min(n, 3) - 1 || (k >= 3 && k === n - 1) ? '\\rbrack' : '')).join('');
+        comprova(ops === 'PP' + esperatOps, () => `${on}: els claudàtors i signes dels productes («${ops}»)`);
       } else if (fila === FILA.calcul) {
         const pla = tex.startsWith('\\begin{array}') ? liniesDArray(tex).join('') : textPla(tex);
         comprova(pla.startsWith(nomD) && igualDet(pla.slice(nomD.length)), () => `${on}: «${pla}» no és |A|`);
@@ -2480,7 +2500,7 @@ seccio('determinant amb paràmetre', () => {
     linies += comprovaDeterminant(llista, v, nom);
     passos += llista.length;
     const f = llista[llista.length - 1].files;
-    const t = f[Determinant.FILA.ruffini] ? 'Ruffini' : /\)\(|^\\htmlData\{k=Ef\}/.test(f[Determinant.FILA.equacio]) ? 'factor comú' : f[Determinant.FILA.resposta].includes('\\neq') ? 'sense solucions' : 'grau ≤ 2';
+    const t = f[Determinant.FILA.ruffini] ? 'Ruffini' : /\)\(|^\\htmlData\{k=Ef[,}]/.test(f[Determinant.FILA.equacio]) ? 'factor comú' : f[Determinant.FILA.resposta].includes('\\neq') ? 'sense solucions' : 'grau ≤ 2';
     tipus[t] = (tipus[t] || 0) + 1;
   }
   comprova(['Ruffini', 'factor comú', 'sense solucions', 'grau ≤ 2'].every(t => tipus[t] > 0), () => `falten tipus de casos: ${JSON.stringify(tipus)}`);
@@ -2581,8 +2601,8 @@ function comprovaRang(passos, v, nom) {
               comprova(pla === esperat.replace(/\s/g, ''), () => `${on}: «${pla}» no és a·d − b·c`);
             } else {
               const ps = SARRUS_POS.map(s => s.slice(0, 3).reduce((p, [a, b]) => p.producte(B[a][b]), fr(1)));
-              const trossos = pla.match(/^(-?\d+)\+(\(?-?\d+\)?)\+(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)$/);
-              comprova(trossos && trossos.slice(1).every((x, k) => M.llegeixNombre(x.replace(/[()]/g, '')).igual(ps[k])), () => `${on}: «${pla}» no són els productes de Sarrus`);
+              const trossos = productesSarrus(pla);
+              comprova(trossos && trossos.every((x, k) => x.igual(ps[k])), () => `${on}: «${pla}» no són els productes de Sarrus`);
             }
             if (valor) comprova(valorX(pla, 'x', fr(0)).igual(d), () => `${on}: «${pla}» no val ${d.num}`);
           }
@@ -2610,6 +2630,19 @@ function comprovaRang(passos, v, nom) {
   comprova([...menors2.values()].filter(d => !d.esZero()).length <= 1 && [...menors3.values()].filter(d => !d.esZero()).length <= 1, () => `${nom}: continua després d'un menor no nul`);
   return linies;
 }
+/**
+ * Els sis productes de Sarrus d'una línia numèrica «(a+b+c)-(d+e+f)» (els claudàtors, ja en text pla, són
+ * parèntesis): cada claudàtor té tres termes amb el seu signe, i cada terme és un producte. null si no té aquesta forma.
+ */
+function productesSarrus(pla) {
+  const m = /^\(([^()]+)\)-\(([^()]+)\)$/.exec(pla);
+  if (!m) return null;
+  const termes = t => (t.startsWith('-') ? t : '+' + t).match(/[+-]\d+/g);
+  const [u, v] = [termes(m[1]), termes(m[2])];
+  if (!u || !v || u.join('') !== (m[1].startsWith('-') ? m[1] : '+' + m[1]) || v.join('') !== (m[2].startsWith('-') ? m[2] : '+' + m[2]) || u.length !== 3 || v.length !== 3) return null;
+  return u.concat(v).map(x => fr(Number(x)));
+}
+
 const SARRUS_POS = [[[0, 0], [1, 1], [2, 2]], [[0, 1], [1, 2], [2, 0]], [[0, 2], [1, 0], [2, 1]], [[0, 2], [1, 1], [2, 0]], [[0, 0], [1, 2], [2, 1]], [[0, 1], [1, 0], [2, 2]]];
 
 seccio('rang orlant menors', () => {
@@ -2787,8 +2820,8 @@ function comprovaSCI(passos, v, nom) {
             if (grups[`N${t}p`]) {
               const ps = SARRUS_POS.map(s => s.reduce((p, [a, b]) => p.producte(B[a][b]), fr(1)));
               const pla = textPla(grups[`N${t}p`].tex);
-              const trossos = pla.match(/^(-?\d+)\+(\(?-?\d+\)?)\+(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)$/);
-              comprova(trossos && trossos.slice(1).every((x, k) => M.llegeixNombre(x.replace(/[()]/g, '')).igual(ps[k])), () => `${on}: «${pla}» no són els productes de Sarrus`);
+              const trossos = productesSarrus(pla);
+              comprova(trossos && trossos.every((x, k) => x.igual(ps[k])), () => `${on}: «${pla}» no són els productes de Sarrus`);
             }
           }
           if (grups[`N${t}v`]) comprova(textPla(grups[`N${t}v`].tex) === `${d.num}${d.esZero() ? '' : '≠0'}`, () => `${on}: el menor ${t + 1} val ${d.num}`);
@@ -2927,7 +2960,7 @@ function comprovaDiscussio(passos, v, nom) {
   const X = (v.S.match(/[a-z]/) || [])[0];
   const S = v.S.split(';').map(f => f.split(',').map(e => M.llegeix(e, {variables: [X]})));
   const numeric = t => S.map(f => f.map(e => exacte(e, {variables: {[X]: t}, funcions: {}})));
-  const tipus = (rA, rS) => (rA < rS ? 'SI' : rA === 3 ? 'SCD' : 'SCI');
+  const tipus = (rA, rS) => (rA < rS ? 'Sistemaincompatible' : rA === 3 ? 'Sistemacompatibledeterminat' : 'Sistemacompatibleindeterminat');   // el nom sencer, sense sigles
   const {linies: ld, solucionsDet} = comprovaDeterminant(passos, v, nom, {
     FILA: {matriu: FILA.det, sarrus: FILA.sarrus, calcul: FILA.calcul, equacio: FILA.equacio, prova: FILA.prova, ruffini: FILA.ruffini, segon: FILA.segon},
     P: 'd', X, A: v.S.split(';').map(f => f.split(',').slice(0, 3).join(',')).join(';'), rapid: true, nomesDet: true,
@@ -2993,8 +3026,8 @@ function comprovaDiscussio(passos, v, nom) {
             if (B.length === 3) {
               const ps = SARRUS_POS.map(s_ => s_.reduce((p, [a, b]) => p.producte(B[a][b]), fr(1)));
               const pla = textPla(grups[`${P}P`].tex);
-              const tr = pla.match(/^(-?\d+)\+(\(?-?\d+\)?)\+(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)$/);
-              comprova(tr && tr.slice(1).every((x, k) => M.llegeixNombre(x.replace(/[()]/g, '')).igual(ps[k])), () => `${on}: «${pla}» no són els productes de Sarrus`);
+              const tr = productesSarrus(pla);
+              comprova(tr && tr.every((x, k) => x.igual(ps[k])), () => `${on}: «${pla}» no són els productes de Sarrus`);
               comprova(rA !== 2 || d.esZero() === (rS === 2), () => `${on}: aquest menor no decideix el rang de A*`);
             }
           }
@@ -3010,10 +3043,10 @@ function comprovaDiscussio(passos, v, nom) {
         }
       } else if (fila === FILA.taula) {
         const cos = /\\begin\{array\}\{c\|c\|c\|c\}(.*)\\end\{array\}/.exec(tex)[1].split('\\\\').map(f => f.replace('\\hline', '').split('&').map(x => textPla(x.trim())));
-        comprova(cos[0].join('|') === `${X}|«rang»(A)|«rang»(A^(*))|«tipus»`, () => `${on}: la capçalera de la taula`);
+        comprova(cos[0].join('|') === `${X}|«rang»(A)|«rang»(A^(*))|«tipusdesistema»`, () => `${on}: la capçalera de la taula`);
         cos.slice(1).forEach(([valor, a, b, t], n) => {
           if (n === 0) {
-            comprova(a === '3' && b === '3' && t === '«SCD»' && (valor === `«tot»${X}` ? solucionsDet === '' : conjunt(valor.replace(`${X}≠`, '').split(',').map(x => M.llegeixNombre(x))) === solucionsDet),
+            comprova(a === '3' && b === '3' && t === '«Sistemacompatibledeterminat»' && (valor === `«tot»${X}` ? solucionsDet === '' : conjunt(valor.replace(`${X}≠`, '').split(',').map(x => M.llegeixNombre(x))) === solucionsDet),
               () => `${on}: la fila de |A| ≠ 0 de la taula`);
           } else {
             const r = M.llegeixNombre(valor.split('=')[1]);
@@ -3071,9 +3104,10 @@ seccio('discussió de sistemes', () => {
     comprovaGuio(llista, Discussio.files, nom);
     linies += comprovaDiscussio(llista, v, nom);
     passos += llista.length;
-    for (const m of llista[llista.length - 1].files[Discussio.FILA.taula].matchAll(/\{(\d)\}\\mathrel|\\text\{(S[A-Z]+)\}/g)) if (m[2]) tipusVistos[m[2]] = true;
+    const sigla = {'Sistema compatible determinat': 'SCD', 'Sistema compatible indeterminat': 'SCI', 'Sistema incompatible': 'SI'};
+    for (const m of llista[llista.length - 1].files[Discussio.FILA.taula].matchAll(/\\text\{(Sistema [a-z ]+)\}/g)) if (sigla[m[1]]) tipusVistos[sigla[m[1]]] = true;
     const t = llista[llista.length - 1].files[Discussio.FILA.taula];
-    if (/\{1\}.*\{1\}.*SCI/.test(t)) tipusVistos['SCI rang 1'] = true;
+    if (/\{1\}.*\{1\}.*Sistema compatible indeterminat/.test(t)) tipusVistos['SCI rang 1'] = true;
   }
   comprova(['SCD', 'SCI', 'SI'].every(k => tipusVistos[k]), () => `falten tipus: ${JSON.stringify(tipusVistos)}`);
   return `${valids} sistemes vàlids, ${passos} passos, ${linies} línies comprovades`;
@@ -3130,8 +3164,8 @@ function comprovaInversa(passos, v, nom) {
         const pla = tex.startsWith('\\begin{array}') ? liniesDArray(tex).join('') : textPla(tex);
         const m = /^\|A\|=(.*)=(-?\d+)≠0$/.exec(pla);
         const ps = SARRUS_POS.map(s => s.reduce((p, [a, b]) => p.producte(N[a][b]), fr(1)));
-        const tr = m && m[1].match(/^(-?\d+)\+(\(?-?\d+\)?)\+(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)-(\(?-?\d+\)?)$/);
-        comprova(tr && tr.slice(1).every((x, k) => M.llegeixNombre(x.replace(/[()]/g, '')).igual(ps[k])) && fr(Number(m[2])).igual(d) && !d.esZero(), () => `${on}: «${pla}», i |A| = ${d.num}`);
+        const tr = productesSarrus(m ? m[1] : "");
+        comprova(tr && tr.every((x, k) => x.igual(ps[k])) && fr(Number(m[2])).igual(d) && !d.esZero(), () => `${on}: «${pla}», i |A| = ${d.num}`);
       } else if (fila === FILA.adjunt) {
         const [a, b] = /^A_(\d)(\d)$/.exec(textPla(grups.Jl.tex)).slice(1).map(x => Number(x) - 1);
         const {B, valor} = cof(a, b);
@@ -3160,8 +3194,7 @@ function comprovaInversa(passos, v, nom) {
             () => `${on}: 1/|A| per la transposada de l'adjunta no és correcte`);
         } else comprova(d.igual(1), () => `${on}: sense 1/|A| només si |A| = 1`);
       } else if (fila === FILA.comprovacio) {
-        comprova(textPla(tex).replace(/\\begin|\\end/g, '') === 'A*A^(-1)=1&0&0;0&1&0;0&0&1=I'
-          && [0, 1, 2].every(a => [0, 1, 2].every(b => [0, 1, 2].reduce((s, k) => s.suma(N[a][k].producte(inv[k][b])), fr(0)).igual(fr(a === b ? 1 : 0)))), () => `${on}: «${textPla(tex)}»`);
+        comprova(false, () => `${on}: no s'ha d'escriure la comprovació A · A⁻¹ = I`);
       }
     } catch (e) {
       comprova(false, () => `${on}: no es pot llegir «${tex.slice(0, 120)}»: ${e.message}`);
@@ -3248,7 +3281,7 @@ function avaluaM(pla, entorn, mats) {
     if (mira() === '-') { negatiu = true; i++; }
     let v = factor();
     while (i < pla.length && !'+-)='.includes(mira())) {
-      if (mira() === '/') { i++; v = opM.per(v, opM.inv(factor())); } else v = opM.per(v, factor());
+      if (mira() === '/') { i++; v = opM.per(v, opM.inv(factor())); } else if (mira() === '*') { i++; v = opM.per(v, factor()); } else v = opM.per(v, factor());
     }
     return negatiu ? opM.per({s: fr(-1)}, v) : v;
   }
@@ -3356,6 +3389,10 @@ seccio('equació matricial', () => {
     comprovaGuio(llista, EquacioMatricial.files, problema.id);
     linies += comprovaEquacioMatricial(llista, v, problema.id);
     passos += llista.length;
+    // «I · X» i «X · I», sempre amb el punt (IX semblaria un nombre romà).
+    llista.forEach((pas, i) => comprova(!/IX|XI/.test(textPla(pas.files[EquacioMatricial.FILA.equacio] || '')), () => `${problema.id}, pas ${i + 1}: «IX» o «XI» sense el punt`));
+    // Si el membre de la dreta té més d'un terme, el pas de la inversa en destaca els parèntesis.
+    if (problema.beta) comprova(llista.some(pas => (pas.files[EquacioMatricial.FILA.equacio] || '').includes('\\htmlData{marca=tria}{(}')), () => `${problema.id}: no es destaquen els parèntesis del membre de la dreta`);
   }
   return `${EquacioMatricial.problemes.length} problemes, ${passos} passos, ${linies} línies comprovades`;
 });
@@ -3412,7 +3449,7 @@ function comprovaDiagonalitzacio(passos, v, nom) {
           comprova(esq === '|A-LI|' && dre.every(e => PUNTS_DET.every(t => valorX(e, 'L', t).igual(charP(t)))), () => `${on}: «${pla(tex)}» no és |A − λI|`);
         }
       } else if (fila === FILA.equacio || fila === FILA.segon) {
-        if (n === 2) comprova(solucionsX(pla(tex), 'L') === conjunt(vaps.map(k => fr(k))), () => `${on}: «${pla(tex)}» no té les solucions ${vaps}`);
+        if (n === 2 && pla(tex) !== '|A-LI|=0') comprova(solucionsX(pla(tex), 'L') === conjunt(vaps.map(k => fr(k))), () => `${on}: «${pla(tex)}» no té les solucions ${vaps}`);
       } else if (fila === FILA.vaps) {
         const llista = pla(tex).split(',').map(t => /^L_(\d)=(-?\d+)$/.exec(t));
         comprova(llista.length === n && llista.every((m, k) => m && Number(m[1]) === k + 1 && Number(m[2]) === vaps[k]), () => `${on}: «${pla(tex)}»: els valors propis són ${vaps}`);

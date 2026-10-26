@@ -141,15 +141,15 @@ function passos(v) {
   const u = d.igual(1);                       // si |A| = 1, la inversa és directament la transposada
   const peces = u ? [] : [K('Iu', `\\dfrac{1}{${M.texNombre(d)}}`) + texMatriuV('W', (i, j) => M.texNombre(adj[j][i]))];
   peces.push((u ? '' : ' = ') + texMatriuV('V', (i, j) => M.texNombre(inv[i][j])));
-  g.files[FILA.inversa] = F.enLinies(K('In', 'A^{-1}') + R('Iq', '='), peces);
+  // Matrius altes: molt d'espai entre línies (i millor en una sola línia, si hi cap).
+  g.files[FILA.inversa] = F.enLinies(K('In', 'A^{-1}') + R('Iq', '=') + '\\,', peces, {espai: '14pt'});
   g.afegeix(u ? 'Divideix per $|A| = 1$: la inversa és la mateixa transposada.'
     : `Divideix per $|A| = ${M.texNombre(d)}$: multiplica per $\\dfrac{1}{${M.texNombre(d)}}$, és a dir, divideix cada element de la transposada per $${M.texNombre(d)}$.`,
   u ? {} : {cursor: {arrossega: 'Dv', fins: 'Iu'}});
 
-  /* 5. La comprovació. */
-  g.files[FILA.comprovacio] = K('Kl', 'A \\cdot A^{-1}') + R('Kq', '=') + K('Ki', '\\begin{pmatrix} 1 & 0 & 0 \\\\ 0 & 1 & 0 \\\\ 0 & 0 & 1 \\end{pmatrix}') + R('Kr', '=') + K('KI', 'I');
+  /* 5. El resultat, destacat. (Sense escriure la comprovació A · A⁻¹ = I: el David no la vol a la pissarra.) */
   g.classes[FILA.inversa] = 'final';
-  g.afegeix('Comprovació: $A \\cdot A^{-1}$ ha de ser la matriu identitat. (Multiplica files de $A$ per columnes de $A^{-1}$: surt $1$ a la diagonal i $0$ a la resta.)');
+  g.afegeix('Aquesta és la matriu inversa, $A^{-1}$.');
   return g.passos;
 }
 

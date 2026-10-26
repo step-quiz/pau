@@ -153,7 +153,7 @@ function passos(v) {
     g.files[FILA.calcul] = K('cCl', nom) + R('cCq', '=') + termes.map((t, i) => K(`cC${t.n}`, M.texPolinomi([t], L).replace(/^(?!-)/, i ? ' + ' : '').replace(/^-/, i ? ' - ' : '-'))).join('');
     g.afegeix('Opera i agrupa: és un polinomi de grau 2 en $\\lambda$.');
   }
-  const vaps = Mt.passosArrels(g, {p, X: L, files: FILA, inici: 'Els valors propis són les solucions de $|A - \\lambda I| = 0$.'}).map(r => r.num);
+  const vaps = Mt.passosArrels(g, {p, X: L, files: FILA, nom: '|A - \\lambda I|', inici: 'Els valors propis són les solucions de $|A - \\lambda I| = 0$.'}).map(r => r.num);
   g.files[FILA.vaps] = vaps.map((r, i) => K(`L${i}`, `\\lambda_${i + 1} = ${r}`)).join(',\\quad ');
   g.afegeix(`Els valors propis: ${vaps.map((r, i) => `$\\lambda_${i + 1} = ${r}$`).join(', ').replace(/, ([^,]*)$/, ' i $1')}. Són ${n} i diferents: $A$ diagonalitza.`);
 

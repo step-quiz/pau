@@ -124,10 +124,11 @@ const enunciat = v => { const s = sistema(v); return `Discuteix el sistema $${te
 const resum = v => `\\scriptsize ${texSistemaNet(sistema(v))}`;
 
 /** El nom del tipus de sistema. */
-const TIPUS = (rA, rS) => (rA < rS ? 'SI' : rA === 3 ? 'SCD' : 'SCI');
-const DESCRIPCIO = (rA, rS) => (rA < rS ? 'sistema incompatible (SI): no té solució'
-  : rA === 3 ? 'sistema compatible determinat (SCD): té una sola solució'
-    : `sistema compatible indeterminat (SCI): té infinites solucions, que depenen de $3 - ${rA} = ${3 - rA}$ ${rA === 2 ? 'paràmetre' : 'paràmetres'}`);
+// Sempre el nom sencer, mai les sigles SCD, SCI, SI (David).
+const TIPUS = (rA, rS) => (rA < rS ? 'Sistema incompatible' : rA === 3 ? 'Sistema compatible determinat' : 'Sistema compatible indeterminat');
+const DESCRIPCIO = (rA, rS) => (rA < rS ? 'sistema incompatible: no té solució'
+  : rA === 3 ? 'sistema compatible determinat: té una sola solució'
+    : `sistema compatible indeterminat: té infinites solucions, que depenen de $3 - ${rA} = ${3 - rA}$ ${rA === 2 ? 'paràmetre' : 'paràmetres'}`);
 
 function passos(v) {
   const {S, X} = sistema(v);
@@ -141,10 +142,10 @@ function passos(v) {
 
   /* |A| i els valors que l'anul·len. */
   const {det} = Mt.passosSarrus(g, {A, X, nom: '|A|', P: 'd', rapid: true, files: {matriu: FILA.det, sarrus: FILA.sarrus, calcul: FILA.calcul}});
-  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, inici: `On és $|A| = 0$? Per a aquests valors, $\\text{rang}(A) < 3$.`}).map(r => r.num);
+  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|', inici: `On és $|A| = 0$? Per a aquests valors, $\\text{rang}(A) < 3$.`}).map(r => r.num);
 
   /* La taula, que es va omplint. */
-  const files = [[K('T0a', X), K('T0b', '\\text{rang}(A)'), K('T0c', '\\text{rang}(A^*)'), K('T0d', '\\text{tipus}')]];
+  const files = [[K('T0a', X), K('T0b', '\\text{rang}(A)'), K('T0c', '\\text{rang}(A^*)'), K('T0d', '\\text{tipus de sistema}')]];
   const taula = () => {
     g.files[FILA.taula] = `\\begin{array}{c|c|c|c} ${files.map(f => f.join(' & ')).join(' \\\\ \\hline ')} \\end{array}`;
   };
@@ -152,7 +153,7 @@ function passos(v) {
   /* |A| ≠ 0. */
   const diferent = arrels.length ? `${X} \\neq ${arrels.join(',\\ ')}` : `\\text{tot } ${X}`;
   g.files[FILA.scd] = K('Dc', diferent) + ':\\quad ' + K('Dr', '|A| \\neq 0 \\Rightarrow \\text{rang}(A) = \\text{rang}(A^*) = 3');
-  files.push([K('T1a', diferent), K('T1b', '3'), K('T1c', '3'), K('T1d', '\\text{SCD}')]);
+  files.push([K('T1a', diferent), K('T1b', '3'), K('T1c', '3'), K('T1d', '\\text{Sistema compatible determinat}')]);
   taula();
   g.afegeix((arrels.length ? `Si $${X}$ no és ${arrels.length === 1 ? 'aquest valor' : 'cap d\'aquests valors'}` : `Per a qualsevol valor de $${X}$`)
     + ', $|A| \\neq 0$: $\\text{rang}(A) = 3$, i també $\\text{rang}(A^*) = 3$ (no pot ser més gran: $A^*$ només té 3 files). '

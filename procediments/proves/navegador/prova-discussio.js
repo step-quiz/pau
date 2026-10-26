@@ -74,15 +74,15 @@ const estat = p => p.evaluate(() => {
     await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(14));
-    const marques = (await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
+    const marques = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
     ok(marques.length === 4 && marques.every(m => /^K0a\d\d:mes$/.test(m)), 'm = −1: a green 2×2 minor: ' + marques.join(' '));
     await p.evaluate(() => procediment.salta(15));
-    const marques2 = (await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
+    const marques2 = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
     ok(marques2.length === 9 && marques2.filter(m => m.endsWith(':tria')).length === 5 && marques2.some(m => /^K0a\d4:tria$/.test(m)), 'bordered with the column of constants: ' + marques2.join(' '));
     await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'disc-marques.png')});
     await p.evaluate(() => procediment.salta(99));
     const taula = await p.$eval('.fila.final', e => e.textContent);
-    ok(/SCD/.test(taula) && /SCI/.test(taula) && /SI/.test(taula), 'final table has SCD, SCI and SI: ' + taula);
+    ok(/compatible determinat/.test(taula) && /compatible indeterminat/.test(taula) && /incompatible/.test(taula) && !/\bSC[DI]\b|\bSI\b/.test(taula), 'final table has the three full names (no abbreviations): ' + taula);
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();
   }

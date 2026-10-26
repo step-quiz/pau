@@ -74,7 +74,7 @@ const estat = p => p.evaluate(() => {
     await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(3));
-    const marques = (await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
+    const marques = (await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca))).sort();
     ok(marques.join() === 'a11:menys,a12:menys,a13:menys,a21:mes,a22:menys,a23:mes,a31:mes,a32:menys,a33:mes', 'A12: row 1 and column 2 covered: ' + marques.join(' '));
     await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'inv-marques.png')});
     // The transpose moves each cofactor: C01 (row 1, column 2) ends at row 2, column 1.

@@ -144,75 +144,105 @@ function passosSarrus(g, {A, X, nom = '|A|', P = '', files, rapid = false}) {
   g.afegeix(`La regla de Sarrus: $${nom}$ és la suma de tres productes de tres elements, menys uns altres tres productes. `
     + 'A cada producte hi ha un element de cada fila i un de cada columna.');
 
-  /* Els sis productes, marcats a la matriu (o, «rapid», tots alhora i sense marques). */
+  /*
+   * Sempre amb claudàtors, com a classe: |A| = [p₁ + p₂ + p₃] − [p₄ + p₅ + p₆]. Cada claudàtor
+   * es tanca després de l'últim producte que ja hi és; els productes es poden partir en línies.
+   */
   const peces = [];
+  const ambClaudators = trossos => trossos.map((t, n) => {
+    const obre = n === 0 ? '\\lbrack ' : n === 3 ? ' - \\lbrack ' : ' + ';
+    const tanca = n === Math.min(trossos.length, 3) - 1 || (n >= 3 && n === trossos.length - 1) ? ' \\rbrack' : '';
+    return obre + t + tanca;
+  });
+  // Es parteix entre els dos claudàtors; dins d'un claudàtor, només si sol no hi cap.
+  const filaProductes = () => {
+    const trossos = ambClaudators(peces);
+    const grups = [trossos.slice(0, 3).join(''), trossos.slice(3).join('')].filter(Boolean);
+    const llargs = grups.some(t => F.ampleTex(t) > F.AMPLE_LINIA * 0.85);
+    return F.enLinies(K(P + 'Sl', nom) + R(P + 'Sq', '='), llargs ? trossos : grups);
+  };
+
+  /* Els sis productes, marcats a la matriu (o, «rapid», tots alhora i sense marques). */
   if (rapid) {
-    SARRUS.forEach((s, n) => peces.push((n === 0 ? '' : s.signe > 0 ? ' + ' : ' - ') + K(`${P}S${n}`, s.pos.map(([i, j]) => texFactor(A[i][j], X)).join(' \\cdot '))));
-    g.files[files.sarrus] = F.enLinies(K(P + 'Sl', nom) + R(P + 'Sq', '='), peces);
-    g.afegeix('Els sis productes: amb $+$, la diagonal principal i els dos triangles paral·lels; amb $-$, la diagonal secundària i els seus dos triangles.');
+    SARRUS.forEach((s, n) => peces.push(K(`${P}S${n}`, s.pos.map(([i, j]) => texFactor(A[i][j], X)).join(' \\cdot '))));
+    g.files[files.sarrus] = filaProductes();
+    g.afegeix('Els sis productes: al primer claudàtor, la diagonal principal i els dos triangles paral·lels; al segon (que es resta), la diagonal secundària i els seus dos triangles.');
   }
   if (!rapid) SARRUS.forEach((s, n) => {
     const factors = s.pos.map(([i, j]) => texFactor(A[i][j], X)).join(' \\cdot ');
-    peces.push((n === 0 ? '' : s.signe > 0 ? ' + ' : ' - ') + K(`${P}S${n}`, factors));
+    peces.push(K(`${P}S${n}`, factors));
     g.files[files.matriu] = filaMatriu(Object.fromEntries(s.pos.map(([i, j]) => [`${i}${j}`, s.signe > 0 ? 'mes' : 'menys'])));
-    g.files[files.sarrus] = F.enLinies(K(P + 'Sl', nom) + R(P + 'Sq', '='), peces);
-    g.afegeix(`${s.text} $${factors}$.`);
+    g.files[files.sarrus] = filaProductes();
+    g.afegeix(`${s.text} $${factors}$.` + (n === 3 ? ' Aquests van en un segon claudàtor, que es resta.' : ''));
   });
   g.files[files.matriu] = filaMatriu();
 
-  /* Cada producte fet, amb el seu signe. */
+  /* Cada producte fet, dins del seu claudàtor. */
   const valors = SARRUS.map(s => s.pos.reduce((p, [i, j]) => producteP(p, A[i][j]), [U]));
   const inici = K(P + 'Cl', nom) + R(P + 'Cq', '=');
   const fila = trossos => F.enLinies(inici, trossos);
-  let primer = true;
-  let ambParentesi = false;
-  const trossos = valors.map((v, n) => {
-    const signe = SARRUS[n].signe;
-    const termes = M.termes(v);
-    const esPrimer = primer;
-    primer = false;
-    if (!termes.length) return (esPrimer ? '' : signe > 0 ? ' + ' : ' - ') + K(`${P}V${n}z`, '0');
-    if (signe > 0) return termes.map((t, i) => K(`${P}V${n}${t.n}`, texTerme(t.c, t.n, X, esPrimer && i === 0))).join('');
-    if (termes.length === 1 && termes[0].c.signe() > 0) return K(`${P}V${n}${termes[0].n}`, texTerme(termes[0].c.oposada(), termes[0].n, X, esPrimer));
-    ambParentesi = true;
-    return (esPrimer ? '' : ' ') + K(`${P}V${n}n`, '-') + '(' + termes.map((t, i) => K(`${P}V${n}${t.n}`, texTerme(t.c, t.n, X, i === 0))).join('') + ')';
-  });
-  g.files[files.calcul] = fila(trossos);
-  g.afegeix('Fes cada producte, amb el seu signe.' + (ambParentesi ? ' Un producte de més d\'un terme (o negatiu) que va amb $-$ queda entre parèntesis.' : ''));
+  /** Termes d'un claudàtor, amb el seu signe (el primer, sense «+»): [{k, c, n}] → TeX. */
+  const texTermes = termes => termes.map((t, i) => K(t.k, t.c === null ? (i === 0 ? '0' : ' + 0') : texTerme(t.c, t.n, X, i === 0))).join('');
+  const claudator = (termes, segon) => (segon ? ' - ' : '') + '\\lbrack ' + texTermes(termes) + ' \\rbrack';
+  // Els termes de cada producte (un producte que val 0 és un «0»).
+  const termesProducte = n => {
+    const ts = M.termes(valors[n]);
+    return ts.length ? ts.map(t => ({k: `${P}V${n}${t.n}`, c: t.c, n: t.n})) : [{k: `${P}V${n}z`, c: null, n: null}];
+  };
+  const grups = [[0, 1, 2], [3, 4, 5]].map(ns => ns.flatMap(termesProducte));
+  g.files[files.calcul] = fila([claudator(grups[0], false), claudator(grups[1], true)]);
+  g.afegeix('Fes cada producte, dins del seu claudàtor.');
 
-  /* Sense parèntesis: el «−» canvia el signe de cada terme de dins. */
-  const signats = valors.map((v, n) => (SARRUS[n].signe > 0 ? v : oposatP(v)));
-  if (ambParentesi) {
-    primer = true;
-    const sense = signats.map((v, n) => {
-      const termes = M.termes(v);
-      const esPrimer = primer;
-      primer = false;
-      if (!termes.length) return (esPrimer ? '' : SARRUS[n].signe > 0 ? ' + ' : ' - ') + K(`${P}V${n}z`, '0');
-      return termes.map((t, i) => K(`${P}V${n}${t.n}`, texTerme(t.c, t.n, X, esPrimer && i === 0))).join('');
+  /* Cada claudàtor, sumat (si cal): termes del mateix grau junts, sense zeros. */
+  const sumes = [[0, 1, 2], [3, 4, 5]].map(ns => ns.reduce((d, n) => sumaP(d, valors[n]), []));
+  const simplificats = grups.map((gr, q) => {
+    const ts = M.termes(sumes[q]);
+    const lletra = q === 0 ? 'Bp' : 'Bm';
+    if (!ts.length) return {termes: [{k: `${P}${lletra}z`, c: null, n: null}], fusiona: {[`${P}${lletra}z`]: gr.map(t => t.k)}};
+    const fusiona = {};
+    const termes = ts.map(t => {
+      const de = gr.filter(u => u.n === t.n).map(u => u.k);
+      if (de.length === 1) return {k: de[0], c: t.c, n: t.n};
+      const k = `${P}${lletra}${t.n}`;
+      fusiona[k] = de;
+      return {k, c: t.c, n: t.n};
     });
-    g.files[files.calcul] = fila(sense);
-    g.afegeix('Treu els parèntesis: el signe $-$ de davant canvia el signe de cada terme de dins.');
+    return {termes, fusiona};
+  });
+  const calSumar = simplificats.some((sm, q) => sm.termes.length !== grups[q].length);
+  if (calSumar) {
+    g.files[files.calcul] = fila([claudator(simplificats[0].termes, false), claudator(simplificats[1].termes, true)]);
+    g.afegeix('Opera dins de cada claudàtor.', {fusiona: Object.assign({}, simplificats[0].fusiona, simplificats[1].fusiona)});
   }
+  const [mes, menys] = (calSumar ? simplificats.map(sm => sm.termes) : grups).map(ts => ts.filter(t => t.c !== null));
 
-  /* Els termes del mateix grau, agrupats. */
-  const det = signats.reduce((d, v) => sumaP(d, v), []);
-  const graus = [...new Set(signats.flatMap(v => M.termes(v).map(t => t.n)))].sort((a, b) => b - a);
-  const fusiona = {};
-  const grups = [];
-  for (const gr of graus) {
-    const claus = signats.map((v, n) => (M.termes(v).some(t => t.n === gr) ? `${P}V${n}${gr}` : null)).filter(Boolean);
-    const c = det[gr] || ZERO;
-    if (!c.esZero()) fusiona[`${P}C${gr}`] = claus;
-    if (claus.length > 1) {
-      const suma = signats.map(v => M.termes(v).find(t => t.n === gr)).filter(Boolean)
-        .map((t, i) => texTerme(t.c, t.n, X, i === 0)).join('');
-      grups.push(`$${suma} = ${c.esZero() ? '0' : M.texPolinomi([{n: gr, c}], X || 'x')}$`);
-    }
-  }
+  /* Sense claudàtors: el «−» canvia el signe de cada terme del segon. Després, els termes del mateix grau, agrupats. */
+  const sense = mes.concat(menys.map(t => ({k: t.k, c: t.c.oposada(), n: t.n})));
+  const det = sumaP(sumes[0], oposatP(sumes[1]));
   const termesDet = M.termes(det);
-  g.files[files.calcul] = fila(termesDet.length ? termesDet.map((t, i) => K(`${P}C${t.n}`, texTerme(t.c, t.n, X, i === 0))) : [K(`${P}C0`, '0')]);
-  g.afegeix(`Agrupa els termes del mateix grau${grups.length ? ': ' + grups.join('; ') : ''}. Els zeros desapareixen.`, {fusiona});
+  const graus = sense.map(t => t.n);
+  const directe = new Set(graus).size === graus.length && graus.every((gr, i) => i === 0 || gr < graus[i - 1]);
+  const texSense = ts => (ts.length ? ts.map((t, i) => K(t.k, texTerme(t.c, t.n, X, i === 0))) : [K(`${P}C0`, '0')]);
+  if (directe) {
+    // Ja està agrupat i ordenat: les claus passen a ser les del resultat (C<grau>).
+    const finals = sense.map(t => ({k: `${P}C${t.n}`, c: t.c, n: t.n}));
+    g.files[files.calcul] = fila(texSense(finals));
+    g.afegeix(menys.length ? 'Treu els claudàtors: el $-$ de davant del segon canvia el signe de cada terme de dins.' : 'Treu els claudàtors.',
+      {reanomena: Object.fromEntries(sense.map(t => [`${P}C${t.n}`, t.k]))});
+  } else {
+    g.files[files.calcul] = fila(texSense(sense));
+    g.afegeix(menys.length ? 'Treu els claudàtors: el $-$ de davant del segon canvia el signe de cada terme de dins.' : 'Treu els claudàtors.');
+    const fusiona = {};
+    const textos = [];
+    for (const gr of [...new Set(graus)].sort((a, b) => b - a)) {
+      const de = sense.filter(t => t.n === gr);
+      const c = det[gr] || ZERO;
+      if (!c.esZero()) fusiona[`${P}C${gr}`] = de.map(t => t.k);
+      if (de.length > 1) textos.push(`$${de.map((t, i) => texTerme(t.c, t.n, X, i === 0)).join('')} = ${c.esZero() ? '0' : M.texPolinomi([{n: gr, c}], X || 'x')}$`);
+    }
+    g.files[files.calcul] = fila(termesDet.length ? termesDet.map((t, i) => K(`${P}C${t.n}`, texTerme(t.c, t.n, X, i === 0))) : [K(`${P}C0`, '0')]);
+    g.afegeix(`Agrupa els termes del mateix grau${textos.length ? ': ' + textos.join('; ') : ''}. Els zeros desapareixen.`, {fusiona});
+  }
   return {det, valors};
 }
 
@@ -288,13 +318,34 @@ const ordena = arrels => arrels.filter((r, i) => arrels.findIndex(s => s.igual(r
  * «ruffini» (la taula) i «segon» (l'equació de segon grau que queda). «inici» és el text
  * del primer pas. Torna les solucions, diferents i en ordre (Fraccio).
  */
-function passosArrels(g, {p, X, files, inici}) {
+function passosArrels(g, {p, X, files, inici, nom}) {
   const termes = M.termes(p);
-  if (p.length <= 3) return ordena(F.resolPolinomi(g, files.equacio, 'E', termes, inici, {}, X).map(s => s.valor));
+  // Primer, l'equació tal com es planteja («|A| = 0»), si es dona el nom; el «=» i el «0» es queden.
+  let textPolinomi = inici;
+  if (nom) {
+    g.files[files.equacio] = K('En', nom) + R('Eq', '=') + K('Ez', '0');
+    g.afegeix(inici);
+    textPolinomi = `Substitueix $${nom}$ per la seva expressió.`;
+  }
+  /** Al final, les solucions trobades, en lila (marca «solucio») allà on són: «claus» = [[fila, clau]]. */
+  const marcaSolucions = (claus, trobades) => {
+    if (!trobades.length) return;
+    for (const [f, k] of claus) g.files[f] = g.files[f].replace(`\\htmlData{k=${k}}`, `\\htmlData{k=${k},marca=solucio}`);
+    const repetida = trobades.filter((r, i) => trobades.findIndex(s => s.igual(r)) !== i);
+    const llista = trobades.map(r => `$${X} = ${M.texNombre(r)}$`);
+    g.afegeix(`${trobades.length > 1 ? 'Les solucions de l\'equació són ' + llista.slice(0, -1).join(', ') + ' i ' + llista[llista.length - 1] : 'La solució de l\'equació és ' + llista[0]}.`
+      + (repetida.length ? ` ${repetida.map(r => `$${X} = ${M.texNombre(r)}$`).join(', ')} surt dues vegades: és una arrel doble.` : ''));
+  };
+  if (p.length <= 3) {
+    const sol = F.resolPolinomi(g, files.equacio, 'E', termes, textPolinomi, {}, X);
+    marcaSolucions(sol.map(s => [files.equacio, s.clau]), sol.map(s => s.valor));
+    return ordena(sol.map(s => s.valor));
+  }
 
   /* Grau 3: l'equació, i dividida pel factor comú (o canviada de signe). */
   g.files[files.equacio] = F.equacio('E', termes, X);
-  g.afegeix(inici);
+  g.afegeix(textPolinomi);
+  const clausSolucions = [];
   const {p: q, k} = normalitza(p);
   if (k !== 1) {
     g.files[files.equacio] = F.equacio('E', M.termes(q), X);
@@ -311,6 +362,7 @@ function passosArrels(g, {p, X, files, inici}) {
     g.files[files.equacio] = K('Ef', factor) + `(${K('Er', texP(resta, X))})` + R('Eq', '=') + K('Ez', '0');
     g.afegeix(`No hi ha terme independent: treu factor comú $${factor}$.`);
     arrels = [ZERO];
+    clausSolucions.push([files.equacio, 'Ef']);
     g.completa(` Un producte val $0$ si algun factor val $0$: $${factor} = 0$${j > 1 ? `, és a dir, $${X} = 0$` : ''}, o bé $${texP(resta, X)} = 0$.`);
   } else {
     /* Una arrel entera, entre els divisors del terme independent. */
@@ -327,13 +379,14 @@ function passosArrels(g, {p, X, files, inici}) {
         ? `Busca una arrel entera: ha de ser un divisor del terme independent, $${c0}$ (${divisors(c0).map(d => `$\\pm ${d}$`).join(', ')}). Prova $${X} = ${c}$: `
         : `Prova $${X} = ${c}$: `;
       g.afegeix(quina + (v.esZero() ? `dona $0$, és una arrel.` : `dona $${M.texNombre(v)}$, no és una arrel.`));
-      if (v.esZero()) { r = c; break; }
+      if (v.esZero()) { r = c; clausSolucions.push([files.prova, `Pv${linies.length - 1}`]); break; }
     }
     /* La regla de Ruffini: q entre (X − r). */
     const {dalt, mig, baix, quocient} = ruffini(q, r);
     const n = dalt.length;
     const cel = (k, v) => (v === null || v === undefined ? '' : K(k, M.texNombre(v)));
-    const taula = fins => `\\begin{array}{r|${'r'.repeat(n - 1)}|r} & ${dalt.map((v, i) => cel(`Ra${i}`, v)).join(' & ')} \\\\ `
+    // Una sola línia vertical, després de l'arrel (no abans del terme independent).
+    const taula = fins => `\\begin{array}{r|${'r'.repeat(n)}} & ${dalt.map((v, i) => cel(`Ra${i}`, v)).join(' & ')} \\\\ `
       + `${K('Rx', String(r))} & ${mig.map((v, i) => (i <= fins && i > 0 ? cel(`Rm${i}`, v) : '')).join(' & ')} \\\\ \\hline `
       + `& ${baix.map((v, i) => (i <= fins ? cel(`Rb${i}`, v) : '')).join(' & ')} \\end{array}`;
     g.files[files.ruffini] = taula(-1);
@@ -357,7 +410,9 @@ function passosArrels(g, {p, X, files, inici}) {
   if (resta.length > 1) {
     const sol = F.resolPolinomi(g, files.segon, 'Q', M.termes(resta), `Resol $${texP(resta, X)} = 0$.`, {}, X);
     arrels = arrels.concat(sol.map(s => s.valor));
+    sol.forEach(s => clausSolucions.push([files.segon, s.clau]));
   }
+  marcaSolucions(clausSolucions, arrels);
   return ordena(arrels);
 }
 
@@ -374,8 +429,9 @@ const det2N = B => B[0][0].producte(B[1][1]).resta(B[0][1].producte(B[1][0]));
 const texDet2N = B => `${M.texEntreParentesis(B[0][0])} \\cdot ${M.texEntreParentesis(B[1][1])} - ${M.texEntreParentesis(B[0][1])} \\cdot ${M.texEntreParentesis(B[1][0])}`;
 const productesSarrusN = B => SARRUS.map(s => s.pos.reduce((p, [i, j]) => p.producte(B[i][j]), U));
 const det3N = B => productesSarrusN(B).reduce((d, p, n) => (SARRUS[n].signe > 0 ? d.suma(p) : d.resta(p)), ZERO);
-/** «6 + 0 + 4 - 3 - 0 - (-2)»: els sis productes de Sarrus, ja fets. */
-const texSarrusN = B => productesSarrusN(B).map((p, n) => (n === 0 ? M.texNombre(p) : `${SARRUS[n].signe > 0 ? ' + ' : ' - '}${M.texEntreParentesis(p)}`)).join('');
+/** «[6 + 0 + 4] - [3 + 0 - 2]»: els sis productes de Sarrus, ja fets, en dos claudàtors (cada un amb el seu signe). */
+const sumaN = ps => ps.map((p, i) => (i === 0 ? M.texNombre(p) : p.signe() < 0 ? ` - ${M.texNombre(p.abs())}` : ` + ${M.texNombre(p)}`)).join('');
+const texSarrusN = B => { const ps = productesSarrusN(B); return `\\lbrack ${sumaN(ps.slice(0, 3))} \\rbrack - \\lbrack ${sumaN(ps.slice(3))} \\rbrack`; };
 /** Rang per Gauss (per a «valida»: les pàgines el fan amb menors). */
 function rangN(N) {
   const B = N.map(f => f.slice());

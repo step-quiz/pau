@@ -45,7 +45,8 @@ const CLAU_VALIDA = /^[A-Za-z][A-Za-z0-9]*$/;
 // mes/menys/tria: verd, vermell, groc. cami0/cami1/cami2: un color per a cada camí d'un arbre (blau, rosa, cian),
 // per veure d'on surt cada terme d'una suma.
 // actual: lila, el que s'està calculant ara (p. ex. P(X = 4) a la pregunta i a la seva línia).
-const MARQUES = new Set(['mes', 'menys', 'tria', 'cami0', 'cami1', 'cami2', 'actual']);
+// solucio: lila, les solucions trobades d'una equació.
+const MARQUES = new Set(['mes', 'menys', 'tria', 'cami0', 'cami1', 'cami2', 'actual', 'solucio']);
 
 /** Símbol amb clau, i potser amb una marca: \htmlData{k=a11,marca=mes}{m}. */
 function clau(k, tex, marca = '') {
@@ -541,22 +542,25 @@ function ampleTex(tex) {
 }
 
 /**
+ * Amplada màxima d'una línia (px, mesurada com ampleTex). Els aparells de referència són
+ * Chromebooks i portàtils (no mòbils): 460 px a mida de mòbil ≈ 630 px a la lletra de 30 px.
+ */
+const AMPLE_LINIA = 460;
+/**
  * Una fila llarga en diverses línies: «inici» i després les peces (cada una amb el seu
  * signe, p. ex. « + 2m»), tantes com càpiguen en «ample» píxels; les línies següents
  * comencen amb un sagnat. Si tot hi cap, una sola línia (sense array).
  */
-function enLinies(inici, peces, {ample = 300, sagnat = '\\qquad ', final = ''} = {}) {
+function enLinies(inici, peces, {ample = AMPLE_LINIA, sagnat = '\\qquad ', final = '', espai = '4pt'} = {}) {
   const linies = [inici];
   for (const p of peces) {
     const ara = linies[linies.length - 1];
     if (ara.trim() !== '' && ara !== inici && ara !== sagnat && ampleTex(ara + p) > ample) linies.push(sagnat + p.replace(/^\s+/, ''));
     else linies[linies.length - 1] = ara + p;
   }
-  if (final) {
-    if (ampleTex(linies[linies.length - 1] + final) > ample) linies.push(sagnat + final.replace(/^\s+/, ''));
-    else linies[linies.length - 1] += final;
-  }
-  return linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[4pt] ')} \\end{array}` : linies[0];
+  // El final («= 0», «= 5 ≠ 0») sempre a la mateixa línia que l'última peça: sol en una línia nova costa de llegir (David).
+  if (final) linies[linies.length - 1] += final;
+  return linies.length > 1 ? `\\begin{array}{l} ${linies.join(` \\\\[${espai}] `)} \\end{array}` : linies[0];
 }
 
 
@@ -596,7 +600,7 @@ function guio(nFiles) {
 /* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
 
 arrel.Formules = Object.freeze({
-  clau, marca, op, rel, marcat, membreEsquerre,
+  AMPLE_LINIA, clau, marca, op, rel, marcat, membreEsquerre,
   polinomi, substituit, avaluat, fusionsAvaluat,
   resultat, fusionsResultat, clausResultat,
   derivadaIndicada, derivadaBaixada, derivadaFeta,

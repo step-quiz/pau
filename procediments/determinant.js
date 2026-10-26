@@ -89,7 +89,7 @@ function passos(v) {
   g.files[FILA.matriu] = K('Mn', 'A') + R('Mq', '=') + Mt.texMatriu(A, X);
   g.afegeix(`La matriu $A$ depèn del paràmetre $${X}$. El seu determinant, $|A|$, serà un polinomi en $${X}$.`);
   const {det} = Mt.passosSarrus(g, {A, X, nom: '|A|', files: FILA});
-  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA,
+  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|',
     inici: `Per a quins valors de $${X}$ és $|A| = 0$? Iguala el determinant a zero.`});
 
   const solucions = Mt.texSolucions(arrels, X);

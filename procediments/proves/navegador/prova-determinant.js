@@ -74,10 +74,10 @@ const estat = p => p.evaluate(() => {
     await p.evaluate(() => document.querySelectorAll('.exemple')[0].click());
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(2));
-    const marques = await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca + ':' + getComputedStyle(e).backgroundColor));
+    const marques = await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca + ':' + getComputedStyle(e).backgroundColor));
     ok(marques.length === 3 && marques.every(m => /^a(11|22|33):mes:rgba\(16, 185, 129/.test(m)), 'main diagonal marked green: ' + marques.join(' '));
     await p.evaluate(() => procediment.salta(5));
-    const marques2 = await p.$$eval('.pissarra [data-marca]', es => es.map(e => e.dataset.k + ':' + e.dataset.marca));
+    const marques2 = await p.$$eval('.pissarra [data-marca]:not([data-marca=solucio])', es => es.map(e => e.dataset.k + ':' + e.dataset.marca));
     ok(marques2.sort().join() === 'a13:menys,a22:menys,a31:menys', 'secondary diagonal marked red: ' + marques2.join(' '));
     await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'det-marques.png')});
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));

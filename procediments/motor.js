@@ -48,7 +48,8 @@ const TEMPS = Object.freeze({
 const CORBA = 'cubic-bezier(.45,.05,.25,1)';
 /** Mida de la lletra de la pissarra (px). Es redueix si la línia més llarga no hi cap. */
 const MIDA = Object.freeze({gran: 30, petita: 22, minima: 12, pantallaPetita: '(max-width: 520px)',
-  minimaAlcada: 18});   // a pantalla gran, la lletra es redueix fins a 18 px perquè el pas més alt i els controls hi càpiguen
+  minimaAlcada: 18,
+  alcadaMinima: 260});   // la pissarra, com a mínim, té aquesta alçada abans de fer servir la seva barra de desplaçament   // a pantalla gran, la lletra es redueix fins a 18 px perquè el pas més alt i els controls hi càpiguen
 
 /** Categories del web (index.html): clau → nom. */
 const CATEGORIES = Object.freeze({
@@ -334,10 +335,33 @@ function creaPissarra(r, nFiles, cursor, temps) {
     return c;
   }
 
+  /**
+   * Si la pissarra té barra de desplaçament, la mou perquè es vegi l'última fila que canvia
+   * d'una capa a l'altra (sense moure-la si ja es veu). Es fa abans de mesurar res.
+   */
+  let ultimaVisible = -1;
+  function fesVisible(vella, nova) {
+    const e = r.escenari;
+    if (e.scrollHeight <= e.clientHeight + 1) return;
+    const files = [...nova.children];
+    let ultima = -1;
+    const diferent = (v, f) => !v || v.innerHTML !== f.innerHTML || v.className !== f.className.replace(/\s*\bnova\b/, '');
+    files.forEach((f, i) => { if (!f.hidden && f.innerHTML && (!vella || diferent(vella.children[i], f))) ultima = i; });
+    if (ultima < 0) ultima = ultimaVisible;               // el mateix pas, redibuixat (p. ex. amb una altra lletra): la mateixa fila
+    if (ultima < 0 || !files[ultima]) return;
+    ultimaVisible = ultima;
+    const o = e.getBoundingClientRect(), q = files[ultima].getBoundingClientRect();
+    const dalt = q.top - o.top + e.scrollTop, baix = q.bottom - o.top + e.scrollTop;
+    if (baix > e.scrollTop + e.clientHeight) e.scrollTop = Math.min(dalt, baix - e.clientHeight + 12);
+    else if (dalt < e.scrollTop) e.scrollTop = Math.max(0, dalt - 12);
+  }
+
   function mostra(pas) {
     r.efectes.replaceChildren();
+    const vella = capa;
     capa = dibuixaCapa(pas);
     r.pissarra.replaceChildren(capa);
+    fesVisible(vella, capa);
   }
 
   /**
@@ -372,6 +396,15 @@ function creaPissarra(r, nFiles, cursor, temps) {
     const factor = maxim > 0 ? Math.min(1, disponible / maxim) : 1;
     let mida = Math.max(MIDA.minima, Math.floor(base * factor));
     posaMida(mida);
+
+    // L'espai: a sota de la capçalera i de l'enunciat (a pantalla gran), i a sobre dels controls i d'unes tres línies d'explicació.
+    const dalt = petita ? 0 : r.escenari.getBoundingClientRect().top + scrollY;
+    // (els controls poden estar enganxats a baix: només se'n mira l'alçada)
+    const gap = parseFloat(getComputedStyle(r.controls.parentNode).rowGap) || 0;
+    const sota = gap + r.controls.offsetHeight + Math.max(0, 72 - r.explicacio.offsetHeight) + 8;
+    const lloc = innerHeight - dalt - sota;
+    // Si la pissarra no hi cap, té la seva pròpia barra de desplaçament (i no la de la finestra).
+    r.escenari.style.maxHeight = Math.max(MIDA.alcadaMinima, Math.floor(lloc)) + 'px';
     if (petita || mida <= MIDA.minimaAlcada) return;
 
     // L'alçada. Les files de fórmules creixen amb la lletra, però les de text no: es repeteix el càlcul unes quantes vegades.
@@ -386,11 +419,6 @@ function creaPissarra(r, nFiles, cursor, temps) {
       mesura.remove();
       return h + r.pissarra.offsetHeight - r.pissarra.clientHeight;     // + les vores
     };
-    const dalt = r.escenari.getBoundingClientRect().top + scrollY;
-    // A sota: el gap, els controls (que poden estar enganxats: només se'n mira l'alçada) i marge perquè l'explicació tingui unes tres línies.
-    const gap = parseFloat(getComputedStyle(r.controls.parentNode).rowGap) || 0;
-    const sota = gap + r.controls.offsetHeight + Math.max(0, 72 - r.explicacio.offsetHeight) + 8;
-    const lloc = innerHeight - dalt - sota;
     for (let i = 0; i < 4; i++) {
       const alt = alcadaMaxima();
       if (alt <= lloc) break;
@@ -461,6 +489,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
     const nova = dibuixaCapa(pas);
     nova.classList.add('nova');
     r.pissarra.append(nova);
+    fesVisible(vella, nova);
 
     const A = ambClau(vella), B = ambClau(nova);
     const RA = posicions(A), RB = posicions(B);

@@ -138,7 +138,7 @@ function passos(v) {
   pintaMatriu(marquesMenor());
   g.files[FILA.rouche] = K('Rr', '\\text{rang}(A) = \\text{rang}(A^*) = 2 < 3');
   g.afegeix('Teorema de Rouché–Frobenius: els dos rangs són iguals (el sistema és compatible), però més petits que el nombre d\'incògnites, $3$. '
-    + 'És un sistema compatible indeterminat (SCI): té infinites solucions, que depenen de $3 - 2 = 1$ paràmetre.');
+    + 'És un sistema compatible indeterminat: té infinites solucions, que depenen de $3 - 2 = 1$ paràmetre.');
 
   /* La resolució. */
   pintaMatriu();
