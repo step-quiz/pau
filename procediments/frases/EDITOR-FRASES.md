@@ -11,7 +11,8 @@ each with its board, and writes how the caption («Opera el costat de la dreta.�
 
 - **Artifact:** https://claude.ai/artifact/5SZx72Lq398xzPYuV2FEmh (private: only the owner; the Claude conversation must belong
   to the same account).
-- **Capabilities:** `{db: {}}` (default rules: the owner reads and writes). Changes live in the collection **`canvis`**.
+- **Capabilities:** `{db: {}}` (default rules: the owner reads and writes). Changes live in the collection **`canvis`**;
+  captions David marked as correct, in **`revisades`**.
 - Built from this folder: `genera-editor-frases.js` (data + page) and `plantilla-editor-frases.html` (the page).
 
 ## 2. How David uses it
@@ -24,6 +25,13 @@ Three tabs:
 2. **Totes les frases**: every distinct caption *template* once (captions with the same text once the formulas and numbers are
    removed: about 800), with how many times and on which pages it appears; search (text or LaTeX), «Les més repetides primer»,
    «Només les que tenen canvis». «Mostra on surt» jumps to the first occurrence.
+**«Correcta» and progress** (added 27/10/2026 at David's request). Every caption and statement card has a **Correcta** button (press
+again to undo). Review is **per template**: marking «Agrupa els termes del mateix grau.» correct marks it in every example and page
+where that template appears, so after the first example of a page only the new captions are left. A template also counts as
+reviewed when it has a change. Progress: «falten N de M» under each page in the list (✓ when done), «Revisades X de M frases
+d'aquesta pàgina» with a **Següent per revisar** button (next unreviewed card below; then the next example that has one), a ✓ on
+finished example chips, and in «Totes les frases» a filter Totes / Per revisar / Amb canvis and «en falten N de 802 per revisar».
+
 3. **Canvis**: the saved changes (pending / done / all), «Mostra-la a la pàgina», «Esborra» (with undo), and **Copia la llista**,
    a plain-text list to paste into the chat (fallback when the database is unavailable; then changes are kept only in that
    browser's localStorage and the page says so).
@@ -58,6 +66,13 @@ One document per changed place. Id: `<page>~<example index>~<step number>` (step
 | `nota` | optional reply from Claude, shown under the change in green («Claude: …») |
 | `quan` | ISO time of David's last save |
 
+Collection **`revisades`**: one document per template marked correct. Id: `'p' + cyrb53(plantilla)` in base 36 (function `idRev`
+in the template; the same code in Node gives the same id), fields `{plantilla, text (the caption where it was marked), pagina, quan}`.
+When a caption is changed in the code its template changes, so it shows up as «per revisar» again (on purpose: David sees the new
+text). Documents of templates that no longer exist are harmless; delete them in the cleanup of procedure A.7 if there are many.
+If David writes a comment such as «nothing to say here» / «correcta» with no change, it means «reviewed»: create the `revisades`
+document for that template and delete the `canvis` one (pinned).
+
 ## 4. Procedures (for Claude)
 
 Load the tools first: `Artifact` and `ArtifactData` (deferred: `ToolSearch` with `select:ArtifactData`).
@@ -68,6 +83,10 @@ Load the tools first: `Artifact` and `ArtifactData` (deferred: `ToolSearch` with
    With `abast: 'tot'`, change that line (all its occurrences follow). With `'aqui'`, the change applies to one step only: find
    the condition that distinguishes it, or ask David if there is none. Read `comentari` too: it can ask for board changes.
    Apply the house rules (`INSIGHTS.md` §3, §7): David's wording is the target, but keep `$…$` valid and the checker happy.
+   **Second person singular, always:** if a change uses first person plural («Calcularem», «Fem», «Volem…») or mixes it with the
+   second person, correct it automatically (David's standing instruction) — also in the database, so he sees it: `update` of `nou`
+   plus a one-line `nota` («“Fem” → “Fes”: 2a persona del singular, com tot el web.»), pinned with `if_version`. Do the same for
+   obvious typos (a capital after «?»). Anything else (content, what to keep) is his decision: give your opinion in the chat.
 3. Run `KATEX=<katex 0.16.9>/dist node procediments/proves/comprova.js` (must end «Tot correcte»; the KaTeX section must not
    say «NO COMPROVAT»), the mutation scripts of the touched pages, and their browser tests.
 4. Mark each applied change as done with one `ArtifactData batch` of `update` entries `{estat: 'fet', nota: '…'}`, each pinned
