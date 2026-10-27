@@ -273,3 +273,10 @@ extension of §10. The model for the checker is a gold analysis per sentence (fi
 5. Long term: if several sites use the engine, keep one master copy of the generic files
    (`motor.js`, `estil.css`, `mates.js`, the generic part of `formules.js`, `dades.js`) in one
    repository and copy them from there, noting the version, so improvements reach every site.
+
+**Existing port (October 2026): `step-quiz/operacions`** has this engine as ES modules in
+`js/pissarra/` (from this repository at commit `945968a`), as a component embedded in its activities
+(«Resolució pas a pas», `?pissarra=1`; pilot: `prioritat`, whose own HTML table is animated through
+HTML rows with `data-k` cells). What was ported, what differs and how to sync is in its
+`docs/pissarra/MOTOR.md` (§7). When you improve the transitions of `motor.js` (`creaPissarra`), port the
+change there too and note the new commit in that file.
