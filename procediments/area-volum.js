@@ -42,10 +42,10 @@ const {perId} = FIXOS;
 const FILA = Object.freeze({dades: 0, esquema: 1, vectors: 2, producte: 3, valor: 4, mixt: 5, formula: 6, solucions: 7, dibuix: 8});
 
 const ENUNCIATS = {
-  'triangle': p => `Calcula l'àrea del triangle de vèrtexs ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$ i ${texPuntNom('C', p.C)}$.`,
-  'triangle-arrel': p => `Calcula l'àrea del triangle de vèrtexs ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$ i ${texPuntNom('C', p.C)}$.`,
-  'tetraedre': p => `Calcula el volum del tetraedre de vèrtexs ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$, ${texPuntNom('C', p.C)}$ i ${texPuntNom('D', p.D)}$.`,
-  'quart-vertex': p => `Els punts ${texPuntNom('A', p.A)}$, ${texPuntNom('B', p.B)}$ i ${texPuntNom('C', p.C)}$ són tres vèrtexs d'un tetraedre. `
+  'triangle': p => `Calcula l'àrea del triangle de vèrtexs $${texPuntNom('A', p.A)}$, $${texPuntNom('B', p.B)}$ i $${texPuntNom('C', p.C)}$.`,
+  'triangle-arrel': p => `Calcula l'àrea del triangle de vèrtexs $${texPuntNom('A', p.A)}$, $${texPuntNom('B', p.B)}$ i $${texPuntNom('C', p.C)}$.`,
+  'tetraedre': p => `Calcula el volum del tetraedre de vèrtexs $${texPuntNom('A', p.A)}$, $${texPuntNom('B', p.B)}$, $${texPuntNom('C', p.C)}$ i $${texPuntNom('D', p.D)}$.`,
+  'quart-vertex': p => `Els punts $${texPuntNom('A', p.A)}$, $${texPuntNom('B', p.B)}$ i $${texPuntNom('C', p.C)}$ són tres vèrtexs d'un tetraedre. `
     + `Troba el quart vèrtex $D$, sobre la recta $r: ${texRecta(p.r)}$, perquè el volum del tetraedre sigui $${M.texNombre(p.V)}$.`,
 };
 

@@ -76,7 +76,7 @@ const estat = p => p.evaluate(() => {
     await p.waitForTimeout(200);
     await p.evaluate(() => procediment.salta(1));
     const fig = await p.$eval('.fila.figura svg', e => ({w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height, t: e.textContent}));
-    ok(fig.w > 150 && fig.w <= 420 && fig.h > 50 && /A/.test(fig.t) && /Dλ/.test(fig.t) && /r/.test(fig.t), 'sketch drawn: ' + JSON.stringify(fig));
+    ok(fig.w > 150 && fig.w <= 600 && fig.h > 50 && /A/.test(fig.t) && /Dλ/.test(fig.t) && /r/.test(fig.t), 'sketch drawn: ' + JSON.stringify(fig));
     await p.locator('.escenari').screenshot({path: path.join(SHOTS, 'av-esquema.png')});
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();

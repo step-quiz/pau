@@ -1779,7 +1779,9 @@ function comprovaAsimptotes(passos, v, nom) {
       } else if (fila === FILA.calcul) {
         comprova(solucionsDeFila(textPla(tex)) === conjunt(arrelsQ), () => `${on}: «${textPla(tex)}» no té per solucions les arrels de Q`);
       } else if (fila === FILA.domini && !tex.includes('{k=Vt}')) {
-        // Mentre es resol Q(x) = 0, la fila del domini fa de fila de treball: les mateixes solucions; en lila, totes.
+        // Mentre es resol Q(x) = 0, la fila del domini fa de fila de treball (sota l'equació, que es queda a la fila de
+        // càlcul): les mateixes solucions; en lila, totes.
+        comprova(Boolean(pas.files[FILA.calcul]), () => `${on}: la fila de treball no té l'equació a sobre`);
         comprova(solucionsDeFila(textPla(tex)) === conjunt(arrelsQ), () => `${on}: «${textPla(tex)}» no té per solucions les arrels de Q`);
         const grupsT = grupsAmbClau(tex);
         const valor = t => exacte(M.llegeix(t, {variables: []}), {variables: {}, funcions: {}});
@@ -5843,7 +5845,9 @@ seccio('regles generals de totes les pàgines', () => {
           }
         });
       });
-      // Els textos (enunciat i explicacions): punts sense «=», i cap fórmula que digui «X» o «H» per a un punt a geometria.
+      // Els textos (enunciat i explicacions): les fórmules, ben tancades (un nombre parell de «$»).
+      for (const t of textos) comprova((t.match(/\$/g) || []).length % 2 === 0, () => `${nom}: un «$» sense parella: «${t.slice(0, 90)}»`);
+      // Punts sense «=», i cap fórmula que digui «X» o «H» per a un punt a geometria.
       if (geometria) for (const t of textos) {
         comprova(!/\$[^$]*(^|[^\\a-zA-Z{])[A-Z](_\{?[^}= ]*\}?)?'?\s*=\s*\((?!x)[^$]*\$/.test(t.replace(/\\overrightarrow\{[^}]*\}|\\vec\{[^}]*\}/g, 'v')), () => `${nom}: un punt escrit amb «=» al text: «${t.slice(0, 90)}»`);
       }

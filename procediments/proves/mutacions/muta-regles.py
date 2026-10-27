@@ -9,6 +9,7 @@ MUT=[
  ('determinant.js', "Iguala el determinant a zero.`", "Iguala el determinant a zero (no cal Cramer).`", 'la paraula Cramer'),
  ('geometria.js', "const texPuntNom = (nom, P) => `${nom}${texPunt(P)}`;", "const texPuntNom = (nom, P) => `${nom} = ${texPunt(P)}`;", 'punts amb «=»: P = (1, 2)'),
  ('dues-rectes.js', "K('Lr', '\\\\text{Les rectes } r \\\\text{ i } s \\\\text{ es tallen en el punt } R')", "K('Lr', 'r \\\\cap s = \\\\{R\\\\}')", 'notació de conjunts a la resposta'),
+ ('area-volum.js', "'triangle': p => `Calcula l'àrea del triangle de vèrtexs $${texPuntNom('A', p.A)}$,", "'triangle': p => `Calcula l'àrea del triangle de vèrtexs ${texPuntNom('A', p.A)}$,", 'un «$» sense parella a l\'enunciat'),
  ('extrems.js', "g.afegeix('Per decidir-ho, fes servir la segona derivada: deriva $f\\'(x)$.');", "g.afegeix('Comprova-ho amb la segona derivada: deriva $f\\'(x)$.');", 'una comprovació'),
 ]
 det=0
