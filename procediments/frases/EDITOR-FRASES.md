@@ -30,8 +30,13 @@ Three tabs:
 
 Clicking a caption (or «Canvia») opens the editor: the caption source (monospace), a live KaTeX preview with LaTeX errors and
 unpaired `$`, the **scope** («A tot arreu on surt aquesta frase (N vegades)» — default — or «Només aquí»), a free **Comentari**
-(for board changes, order of steps, anything), **Desa** (Ctrl+Enter) and **Cancel·la** (Esc). Saving an unchanged caption with an
-empty comment deletes the change.
+(for board changes, order of steps, anything) and **Tanca** (also Esc or Ctrl+Enter).
+
+**Everything is saved automatically** (decision of 27/10/2026, after David lost a change he forgot to save): 0.7 s after the last
+keystroke or scope change, and at once before anything that would remove an open editor (closing it, changing page, example or
+tab, hiding or leaving the page). The status next to «Tanca» says «Es desa sol mentre escrius» → «Desant…» → «Desat» (or the error).
+Writes to one document are queued (one at a time, always the latest text). Bringing the caption back to the original with an empty
+comment deletes the document; «Esborra el canvi» deletes it too (with «Desfés» in the notice). Do not bring back a «Desa» button.
 
 ## 3. The data model (collection `canvis`)
 

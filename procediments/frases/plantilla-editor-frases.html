@@ -146,6 +146,9 @@ main{padding:18px var(--gr) 140px 28px; min-width:0}
 .previa{font-family:var(--serif); font-size:16px; line-height:1.75; padding:6px 10px; border-radius:8px; background:var(--pend-fons)}
 .avis-tex{font-size:13px; color:var(--danger)}
 .avis-tex:empty{display:none}
+.pas.editant > .estat{display:none}                 /* mentre s'edita, el canvi desat ja és a l'editor */
+.desat{font-size:12.5px; color:var(--muted)}
+.desat.err{color:var(--danger); font-weight:600}
 .abast{display:flex; flex-wrap:wrap; gap:4px 18px; font-size:14px; margin-top:2px}
 .abast label{display:inline-flex; align-items:center; gap:6px; cursor:pointer}
 .abast input{accent-color:var(--accent); margin:0}
@@ -388,6 +391,7 @@ const botigaLlesta = iniciaBotiga();
 
 // ── Dibuix ─────────────────────────────────────────────────────────────────────────────────────
 function pinta() {
+  buidaTots();                         // abans que desaparegui cap editor obert
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === est.vista)));
   pintaNav();
   main.className = '';
@@ -661,14 +665,15 @@ function obreEditor(card) {
       + `<span class="muted">(${ids.length} vegades${nPag > 1 ? ` a ${nPag} pàgines` : ''})</span></label>`
       + `<label><input type="radio" name="a${n}" value="aqui"> Només aquí</label></div>` : '')
     + `<label class="lbl" for="c${n}">Comentari</label><textarea id="c${n}" class="ta-com" rows="1" lang="ca"></textarea>`
-    + '<div class="botons"><button class="btn primari" data-acc="desa">Desa</button><button class="btn" data-acc="cancela">Cancel·la</button>'
-    + `<span class="kbd">Ctrl+Retorn desa · Esc tanca</span><span class="sp"></span>${d ? '<button class="btn perill" data-acc="esborra">Esborra el canvi</button>' : ''}</div>`;
+    + '<div class="botons"><button class="btn primari" data-acc="tanca">Tanca</button><span class="desat" aria-live="polite">Es desa sol mentre escrius</span>'
+    + `<span class="sp"></span><button class="btn perill" data-acc="esborra"${d ? '' : ' hidden'}>Esborra el canvi</button></div>`;
   const taF = $('.ta-frase', ed), taC = $('.ta-com', ed);
   if (taF) taF.value = d && canviaText(d) ? d.nou : it.original;
   taC.value = d ? d.comentari || '' : '';
   const r = ed.querySelector(`input[value="${d && d.abast === 'aqui' ? 'aqui' : 'tot'}"]`);
   if (r) r.checked = true;
   ed.hidden = false;
+  card.classList.add('editant');
   [taF, taC].forEach(t => t && ajusta(t));
   if (taF) { previa(card); taF.focus(); taF.setSelectionRange(taF.value.length, taF.value.length); } else taC.focus();
 }
@@ -680,10 +685,13 @@ function previa(card) {
   pv.innerHTML = igual ? '' : ambFormules(taF.value);
   $('.editor .avis-tex', card).textContent = errorsTex(taF.value).join(' ');
 }
+/** Tanca l'editor; si hi ha res per desar (encara dins dels 0,7 s d'espera), ho desa abans. */
 function tancaEditor(card) {
+  buidaPendent(card);
   const ed = $('.editor', card);
   ed.hidden = true;
   ed.innerHTML = '';
+  card.classList.remove('editant');
 }
 function base(it, ids) {
   const p = D.pagines[it.pi], ex = it.ei >= 0 ? p.exemples[it.ei] : null;
@@ -694,47 +702,77 @@ function base(it, ids) {
     original: it.original, plantilla: it.pl, vegades: ids.length,
   };
 }
-async function desa(card) {
-  const it = ITEMS.get(card.dataset.id), ed = $('.editor', card), boto = $('[data-acc="desa"]', ed);
+
+// Desament automàtic (com l'editor de pistes): 0,7 s després de l'última tecla, i sempre abans de canviar de pàgina,
+// d'exemple o de pestanya, de tancar l'editor o de sortir. Un document per lloc; si el text torna a ser l'original i no hi ha
+// comentari, el document s'esborra. Les escriptures d'un mateix document van d'una en una (cua), sempre amb l'últim valor.
+const ESPERA_DESAT = 700;
+/** El document que correspon al que hi ha escrit a l'editor (null: no hi ha res a desar). */
+function dadesEditor(card) {
+  const it = ITEMS.get(card.dataset.id), ed = $('.editor', card);
   const taF = $('.ta-frase', ed), taC = $('.ta-com', ed);
   const nou = taF ? taF.value.trim() : '', comentari = taC.value.trim();
+  if ((!taF || nou === it.original.trim()) && !comentari) return null;
   const ab = ed.querySelector('input[type=radio]:checked');
   const ids = it.pl ? PER_PL.get(it.pl) || [it.id] : [it.id];
-  const abans = canvis.get(it.id);
-  if ((!taF || nou === it.original.trim()) && !comentari) {        // ni canvi ni comentari: no queda res a desar
-    if (abans) await esborra(it.id);
-    tancaEditor(card);
-    return;
-  }
-  const d = Object.assign(base(it, ids), {
-    nou: taF && nou !== it.original.trim() ? nou : '', comentari, abast: ab ? ab.value : 'aqui',
-    estat: 'pendent', quan: new Date().toISOString(),
+  return Object.assign(base(it, ids), {
+    nou: taF && nou !== it.original.trim() ? nou : '', comentari, abast: ab ? ab.value : 'aqui', estat: 'pendent',
   });
-  boto.disabled = true;
-  try {
-    await botigaLlesta;
-    await botiga.desa(it.id, d);
-    canvis.set(it.id, d);
-    tancaEditor(card);
-    refresca();
-    toast('Desat');
-  } catch (e) {
-    boto.disabled = false;
-    toast('No s\'ha pogut desar: ' + motiu(e), true);
-  }
+}
+const mateixCanvi = (a, b) => !!a && !!b && a.nou === b.nou && a.comentari === b.comentari && a.abast === b.abast && a.estat === b.estat;
+function programaDesat(card) {
+  clearTimeout(card._desat);
+  card._desat = setTimeout(() => buidaPendent(card), ESPERA_DESAT);
+  marcaDesat(card.dataset.id, 'Desant…');
+}
+/** Desa ara el que hi hagi pendent en aquesta targeta (llegeix l'editor abans que desaparegui). */
+function buidaPendent(card) {
+  if (!card._desat) return;
+  clearTimeout(card._desat);
+  card._desat = null;
+  if ($('.editor', card).hidden) return;
+  const id = card.dataset.id, d = dadesEditor(card), ara = canvis.get(id);
+  if (d ? mateixCanvi(d, ara) : !ara) { marcaDesat(id, ara ? 'Desat' : 'Es desa sol mentre escrius'); return; }
+  escriu(id, d ? Object.assign(d, {quan: new Date().toISOString()}) : null);
+}
+const buidaTots = () => document.querySelectorAll('article.pas').forEach(buidaPendent);
+function marcaDesat(id, text, error) {
+  document.querySelectorAll(`article.pas[data-id="${CSS.escape(id)}"] .editor`).forEach(ed => {
+    const el = $('.desat', ed), boto = $('[data-acc="esborra"]', ed);
+    if (el) { el.textContent = text; el.classList.toggle('err', !!error); }
+    if (boto) boto.hidden = !canvis.has(id);
+  });
+}
+const cua = new Map();                 // id → {enCurs, seguent: {d}}
+function escriu(id, d) {               // d === null: esborrar
+  let c = cua.get(id);
+  if (!c) cua.set(id, c = {enCurs: null, seguent: null});
+  c.seguent = {d};
+  if (!c.enCurs) c.enCurs = (async () => {
+    while (c.seguent) {
+      const {d} = c.seguent;
+      c.seguent = null;
+      try {
+        await botigaLlesta;
+        if (d) { await botiga.desa(id, d); canvis.set(id, d); }
+        else if (canvis.has(id)) { await botiga.esborra(id); canvis.delete(id); }
+        if (!c.seguent) marcaDesat(id, d ? 'Desat' : 'Es desa sol mentre escrius');
+      } catch (e) {
+        marcaDesat(id, 'No s\'ha pogut desar (' + motiu(e) + ')', true);
+        toast('No s\'ha pogut desar: ' + motiu(e), true);
+      }
+      refresca();
+    }
+    c.enCurs = null;
+  })();
+  return c.enCurs;
 }
 async function esborra(id) {
   const abans = canvis.get(id);
   if (!abans) return;
-  try {
-    await botigaLlesta;
-    await botiga.esborra(id);
-    canvis.delete(id);
-    refresca();
-    toast('Canvi esborrat', false, {text: 'Desfés', fn: async () => {
-      try { await botiga.desa(id, abans); canvis.set(id, abans); refresca(); } catch (e) { toast('No s\'ha pogut refer: ' + motiu(e), true); }
-    }});
-  } catch (e) { toast('No s\'ha pogut esborrar: ' + motiu(e), true); }
+  await escriu(id, null);
+  if (canvis.has(id)) return;          // no s'ha pogut esborrar (ja s'ha avisat)
+  toast('Canvi esborrat', false, {text: 'Desfés', fn: () => escriu(id, abans)});
 }
 
 // ── Avisos i portapapers ───────────────────────────────────────────────────────────────────────
@@ -782,11 +820,10 @@ document.addEventListener('click', e => {
     case 'exemple': est.ex = +b.dataset.e; pinta(); break;
     case 'pissarres': est.pissarres = !est.pissarres; pinta(); break;
     case 'canvia': if (!(b.classList.contains('frase') && String(getSelection()).length)) obreEditor(card); break;
-    case 'desa': desa(card); break;
-    case 'cancela': tancaEditor(card); break;
+    case 'tanca': tancaEditor(card); break;
     case 'esborra': {
       const id = (card || b.closest('[data-id]')).dataset.id;
-      if (card) tancaEditor(card);
+      if (card) { clearTimeout(card._desat); card._desat = null; tancaEditor(card); }
       esborra(id);
       break;
     }
@@ -799,17 +836,23 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   if (!e.target.matches('.editor textarea')) return;
   ajusta(e.target);
-  if (e.target.matches('.ta-frase')) previa(e.target.closest('article.pas'));
+  const card = e.target.closest('article.pas');
+  if (e.target.matches('.ta-frase')) previa(card);
+  programaDesat(card);
 });
 document.addEventListener('keydown', e => {
   const card = e.target.closest && e.target.closest('.editor') && e.target.closest('article.pas');
-  if (card && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); desa(card); }
+  if (card && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); tancaEditor(card); }
   else if (card && e.key === 'Escape') { e.preventDefault(); tancaEditor(card); }
   else if (e.key === 'Escape' && !$('#modal').hidden) $('#modal').hidden = true;
 });
 document.addEventListener('change', e => {
   if (e.target.id === 'sel-pagina') { est.pag = e.target.value; est.ex = 0; pinta(); scrollTo(0, 0); }
+  else if (e.target.matches('.editor input[type=radio]')) programaDesat(e.target.closest('article.pas'));
 });
+// Si es tanca la pestanya o s'amaga la pàgina amb un desat pendent, es desa de seguida.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') buidaTots(); });
+addEventListener('pagehide', buidaTots);
 const top = $('.top');
 const posaTop = () => document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px');
 if ('ResizeObserver' in window) new ResizeObserver(posaTop).observe(top);
