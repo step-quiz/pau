@@ -9,15 +9,26 @@ MUT=[
  (F, "B = escala(prod(N1, dQ), fr(2));", "B = escala(prod(N1, dQ), fr(1));", "f'' sense el 2 de la derivada de Q²"),
  (F, "N = coefs(suma(A, escala(B, fr(-1))));\n    potDen = 2;", "N = coefs(suma(A, B));\n    potDen = 2;", 'regla del quocient amb + en lloc de −'),
  (F, "const tipus = primera ? (e === '+' ? 'màxim' : 'mínim') : 'inflexió';", "const tipus = primera ? (e === '+' ? 'mínim' : 'màxim') : 'inflexió';", 'màxim i mínim girats'),
- (F, "else cel.fi = cel.di.map(s => (s === '+' ? '\\\\cup' : '\\\\cap'));", "else cel.fi = cel.di.map(s => (s === '+' ? '\\\\cap' : '\\\\cup'));", 'concavitat positiva i negativa girades'),
+ (F, "(s === '+' ? '\\\\cup' : '\\\\cap')", "(s === '+' ? '\\\\cap' : '\\\\cup')", 'concavitat positiva i negativa girades'),
  (F, "if (e === d) { sense.push(p.valor); return; }", "if (e === d && !primera) { sense.push(p.valor); return; }", 'extrem en un punt crític on f\' no canvia de signe'),
  (F, "${ord.map((p, j) => K('Hy' + j, texAprox(p.y))).join(' & ')}", "${ord.map((p, j) => K('Hy' + j, texAprox(j === 1 ? p.y.suma(1) : p.y))).join(' & ')}", 'un valor de la taula equivocat'),
  (F, "R(`S${PX}w${j}`, positiu ? '>' : '<')", "R(`S${PX}w${j}`, positiu ? '<' : '>')", 'el signe del valor de prova girat'),
- (F, "if (ultim && ultim[1] === j - 1 && !punts[j - 1].fora) ultim[1] = j;", "if (ultim && ultim[1] === j - 1) ultim[1] = j;", 'intervals units per sobre d\'un punt fora del domini'),
+ (F, "if (ultim && ultim[1] === j - 1 && entre && !entre.fora) ultim[1] = j;", "if (ultim && ultim[1] === j - 1) ultim[1] = j;", 'intervals units per sobre d\'un punt fora del domini (o d\'un forat)'),
  (F, "return {infinit: c.signe() * (cap < 0 && k % 2 ? -1 : 1)};", "return {infinit: c.signe()};", 'límit a −∞ sense mirar si el grau és senar'),
  (F, "g.files[fah] = K('Ah', `\\\\text{Asímptota horitzontal: } y = ${texNombre(l.finit)}`);", "g.files[fah] = K('Ah', `\\\\text{Asímptota horitzontal: } y = ${texNombre(l.finit.suma(1))}`);", "l'asímptota horitzontal equivocada"),
  (F, "zeros.forEach(z => posaPunt(z, ZERO));", "zeros.slice(1).forEach(z => posaPunt(z, ZERO));", 'un tall amb l\'eix que no és a la taula'),
  (F, "const sub = potDen ? `\\\\dfrac{${substitucio(N, t)}}", "const sub = potDen ? `\\\\dfrac{${substitucio(N, t.suma(1))}}", 'la substitució del valor de prova amb un altre valor'),
+ # Amb radicals
+ (F, "K('VI', '[-1,\\\\ +\\\\infty)')", "K('VI', '(-1,\\\\ +\\\\infty)')", 'domini amb l\'extrem obert en lloc de tancat'),
+ (F, "['x \\\\ge -3', ", "['x \\\\ge 3', ", 'inequació del domini mal resolta'),
+ (F, "solucions: [{tex: '-2', valor: fr(-2)}], textSolucions: 'Divideix per $3$: $x = -2$, que és del domini.'", "solucions: [{tex: '-2', serveix: false}], textSolucions: 'Divideix per $3$: $x = -2$, que és del domini.'", 'una solució del domini tatxada'),
+ (F, "['-1', 'Queda $-\\\\sqrt{1} = -1$.']", "['1', 'Queda $-\\\\sqrt{1} = -1$.']", 'm a −∞ sense el signe de x < 0'),
+ (F, "y = -x'), '$m = -1$", "y = x'), '$m = -1$", 'asímptota obliqua a −∞ equivocada'),
+ (F, "return {tex: `${sub(t)} \\\\approx ${decimal(v)}`", "return {tex: `${sub(t)} \\\\approx ${decimal(v + 0.01)}`", 'valor de prova aproximat mal arrodonit'),
+ (F, "['\\\\dfrac{3x + 6}{2\\\\sqrt{x + 3}}', 'Opera el numerador", "['\\\\dfrac{3x + 3}{2\\\\sqrt{x + 3}}', 'Opera el numerador", 'derivada del producte mal operada'),
+ (F, "const trossos = [[null, fr(-2)], [fr(2), null]];", "const trossos = [[null, null]];", 'taula de signes per sobre del forat del domini'),
+ (F, "'\\\\dfrac{12x + 12x^{4} - 9x^{4}}", "'\\\\dfrac{12x + 12x^{4} + 9x^{4}}", "f'' amb un signe canviat en treure el parèntesi"),
+ (F, "`\\\\sqrt{${texNombre(fr(x).suma(fr(3)))}}`", "`\\\\sqrt{${texNombre(fr(x).suma(fr(2)))}}`", 'pas intermedi del valor de f mal calculat'),
 ]
 det=0
 for f,a,b,nom in MUT:

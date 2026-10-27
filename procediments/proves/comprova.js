@@ -5805,12 +5805,20 @@ const MODELS_GRAFICA = (() => {
       fora: [], zeros: [0], critics: [[-1, 'mínim'], [1, 'màxim']], inflexions: [-r3, 0, r3]},
     'racional-verticals': {f: x => x * x / (x * x - 4), f1: x => -8 * x / (x * x - 4) ** 2, f2: x => 8 * (3 * x * x + 4) / (x * x - 4) ** 3,
       fora: [-2, 2], zeros: [0], critics: [[0, 'màxim']], inflexions: []},
+    // Amb radicals: dom = els intervals del domini [a, b, a hi és, b hi és].
+    'arrel-cubica': {f: x => Math.sqrt(1 + x ** 3), f1: x => 3 * x * x / (2 * Math.sqrt(1 + x ** 3)),
+      f2: x => 3 * x * (x ** 3 + 4) / (4 * (1 + x ** 3) ** 1.5), dom: [[-1, Infinity, true, false]],
+      fora: [], zeros: [-1], critics: [[0, null]], inflexions: [0]},
+    'producte-arrel': {f: x => x * Math.sqrt(x + 3), f1: x => (3 * x + 6) / (2 * Math.sqrt(x + 3)), f2: x => (3 * x + 12) / (4 * (x + 3) ** 1.5),
+      dom: [[-3, Infinity, true, false]], fora: [], zeros: [-3, 0], critics: [[-2, 'mínim']], inflexions: []},
+    'arrel-obliques': {f: x => Math.sqrt(x * x - 4), f1: x => x / Math.sqrt(x * x - 4), f2: x => -4 / (x * x - 4) ** 1.5,
+      dom: [[-Infinity, -2, false, true], [2, Infinity, true, false]], fora: [], zeros: [-2, 2], critics: [], inflexions: []},
   };
 })();
 const TITOLS_GRAFICA = ['1. Domini i possibles asímptotes verticals', '2. Límits en l\'infinit i possibles asímptotes horitzontals i asímptotes obliqües',
   '3. Punts de tall amb els eixos', '4. Creixement, decreixement i extrems relatius', '5. Concavitat positiva o concavitat negativa i punts d\'inflexió',
   '6. Taula de valors', '7. Gràfica de la funció'];
-const TIPUS_GRAFICA = new Set(['f', 'apartat', 'domini', 'equacio:Q', 'equacio:f', 'equacio:f1', 'equacio:f2', 'limits', 'asimptotes', 'valors', 'punts',
+const TIPUS_GRAFICA = new Set(['f', 'apartat', 'domini', 'inequacio', 'equacio:Q', 'equacio:f', 'equacio:f1', 'equacio:f2', 'limits', 'asimptotes', 'valors', 'punts',
   'derivada1', 'derivada2', 'proves1', 'proves2', 'taula1', 'taula2', 'conclusio1', 'conclusio2', 'taula-valors', 'grafica']);
 
 /** Derivada numèrica (cinc punts). */
@@ -5847,7 +5855,7 @@ function liniesLogiques(tex) {
 
 /** Una expressió en x (text pla), com a funció numèrica; f(x), f'(x) i f''(x) són les del model. */
 function expressioNum(text, model) {
-  const t = text.replace(/f''\(x\)/g, 'E').replace(/f'\(x\)/g, 'D').replace(/f\(x\)/g, 'F');
+  const t = text.replace(/f''\(x\)/g, 'E').replace(/f'\(x\)/g, 'D').replace(/f\(x\)/g, 'F').replace(/([\w)])sqrt\(/g, '$1*sqrt(');   // «x√(x+3)»
   const arbre = M.llegeix(t, {variables: ['x', 'F', 'D', 'E']});
   return x => M.avalua(arbre, {variables: {x, F: model.f(x), D: model.f1(x), E: model.f2(x)}});
 }
@@ -5886,7 +5894,8 @@ function limitNum(g, punt) {
   const ys = xs.map(x => { try { return g(x); } catch (e) { return NaN; } });
   if (ys.some(y => Number.isNaN(y))) return NaN;
   const [y0, y1, y2] = ys.map(Math.abs);
-  if (!Number.isFinite(ys[2]) || (y2 > 1e5 && y2 > y1 && y1 > y0)) return ys[2] > 0 ? Infinity : -Infinity;
+  // Infinit: molt gran i creixent, o bé creix com una potència (√x: ×100 a cada pas).
+  if (!Number.isFinite(ys[2]) || (y2 > 1e5 && y2 > y1 && y1 > y0) || (y2 > 100 && y1 > 2 * y0 && y2 > 2 * y1)) return ys[2] > 0 ? Infinity : -Infinity;
   return ys[2];
 }
 const mateixLimit = (a, b) => (Number.isFinite(a) || Number.isFinite(b) ? Math.abs(a - b) < 1e-4 : a === b);
@@ -5946,8 +5955,17 @@ function comprovaGrafica(id) {
   const passos = G.passos({p: id});
   comprovaGuio(passos, G.files, nom);
   const W = [-12, 12];                               // la finestra de cerca numèrica
-  const foraDe = x => model.fora.some(a => Math.abs(a - x) < 1e-9);
-  const mostres = [-3.7, -2.3, -1.4, -0.6, 0.4, 1.3, 1.7, 2.6, 3.4, 4.3].filter(x => !model.fora.some(a => Math.abs(a - x) < 0.05));
+  const dom = model.dom || [[-Infinity, Infinity, false, false]];
+  const dinsDom = x => dom.some(([a, b, ta, tb]) => (x > a || (ta && x === a)) && (x < b || (tb && x === b)));
+  const foraDe = x => model.fora.some(a => Math.abs(a - x) < 1e-9) || !dinsDom(x);
+  const mostres = [-3.7, -2.3, -1.4, -0.6, 0.4, 1.3, 1.7, 2.6, 3.4, 4.3].filter(x => !model.fora.some(a => Math.abs(a - x) < 0.05) && dinsDom(x - 0.05) && dinsDom(x + 0.05));
+  // Els extrems del domini (tancats): els zeros que hi hagi no es veuen com a canvis de signe.
+  const vores = dom.flatMap(([a, b, ta, tb]) => [...(ta ? [a] : []), ...(tb ? [b] : [])]);
+  const zerosG = g => {
+    const z = zerosNum(g, W);
+    for (const v of vores) { const y = g(v); if (Number.isFinite(y) && Math.abs(y) < 1e-9 && !z.some(w => Math.abs(w - v) < 1e-6)) z.push(v); }
+    return z.sort((p, q) => p - q);
+  };
 
   /* El model, comprovat: derivades, zeros, punts crítics, inflexions. */
   for (const x of mostres) {
@@ -5955,8 +5973,9 @@ function comprovaGrafica(id) {
     comprova(quasiIgual(model.f2(x), derivadaNum(model.f1, x), 1e-5), () => `${nom}: el model de f'' no és la derivada de f' en ${x}`);
   }
   const fins = g => x => (foraDe(x) ? NaN : g(x));
-  comprova(mateixosValors(zerosNum(fins(model.f), W), model.zeros), () => `${nom}: el model té zeros mal posats`);
+  comprova(mateixosValors(zerosG(fins(model.f)), model.zeros), () => `${nom}: el model té zeros mal posats`);
   const crit = zerosNum(fins(model.f1), W), infl = zerosNum(fins(model.f2), W);
+  for (let x = W[0] + 0.0037; x < W[1]; x += 0.0131) comprova(dinsDom(x) === Number.isFinite(model.f(x)) || model.fora.some(a => Math.abs(a - x) < 1e-3), () => `${nom}: el domini del model no és on f existeix (x = ${x})`);
   comprova(mateixosValors(crit, model.critics.map(c => c[0])), () => `${nom}: el model té punts crítics mal posats (${crit})`);
   const canvi = (g, x) => Math.sign(g(x - 1e-3)) !== Math.sign(g(x + 1e-3));
   for (const [x, t] of model.critics) {
@@ -5981,7 +6000,7 @@ function comprovaGrafica(id) {
       vist.add(k);
       const lloc = `${on}, fila ${i} (${tipus})`;
       const principal = pas.tipus.indexOf(tipus) === i;
-      try { comprovaFilaGrafica(tipus, tex, model, {lloc, W, mostres, foraDe, esperatsEq, limitF, crit, infl, principal}); }
+      try { comprovaFilaGrafica(tipus, tex, model, {lloc, W, mostres, foraDe, dinsDom, dom, zerosG, esperatsEq, limitF, crit, infl, principal}); }
       catch (e) { comprova(false, () => `${lloc}: no s'ha pogut llegir (${e.message}): «${tex.slice(0, 120)}»`); }
     });
   });
@@ -6030,15 +6049,49 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
   }
   if (tipus === 'domini') {
     const t = textPla(tex);
+    const iv = /^«Dom»f=([[(].*)$/.exec(t);
+    if (iv) {
+      // Una unió d'intervals: «[-1,+∞)», «(-∞,-2]∪[2,+∞)».
+      const llegits = iv[1].split('∪').map(p => {
+        const q = /^([[(])(.*),(.*)([\])])$/.exec(p);
+        return q && [valorNum(q[2]).v, valorNum(q[3]).v, q[1] === '[', q[4] === ']'];
+      });
+      comprova(JSON.stringify(llegits) === JSON.stringify(c.dom), () => `${lloc}: el domini «${t}» no és el del model (${JSON.stringify(c.dom)})`);
+      return;
+    }
     const m = /^«Dom»f=ℝ(?:-\{(.*)\})?$/.exec(t);
-    comprova(m, () => `${lloc}: el domini no s'entén: «${t}»`);
+    comprova(m && !model.dom, () => `${lloc}: el domini no s'entén: «${t}»`);
     if (!m) return;
     const fora = m[1] ? m[1].split(',').map(s => valorNum(s).v).sort((a, b) => a - b) : [];
     comprova(mateixosValors(fora, model.fora), () => `${lloc}: el domini «${t}» no és el del model (fora: ${model.fora})`);
     return;
   }
+  if (tipus === 'inequacio') {
+    // «A ≥ B ⇔ C ≥ D ⇔ …»: cada inequació (o unió d'inequacions) té per solucions el domini.
+    const REL = {'≥': (a, b) => a >= b, '≤': (a, b) => a <= b, '>': (a, b) => a > b, '<': (a, b) => a < b};
+    for (const part of liniesLogiques(tex).join('').split('⇔')) {
+      const disj = part.split('|').map(d => {
+        const q = /^(.*?)(≥|≤|>|<)(.*)$/.exec(d);
+        comprova(q, () => `${lloc}: «${d}» no és una inequació`);
+        return q && [expressioNum(q[1], model), REL[q[2]], expressioNum(q[3], model)];
+      }).filter(Boolean);
+      const compleix = x => disj.some(([l, r, rr]) => r(l(x), rr(x)));
+      let mal = null;
+      for (let x = c.W[0] + 0.0037; x < c.W[1]; x += 0.0131) if (compleix(x) !== c.dinsDom(x)) { mal = x; break; }
+      for (const v of c.dom.flat().filter(Number.isFinite)) if (compleix(v) !== c.dinsDom(v)) mal = v;
+      comprova(mal === null, () => `${lloc}: «${part}» no té per solucions el domini (x = ${mal})`);
+    }
+    return;
+  }
   if (tipus.startsWith('equacio:')) {
     const esperats = c.esperatsEq[tipus];
+    const {net, tatxades} = separaTatxades(tex);
+    // Les solucions tatxades no són del domini.
+    for (const q of tatxades) {
+      const v = valorNum(textPla(q).split('=')[1]).v;
+      comprova(c.foraDe(v), () => `${lloc}: s'ha tatxat «${textPla(q)}», que és del domini`);
+    }
+    tex = net;
     for (const linia of liniesLogiques(tex)) {
       let zeros = [];
       for (const disj of linia.split('|')) {
@@ -6048,7 +6101,7 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
           comprova(Rr !== undefined && !resta.length, () => `${lloc}: «${v}» no és una equació`);
           if (Rr === undefined) continue;
           const l = expressioNum(L, model), r = expressioNum(Rr, model);
-          zeros = zeros.concat(zerosNum(x => (c.foraDe(x) ? NaN : l(x) - r(x)), c.W));
+          zeros = zeros.concat(c.zerosG(x => (c.foraDe(x) ? NaN : l(x) - r(x))));
         }
       }
       zeros = zeros.filter((z, j) => zeros.findIndex(w => Math.abs(w - z) < 1e-6) === j).sort((a, b) => a - b);
@@ -6096,11 +6149,14 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
       comprova(t.startsWith('«Nohi') ? h === null : (h !== null && quasiIgual(valorNum(t.split('y=')[1]).v, h, 1e-6) && quasiIgual(lMenys, h, 1e-6)),
         () => `${lloc}: «${t}», però el límit a l'infinit és ${lMes}`);
     } else if (/obliq/.test(t)) {
-      const m = Math.round(limitNum(x => model.f(x) / x, {inf: 1}) * 1e6) / 1e6;
-      const hiHa = !Number.isFinite(lMes) && Number.isFinite(m) && Math.abs(m) > 1e-9;
+      // «Asímptota obliqua a +∞: …» (o a −∞): la d'aquell costat; si no ho diu, la de +∞ (i és la mateixa a −∞).
+      const costat = /a-∞/.test(t.replace(/«|»/g, '')) ? -1 : 1;
+      const lCostat = costat > 0 ? lMes : lMenys;
+      const m = Math.round(limitNum(x => model.f(x) / x, {inf: costat}) * 1e6) / 1e6;
+      const hiHa = !Number.isFinite(lCostat) && Number.isFinite(m) && Math.abs(m) > 1e-9;
       if (t.startsWith('«Nohi')) comprova(!hiHa, () => `${lloc}: sí que hi ha asímptota obliqua`);
       else {
-        const n = limitNum(x => model.f(x) - m * x, {inf: 1});
+        const n = limitNum(x => model.f(x) - m * x, {inf: costat});
         const r = expressioNum(t.split('y=')[1], model);
         comprova(hiHa && quasiIgual(r(1) - r(0), m, 1e-6) && quasiIgual(r(0), n, 1e-6), () => `${lloc}: «${t}», però m = ${m} i n = ${n}`);
       }
@@ -6133,7 +6189,11 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
       comprova(t, () => `${lloc}: «${esq}» no és f${prima}(t)`);
       if (!t) continue;
       const x = valorNum(t[1]).v, esperat = g(x);
-      for (const p of parts) comprova(quasiIgual(valorNum(p).v, esperat), () => `${lloc}: «${p}» no és f${prima}(${x}) = ${esperat}`);
+      for (const p of parts) {
+        const {v, aprox} = valorNum(p);
+        comprova(quasiIgual(v, esperat), () => `${lloc}: «${p}» no és f${prima}(${x}) = ${esperat}`);
+        if (aprox !== undefined) comprova(aprox === decimal2(esperat), () => `${lloc}: «≈ ${aprox}» no és ${decimal2(esperat)}`);
+      }
       comprova((m[2] === '>') === (esperat > 0), () => `${lloc}: el signe de f${prima}(${x}) no és «${m[2]} 0»`);
     }
     return;
@@ -6142,27 +6202,37 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
     const primera = tipus === 'taula1', g = primera ? model.f1 : model.f2;
     const [cap, fd, ff] = cellesTaula(tex);
     comprova(cap[0] === 'x' && fd[0] === (primera ? "f'(x)" : "f''(x)") && ff[0] === 'f(x)', () => `${lloc}: les etiquetes de la taula`);
-    const punts = cap.slice(1).filter((_, j) => j % 2 === 1).map(s => valorNum(s.replace(/^x=/, '')).v);
-    const esperats = [...model.fora, ...(primera ? c.crit : c.infl)].sort((a, b) => a - b);
-    comprova(mateixosValors(punts, esperats), () => `${lloc}: els punts de la taula (${punts}) no són ${esperats}`);
-    const nI = punts.length + 1;
-    for (let j = 0; j < nI; j++) {
-      const iv = llegeixParell(cap[1 + 2 * j]);
-      const [a, b] = [j ? punts[j - 1] : -Infinity, j < nI - 1 ? punts[j] : Infinity];
-      comprova(iv && iv[0] === a && iv[1] === b, () => `${lloc}: l'interval «${cap[1 + 2 * j]}»`);
-      const prova = Number.isFinite(a) && Number.isFinite(b) ? (a + b) / 2 : Number.isFinite(a) ? a + 1 : Number.isFinite(b) ? b - 1 : 0;
-      const s = g(prova) > 0 ? '+' : '-';
-      const cel = fd[1 + 2 * j], cf = ff[1 + 2 * j];
-      if (cel) comprova(cel === s, () => `${lloc}: a l'interval ${j + 1} el signe és ${s}, no «${cel}»`);
-      if (cf) comprova(cf === (primera ? (s === '+' ? '↗' : '↘') : (s === '+' ? '∪' : '∩')), () => `${lloc}: a l'interval ${j + 1}, «${cf}»`);
+    // Les columnes esperades: a cada tros del domini (obert), els intervals que hi fan els punts que no són del domini i
+    // els zeros de la derivada; entre dos trossos, res.
+    const especials = [...model.fora, ...(primera ? c.crit : c.infl)].sort((a, b) => a - b);
+    const esperades = [];
+    for (const [a, b] of c.dom) {
+      let esq = a;
+      for (const p of especials.filter(x => x > a && x < b)) { esperades.push({interval: [esq, p]}, {punt: p}); esq = p; }
+      esperades.push({interval: [esq, b]});
     }
-    punts.forEach((x, j) => {
-      const cel = fd[2 + 2 * j], cf = ff[2 + 2 * j];
-      const fora = model.fora.some(a => Math.abs(a - x) < 1e-9);
-      if (cel) comprova(cel === (fora ? '∄' : '0'), () => `${lloc}: al punt ${x}, «${cel}»`);
-      const esq = g(x - 1e-3) > 0, dre = g(x + 1e-3) > 0;
-      const esperat = fora ? '∄' : esq === dre ? '' : primera ? (esq ? '«màxim»' : '«mínim»') : '«inflexió»';
-      if (cf || !esperat) comprova(cf === esperat, () => `${lloc}: al punt ${x}, «${cf}» en lloc de «${esperat}»`);
+    const columnes = cap.slice(1).map(s_ => (s_.startsWith('x=') ? {punt: valorNum(s_.slice(2)).v} : {interval: llegeixParell(s_)}));
+    const eqv = (p, q) => p === q || Math.abs(p - q) < 1e-9;
+    const igualsCol = (p, q) => (p.punt !== undefined ? q.punt !== undefined && eqv(p.punt, q.punt) : Boolean(q.interval) && eqv(p.interval[0], q.interval[0]) && eqv(p.interval[1], q.interval[1]));
+    comprova(columnes.length === esperades.length && columnes.every((col, j) => igualsCol(esperades[j], col)),
+      () => `${lloc}: les columnes de la taula (${cap.slice(1).join(' | ')}) no són les esperades (${JSON.stringify(esperades)})`);
+    if (columnes.length !== esperades.length) return;
+    columnes.forEach((col, n) => {
+      const cel = fd[1 + n], cf = ff[1 + n];
+      if (col.interval) {
+        const [a, b] = esperades[n].interval;
+        const prova = Number.isFinite(a) && Number.isFinite(b) ? (a + b) / 2 : Number.isFinite(a) ? a + 1 : Number.isFinite(b) ? b - 1 : 0;
+        const s_ = g(prova) > 0 ? '+' : '-';
+        if (cel) comprova(cel === s_, () => `${lloc}: a l'interval ${col.interval} el signe és ${s_}, no «${cel}»`);
+        if (cf) comprova(cf === (primera ? (s_ === '+' ? '↗' : '↘') : (s_ === '+' ? '∪' : '∩')), () => `${lloc}: a l'interval ${col.interval}, «${cf}»`);
+      } else {
+        const x = col.punt;
+        const fora = model.fora.some(a => Math.abs(a - x) < 1e-9);
+        if (cel) comprova(cel === (fora ? '∄' : '0'), () => `${lloc}: al punt ${x}, «${cel}»`);
+        const esq = g(x - 1e-3) > 0, dre = g(x + 1e-3) > 0;
+        const esperat = fora ? '∄' : esq === dre ? '' : primera ? (esq ? '«màxim»' : '«mínim»') : '«inflexió»';
+        if (cf || !esperat) comprova(cf === esperat, () => `${lloc}: al punt ${x}, «${cf}» en lloc de «${esperat}»`);
+      }
     });
     return;
   }
@@ -6179,7 +6249,8 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
         const ivs = llegeixIntervals(m[2]);
         const positiu = /Creixent|positiva/.test(m[1]);
         comprova(xs.every(x => dins(ivs, x) === (positiu ? g(x) > 0 : g(x) < 0)), () => `${lloc}: «${linia}» no és on ${primera ? "f'" : "f''"} ${positiu ? '> 0' : '< 0'}`);
-        comprova(model.fora.every(a => !dins(ivs, a)), () => `${lloc}: «${linia}» conté un punt que no és del domini`);
+        comprova(model.fora.every(a => !dins(ivs, a)) && ivs.every(([a, b]) => c.dinsDom(Number.isFinite(a) ? a + 1e-9 : b - 1) && c.dinsDom(Number.isFinite(b) ? b - 1e-9 : a + 1)
+          && !c.dom.some(([p, q]) => (p > a && p < b) || (q > a && q < b))), () => `${lloc}: «${linia}» conté un punt que no és del domini`);
         continue;
       }
       const e = /^«(Màximrelatiuen|Mínimrelatiuen|Puntd'inflexióen|Puntsd'inflexióen)»(.*)$/.exec(linia);

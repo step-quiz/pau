@@ -388,8 +388,10 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     r.pissarra.append(prova);
     let maxim = 0;
     for (const pas of passos) {
-      for (const tex of pas.files) {
+      for (const [i, tex] of pas.files.entries()) {
         if (!tex || esFilaText(tex) || esFilaFigura(tex)) continue;          // el text i els esquemes s'ajusten sols a l'amplada
+        // A pantalla petita, una fila «desplacable» (una taula ampla) no fa petita tota la lletra: es desplaça de costat.
+        if (petita && /(^| )desplacable( |$)/.test((pas.classes && pas.classes[i]) || '')) continue;
         prova.innerHTML = renderitza(tex);
         maxim = Math.max(maxim, prova.firstElementChild.getBoundingClientRect().width);
       }

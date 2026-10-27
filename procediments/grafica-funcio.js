@@ -19,10 +19,15 @@
    Les polinòmiques i les racionals es calculen amb aritmètica exacta (Fraccio, i
    Radical per a ±√3): passosRacional. Les equacions, amb Matrius.passosArrels
    (l'equació es queda a la seva fila, els càlculs baixen; les solucions en lila).
+   Les funcions amb radicals tenen un guió escrit a mà per als apartats 1 a 5
+   (passosRadical): inequació del domini, límits, regla de l'arrel, equacions
+   resoltes a mà (equacioMa: les solucions fora del domini es tatxen).
+   Les taules de signes, els valors de prova i les conclusions (estudiSignes) i
+   els apartats 6 i 7 (seccionsFinals) són els mateixos per a tots els tipus.
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js.
 
    Cada fila escrita porta un tipus (pas.tipus[i]) que diu què és, perquè les proves
-   la sàpiguen llegir: f, apartat, domini, equacio:Q|f|f1|f2, limits, asimptotes,
+   la sàpiguen llegir: f, apartat, domini, inequacio, equacio:Q|f|f1|f2, limits, asimptotes,
    valors, punts, derivada1|2, proves1|2, taula1|2, conclusio1|2, taula-valors, grafica.
 
    Claus: F f(x); V domini; L límits (L<fila>…); A conclusions d'asímptotes;
@@ -58,6 +63,13 @@ const PROBLEMES = [
   {id: 'racional-obliqua', tipus: 'racional', nom: '(x² − 2x)/(x − 1)', P: [0, -2, 1], Q: [-1, 1], extres: [-1, 3], finestra: {x: [-3.5, 5.5], y: [-5, 5]}},
   {id: 'racional-horitzontal', tipus: 'racional', nom: '5x/(x² + 1)', P: [0, 5], Q: [1, 0, 1], extres: [-3, 3], finestra: {x: [-5.5, 5.5], y: [-3.5, 3.5]}},
   {id: 'racional-verticals', tipus: 'racional', nom: 'x²/(x² − 4)', P: [0, 0, 1], Q: [-4, 0, 1], extres: [-3, 3], finestra: {x: [-5.5, 5.5], y: [-4, 5]}},
+  // Amb radicals: un guió per funció (apartats 1 a 5) i les dades comunes (vegeu passosRadical).
+  {id: 'arrel-cubica', tipus: 'radical', nom: '√(1 + x³)', tex: '\\sqrt{1 + x^{3}}', guio: guioArrelCubica, extres: [1, 2],
+    f: x => Math.sqrt(1 + x ** 3), trams: [{a: -1, b: Infinity, tancatA: true}], finestra: {x: [-1.8, 2.8], y: [-0.8, 4.4]}},
+  {id: 'producte-arrel', tipus: 'radical', nom: 'x√(x + 3)', tex: 'x\\sqrt{x + 3}', guio: guioProducteArrel, extres: [-1, 1],
+    f: x => x * Math.sqrt(x + 3), trams: [{a: -3, b: Infinity, tancatA: true}], finestra: {x: [-3.6, 2.4], y: [-2.8, 4.4]}},
+  {id: 'arrel-obliques', tipus: 'radical', nom: '√(x² − 4)', tex: '\\sqrt{x^{2} - 4}', guio: guioArrelObliques, extres: [-3, 3],
+    f: x => Math.sqrt(x * x - 4), trams: [{a: -Infinity, b: -2, tancatB: true}, {a: 2, b: Infinity, tancatA: true}], finestra: {x: [-5.5, 5.5], y: [-1.2, 5.2]}},
 ];
 const FIXOS = Dd.problemesFixos(PROBLEMES);
 const {perId} = FIXOS;
@@ -267,16 +279,63 @@ function cadena(g, {fila, P, esquerra, parts, ls = null, apila = false}) {
   for (const [tex, text, opcions] of parts) { fetes.push(tex); pinta(); g.afegeix(text, opcions); }
 }
 
-/** Taula de signes (com creixement.js): capçalera amb els intervals i les columnes «x = a»; dues files. */
-function taulaSignes(P, punts, files) {
-  const nI = punts.length + 1;
-  const fila = (etiqueta, i, p) => [etiqueta].concat(...Array.from({length: nI}, (_, j) => [i(j)].concat(j < nI - 1 ? [p(j)] : []))).join(' & ');
-  const cella = (nom, j, cel) => (cel ? K(`${P}${nom}${j}`, cel) : '');
-  const vores = j => [j === 0 ? null : punts[j - 1].valor, j === nI - 1 ? null : punts[j].valor];
-  return `\\begin{array}{${Array(2 * nI).fill('c').join('|')}} `
-    + [fila(K(P + 'Lx', '\\boldsymbol{x}'), j => K(`${P}Hi${j}`, texInterval(...vores(j))), j => 'x = ' + K(`${P}Hp${j}`, texNombre(punts[j].valor))),
-      ...files.map(({nom, etiqueta, i, p}) => fila(K(P + 'L' + nom, etiqueta), j => cella(nom + 'i', j, i[j]), j => cella(nom + 'p', j, p[j])))].join(' \\\\ \\hline ')
+/**
+ * Taula de signes (com creixement.js): columnes [{interval: [a, b]} | {punt: v}] (a, b exactes o null = ∞), en ordre;
+ * la capçalera i dues files. Claus: P + Hi<j> (interval j), P + Hp<k> (punt k); cel·les P + <nom>i<j> i P + <nom>p<k>.
+ * Dos intervals seguits sense cap punt entre mig: el domini (o el de la derivada) té un forat.
+ */
+function taulaSignes(P, columnes, files) {
+  let ni = 0, np = 0;
+  const index = columnes.map(c => (c.punt !== undefined ? np++ : ni++));
+  const esPunt = c => c.punt !== undefined;
+  const cella = (nom, cel) => (cel ? K(`${P}${nom}`, cel) : '');
+  const fila = (etiqueta, f) => [etiqueta, ...columnes.map((c, n) => f(c, index[n]))].join(' & ');
+  return `\\begin{array}{${Array(columnes.length + 1).fill('c').join('|')}} `
+    + [fila(K(P + 'Lx', '\\boldsymbol{x}'), (c, j) => (esPunt(c) ? 'x = ' + K(`${P}Hp${j}`, texNombre(c.punt)) : K(`${P}Hi${j}`, texInterval(...c.interval)))),
+      ...files.map(({nom, etiqueta, i, p}) => fila(K(P + 'L' + nom, etiqueta), (c, j) => (esPunt(c) ? cella(`${nom}p${j}`, p[j]) : cella(`${nom}i${j}`, i[j]))))].join(' \\\\ \\hline ')
     + ' \\end{array}';
+}
+
+/** «A ⟺ B ⟺ C»: una cadena que creix pas a pas (claus P + n), amb el separador sep. parts: [[tex, text]]. */
+function cadenaSep(g, {fila, P, parts, sep}) {
+  const fetes = [];
+  for (const [tex, text] of parts) {
+    fetes.push(tex);
+    g.files[fila] = F.enLinies(K(P + '0', fetes[0]), fetes.slice(1).map((t, i) => ` ${sep} ${K(P + (i + 1), t)}`));
+    g.afegeix(text);
+  }
+}
+
+/** Una fila de conclusió (destacada), escrita en un pas. */
+function destacat(g, tipus, tex, text) {
+  const i = g.fila(tipus);
+  g.files[i] = tex;
+  g.classes[i] = 'destacat';
+  g.afegeix(text);
+  return i;
+}
+
+const DISJUNCIO = '\\quad\\text{o}\\quad ';        // la de Formules (tatxaSolucio parteix per aquí)
+
+/**
+ * Una equació resolta a mà (les funcions amb radicals): la fila de l'equació, «… = 0» (principal: els primers membres,
+ * un per pas: f(x), després la seva expressió), una fila de treball que es transforma (treball: [[tex, text]]) i, al
+ * final, les solucions: les que serveixen, en lila; les que no (fora del domini), tatxades en un pas més.
+ * Claus: pre + E… (l'equació), pre + W… (el treball), pre + s<i> (les solucions). Torna els valors que serveixen.
+ */
+function equacioMa(g, {pre, tipus, principal, treball, solucions = [], textSolucions = '', textTatxa = ''}) {
+  const eq = g.fila(tipus), tr = g.fila(tipus);
+  principal.forEach(([tex, text], i) => { g.files[eq] = K(pre + 'E' + i, tex) + R(pre + 'Eq', '=') + K(pre + 'Ez', '0'); g.afegeix(text); });
+  treball.forEach(([tex, text], i) => { g.files[tr] = K(pre + 'W' + i, tex); g.afegeix(text); });
+  if (!solucions.length) return [];
+  g.files[tr] = solucions.map((s, i) => K(pre + 'x' + i, 'x') + R(pre + 'q' + i, '=') + K(pre + 's' + i, s.tex)).join(DISJUNCIO);
+  solucions.forEach((s, i) => { if (s.serveix !== false) F.marcaSolucio(g, tr, pre + 's' + i); });
+  g.afegeix(textSolucions);
+  if (solucions.some(s => s.serveix === false)) {
+    solucions.forEach((s, i) => { if (s.serveix === false) F.tatxaSolucio(g, tr, pre + 's' + i); });
+    g.afegeix(textTatxa);
+  }
+  return solucions.filter(s => s.serveix !== false).map(s => s.valor);
 }
 
 
@@ -476,40 +535,13 @@ function passosRacional(pr) {
   const d1 = seccioDerivada(g, {ordre: 1, P, Q, pol, fora, texF, fRad, posaPunt});
   seccioDerivada(g, {ordre: 2, P, Q, pol, fora, texF, fRad, posaPunt, d1});
 
-  /* ── 6. Taula de valors ── */
-  g.apartat(6);
-  const fx = g.fila('valors'), lsx = {linies: [], index: 0};
-  pr.extres.map(fr).forEach((x, i) => {
-    lsx.index = lsx.linies.length;
-    lsx.linies.push('');
-    cadena(g, {fila: fx, P: 'Ux' + i, esquerra: `f(${texNombre(x)})`, ls: lsx, parts: passosValor(P, Q, pol, x,
-      i === 0 ? `6. Taula de valors. Ja tens els talls amb els eixos${d1.hiHaPunts ? ', els extrems i els punts d\'inflexió' : ''}. Afegeix-hi dos punts més, perquè es vegi cap on va la gràfica: calcula $f(${texNombre(x)})$.`
-        : `I $f(${texNombre(x)})$.`)});
-    posaPunt(x, fRad(x));
-  });
-  const ord = taula.slice().sort((a, b) => a.x.valor() - b.x.valor());
-  const fT = g.fila('taula-valors');
-  g.files[fT] = `\\begin{array}{c|${'c'.repeat(ord.length)}} ${K('HLx', '\\boldsymbol{x}')} & ${ord.map((p, j) => K('Hx' + j, texAprox(p.x))).join(' & ')} \\\\ \\hline `
-    + `${K('HLy', '\\boldsymbol{f(x)}')} & ${ord.map((p, j) => K('Hy' + j, texAprox(p.y))).join(' & ')} \\end{array}`;
-  g.classes[fT] = 'separat';
-  g.afegeix('Posa tots els punts en una taula, ordenats per la $x$. Els valors irracionals, també aproximats: els necessites per dibuixar-los.');
-
-  /* ── 7. La gràfica ── */
-  g.apartat(7);
-  const fG = g.fila('grafica');
-  const ff = x => flotant(P, x) / flotant(Q, x);
-  const trams = [];
+  /* ── 6 i 7. Taula de valors i gràfica ── */
   const vores = [-Infinity, ...ordena(fora).map(a => a.valor()), Infinity];
+  const trams = [];
   for (let i = 0; i + 1 < vores.length; i++) trams.push({a: vores[i], b: vores[i + 1]});
-  const asimptotes = av.map(a => ({v: a.valor()}))
-    .concat(l.finit ? [{h: l.finit.valor()}] : [])
-    .concat(obliqua ? [{m: obliqua.m.valor(), n: obliqua.n.valor()}] : []);
-  const punts = ord.map(p => ({x: p.x.valor(), y: p.y.valor()}));
-  const dibuix = corba => Gr.esbos({f: ff, trams, x: pr.finestra.x, y: pr.finestra.y, asimptotes, punts, corba});
-  g.files[fG] = dibuix(false);
-  g.afegeix(`7. Gràfica de la funció. Dibuixa els eixos${asimptotes.length ? (asimptotes.length > 1 ? ', les asímptotes (discontínues)' : ', l\'asímptota (discontínua)') : ''} i els punts de la taula.`);
-  g.files[fG] = dibuix(true);
-  g.afegeix(`Uneix els punts seguint el que has estudiat: on creix i on decreix, la concavitat${asimptotes.length ? ` i com s'acosta ${asimptotes.length > 1 ? 'a les asímptotes' : 'a l\'asímptota'}` : ''}. Aquest és l'esbós de la gràfica.`);
+  seccionsFinals(g, {extres: pr.extres, valorY: (x, text) => passosValor(P, Q, pol, x, text), yDe: fRad, posaPunt, taula,
+    hiHaPunts: d1.hiHaPunts, ff: x => flotant(P, x) / flotant(Q, x), trams, finestra: pr.finestra,
+    asimptotes: av.map(a => ({v: a.valor()})).concat(l.finit ? [{h: l.finit.valor()}] : []).concat(obliqua ? [{m: obliqua.m.valor(), n: obliqua.n.valor()}] : [])});
   return g.passos;
 }
 
@@ -617,60 +649,95 @@ function seccioDerivada(g, {ordre, P, Q, pol, fora, texF, fRad, posaPunt, d1}) {
   if (arrels.some(z => fora.some(a => a.igual(z)))) throw new Error('grafica-funcio: una solució fora del domini (cal tatxar-la)');
   if (!arrels.length) g.completa(primera ? ' No hi ha punts crítics.' : ' No hi ha punts on $f\'\'(x) = 0$.');
 
-  /* La taula de signes. */
-  const punts = ordena(fora.map(a => ({valor: a, fora: true})).concat(arrels.map(a => ({valor: a, fora: false}))).map(p => p.valor))
-    .map(v => ({valor: v, fora: fora.some(a => a.igual(v))}));
-  const nI = punts.length + 1;
-  const vores = j => [j === 0 ? null : punts[j - 1].valor, j === nI - 1 ? null : punts[j].valor];
-  const cel = {di: Array(nI).fill(''), dp: Array(nI - 1).fill(''), fi: Array(nI).fill(''), fp: Array(nI - 1).fill('')};
-  const etD = `\\boldsymbol{f${prima}(x)}`;
+  const res = estudiSignes(g, {ordre, trossos: [[null, null]], fora, arrels, posaPunt, yDe: fRad,
+    valorY: (x, text) => passosValor(P, Q, pol, x, text),
+    prova: t => {
+      const v = valorD(t);
+      const sub = potDen ? `\\dfrac{${substitucio(N, t)}}{(${substitucio(Q, t)})^{${potDen}}}` : substitucio(N, t);
+      return {tex: `${sub} = ${texNombre(v)}`, positiu: v.signe() > 0};
+    }});
+  return {N, hiHaPunts: res.hiHaPunts || Boolean(d1 && d1.hiHaPunts)};
+}
+
+/**
+ * La taula de signes de f' (ordre 1) o de f'' (ordre 2) i el que se'n treu: els valors de prova, com és f, els punts
+ * especials (extrems o inflexions), les seves y i la conclusió. Per a tots els tipus de funció:
+ *   trossos: els intervals oberts del domini on hi ha la derivada ([[a, b]], a i b exactes o null = ∞);
+ *   fora: punts de dins d'un tros on f no existeix (columnes amb ∄: les racionals);
+ *   arrels: on la derivada val 0 (dins del domini);
+ *   prova(t): el que va després de «f'(t) =» a la fila dels valors de prova: {tex, positiu};
+ *   valorY(x, text): les parts de la cadena «f(x) = …»; yDe(x): la y exacta;
+ *   textTaula: el text del primer pas de la taula (si no n'hi ha, el de les racionals).
+ * Torna {hiHaPunts}: si hi ha extrems o inflexions.
+ */
+function estudiSignes(g, {ordre, trossos, fora, arrels, prova, valorY, yDe, posaPunt, textTaula = null}) {
+  const primera = ordre === 1;
+  const prima = primera ? "'" : "''";
+  const nomD = `f${prima}(x)`, nomCurt = `f${prima}`;
+  const PX = primera ? '1' : '2';
+  // Les columnes: a cada tros, els intervals i els punts (fora o arrels) que el parteixen.
+  const columnes = [], intervals = [], punts = [];
+  trossos.forEach(([a, b], it) => {
+    const dins = v => (a === null || v.valor() > a.valor()) && (b === null || v.valor() < b.valor());
+    let esq = a;
+    for (const v of ordena(fora.concat(arrels).filter(dins))) {
+      intervals.push({a: esq, b: v, tros: it});
+      columnes.push({interval: [esq, v]});
+      punts.push({valor: v, fora: fora.some(w => w.igual(v)), esq: intervals.length - 1, dre: intervals.length});
+      columnes.push({punt: v});
+      esq = v;
+    }
+    intervals.push({a: esq, b, tros: it});
+    columnes.push({interval: [esq, b]});
+  });
+  const nI = intervals.length;
+  const cel = {di: Array(nI).fill(''), dp: Array(punts.length).fill(''), fi: Array(nI).fill(''), fp: Array(punts.length).fill('')};
   const T = 'T' + PX;
-  const taula = () => taulaSignes(T, punts, [{nom: 'd', etiqueta: etD, i: cel.di, p: cel.dp}, {nom: 'f', etiqueta: '\\boldsymbol{f(x)}', i: cel.fi, p: cel.fp}]);
+  const taula = () => taulaSignes(T, columnes, [{nom: 'd', etiqueta: `\\boldsymbol{${nomD}}`, i: cel.di, p: cel.dp}, {nom: 'f', etiqueta: '\\boldsymbol{f(x)}', i: cel.fi, p: cel.fp}]);
   const ft = g.fila(primera ? 'taula1' : 'taula2');
   const fprova = g.fila(primera ? 'proves1' : 'proves2');
   g.files[ft] = taula();
-  g.classes[ft] = 'separat';
-  const quins = arrels.length && fora.length ? `Els ${primera ? 'punts crítics' : 'punts on $f\'\'(x) = 0$'} i els punts que no són del domini`
-    : arrels.length ? `Els ${primera ? 'punts crítics' : 'punts on $f\'\'(x) = 0$'}` : 'Els punts que no són del domini';
-  g.afegeix(punts.length ? `Fes la taula de signes de $${nomD.replace('(x)', '')}$. ${quins} (${llista(punts.map(p => p.valor))}) separen la recta en intervals.`
-    : `Fes la taula de signes de $${nomD.replace('(x)', '')}$. No hi ha cap punt que separi la recta: només hi ha l'interval $(-\\infty,\\ +\\infty)$.`);
+  g.classes[ft] = 'separat desplacable';
+  if (textTaula) g.afegeix(textTaula);
+  else {
+    const quins = arrels.length && fora.length ? `Els ${primera ? 'punts crítics' : 'punts on $f\'\'(x) = 0$'} i els punts que no són del domini`
+      : arrels.length ? `Els ${primera ? 'punts crítics' : 'punts on $f\'\'(x) = 0$'}` : 'Els punts que no són del domini';
+    g.afegeix(punts.length ? `Fes la taula de signes de $${nomCurt}$. ${quins} (${llista(punts.map(p => p.valor))}) separen la recta en intervals.`
+      : `Fes la taula de signes de $${nomCurt}$. No hi ha cap punt que separi la recta: només hi ha l'interval $(-\\infty,\\ +\\infty)$.`);
+  }
   if (punts.length) {
-    punts.forEach((p, j) => { cel.dp[j] = p.fora ? '\\nexists' : '0'; });
+    punts.forEach((p, k) => { cel.dp[k] = p.fora ? '\\nexists' : '0'; });
     g.files[ft] = taula();
-    g.afegeix([arrels.length ? `Als punts on s'anul·la, $${nomD.replace('(x)', '')} = 0$.` : '', fora.length ? 'On $f$ no existeix, les seves derivades tampoc: hi poso $\\nexists$.' : ''].filter(Boolean).join(' '));
+    g.afegeix([arrels.length ? `Als punts on s'anul·la, $${nomCurt} = 0$.` : '', fora.length ? 'On $f$ no existeix, les seves derivades tampoc: hi poses $\\nexists$.' : ''].filter(Boolean).join(' '));
   }
   // El signe a cada interval: un valor de prova.
   const proves = [];
-  for (let j = 0; j < nI; j++) {
-    const [a, b] = vores(j);
+  intervals.forEach(({a, b}, j) => {
     const t = valorDeProva(a, b), Tt = texNombre(t);
-    const v = valorD(t), positiu = v.signe() > 0;
-    const sub = potDen ? `\\dfrac{${substitucio(N, t)}}{${potDen === 2 ? `(${substitucio(Q, t)})^{2}` : `(${substitucio(Q, t)})^{3}`}}` : substitucio(N, t);
-    const subQ = grau(Q) === 0 ? sub : sub;
-    proves.push(K(`S${PX}a${j}`, `f${prima}(${Tt})`) + R(`S${PX}q${j}`, '=') + K(`S${PX}b${j}`, `${subQ} = ${texNombre(v)}`)
+    const {tex, positiu} = prova(t);
+    proves.push(K(`S${PX}a${j}`, `f${prima}(${Tt})`) + R(`S${PX}q${j}`, '=') + K(`S${PX}b${j}`, tex)
       + R(`S${PX}w${j}`, positiu ? '>' : '<') + K(`S${PX}z${j}`, '0'));
     g.files[fprova] = linies(proves);
     g.afegeix(`Interval $${texInterval(a, b)}$: tria'n un valor, per exemple $x = ${Tt}$, i calcula $f${prima}(${Tt})$.`, {cursor: {clic: `${T}Hi${j}`}});
     cel.di[j] = positiu ? '+' : '-';
     g.files[ft] = taula();
-    g.afegeix(`$f${prima}$ no canvia de signe dins de l'interval: és ${positiu ? 'positiva' : 'negativa'} a tot l'interval. Hi poso un $${positiu ? '+' : '-'}$.`,
+    g.afegeix(`$f${prima}$ no canvia de signe dins de l'interval: és ${positiu ? 'positiva' : 'negativa'} a tot l'interval. Hi poses un $${positiu ? '+' : '-'}$.`,
       {cursor: {arrossega: `S${PX}w${j}`, fins: `${T}di${j}`}});
-  }
+  });
   // El comportament de f, i els punts especials.
-  if (primera) cel.fi = cel.di.map(s => (s === '+' ? '\\nearrow' : '\\searrow'));
-  else cel.fi = cel.di.map(s => (s === '+' ? '\\cup' : '\\cap'));
-  punts.forEach((p, j) => { if (p.fora) cel.fp[j] = '\\nexists'; });
+  cel.fi = cel.di.map(s => (primera ? (s === '+' ? '\\nearrow' : '\\searrow') : (s === '+' ? '\\cup' : '\\cap')));
+  punts.forEach((p, k) => { if (p.fora) cel.fp[k] = '\\nexists'; });
   g.files[ft] = taula();
   g.afegeix(primera ? 'On $f\' > 0$, $f$ creix ($\\nearrow$); on $f\' < 0$, $f$ decreix ($\\searrow$).'
     : 'On $f\'\' > 0$, la concavitat és positiva ($\\cup$); on $f\'\' < 0$, la concavitat és negativa ($\\cap$).');
   const especials = [];                              // [{valor, tipus}]
   const sense = [];
-  punts.forEach((p, j) => {
+  punts.forEach((p, k) => {
     if (p.fora) return;
-    const [e, d] = [cel.di[j], cel.di[j + 1]];
+    const [e, d] = [cel.di[p.esq], cel.di[p.dre]];
     if (e === d) { sense.push(p.valor); return; }
     const tipus = primera ? (e === '+' ? 'màxim' : 'mínim') : 'inflexió';
-    cel.fp[j] = `\\text{${tipus}}`;
+    cel.fp[k] = `\\text{${tipus}}`;
     especials.push({valor: p.valor, tipus});
   });
   if (arrels.length) {
@@ -688,23 +755,24 @@ function seccioDerivada(g, {ordre, P, Q, pol, fora, texF, fRad, posaPunt, d1}) {
     especials.forEach((e, i) => {
       ls.index = ls.linies.length;
       ls.linies.push('');
-      cadena(g, {fila: fv, P: `U${PX}${i}`, esquerra: `f(${texNombre(e.valor)})`, ls, parts: passosValor(P, Q, pol, e.valor,
+      cadena(g, {fila: fv, P: `U${PX}${i}`, esquerra: `f(${texNombre(e.valor)})`, ls, parts: valorY(e.valor,
         i === 0 ? `Calcula la $y$ ${especials.length > 1 ? `de cada ${primera ? 'extrem' : 'punt d\'inflexió'}` : `${primera ? 'de l\'extrem' : 'del punt d\'inflexió'}`}: $f(${texNombre(e.valor)})$.`
           : `I $f(${texNombre(e.valor)})$.`)});
-      e.y = fRad(e.valor);
+      e.y = yDe(e.valor);
       posaPunt(e.valor, e.y);
     });
   }
 
-  /* La conclusió. */
+  /* La conclusió: els intervals seguits del mateix signe s'uneixen si el punt d'entre mig és del domini. */
   const unio = signe => {
-    const trossos = [];                              // [[j inicial, j final]] d'intervals seguits
+    const trossosU = [];                             // [[j inicial, j final]]
     cel.di.forEach((s, j) => {
       if (s !== signe) return;
-      const ultim = trossos[trossos.length - 1];
-      if (ultim && ultim[1] === j - 1 && !punts[j - 1].fora) ultim[1] = j; else trossos.push([j, j]);
+      const ultim = trossosU[trossosU.length - 1];
+      const entre = punts.find(p => p.dre === j);
+      if (ultim && ultim[1] === j - 1 && entre && !entre.fora) ultim[1] = j; else trossosU.push([j, j]);
     });
-    return trossos.length ? trossos.map(([a, b]) => texInterval(vores(a)[0], vores(b)[1])).join(' \\cup ') : null;
+    return trossosU.length ? trossosU.map(([a, b]) => texInterval(intervals[a].a, intervals[b].b)).join(' \\cup ') : null;
   };
   const [mes, menys] = [unio('+'), unio('-')];
   const fc = g.fila(primera ? 'conclusio1' : 'conclusio2');
@@ -730,18 +798,379 @@ function seccioDerivada(g, {ordre, P, Q, pol, fora, texF, fRad, posaPunt, d1}) {
       + (especials.length ? '; ' + iCatala(especials.map(e => `${e.tipus === 'màxim' ? 'màxim' : 'mínim'} relatiu en ${textP(e)}`)) : '; no té extrems relatius') + '.'
     : `Resultat: la concavitat és ${mes ? `positiva a $${mes}$` : 'positiva a cap interval'} i ${menys ? `negativa a $${menys}$` : 'negativa a cap interval'}`
       + (especials.length ? `; punt${especials.length > 1 ? 's' : ''} d'inflexió en ${iCatala(especials.map(textP))}` : '; no té punts d\'inflexió') + '.');
-  return {N, hiHaPunts: especials.length > 0 || (d1 && d1.hiHaPunts)};
+  return {hiHaPunts: especials.length > 0};
+}
+
+/**
+ * Els apartats 6 (la taula de valors: els punts que ja hi ha i dos més, «extres») i 7 (la gràfica) de qualsevol funció.
+ * taula: els punts [{x, y}] (exactes); ff: f amb nombres decimals; trams: els trossos del domini per al dibuix
+ * ([{a, b, tancatA, tancatB}]); asimptotes: per al dibuix ({v}, {h} o {m, n}).
+ */
+function seccionsFinals(g, {extres, valorY, yDe, posaPunt, taula, hiHaPunts, ff, trams, asimptotes, finestra}) {
+  g.apartat(6);
+  const fx = g.fila('valors'), lsx = {linies: [], index: 0};
+  extres.map(fr).forEach((x, i) => {
+    lsx.index = lsx.linies.length;
+    lsx.linies.push('');
+    cadena(g, {fila: fx, P: 'Ux' + i, esquerra: `f(${texNombre(x)})`, ls: lsx, parts: valorY(x,
+      i === 0 ? `6. Taula de valors. Ja tens els talls amb els eixos${hiHaPunts ? ', els extrems i els punts d\'inflexió' : ''}. Afegeix-hi dos punts més, perquè es vegi cap on va la gràfica: calcula $f(${texNombre(x)})$.`
+        : `I $f(${texNombre(x)})$.`)});
+    posaPunt(x, yDe(x));
+  });
+  const ord = taula.slice().sort((a, b) => a.x.valor() - b.x.valor());
+  const fT = g.fila('taula-valors');
+  g.files[fT] = `\\begin{array}{c|${'c'.repeat(ord.length)}} ${K('HLx', '\\boldsymbol{x}')} & ${ord.map((p, j) => K('Hx' + j, texAprox(p.x))).join(' & ')} \\\\ \\hline `
+    + `${K('HLy', '\\boldsymbol{f(x)}')} & ${ord.map((p, j) => K('Hy' + j, texAprox(p.y))).join(' & ')} \\end{array}`;
+  g.classes[fT] = 'separat';
+  g.afegeix('Posa tots els punts en una taula, ordenats per la $x$. Els valors irracionals, també aproximats: els necessites per dibuixar-los.');
+
+  g.apartat(7);
+  const fG = g.fila('grafica');
+  const punts = ord.map(p => ({x: p.x.valor(), y: p.y.valor()}));
+  const dibuix = corba => Gr.esbos({f: ff, trams, x: finestra.x, y: finestra.y, asimptotes, punts, corba});
+  g.files[fG] = dibuix(false);
+  g.afegeix(`7. Gràfica de la funció. Dibuixa els eixos${asimptotes.length ? (asimptotes.length > 1 ? ', les asímptotes (discontínues)' : ', l\'asímptota (discontínua)') : ''} i els punts de la taula.`);
+  g.files[fG] = dibuix(true);
+  g.afegeix(`Uneix els punts seguint el que has estudiat: on creix i on decreix, la concavitat${asimptotes.length ? ` i com s'acosta ${asimptotes.length > 1 ? 'a les asímptotes' : 'a l\'asímptota'}` : ''}. Aquest és l'esbós de la gràfica.`);
 }
 
 
-/* ── 7. EL PROCEDIMENT ─────────────────────────────────────────────── */
+/* ── 7. FUNCIONS AMB RADICALS ──────────────────────────────────────── */
+/*
+ * Cada funció té el seu guió, escrit a mà, per als apartats 1 a 5 (les inequacions del domini, els límits, les
+ * derivades amb la regla de l'arrel, les equacions), amb les mateixes peces que les racionals: cadena, equacioMa,
+ * estudiSignes (taules, valors de prova, conclusions). Els apartats 6 i 7, comuns (seccionsFinals).
+ * Les dades de cada guió (H): sub(x) la substitució de x a f (TeX), mig(x) un pas intermedi (o null), exacte(x) el
+ * valor exacte (Fraccio o Radical) i valorY, posaPunt.
+ */
+
+const DOMINI = K('Vt', '\\text{Dom}\\,') + K('Vf', 'f') + R('Vq', '=');
+const INICI4 = '4. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe diu on $f$ creix i on decreix.';
+const INICI5 = '5. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$: el seu signe diu cap on es corba la gràfica.';
+const ARREL_DOMINI = '1. Domini i possibles asímptotes verticals. L\'arrel quadrada d\'un nombre negatiu no existeix: el que hi ha dins de l\'arrel no pot ser negatiu. Planteja la inequació.';
+const INICI2 = '2. Límits en l\'infinit i possibles asímptotes horitzontals i obliqües.';
+const INICI3 = '3. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: és el punt de la gràfica amb $x = 0$. Calcula $f(0)$.';
+const ABSCISSES = 'Ara, amb l\'eix d\'abscisses: són els punts de la gràfica amb $y = 0$. Resol l\'equació $f(x) = 0$.';
+const CAP_VERTICAL = 'No hi ha asímptotes verticals';
+const NO_OBLIQUA = 'El límit és infinit, i $m$ ha de ser un nombre: no hi ha asímptota obliqua. La gràfica creix més de pressa que qualsevol recta: és una branca parabòlica.';
+/** El valor de prova (exacte) dins d'un text TeX: entre parèntesis si és negatiu o fraccionari. */
+const arg = t => texArgument(t);
+/** prova(t) per a estudiSignes amb nombres decimals: la substitució i el valor aproximat. */
+const provaAprox = (sub, fd) => t => { const v = fd(t.valor()); return {tex: `${sub(t)} \\approx ${decimal(v)}`, positiu: v > 0}; };
+
+function passosRadical(pr) {
+  const g = nouGuio();
+  const taula = [];
+  const posaPunt = (x, y) => { if (!taula.some(p => p.x.igual(x))) taula.push({x, y}); };
+  const dades = pr.guio.dades;
+  const valorY = (x, text) => {
+    const y = dades.exacte(x);
+    const mig = dades.mig ? dades.mig(x) : null;
+    const parts = [[dades.sub(x), text]];
+    if (mig && mig !== texNombre(y)) parts.push([mig, 'Opera dins de l\'arrel.']);
+    parts.push([texAprox(y), esIrracional(y) ? `Opera: $${texNombre(y)}$. Per dibuixar-lo, el valor aproximat.` : `Opera: el valor és $${texNombre(y)}$.`]);
+    return parts.filter((p, i) => i === 0 || p[0] !== parts[i - 1][0]);
+  };
+  const H = {posaPunt, valorY, yDe: dades.exacte};
+  const f0 = g.fila('f');
+  g.files[f0] = F.membreEsquerre('F', 'f', 'x') + K('Fe', pr.tex);
+  g.afegeix('Per fer l\'esbós, estudia la funció en set apartats, l\'un darrere l\'altre. Totes les conclusions es queden a la pissarra: '
+    + 'les necessitaràs per dibuixar la gràfica.');
+  const r = pr.guio(g, H);                       // apartats 1–5: {asimptotes, hiHaPunts}
+  seccionsFinals(g, {extres: pr.extres, valorY, yDe: dades.exacte, posaPunt, taula, hiHaPunts: r.hiHaPunts, ff: pr.f, trams: pr.trams,
+    asimptotes: r.asimptotes, finestra: pr.finestra});
+  return g.passos;
+}
+
+/** El tall amb l'eix d'ordenades: f(0) i la fila Q(0, f(0)). */
+function tallOrdenades(g, H) {
+  cadena(g, {fila: g.fila('valors'), P: 'U0', esquerra: 'f(0)', parts: H.valorY(ZERO, INICI3)});
+  const y0 = H.yDe(ZERO);
+  H.posaPunt(ZERO, y0);
+  destacat(g, 'punts', K('Zq', `Q(0,\\ ${texNombre(y0)})`), `La gràfica talla l'eix d'ordenades en el punt $Q(0,\\ ${texNombre(y0)})$.`);
+}
+/** La fila dels talls amb l'eix d'abscisses, P₁(…, 0)… */
+function tallsAbscisses(g, H, zeros) {
+  const z = ordena(zeros);
+  z.forEach(x => H.posaPunt(x, ZERO));
+  const nomP = i => (z.length > 1 ? `P_{${i + 1}}` : 'P');
+  destacat(g, 'punts', K('Zp', z.map((x, i) => `${nomP(i)}(${texNombre(x)},\\ 0)`).join(',\\quad ')),
+    `La gràfica talla l'eix d'abscisses ${z.length > 1 ? 'en els punts' : 'en el punt'} ${iCatala(z.map((x, i) => `$${nomP(i)}(${texNombre(x)},\\ 0)$`))}.`);
+}
+
+/* f(x) = √(1 + x³): Dom [−1, +∞); cap asímptota; x = 0, punt crític sense extrem i punt d'inflexió. */
+function guioArrelCubica(g, H) {
+  g.apartat(1);
+  cadenaSep(g, {fila: g.fila('inequacio'), P: 'N', sep: '\\iff', parts: [
+    ['1 + x^{3} \\ge 0', ARREL_DOMINI],
+    ['x^{3} \\ge -1', 'Passa l\'$1$ a l\'altre costat, restant.'],
+    ['x \\ge -1', 'Fes l\'arrel cúbica als dos costats: la desigualtat no canvia (ni amb nombres negatius), i $\\sqrt[3]{-1} = -1$.'],
+  ]});
+  destacat(g, 'domini', DOMINI + K('VI', '[-1,\\ +\\infty)'), 'El domini és $[-1,\\ +\\infty)$. El $-1$ hi és: $f(-1) = \\sqrt{0} = 0$.');
+  destacat(g, 'asimptotes', K('Av', `\\text{${CAP_VERTICAL}}`), 'Dins del domini, $f$ és l\'arrel d\'un polinomi: no es fa infinita en cap punt. No hi ha asímptotes verticals.');
+
+  g.apartat(2);
+  cadena(g, {fila: g.fila('limits'), P: 'Ip', esquerra: `${LIM('+\\infty')} f(x)`, parts: [
+    [`${LIM('+\\infty')} \\sqrt{1 + x^{3}}`, `${INICI2} El domini només s'allarga cap a la dreta: només cal estudiar $x \\to +\\infty$.`],
+    ['+\\infty', 'Quan $x$ és molt gran, $1 + x^3$ es fa tan gran com vulguis, i la seva arrel també.'],
+  ]});
+  destacat(g, 'asimptotes', K('Ah', '\\text{No hi ha asímptotes horitzontals}'), 'El límit és infinit: no hi ha asímptota horitzontal. Però serveix per a l\'esbós: quan $x \\to +\\infty$, $f(x) \\to +\\infty$.');
+  cadena(g, {fila: g.fila('limits'), P: 'Om', esquerra: `${LIM('+\\infty')} \\dfrac{f(x)}{x}`, parts: [
+    [`${LIM('+\\infty')} \\dfrac{\\sqrt{1 + x^{3}}}{x}`, 'Potser hi ha una asímptota obliqua, $y = mx + n$. El pendent seria el nombre $m = \\lim \\frac{f(x)}{x}$.'],
+    [`${LIM('+\\infty')} \\sqrt{\\dfrac{1 + x^{3}}{x^{2}}}`, 'Com que $x > 0$, $x = \\sqrt{x^2}$: posa-ho tot dins de l\'arrel.'],
+    [`${LIM('+\\infty')} \\sqrt{\\dfrac{1}{x^{2}} + x}`, 'Divideix cada terme per $x^2$.'],
+    ['+\\infty', '$\\frac{1}{x^2}$ tendeix a $0$, però $x$ es fa tan gran com vulguis: el límit és $+\\infty$.'],
+  ]});
+  destacat(g, 'asimptotes', K('Ao', '\\text{No hi ha asímptotes obliqües}'), NO_OBLIQUA);
+
+  g.apartat(3);
+  tallOrdenades(g, H);
+  const zeros = equacioMa(g, {pre: 'c', tipus: 'equacio:f',
+    principal: [['f(x)', ABSCISSES], ['\\sqrt{1 + x^{3}}', 'Substitueix $f(x)$ per la seva expressió.']],
+    treball: [['1 + x^{3} = 0', 'Una arrel val $0$ només quan el que hi ha a dins val $0$.'], ['x^{3} = -1', 'Passa l\'$1$ a l\'altre costat.']],
+    solucions: [{tex: '-1', valor: fr(-1)}], textSolucions: 'L\'únic nombre que elevat al cub dona $-1$ és $-1$: la solució és $x = -1$.'});
+  tallsAbscisses(g, H, zeros);
+
+  g.apartat(4);
+  cadena(g, {fila: g.fila('derivada1'), P: 'D1', esquerra: "f'(x)", parts: [
+    ['\\left(\\sqrt{1 + x^{3}}\\right)\'', INICI4],
+    ['\\dfrac{3x^{2}}{2\\sqrt{1 + x^{3}}}', 'Fes servir la regla de l\'arrel, $\\left(\\sqrt{u}\\right)\' = \\frac{u\'}{2\\sqrt{u}}$, amb $u = 1 + x^3$ i $u\' = 3x^2$.'],
+  ]});
+  const crit = equacioMa(g, {pre: 'd', tipus: 'equacio:f1',
+    principal: [["f'(x)", 'Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.'], ['\\dfrac{3x^{2}}{2\\sqrt{1 + x^{3}}}', 'Substitueix $f\'(x)$ per la seva expressió.']],
+    treball: [['3x^{2} = 0', 'Una fracció val $0$ quan el numerador val $0$ (i el denominador no).'], ['x^{2} = 0', 'Divideix per $3$.']],
+    solucions: [{tex: '0', valor: ZERO}], textSolucions: 'Només el $0$ té quadrat $0$: la solució és $x = 0$, que és del domini.'});
+  const d1 = estudiSignes(g, {ordre: 1, trossos: [[fr(-1), null]], fora: [], arrels: crit, posaPunt: H.posaPunt, valorY: H.valorY, yDe: H.yDe,
+    textTaula: 'Fes la taula de signes de $f\'$. $f\'$ existeix a $(-1,\\ +\\infty)$ (a $x = -1$ el denominador val $0$), i el punt crític $x = 0$ el parteix en dos intervals.',
+    prova: provaAprox(t => `\\dfrac{3 \\cdot ${arg(t)}^{2}}{2\\sqrt{1 + ${arg(t)}^{3}}}`, x => 3 * x * x / (2 * Math.sqrt(1 + x ** 3)))});
+
+  g.apartat(5);
+  cadena(g, {fila: g.fila('derivada2'), P: 'D2', esquerra: "f''(x)", apila: true, parts: [
+    ['\\left(\\dfrac{3x^{2}}{2\\sqrt{1 + x^{3}}}\\right)\'', `${INICI5} Deriva $f'(x)$.`],
+    ['\\dfrac{6x \\cdot 2\\sqrt{1 + x^{3}} - 3x^{2} \\cdot \\dfrac{3x^{2}}{\\sqrt{1 + x^{3}}}}{4 \\cdot (1 + x^{3})}',
+      'Fes servir la regla del quocient amb $P = 3x^2$ i $Q = 2\\sqrt{1 + x^3}$: $P\' = 6x$, $Q\' = \\frac{3x^2}{\\sqrt{1 + x^3}}$ (regla de l\'arrel) i $Q^2 = 4 \\cdot (1 + x^3)$.'],
+    ['\\dfrac{12x \\cdot (1 + x^{3}) - 9x^{4}}{4 \\cdot (1 + x^{3}) \\cdot \\sqrt{1 + x^{3}}}', 'Multiplica el numerador i el denominador per $\\sqrt{1 + x^3}$: $\\sqrt{1 + x^3} \\cdot \\sqrt{1 + x^3} = 1 + x^3$.'],
+    ['\\dfrac{12x + 12x^{4} - 9x^{4}}{4 \\cdot (1 + x^{3}) \\cdot \\sqrt{1 + x^{3}}}', 'Treu el parèntesi del numerador.'],
+    ['\\dfrac{3x^{4} + 12x}{4 \\cdot (1 + x^{3}) \\cdot \\sqrt{1 + x^{3}}}', 'Agrupa els termes semblants.'],
+    ['\\dfrac{3x \\cdot (x^{3} + 4)}{4 \\cdot (1 + x^{3}) \\cdot \\sqrt{1 + x^{3}}}', 'Treu factor comú $3x$: així és més fàcil veure on val $0$.'],
+  ]});
+  const infl = equacioMa(g, {pre: 'e', tipus: 'equacio:f2',
+    principal: [["f''(x)", 'Els possibles punts d\'inflexió són les solucions de l\'equació $f\'\'(x) = 0$.'],
+      ['\\dfrac{3x \\cdot (x^{3} + 4)}{4 \\cdot (1 + x^{3}) \\cdot \\sqrt{1 + x^{3}}}', 'Substitueix $f\'\'(x)$ per la seva expressió.']],
+    treball: [['3x \\cdot (x^{3} + 4) = 0', 'Una fracció val $0$ quan el numerador val $0$.'],
+      [`3x = 0${DISJUNCIO}x^{3} + 4 = 0`, 'Un producte val $0$ quan algun dels factors val $0$.'],
+      [`x = 0${DISJUNCIO}x^{3} = -4`, 'Resol cada equació: divideix per $3$ i passa el $4$ a l\'altre costat.']],
+    solucions: [{tex: '0', valor: ZERO}, {tex: '-\\sqrt[3]{4}', serveix: false}], textSolucions: 'Fes l\'arrel cúbica a la segona: $x = -\\sqrt[3]{4}$.',
+    textTatxa: '$-\\sqrt[3]{4} \\approx -1{,}59$ és més petit que $-1$: no és del domini, i la tatxes. Només queda $x = 0$.'});
+  const d2 = estudiSignes(g, {ordre: 2, trossos: [[fr(-1), null]], fora: [], arrels: infl, posaPunt: H.posaPunt, valorY: H.valorY, yDe: H.yDe,
+    textTaula: 'Fes la taula de signes de $f\'\'$. També existeix a $(-1,\\ +\\infty)$, i $x = 0$ el parteix en dos intervals.',
+    prova: provaAprox(t => `\\dfrac{3 \\cdot ${arg(t)} \\cdot (${arg(t)}^{3} + 4)}{4 \\cdot (1 + ${arg(t)}^{3}) \\cdot \\sqrt{1 + ${arg(t)}^{3}}}`,
+      x => 3 * x * (x ** 3 + 4) / (4 * (1 + x ** 3) * Math.sqrt(1 + x ** 3)))});
+  return {asimptotes: [], hiHaPunts: d1.hiHaPunts || d2.hiHaPunts};
+}
+guioArrelCubica.dades = {
+  sub: x => `\\sqrt{1 + ${arg(x)}^{3}}`,
+  mig: x => `\\sqrt{${texNombre(fr(1).suma(fr(x).potencia(3)))}}`,
+  exacte: x => Radical.arrel(fr(1).suma(fr(x).potencia(3))),
+};
+
+/* f(x) = x·√(x + 3): Dom [−3, +∞); cap asímptota; mínim (−2, −2); sempre còncava cap amunt. */
+function guioProducteArrel(g, H) {
+  g.apartat(1);
+  cadenaSep(g, {fila: g.fila('inequacio'), P: 'N', sep: '\\iff', parts: [
+    ['x + 3 \\ge 0', ARREL_DOMINI],
+    ['x \\ge -3', 'Passa el $3$ a l\'altre costat, restant.'],
+  ]});
+  destacat(g, 'domini', DOMINI + K('VI', '[-3,\\ +\\infty)'), 'El domini és $[-3,\\ +\\infty)$. El $-3$ hi és: $f(-3) = -3 \\cdot \\sqrt{0} = 0$.');
+  destacat(g, 'asimptotes', K('Av', `\\text{${CAP_VERTICAL}}`), 'Dins del domini, $f$ és un polinomi per una arrel: no es fa infinita en cap punt. No hi ha asímptotes verticals.');
+
+  g.apartat(2);
+  cadena(g, {fila: g.fila('limits'), P: 'Ip', esquerra: `${LIM('+\\infty')} f(x)`, parts: [
+    [`${LIM('+\\infty')} x\\sqrt{x + 3}`, `${INICI2} El domini només s'allarga cap a la dreta: només cal estudiar $x \\to +\\infty$.`],
+    ['+\\infty', 'Quan $x$ és molt gran, $x$ i $\\sqrt{x + 3}$ també ho són: el producte de dos nombres molt grans i positius es fa tan gran com vulguis.'],
+  ]});
+  destacat(g, 'asimptotes', K('Ah', '\\text{No hi ha asímptotes horitzontals}'), 'El límit és infinit: no hi ha asímptota horitzontal. Però serveix per a l\'esbós: quan $x \\to +\\infty$, $f(x) \\to +\\infty$.');
+  cadena(g, {fila: g.fila('limits'), P: 'Om', esquerra: `${LIM('+\\infty')} \\dfrac{f(x)}{x}`, parts: [
+    [`${LIM('+\\infty')} \\dfrac{x\\sqrt{x + 3}}{x}`, 'Potser hi ha una asímptota obliqua, $y = mx + n$. El pendent seria el nombre $m = \\lim \\frac{f(x)}{x}$.'],
+    [`${LIM('+\\infty')} \\sqrt{x + 3}`, 'Simplifica la $x$: a dalt i a baix.'],
+    ['+\\infty', 'L\'arrel d\'un nombre cada cop més gran es fa tan gran com vulguis.'],
+  ]});
+  destacat(g, 'asimptotes', K('Ao', '\\text{No hi ha asímptotes obliqües}'), NO_OBLIQUA);
+
+  g.apartat(3);
+  tallOrdenades(g, H);
+  const zeros = equacioMa(g, {pre: 'c', tipus: 'equacio:f',
+    principal: [['f(x)', ABSCISSES], ['x\\sqrt{x + 3}', 'Substitueix $f(x)$ per la seva expressió.']],
+    treball: [[`x = 0${DISJUNCIO}\\sqrt{x + 3} = 0`, 'Un producte val $0$ quan algun dels factors val $0$.'],
+      [`x = 0${DISJUNCIO}x + 3 = 0`, 'Una arrel val $0$ només quan el que hi ha a dins val $0$.']],
+    solucions: [{tex: '0', valor: ZERO}, {tex: '-3', valor: fr(-3)}], textSolucions: 'Passa el $3$ a l\'altre costat: $x = -3$. Totes dues solucions són del domini.'});
+  tallsAbscisses(g, H, zeros);
+
+  g.apartat(4);
+  cadena(g, {fila: g.fila('derivada1'), P: 'D1', esquerra: "f'(x)", apila: true, parts: [
+    ['\\left(x\\sqrt{x + 3}\\right)\'', INICI4],
+    ['\\sqrt{x + 3} + x \\cdot \\dfrac{1}{2\\sqrt{x + 3}}', 'Fes servir la regla del producte, $(u \\cdot v)\' = u\' \\cdot v + u \\cdot v\'$, amb $u = x$ i $v = \\sqrt{x + 3}$: $u\' = 1$ i $v\' = \\frac{1}{2\\sqrt{x + 3}}$.'],
+    ['\\dfrac{2 \\cdot (x + 3) + x}{2\\sqrt{x + 3}}', 'Posa-ho tot amb el denominador $2\\sqrt{x + 3}$: $\\sqrt{x + 3} = \\frac{2 \\cdot (x + 3)}{2\\sqrt{x + 3}}$.'],
+    ['\\dfrac{3x + 6}{2\\sqrt{x + 3}}', 'Opera el numerador: $2x + 6 + x = 3x + 6$.'],
+  ]});
+  const crit = equacioMa(g, {pre: 'd', tipus: 'equacio:f1',
+    principal: [["f'(x)", 'Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.'], ['\\dfrac{3x + 6}{2\\sqrt{x + 3}}', 'Substitueix $f\'(x)$ per la seva expressió.']],
+    treball: [['3x + 6 = 0', 'Una fracció val $0$ quan el numerador val $0$ (i el denominador no).'], ['3x = -6', 'Passa el $6$ a l\'altre costat.']],
+    solucions: [{tex: '-2', valor: fr(-2)}], textSolucions: 'Divideix per $3$: $x = -2$, que és del domini.'});
+  const d1 = estudiSignes(g, {ordre: 1, trossos: [[fr(-3), null]], fora: [], arrels: crit, posaPunt: H.posaPunt, valorY: H.valorY, yDe: H.yDe,
+    textTaula: 'Fes la taula de signes de $f\'$. $f\'$ existeix a $(-3,\\ +\\infty)$ (a $x = -3$ el denominador val $0$), i el punt crític $x = -2$ el parteix en dos intervals.',
+    prova: provaAprox(t => `\\dfrac{3 \\cdot ${arg(t)} + 6}{2\\sqrt{${texNombre(t)} + 3}}`, x => (3 * x + 6) / (2 * Math.sqrt(x + 3)))});
+
+  g.apartat(5);
+  cadena(g, {fila: g.fila('derivada2'), P: 'D2', esquerra: "f''(x)", apila: true, parts: [
+    ['\\left(\\dfrac{3x + 6}{2\\sqrt{x + 3}}\\right)\'', `${INICI5} Deriva $f'(x)$.`],
+    ['\\dfrac{3 \\cdot 2\\sqrt{x + 3} - (3x + 6) \\cdot \\dfrac{1}{\\sqrt{x + 3}}}{4 \\cdot (x + 3)}',
+      'Fes servir la regla del quocient amb $P = 3x + 6$ i $Q = 2\\sqrt{x + 3}$: $P\' = 3$, $Q\' = \\frac{1}{\\sqrt{x + 3}}$ (regla de l\'arrel) i $Q^2 = 4 \\cdot (x + 3)$.'],
+    ['\\dfrac{6 \\cdot (x + 3) - (3x + 6)}{4 \\cdot (x + 3) \\cdot \\sqrt{x + 3}}', 'Multiplica el numerador i el denominador per $\\sqrt{x + 3}$: $\\sqrt{x + 3} \\cdot \\sqrt{x + 3} = x + 3$.'],
+    ['\\dfrac{6x + 18 - 3x - 6}{4 \\cdot (x + 3) \\cdot \\sqrt{x + 3}}', 'Treu els parèntesis del numerador: el $-$ del davant canvia el signe de cada terme.'],
+    ['\\dfrac{3x + 12}{4 \\cdot (x + 3) \\cdot \\sqrt{x + 3}}', 'Agrupa els termes semblants.'],
+  ]});
+  const infl = equacioMa(g, {pre: 'e', tipus: 'equacio:f2',
+    principal: [["f''(x)", 'Els possibles punts d\'inflexió són les solucions de l\'equació $f\'\'(x) = 0$.'],
+      ['\\dfrac{3x + 12}{4 \\cdot (x + 3) \\cdot \\sqrt{x + 3}}', 'Substitueix $f\'\'(x)$ per la seva expressió.']],
+    treball: [['3x + 12 = 0', 'Una fracció val $0$ quan el numerador val $0$.'], ['3x = -12', 'Passa el $12$ a l\'altre costat.']],
+    solucions: [{tex: '-4', serveix: false}], textSolucions: 'Divideix per $3$: $x = -4$.',
+    textTatxa: '$-4$ és més petit que $-3$: no és del domini, i la tatxes. Dins del domini, $f\'\'$ no val mai $0$.'});
+  const d2 = estudiSignes(g, {ordre: 2, trossos: [[fr(-3), null]], fora: [], arrels: infl, posaPunt: H.posaPunt, valorY: H.valorY, yDe: H.yDe,
+    textTaula: 'Fes la taula de signes de $f\'\'$. També existeix a $(-3,\\ +\\infty)$, i no hi ha cap punt que el parteixi: només hi ha un interval.',
+    prova: provaAprox(t => `\\dfrac{3 \\cdot ${arg(t)} + 12}{4 \\cdot (${texNombre(t)} + 3) \\cdot \\sqrt{${texNombre(t)} + 3}}`, x => (3 * x + 12) / (4 * (x + 3) * Math.sqrt(x + 3)))});
+  return {asimptotes: [], hiHaPunts: d1.hiHaPunts || d2.hiHaPunts};
+}
+guioProducteArrel.dades = {
+  sub: x => `${fr(x).igual(1) ? '' : `${arg(x)} \\cdot `}\\sqrt{${texNombre(x)} + 3}`,
+  mig: x => (fr(x).igual(1) ? '' : fr(x).igual(-1) ? '-' : `${texNombre(x)} \\cdot `) + `\\sqrt{${texNombre(fr(x).suma(fr(3)))}}`,
+  exacte: x => fr(x).producte(Radical.arrel(fr(x).suma(fr(3)))),
+};
+
+/* f(x) = √(x² − 4): Dom (−∞, −2] ∪ [2, +∞); asímptotes obliqües y = x (a +∞) i y = −x (a −∞); sempre còncava cap avall. */
+function guioArrelObliques(g, H) {
+  g.apartat(1);
+  cadenaSep(g, {fila: g.fila('inequacio'), P: 'N', sep: '\\iff', parts: [
+    ['x^{2} - 4 \\ge 0', ARREL_DOMINI],
+    ['x^{2} \\ge 4', 'Passa el $4$ a l\'altre costat, sumant.'],
+    [`x \\le -2${DISJUNCIO}x \\ge 2`, 'Els nombres de quadrat $4$ o més gran són els que estan a $2$ o més del $0$: de $-2$ cap a l\'esquerra i de $2$ cap a la dreta.'],
+  ]});
+  destacat(g, 'domini', DOMINI + K('VI', '(-\\infty,\\ -2] \\cup [2,\\ +\\infty)'), 'El domini és $(-\\infty,\\ -2] \\cup [2,\\ +\\infty)$. El $-2$ i el $2$ hi són: $f(\\pm 2) = \\sqrt{0} = 0$.');
+  destacat(g, 'asimptotes', K('Av', `\\text{${CAP_VERTICAL}}`), 'Dins del domini, $f$ és l\'arrel d\'un polinomi: no es fa infinita en cap punt. No hi ha asímptotes verticals.');
+
+  g.apartat(2);
+  const fl = g.fila('limits'), ls = {linies: [''], index: 0};
+  cadena(g, {fila: fl, P: 'Ip', esquerra: `${LIM('+\\infty')} f(x)`, ls, parts: [
+    [`${LIM('+\\infty')} \\sqrt{x^{2} - 4}`, `${INICI2} El domini s'allarga cap als dos costats. Comença per $x \\to +\\infty$.`],
+    ['+\\infty', 'Quan $x$ és molt gran, $x^2 - 4$ també ho és, i la seva arrel també.'],
+  ]});
+  ls.index = 1;
+  ls.linies.push('');
+  cadena(g, {fila: fl, P: 'Im', esquerra: `${LIM('-\\infty')} f(x)`, ls, parts: [
+    [`${LIM('-\\infty')} \\sqrt{x^{2} - 4}`, 'Ara $x \\to -\\infty$.'],
+    ['+\\infty', 'Si $x$ és molt negatiu, $x^2$ és molt gran i positiu: el límit també és $+\\infty$.'],
+  ]});
+  destacat(g, 'asimptotes', K('Ah', '\\text{No hi ha asímptotes horitzontals}'), 'Els límits són infinits: no hi ha asímptotes horitzontals.');
+  const conjugat = (s, cap) => [
+    [`${LIM(cap)} \\dfrac{(\\sqrt{x^{2} - 4} ${s} x) \\cdot (\\sqrt{x^{2} - 4} ${s === '-' ? '+' : '-'} x)}{\\sqrt{x^{2} - 4} ${s === '-' ? '+' : '-'} x}`,
+      `Multiplica i divideix pel conjugat, $\\sqrt{x^2 - 4} ${s === '-' ? '+' : '-'} x$.`],
+    [`${LIM(cap)} \\dfrac{x^{2} - 4 - x^{2}}{\\sqrt{x^{2} - 4} ${s === '-' ? '+' : '-'} x}`, 'A dalt hi ha una suma per una diferència: $(a - b) \\cdot (a + b) = a^2 - b^2$.'],
+    [`${LIM(cap)} \\dfrac{-4}{\\sqrt{x^{2} - 4} ${s === '-' ? '+' : '-'} x}`, 'Opera el numerador.'],
+  ];
+  // A +∞: m = 1, n = 0.
+  const fo = g.fila('limits'), lo = {linies: [''], index: 0};
+  cadena(g, {fila: fo, P: 'Om', esquerra: 'm', ls: lo, parts: [
+    [`${LIM('+\\infty')} \\dfrac{f(x)}{x}`, 'Potser hi ha una asímptota obliqua, $y = mx + n$. A $+\\infty$, el pendent és $m = \\lim \\frac{f(x)}{x}$.'],
+    [`${LIM('+\\infty')} \\dfrac{\\sqrt{x^{2} - 4}}{x}`, 'Substitueix $f(x)$.'],
+    [`${LIM('+\\infty')} \\sqrt{\\dfrac{x^{2} - 4}{x^{2}}}`, 'Com que $x > 0$, $x = \\sqrt{x^2}$: posa-ho tot dins de l\'arrel.'],
+    [`${LIM('+\\infty')} \\sqrt{1 - \\dfrac{4}{x^{2}}}`, 'Divideix cada terme per $x^2$.'],
+    ['1', '$\\frac{4}{x^2}$ tendeix a $0$: queda $\\sqrt{1} = 1$.'],
+  ]});
+  lo.index = 1;
+  lo.linies.push('');
+  cadena(g, {fila: fo, P: 'On', esquerra: 'n', ls: lo, parts: [
+    [`${LIM('+\\infty')} \\left(f(x) - x\\right)`, 'L\'ordenada a l\'origen és $n = \\lim \\left(f(x) - mx\\right)$, amb $m = 1$.'],
+    [`${LIM('+\\infty')} \\left(\\sqrt{x^{2} - 4} - x\\right)`, 'Substitueix $f(x)$. Surt $\\infty - \\infty$, que pot ser qualsevol cosa: cal operar.'],
+    ...conjugat('-', '+\\infty'),
+    ['0', 'El denominador es fa tan gran com vulguis: el límit és $0$.'],
+  ]});
+  destacat(g, 'asimptotes', K('Aop', '\\text{Asímptota obliqua a } +\\infty\\text{: } y = x'), '$m = 1$ i $n = 0$: la recta $y = x$ és una asímptota obliqua a $+\\infty$.');
+  // A −∞: m = −1, n = 0.
+  const fm = g.fila('limits'), lm = {linies: [''], index: 0};
+  cadena(g, {fila: fm, P: 'Qm', esquerra: 'm', ls: lm, parts: [
+    [`${LIM('-\\infty')} \\dfrac{f(x)}{x}`, 'Ara a $-\\infty$: el pendent és $m = \\lim \\frac{f(x)}{x}$.'],
+    [`${LIM('-\\infty')} \\dfrac{\\sqrt{x^{2} - 4}}{x}`, 'Substitueix $f(x)$.'],
+    [`${LIM('-\\infty')} -\\sqrt{\\dfrac{x^{2} - 4}{x^{2}}}`, 'Ara $x < 0$, i $x = -\\sqrt{x^2}$: posa-ho dins de l\'arrel i deixa el signe $-$ a fora.'],
+    [`${LIM('-\\infty')} -\\sqrt{1 - \\dfrac{4}{x^{2}}}`, 'Divideix cada terme per $x^2$.'],
+    ['-1', 'Queda $-\\sqrt{1} = -1$.'],
+  ]});
+  lm.index = 1;
+  lm.linies.push('');
+  cadena(g, {fila: fm, P: 'Qn', esquerra: 'n', ls: lm, parts: [
+    [`${LIM('-\\infty')} \\left(f(x) + x\\right)`, 'I $n = \\lim \\left(f(x) - mx\\right)$, amb $m = -1$: $f(x) - (-1) \\cdot x = f(x) + x$.'],
+    [`${LIM('-\\infty')} \\left(\\sqrt{x^{2} - 4} + x\\right)`, 'Substitueix $f(x)$. Torna a sortir $\\infty - \\infty$.'],
+    ...conjugat('+', '-\\infty'),
+    ['0', 'Quan $x \\to -\\infty$, $-x$ és molt gran i positiu: el denominador es fa tan gran com vulguis, i el límit és $0$.'],
+  ]});
+  destacat(g, 'asimptotes', K('Aom', '\\text{Asímptota obliqua a } -\\infty\\text{: } y = -x'), '$m = -1$ i $n = 0$: la recta $y = -x$ és una asímptota obliqua a $-\\infty$.');
+
+  g.apartat(3);
+  destacat(g, 'punts', K('Zq', '\\text{No talla l\'eix d\'ordenades}'),
+    '3. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: $x = 0$ no és del domini ($0^2 - 4 < 0$), i la gràfica no talla l\'eix d\'ordenades.');
+  const zeros = equacioMa(g, {pre: 'c', tipus: 'equacio:f',
+    principal: [['f(x)', ABSCISSES], ['\\sqrt{x^{2} - 4}', 'Substitueix $f(x)$ per la seva expressió.']],
+    treball: [['x^{2} - 4 = 0', 'Una arrel val $0$ només quan el que hi ha a dins val $0$.'], ['x^{2} = 4', 'Passa el $4$ a l\'altre costat.']],
+    solucions: [{tex: '-2', valor: fr(-2)}, {tex: '2', valor: fr(2)}], textSolucions: 'Fes l\'arrel quadrada: $x = -2$ o $x = 2$. Totes dues solucions són del domini.'});
+  tallsAbscisses(g, H, zeros);
+
+  g.apartat(4);
+  cadena(g, {fila: g.fila('derivada1'), P: 'D1', esquerra: "f'(x)", parts: [
+    ['\\left(\\sqrt{x^{2} - 4}\\right)\'', INICI4],
+    ['\\dfrac{2x}{2\\sqrt{x^{2} - 4}}', 'Fes servir la regla de l\'arrel, $\\left(\\sqrt{u}\\right)\' = \\frac{u\'}{2\\sqrt{u}}$, amb $u = x^2 - 4$ i $u\' = 2x$.'],
+    ['\\dfrac{x}{\\sqrt{x^{2} - 4}}', 'Simplifica el $2$.'],
+  ]});
+  equacioMa(g, {pre: 'd', tipus: 'equacio:f1',
+    principal: [["f'(x)", 'Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.'], ['\\dfrac{x}{\\sqrt{x^{2} - 4}}', 'Substitueix $f\'(x)$ per la seva expressió.']],
+    treball: [], solucions: [{tex: '0', serveix: false}], textSolucions: 'Una fracció val $0$ quan el numerador val $0$: $x = 0$.',
+    textTatxa: '$0$ no és del domini: la tatxes. No hi ha punts crítics.'});
+  const trossos = [[null, fr(-2)], [fr(2), null]];
+  estudiSignes(g, {ordre: 1, trossos, fora: [], arrels: [], posaPunt: H.posaPunt, valorY: H.valorY, yDe: H.yDe,
+    textTaula: 'Fes la taula de signes de $f\'$. No hi ha punts crítics, i $f\'$ només existeix a $(-\\infty,\\ -2)$ i a $(2,\\ +\\infty)$ (a $x = \\pm 2$ el denominador val $0$): són els dos intervals.',
+    prova: provaAprox(t => `\\dfrac{${texNombre(t)}}{\\sqrt{${arg(t)}^{2} - 4}}`, x => x / Math.sqrt(x * x - 4))});
+
+  g.apartat(5);
+  cadena(g, {fila: g.fila('derivada2'), P: 'D2', esquerra: "f''(x)", apila: true, parts: [
+    ['\\left(\\dfrac{x}{\\sqrt{x^{2} - 4}}\\right)\'', `${INICI5} Deriva $f'(x)$.`],
+    ['\\dfrac{\\sqrt{x^{2} - 4} - x \\cdot \\dfrac{x}{\\sqrt{x^{2} - 4}}}{x^{2} - 4}',
+      'Fes servir la regla del quocient amb $P = x$ i $Q = \\sqrt{x^2 - 4}$: $P\' = 1$, $Q\' = \\frac{x}{\\sqrt{x^2 - 4}}$ (l\'acabes de calcular) i $Q^2 = x^2 - 4$.'],
+    ['\\dfrac{x^{2} - 4 - x^{2}}{(x^{2} - 4) \\cdot \\sqrt{x^{2} - 4}}', 'Multiplica el numerador i el denominador per $\\sqrt{x^2 - 4}$.'],
+    ['\\dfrac{-4}{(x^{2} - 4) \\cdot \\sqrt{x^{2} - 4}}', 'Opera el numerador.'],
+  ]});
+  equacioMa(g, {pre: 'e', tipus: 'equacio:f2',
+    principal: [["f''(x)", 'Els possibles punts d\'inflexió són les solucions de l\'equació $f\'\'(x) = 0$.'],
+      ['\\dfrac{-4}{(x^{2} - 4) \\cdot \\sqrt{x^{2} - 4}}', 'Substitueix $f\'\'(x)$ per la seva expressió.']],
+    treball: [['-4 = 0', 'Una fracció val $0$ quan el numerador val $0$. Però $-4 = 0$ no és cert mai: l\'equació no té solucions.']]});
+  estudiSignes(g, {ordre: 2, trossos, fora: [], arrels: [], posaPunt: H.posaPunt, valorY: H.valorY, yDe: H.yDe,
+    textTaula: 'Fes la taula de signes de $f\'\'$. Els intervals són els mateixos: $(-\\infty,\\ -2)$ i $(2,\\ +\\infty)$.',
+    prova: provaAprox(t => `\\dfrac{-4}{(${arg(t)}^{2} - 4) \\cdot \\sqrt{${arg(t)}^{2} - 4}}`, x => -4 / ((x * x - 4) * Math.sqrt(x * x - 4)))});
+  return {asimptotes: [{m: 1, n: 0}, {m: -1, n: 0}], hiHaPunts: false};
+}
+guioArrelObliques.dades = {
+  sub: x => `\\sqrt{${arg(x)}^{2} - 4}`,
+  mig: x => `\\sqrt{${texNombre(fr(x).potencia(2).resta(fr(4)))}}`,
+  exacte: x => Radical.arrel(fr(x).potencia(2).resta(fr(4))),
+};
+
+
+/* ── 8. EL PROCEDIMENT ─────────────────────────────────────────────── */
 
 const enunciat = v => `Elabora un esbós de la gràfica de la funció $f(x) = ${texDe(perId(v.p))}$, justificant-ho tot.`;
 function texDe(pr) {
+  if (pr.tex) return pr.tex;
   const P = coefs(pr.P), Q = coefs(pr.Q);
   return grau(Q) === 0 ? tp(P) : `\\dfrac{${tp(P)}}{${tp(Q)}}`;
 }
-const passos = v => passosRacional(perId(v.p));
+const passos = v => { const pr = perId(v.p); return pr.tipus === 'radical' ? passosRadical(pr) : passosRacional(pr); };
 
 arrel.GraficaFuncio = Object.freeze({
   titol: 'Gràfica d\'una funció',

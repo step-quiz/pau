@@ -56,7 +56,7 @@ const estat = p => p.evaluate(() => {
     ok(await p.textContent('h1') === 'Gràfica d\'una funció', 'h1');
     await p.selectOption('#velocitat', '1.6');
     const n = await p.$$eval('.exemple', b => b.length);
-    ok(n === 6, `${n} examples`);
+    ok(n === 9, `${n} examples`);
     for (let e = 0; e < n; e++) {
       await p.evaluate(i => document.querySelectorAll('.exemple')[i].click(), e);
       await p.waitForTimeout(250);
@@ -83,10 +83,10 @@ const estat = p => p.evaluate(() => {
       ok(tops.size === 1, `example ${e + 1}: the player stays in place (${[...tops]})`);
       await p.screenshot({path: path.join(SHOTS, `gf-ex${e + 1}-final.png`)});
     }
-    ok(await p.evaluate(() => location.search) === '?p=racional-verticals', 'address follows the examples: ' + await p.evaluate(() => location.search));
-    // El dibuix de l'últim pas: la corba, les asímptotes (x = −2, x = 2, y = 1) i els punts de la taula.
+    ok(await p.evaluate(() => location.search) === '?p=arrel-obliques', 'address follows the examples: ' + await p.evaluate(() => location.search));
+    // El dibuix de l'últim pas (√(x² − 4)): la corba, les dues asímptotes obliqües i els quatre punts de la taula.
     const fig = await p.$eval('.fila.figura svg', s => ({corbes: s.querySelectorAll('.corba').length, asimptotes: s.querySelectorAll('.asimptota').length, punts: s.querySelectorAll('.punt-esbos').length, w: s.getBoundingClientRect().width}));
-    ok(fig.corbes === 1 && fig.asimptotes === 3 && fig.punts === 3 && fig.w >= 400, 'graph drawn: ' + JSON.stringify(fig));
+    ok(fig.corbes >= 1 && fig.asimptotes === 2 && fig.punts === 4 && fig.w >= 400, 'graph drawn: ' + JSON.stringify(fig));
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();
   }
