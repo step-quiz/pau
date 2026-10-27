@@ -113,7 +113,7 @@ function passos(v) {
   const valors = [K(`V${f}`, caixa(`${nom[f]} = ${L}`))];
   const pintaValors = () => { g.files[FILA.valors] = `\\begin{array}{l} ${valors.join(' \\\\[8pt] ')} \\end{array}`; };
   pintaValors();
-  g.afegeix(`Allibera una incògnita: la que no té pivot, $${nom[f]}$. Pot valer qualsevol nombre, i l'anomenem $\\lambda$: $${nom[f]} = \\lambda$.`);
+  g.afegeix(`Allibera una incògnita: la que no té pivot, $${nom[f]}$. Pot valer qualsevol nombre: anomena-la $\\lambda$, és a dir, $${nom[f]} = \\lambda$.`);
 
   const zero = M.Fraccio.de(0);
   const sumaQ = (p, q) => [(p[0] || zero).suma(q[0] || zero), (p[1] || zero).suma(q[1] || zero)];
@@ -155,7 +155,7 @@ function passos(v) {
     g.files[FILA.calcul] = '';
     valors.push(K(`V${pc}`, caixa(`${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`)));
     pintaValors();
-    g.afegeix(`Ja tenim $${nom[pc]} = ${Mt.texLinealQ(valor[pc])}$.`, {fusiona: {[`V${pc}`]: [`${P}${passosC.length - 1}`]}});
+    g.afegeix(`Ja tens $${nom[pc]} = ${Mt.texLinealQ(valor[pc])}$.`, {fusiona: {[`V${pc}`]: [`${P}${passosC.length - 1}`]}});
   });
 
   /* 4. El conjunt de solucions, i l'equació vectorial d'una recta. */

@@ -200,3 +200,6 @@ A cold-start session tends to ask the same questions before starting. The answer
 - The PAU trapezium optimisation model was skipped (optimum 5√2, needs radicals in the optimisation pipeline).
 - Graphs are pictures (not checked) and only for polynomials.
 - No dark mode (the site has none).
+
+### Àlgebra captions reviewed by David (27/10/2026)
+What he changed in Determinant, Rang and Inversa, and what was carried to the other four Àlgebra pages: mechanical steps get short captions (Sarrus «Segon producte.», adjoints «$A_{13}$.», Gauss explains the rule only the first time); say *why* before a step («Com que és una equació de tercer grau, comença…», «Com que $m = 1$ és una arrel, divideix…»); end with an explicit conclusion («Per tant, $\text{rang}(A) = 2$»); «és no nul / és nul» instead of «no val 0 / val 0»; no method in the statement when the title already says it; always 2nd person singular. Shared code (`formules.js`, `passosArrels`) takes `algebra: true` so the other categories keep their wording until he reviews them (his decision).

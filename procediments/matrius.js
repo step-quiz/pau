@@ -721,7 +721,7 @@ function passosGauss(S) {
     et[k] = `F_${k + 1} \\leftrightarrow F_${i + 1}`;
     passos.push({B: copia(), etiquetes: et, ops: [{canvi: [i, k]}], text});
   };
-  let r = 0;
+  let r = 0, explicat = false;
   const pivots = [];
   for (let c = 0; c < nC && r < 3; c++) {          // també l'última columna: «0 0 0 | 3» i «0 0 0 | 5» encara no és esglaonada
     const k = [0, 1, 2].find(i => i >= r && !B[i][c].esZero());
@@ -740,9 +740,12 @@ function passosGauss(S) {
       textos.push(`$F_${i + 1} \\to ${et[i]}$`);
     }
     if (ops.length) {
+      // La regla, només el primer cop (David: als passos mecànics, sense repetir l'explicació).
       passos.push({B: copia(), etiquetes: et, ops,
-        text: `Zeros a sota del pivot de ${nom(c)}, el $${M.texNombre(p)}$ de la fila ${r + 1}: per a cada fila, multiplica-la pel pivot i suma-li `
+        text: explicat ? `Ara, zeros a sota del pivot de ${nom(c)}, el $${M.texNombre(p)}$ de la fila ${r + 1}: ${textos.join(' i ')}.`
+          : `Zeros a sota del pivot de ${nom(c)}, el $${M.texNombre(p)}$ de la fila ${r + 1}: per a cada fila, multiplica-la pel pivot i suma-li `
           + `la fila del pivot multiplicada per l'oposat del nombre que vols anul·lar. ${textos.join(' i ')}.`});
+      explicat = true;
     }
     r++;
   }

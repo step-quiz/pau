@@ -407,7 +407,9 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     const dalt = petita ? 0 : r.escenari.getBoundingClientRect().top + scrollY;
     // (els controls poden estar enganxats a baix: només se'n mira l'alçada)
     const gap = parseFloat(getComputedStyle(r.controls.parentNode).rowGap) || 0;
-    const sota = gap + r.controls.offsetHeight + Math.max(0, 72 - r.explicacio.offsetHeight) + 8;
+    // Amb pissarraCreix, sempre l'espai de tres línies (no el del text que hi hagi ara, que pot ser el de l'exemple d'abans):
+    // si no, en canviar d'exemple la pissarra quedava més alta i els botons es movien.
+    const sota = gap + r.controls.offsetHeight + (creix ? 72 - r.explicacio.offsetHeight : Math.max(0, 72 - r.explicacio.offsetHeight)) + 8;
     const lloc = innerHeight - dalt - sota;
     // Si la pissarra no hi cap, té la seva pròpia barra de desplaçament (i no la de la finestra).
     const maxima = Math.max(MIDA.alcadaMinima, Math.floor(lloc));
@@ -941,6 +943,9 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
     mostraResum(actuals);
     pissarra.ajusta(passos);
     reproductor.carrega(passos);
+    // Amb pissarraCreix, l'alçada de la pissarra depèn de la dels controls, i la fila de punts del reproductor (un per pas)
+    // no és la del nou exemple fins ara: es torna a ajustar, perquè els botons no es moguin.
+    if (proc.pissarraCreix) { pissarra.ajusta(passos); reproductor.redibuixa(); }
     if (escriu && proc.escriuAdreca) escriuAdreca(proc.escriuAdreca(actuals));
   }
 

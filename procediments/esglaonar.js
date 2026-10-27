@@ -70,7 +70,7 @@ function llegeixAdreca(a) {
 }
 const escriuAdreca = v => ({A: v.A});
 const texNet = N => Mt.texAmpliada(N).replace(/\\htmlData\{[^}]*\}/g, '');
-const enunciat = v => `Esglaona la matriu ampliada $A^* = ${texNet(matriu(v))}$ pel mètode de Gauss, sense fer servir fraccions.`;
+const enunciat = v => `Esglaona la matriu ampliada $A^* = ${texNet(matriu(v))}$, sense fer servir fraccions.`;
 const resum = v => `A^* = ${Mt.texMatriuPetita(Mt.llegeixMatriu(v.A, 3, 4).A, null)}`;
 
 function passos(v) {
@@ -100,7 +100,8 @@ function passos(v) {
   g.files[FILA.resultat] = K('Rr', `\\text{rang}(A) = ${rA},\\quad \\text{rang}(A^*) = ${rAm}`);
   g.classes[FILA.resultat] = 'final';
   g.afegeix('A la forma esglaonada es llegeixen els rangs: el nombre de files que no són de zeros, a $A$ (les tres primeres columnes) i a $A^*$ (tota la matriu). '
-    + (rA === rAm ? (rA === 3 ? 'Són iguals i valen 3.' : 'Són iguals, però més petits que 3.') : 'Són diferents.'));
+    + (rA === rAm ? `Per tant, $\\text{rang}(A) = \\text{rang}(A^*) = ${rA}$` + (rA === 3 ? '.' : ', més petit que 3.')
+      : `Per tant, $\\text{rang}(A) = ${rA}$ i $\\text{rang}(A^*) = ${rAm}$: són diferents.`));
   return g.passos;
 }
 

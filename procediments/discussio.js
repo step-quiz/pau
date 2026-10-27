@@ -155,7 +155,7 @@ function passos(v) {
   const solucions = Mt.texSolucions(arrels.map(r => M.Fraccio.de(r)), X);
   g.files[FILA.equacio] = solucions ? K('Zf', '|A| = 0') + R('Zi', '\\iff') + K('Zs', solucions) : K('Zf', `|A| \\neq 0 \\text{ per a tot } ${X}`);
   g.afegeix((solucions ? `Resumeix-ho: $|A| = 0$ només si $${solucions}$.` : `Resumeix-ho: $|A|$ no val mai $0$.`)
-    + ' (Esborrem els càlculs: ja no ens calen.)');
+    + ' Els càlculs s\'esborren: ja no et calen.');
 
   /* La taula, que es va omplint. */
   // La capçalera, en negreta; la taula, una mica separada dels càlculs (classe «separat»).
@@ -194,7 +194,7 @@ function passos(v) {
       linies.push(K(`${P}m`, Mt.texVmatriuN(B)) + R(`${P}e`, '=') + K(`${P}p`, Mt.texDet2N(B)) + R(`${P}f`, '=')
         + K(`${P}v`, `${M.texNombre(valor)} \\neq 0`) + '\\ \\Rightarrow\\ ' + K(`${P}r`, '\\text{rang}(A) = 2'));
       pinta();
-      g.afegeix(`Un menor d'ordre 2 de $A$ que no val $0$ (verd): $\\text{rang}(A) = 2$ (no pot ser 3, perquè $|A| = 0$).`);
+      g.afegeix(`Hi ha un menor d'ordre 2 de $A$ que és no nul (verd). Per tant, $\\text{rang}(A) = 2$ (no pot ser 3, perquè $|A| = 0$).`);
       const r3 = [0, 1, 2].find(i => !fs.includes(i));
       for (const j of cs.concat([3])) marques[`${r3}${j}`] = 'tria';
       for (const i of fs) marques[`${i}3`] = 'tria';
@@ -203,14 +203,14 @@ function passos(v) {
         {final: R(`${P}F`, '=') + K(`${P}V`, M.texNombre(k.orla.valor) + (k.orla.valor.esZero() ? '' : ' \\neq 0'))}));
       linies.push(K(`${P}R`, k.rS === 3 ? '\\text{rang}(A^*) = 3' : '\\text{rang}(A^*) = 2'));
       pinta();
-      g.afegeix(`Per a $A^*$, orla el menor amb la fila ${r3 + 1} i la columna dels termes independents (groc). L'altra manera d'orlar-lo dins de $A^*$ és $|A|$, que ja sabem que val $0$. `
-        + (k.rS === 3 ? 'Aquest menor no val $0$: $\\text{rang}(A^*) = 3$.' : 'Aquest també val $0$: $\\text{rang}(A^*) = 2$.'));
+      g.afegeix(`Per a $A^*$, orla el menor amb la fila ${r3 + 1} i la columna dels termes independents (groc). L'altra manera d'orlar-lo dins de $A^*$ és $|A|$, que ja saps que val $0$. `
+        + (k.rS === 3 ? 'Aquest menor és no nul. Per tant, $\\text{rang}(A^*) = 3$.' : 'Aquest també és nul. Per tant, $\\text{rang}(A^*) = 2$.'));
     } else {
       const [i0, j0] = k.element;
       marques[`${i0}${j0}`] = 'mes';
       linies.push(K(`${P}m`, `\\text{les files de } A \\text{ són proporcionals}`) + '\\ \\Rightarrow\\ ' + K(`${P}r`, '\\text{rang}(A) = 1'));
       pinta();
-      g.afegeix('Les tres files de $A$ són proporcionals (tots els menors d\'ordre 2 de $A$ valen $0$), i hi ha algun element que no és $0$ (verd): $\\text{rang}(A) = 1$.');
+      g.afegeix('Les tres files de $A$ són proporcionals (tots els menors d\'ordre 2 de $A$ valen $0$), i hi ha algun element no nul (verd). Per tant, $\\text{rang}(A) = 1$.');
       if (k.orla) {
         const {fs, cs, valor} = k.orla;
         const B = Mt.submatriu(k.N, fs, cs);
@@ -218,11 +218,11 @@ function passos(v) {
         linies.push(K(`${P}M`, Mt.texVmatriuN(B)) + R(`${P}E`, '=') + K(`${P}P`, Mt.texDet2N(B)) + R(`${P}F`, '=')
           + K(`${P}V`, `${M.texNombre(valor)} \\neq 0`) + '\\ \\Rightarrow\\ ' + K(`${P}R`, '\\text{rang}(A^*) = 2'));
         pinta();
-        g.afegeix(`Per a $A^*$, orla l'element amb una altra fila i la columna dels termes independents (groc): aquest menor no val $0$, i $\\text{rang}(A^*) = 2$.`);
+        g.afegeix(`Per a $A^*$, orla l'element amb una altra fila i la columna dels termes independents (groc): aquest menor és no nul. Per tant, $\\text{rang}(A^*) = 2$.`);
       } else {
         linies.push(K(`${P}M`, `\\text{les files de } A^* \\text{ també}`) + '\\ \\Rightarrow\\ ' + K(`${P}R`, '\\text{rang}(A^*) = 1'));
         pinta();
-        g.afegeix('Les files de $A^*$ també són proporcionals (amb el terme independent i tot): $\\text{rang}(A^*) = 1$.');
+        g.afegeix('Les files de $A^*$ també són proporcionals (amb el terme independent i tot). Per tant, $\\text{rang}(A^*) = 1$.');
       }
     }
     const t = files.length;
@@ -235,7 +235,7 @@ function passos(v) {
   g.files[FILA.cas] = '';
   g.classes[FILA.taula] = 'separat final';
   g.afegeix('Resposta: la taula resumeix la discussió.' + (arrels.some(r => cas(S, r).rA === 2 && cas(S, r).rS === 2)
-    ? ' (Per resoldre un cas compatible indeterminat, vegeu el procediment «Sistema compatible indeterminat».)' : ''));
+    ? ' (Per resoldre un cas compatible indeterminat, consulta el procediment «Sistema compatible indeterminat».)' : ''));
   return g.passos;
 }
 

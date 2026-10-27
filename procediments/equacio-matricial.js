@@ -117,15 +117,15 @@ function passos(valors) {
   // Els parèntesis del membre de la dreta, destacats el primer cop: molts alumnes se'ls obliden.
   const dretaMarcada = p.beta ? `${F.marca('(', 'tria')}${dretaTot}${F.marca(')', 'tria')}` : dretaTot;
   eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? inv('qR') + dretaMarcada : dretaMarcada + inv('qR'));
-  g.afegeix(`Multiplica els dos costats per $${nomMp(p)}^{-1}$ ${e ? 'per l\'esquerra' : 'per la dreta'}: ${e ? 'a l\'esquerra' : 'a la dreta'} de $X$ hi ha $${nomM(p)}$, `
-    + `i la inversa s'hi ha de posar al costat. Als dos membres pel mateix costat: ${e ? 'davant' : 'darrere'}.`
-    + (p.beta ? ` Compte amb els parèntesis: la inversa multiplica tot el membre de la dreta, $${texR(p)}$, i no només $${texKappa(p)}${nomDreta(p)}$. Molts alumnes se'ls obliden.` : ''));
+  g.afegeix(`Com que ${e ? 'a l\'esquerra' : 'a la dreta'} de $X$ hi ha $${nomM(p)}$, multiplica els dos membres per $${nomMp(p)}^{-1}$ ${e ? 'per l\'esquerra (davant)' : 'per la dreta (darrere)'}: `
+    + `als dos membres, pel mateix costat.`
+    + (p.beta ? ` Compte amb els parèntesis: la inversa multiplica tot el membre de la dreta, $${texR(p)}$, i no només $${texKappa(p)}${nomDreta(p)}$.` : ''));
   const fusio = {qI: ['qL', 'qA'].concat(p.c ? ['qc'] : [])};
   eq(e ? K('qI', 'I') + ' \\cdot ' + X : X + ' \\cdot ' + K('qI', 'I'), e ? inv('qR') + dretaP : dretaP + inv('qR'));
   g.afegeix(`$${e ? `${nomMp(p)}^{-1}${nomMp(p)}` : `${nomMp(p)}${nomMp(p)}^{-1}`} = I$, la matriu identitat.`, {fusiona: fusio});
   eq(X, e ? inv('qR') + dretaP : dretaP + inv('qR'));
   const formula = e ? `${nomMp(p)}^{-1}${texRp(p)}` : `${texRp(p)}${nomMp(p)}^{-1}`;
-  g.afegeix(`$${e ? 'I \\cdot X' : 'X \\cdot I'} = X$: ja tenim $X$ aïllada, $X = ${formula}$. Ara, els càlculs.`);
+  g.afegeix(`$${e ? 'I \\cdot X' : 'X \\cdot I'} = X$: ja tens $X$ aïllada, $X = ${formula}$. Ara, fes els càlculs.`);
 
   /* 2. Els càlculs. */
   const mats = [['A', dd.A], ['B', dd.B]].concat(dd.C ? [['C', dd.C]] : []);
@@ -143,7 +143,7 @@ function passos(valors) {
   }
   const [a, b, c, d] = [dd.Mm[0][0], dd.Mm[0][1], dd.Mm[1][0], dd.Mm[1][1]];
   g.files[FILA.det] = K('Gn', `|${nomM(p)}|`) + R('Gq', '=') + K('Gp', `${par(a)} \\cdot ${par(d)} - ${par(b)} \\cdot ${par(c)}`) + R('Gr', '=') + K('Gv', `${M.texNombre(dd.d)} \\neq 0`);
-  g.afegeix(`$${nomM(p)}$ té inversa si el seu determinant no és $0$: $|${nomM(p)}| = ${M.texNombre(dd.d)}$.`);
+  g.afegeix(`$${nomM(p)}$ té inversa si el seu determinant és no nul: $|${nomM(p)}| = ${M.texNombre(dd.d)} \\neq 0$.`);
   const adj = [[d, b.oposada()], [c.oposada(), a]];
   // Si |M| = 1, la inversa és directament la matriu canviada (sense «1/1»).
   const pecesInv = [K('Vn', `${nomMp(p)}^{-1}`), ' = ' + K('Ve', (dd.d.igual(1) ? '' : `\\dfrac{1}{${M.texNombre(dd.d)}}`) + texM(adj))];
