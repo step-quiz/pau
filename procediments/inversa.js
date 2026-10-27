@@ -88,12 +88,12 @@ function passos(v) {
       {marca: (i, j) => marques[`${i}${j}`] || ''});
   };
   pintaA();
-  g.afegeix('La inversa per adjunts: $A^{-1} = \\dfrac{1}{|A|} \\left(\\text{Adj}(A)\\right)^t$. Primer cal saber si $A$ té inversa: ha de ser $|A| \\neq 0$.');
+  g.afegeix('La matriu inversa és: $A^{-1} = \\dfrac{1}{|A|} \\left(\\text{Adj}(A)\\right)^t$. En primer lloc, cal saber si $A$ té inversa: la condició és que $|A| \\neq 0$.');
 
   /* 1. El determinant. */
   g.files[FILA.det] = F.enLinies(K('Dl', '|A|') + R('Dq', '='), [K('Dp', Mt.texSarrusN(N))],
     {final: R('Dr', '=') + K('Dv', M.texNombre(d)) + ' \\neq 0'});
-  g.afegeix(`Per Sarrus, $|A| = ${M.texNombre(d)}$. No és $0$: $A$ és invertible.`);
+  g.afegeix(`Per Sarrus, $|A| = ${M.texNombre(d)} \\neq 0$. $A$ és invertible.`);
 
   /* 2. Els nou adjunts. */
   const adj = [[null, null, null], [null, null, null], [null, null, null]];
@@ -115,21 +115,21 @@ function passos(v) {
       g.files[FILA.adjunt] = K('Jl', `A_{${i + 1}${j + 1}}`) + R('Je', '=') + K('Js', signe) + K('Jm', Mt.texVmatriuN(a.B)) + R('Jf', '=')
         + K('Jp', `${signe}(${Mt.texDet2N(a.B)})`) + R('Jg', '=') + K('Jv', M.texNombre(a.valor));
       g.files[FILA.adjunta] = texAdj();
-      const text = i === 0 && j === 0
-        ? 'L\'adjunt de cada element: tapa la seva fila i la seva columna (vermell); el determinant que queda (verd) és el menor. '
-          + 'El signe va alternant, com en un tauler d\'escacs: $+$ si $i + j$ és parell, $-$ si és senar. '
-        : '';
-      g.afegeix(`${text}$A_{${i + 1}${j + 1}} = ${signe}\\,${Mt.texVmatriuN(a.B)} = ${M.texNombre(a.valor)}$: va a la fila ${i + 1}, columna ${j + 1} de la matriu adjunta.`);
+      // Curt (David): la pissarra ja mostra el menor, el signe i on va l'adjunt.
+      g.afegeix(i === 0 && j === 0
+        ? 'Per trobar l\'adjunt de cada element, has de tapar la seva fila i la seva columna (vermell); el determinant que queda (verd) és el menor que busques. '
+          + 'Encara et falta afegir-li un signe, que va alternant com en un tauler d\'escacs: $+$ si $i + j$ és parell, $-$ si és senar. Comença per $A_{11}$.'
+        : `$A_{${i + 1}${j + 1}}$.`);
     }
   }
   for (const k of Object.keys(marques)) delete marques[k];
   pintaA();
   g.files[FILA.adjunt] = '';
-  g.afegeix('Ja tenim la matriu adjunta, $\\text{Adj}(A)$: cada element canviat pel seu adjunt.');
+  g.afegeix('Ja tens calculada la matriu adjunta, $\\text{Adj}(A)$.');
 
   /* 3. La transposada. */
   g.files[FILA.adjunta] = texAdj(true);
-  g.afegeix('Transposa-la: les files passen a ser columnes (la primera fila és ara la primera columna, i així).');
+  g.afegeix('A continuació, transposa-la: les files passen a ser columnes (la primera fila és ara la primera columna, i així successivament).');
 
   /* 4. Dividir per |A|. */
   const inv = [0, 1, 2].map(i => [0, 1, 2].map(j => adj[j][i].quocient(d)));
@@ -144,7 +144,7 @@ function passos(v) {
   // Matrius altes: molt d'espai entre línies (i millor en una sola línia, si hi cap).
   g.files[FILA.inversa] = F.enLinies(K('In', 'A^{-1}') + R('Iq', '=') + '\\,', peces, {espai: '14pt'});
   g.afegeix(u ? 'Divideix per $|A| = 1$: la inversa és la mateixa transposada.'
-    : `Divideix per $|A| = ${M.texNombre(d)}$: multiplica per $\\dfrac{1}{${M.texNombre(d)}}$, és a dir, divideix cada element de la transposada per $${M.texNombre(d)}$.`,
+    : 'Multiplica la darrera matriu per $\\dfrac{1}{|A|}$, element a element.',
   u ? {} : {cursor: {arrossega: 'Dv', fins: 'Iu'}});
 
   /* 5. El resultat, destacat. (Sense escriure la comprovació A · A⁻¹ = I: el David no la vol a la pissarra.) */

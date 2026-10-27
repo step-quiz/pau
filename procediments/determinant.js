@@ -83,7 +83,7 @@ const escriuAdreca = v => ({A: v.A});
 function enunciat(v) {
   const {A, X} = matriu(v);
   return `Calcula, amb la regla de Sarrus, el determinant de la matriu $A = ${Mt.texMatriu(A, X).replace(/\\htmlData\{[^}]*\}/g, '')}$ `
-    + `en funció de $${X}$. Per a quins valors de $${X}$ és $|A| = 0$? (Són els valors per als quals $A$ no és invertible.)`;
+    + `en funció de $${X}$. Per a quins valors de $${X}$ és $|A| = 0$? (Aquests valors que trobis són precisament els que fan que $A$ no sigui invertible.)`;
 }
 const resum = v => { const {A, X} = matriu(v); return `A = ${Mt.texMatriuPetita(A, X)}`; };
 
@@ -91,10 +91,10 @@ function passos(v) {
   const {A, X} = matriu(v);
   const g = F.guio(FILES);
   g.files[FILA.matriu] = K('Mn', 'A') + R('Mq', '=') + Mt.texMatriu(A, X);
-  g.afegeix(`La matriu $A$ depèn del paràmetre $${X}$. El seu determinant, $|A|$, serà un polinomi en $${X}$.`);
+  g.afegeix(`La matriu $A$ depèn del paràmetre $${X}$. El seu determinant, $|A|$, serà un polinomi en la variable $${X}$.`);
   const {det} = Mt.passosSarrus(g, {A, X, nom: '|A|', files: FILA});
   const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|',
-    inici: `Per a quins valors de $${X}$ és $|A| = 0$? Iguala el determinant a zero.`});
+    inici: `Troba quins valors de $${X}$ fan que $|A| = 0$.`, algebra: true});
 
   const solucions = Mt.texSolucions(arrels, X);
   g.files[FILA.resposta] = K('Rs', solucions ? `|A| = 0 \\iff ${solucions}` : `|A| \\neq 0 \\text{ per a tot } ${X}`);

@@ -149,7 +149,7 @@ function passos(v) {
 
   /* |A| i els valors que l'anul·len. */
   const {det} = Mt.passosSarrus(g, {A, X, nom: '|A|', P: 'd', rapid: true, files: {matriu: FILA.det, sarrus: FILA.sarrus, calcul: FILA.calcul}});
-  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|', inici: `On és $|A| = 0$? Per a aquests valors, $\\text{rang}(A) < 3$.`}).map(r => r.num);
+  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|', inici: `On és $|A| = 0$? Per a aquests valors, $\\text{rang}(A) < 3$.`, algebra: true}).map(r => r.num);
   // El resum: els càlculs ja no calen, i les seves files es reaprofiten.
   FILA.lliures.forEach(f => { g.files[f] = ''; });
   const solucions = Mt.texSolucions(arrels.map(r => M.Fraccio.de(r)), X);

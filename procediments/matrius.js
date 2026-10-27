@@ -119,12 +119,13 @@ const texMatriuPetita = (A, X) => `\\left(\\begin{smallmatrix} ${A.map(f => f.ma
 
 /** Els sis productes: tres amb signe + (la diagonal principal i les seves paral·leles) i tres amb − (la secundària). */
 const SARRUS = Object.freeze([
-  {signe: 1, pos: [[0, 0], [1, 1], [2, 2]], text: 'Primer producte, amb signe $+$: la diagonal principal,'},
-  {signe: 1, pos: [[0, 1], [1, 2], [2, 0]], text: 'També amb signe $+$, els dos «triangles» paral·lels a la diagonal principal. El primer:'},
-  {signe: 1, pos: [[0, 2], [1, 0], [2, 1]], text: 'I el segon triangle:'},
-  {signe: -1, pos: [[0, 2], [1, 1], [2, 0]], text: 'Ara, els tres productes amb signe $-$. La diagonal secundària:'},
-  {signe: -1, pos: [[0, 0], [1, 2], [2, 1]], text: 'I els dos triangles paral·lels a la diagonal secundària. El primer:'},
-  {signe: -1, pos: [[0, 1], [1, 0], [2, 2]], text: 'I el segon:'},
+  // Els textos, curts (David): la pissarra ja mostra els elements de cada producte, en verd (+) o en vermell (−).
+  {signe: 1, pos: [[0, 0], [1, 1], [2, 2]], text: 'Has de calcular sis productes. Comença pel primer.'},
+  {signe: 1, pos: [[0, 1], [1, 2], [2, 0]], text: 'Segon producte.'},
+  {signe: 1, pos: [[0, 2], [1, 0], [2, 1]], text: 'Tercer producte.'},
+  {signe: -1, pos: [[0, 2], [1, 1], [2, 0]], text: 'Quart producte.'},
+  {signe: -1, pos: [[0, 0], [1, 2], [2, 1]], text: 'Cinquè producte.'},
+  {signe: -1, pos: [[0, 1], [1, 0], [2, 2]], text: 'Sisè i últim producte.'},
 ]);
 
 /** Determinant 3×3 (Sarrus, sense passos): un polinomi en X. */
@@ -150,8 +151,7 @@ function passosSarrus(g, {A, X, nom = '|A|', P = '', files, rapid = false}) {
   const filaMatriu = (marques = {}) => K(P + 'Mn', nom) + R(P + 'Mq', '=')
     + texMatriu(A, X, {P, marca: (i, j) => marques[`${i}${j}`] || '', tipus: 'vmatrix'});
   g.files[files.matriu] = filaMatriu();
-  g.afegeix(`La regla de Sarrus: $${nom}$ és la suma de tres productes de tres elements, menys uns altres tres productes. `
-    + 'A cada producte hi ha un element de cada fila i un de cada columna.');
+  g.afegeix('Calcula aquest determinant amb la regla de Sarrus.');
 
   /*
    * Sempre amb claudàtors, com a classe: |A| = [p₁ + p₂ + p₃] − [p₄ + p₅ + p₆]. Cada claudàtor
@@ -182,7 +182,7 @@ function passosSarrus(g, {A, X, nom = '|A|', P = '', files, rapid = false}) {
     peces.push(K(`${P}S${n}`, factors));
     g.files[files.matriu] = filaMatriu(Object.fromEntries(s.pos.map(([i, j]) => [`${i}${j}`, s.signe > 0 ? 'mes' : 'menys'])));
     g.files[files.sarrus] = filaProductes();
-    g.afegeix(`${s.text} $${factors}$.` + (n === 3 ? ' Aquests van en un segon claudàtor, que es resta.' : ''));
+    g.afegeix(s.text);
   });
   g.files[files.matriu] = filaMatriu();
 
@@ -200,7 +200,7 @@ function passosSarrus(g, {A, X, nom = '|A|', P = '', files, rapid = false}) {
   };
   const grups = [[0, 1, 2], [3, 4, 5]].map(ns => ns.flatMap(termesProducte));
   g.files[files.calcul] = fila([claudator(grups[0], false), claudator(grups[1], true)]);
-  g.afegeix('Fes cada producte, dins del seu claudàtor.');
+  g.afegeix('Calcula cada producte, dins del seu claudàtor.');
 
   /* Cada claudàtor, sumat (si cal): termes del mateix grau junts, sense zeros. */
   const sumes = [[0, 1, 2], [3, 4, 5]].map(ns => ns.reduce((d, n) => sumaP(d, valors[n]), []));
@@ -250,7 +250,7 @@ function passosSarrus(g, {A, X, nom = '|A|', P = '', files, rapid = false}) {
       if (de.length > 1) textos.push(`$${de.map((t, i) => texTerme(t.c, t.n, X, i === 0)).join('')} = ${c.esZero() ? '0' : M.texPolinomi([{n: gr, c}], X || 'x')}$`);
     }
     g.files[files.calcul] = fila(termesDet.length ? termesDet.map((t, i) => K(`${P}C${t.n}`, texTerme(t.c, t.n, X, i === 0))) : [K(`${P}C0`, '0')]);
-    g.afegeix(`Agrupa els termes del mateix grau${textos.length ? ': ' + textos.join('; ') : ''}. Els zeros desapareixen.`, {fusiona});
+    g.afegeix('Agrupa els termes del mateix grau.', {fusiona});
   }
   return {det, valors};
 }
@@ -336,7 +336,7 @@ const ordena = arrels => arrels.filter((r, i) => arrels.findIndex(s => s.igual(r
  * Y… la còpia de l'equació que es queda a la seva fila quan els càlculs baixen. Amb «prefix» (p. ex. «a»), totes
  * les claus el porten al davant («aE…», «aW…»; la còpia, «YaE…»): així hi pot haver diverses equacions a la pissarra.
  */
-function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irracionals = false, prefix = ''}) {
+function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irracionals = false, prefix = '', algebra = false}) {
   const K = (k, t) => F.clau(prefix + k, t), R = (k, t) => F.rel(prefix + k, t);   // prefix: diverses equacions alhora a la pissarra
   const termes = M.termes(p);
   const equacio = filesDonades.equacio;
@@ -350,11 +350,16 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irraciona
     return files[n];
   };
   const lila = [];                                    // [fila, clau] de cada solució
-  const tanca = arrels => {
+  const tanca = (arrels, tercer = false) => {
     lila.forEach(([f, k]) => F.marcaSolucio(g, f, k));
     const diferents = ordena(arrels);
     const doble = arrels.filter((r, i) => arrels.findIndex(s => s.igual(r)) !== i);
-    if (diferents.length) {
+    if (diferents.length && algebra && tercer) {
+      const ll = diferents.map(r => `$${X} = ${M.texNombre(r)}$`);
+      g.afegeix((ll.length > 1 ? `Les solucions de l'equació original de tercer grau són: ${ll.slice(0, -1).join(', ')} i ${ll[ll.length - 1]}`
+        : `La solució de l'equació original de tercer grau és: ${ll[0]}`)
+        + (doble.length ? ` (${doble.map(r => `$${X} = ${M.texNombre(r)}$`).join(', ')} és una arrel doble)` : '') + '.');
+    } else if (diferents.length) {
       g.afegeix(F.textSolucions(diferents, X)
         + (doble.length ? ` ${doble.map(r => `$${X} = ${M.texNombre(r)}$`).join(', ')} surt dues vegades: és una arrel doble.` : ''));
     }
@@ -370,7 +375,7 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irraciona
 
   /* Grau 1 o 2: l'equació es queda; els càlculs, a la fila de treball. */
   if (p.length <= 3) {
-    const sol = F.resolEquacio(g, {fila: equacio, treball: fila('treball'), P: prefix + 'E', termes, text: textPolinomi, X, irracionals});
+    const sol = F.resolEquacio(g, {fila: equacio, treball: fila('treball'), P: prefix + 'E', termes, text: textPolinomi, X, irracionals, algebra});
     sol.forEach(s => lila.push([s.fila, s.clau]));
     return tanca(sol.map(s => s.valor));
   }
@@ -403,9 +408,17 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irraciona
       const v = valorP(q, c);
       linies.push(K(`Pv${linies.length}`, `${X} = ${c}`) + ':\\quad ' + K(`Pe${linies.length}`, `${texSubstituit(q, c)} = ${M.texNombre(v)}` + (v.esZero() ? '' : ' \\neq 0')));
       g.files[fila('prova')] = linies.length > 1 ? `\\begin{array}{l} ${linies.join(' \\\\[4pt] ')} \\end{array}` : linies[0];
-      g.afegeix((linies.length === 1
-        ? `Busca una arrel entera: ha de ser un divisor del terme independent, $${c0}$ (${divisors(c0).map(d => `$\\pm ${d}$`).join(', ')}). Prova $${X} = ${c}$: `
-        : `Prova $${X} = ${c}$: `) + (v.esZero() ? 'dona $0$, és una arrel.' : `dona $${M.texNombre(v)}$, no és una arrel.`));
+      const divs = `${divisors(c0).map(d => `$\\pm ${d}$`).join(', ')}`;
+      if (algebra) {
+        g.afegeix(linies.length === 1
+          ? `Com que és una equació de tercer grau, comença buscant una arrel entera: ha de ser un divisor del terme independent, $${c0}$ (${divs}). Prova amb $${X} = ${c}$.`
+            + (v.esZero() ? '' : ' No és una arrel: continua buscant.')
+          : `Prova $${X} = ${c}$` + (v.esZero() ? ': en aquest cas sí que dona $0$, i per tant és una arrel.' : ', que tampoc no és una arrel.'));
+      } else {
+        g.afegeix((linies.length === 1
+          ? `Busca una arrel entera: ha de ser un divisor del terme independent, $${c0}$ (${divs}). Prova $${X} = ${c}$: `
+          : `Prova $${X} = ${c}$: `) + (v.esZero() ? 'dona $0$, és una arrel.' : `dona $${M.texNombre(v)}$, no és una arrel.`));
+      }
       if (v.esZero()) { r = Fraccio.de(c); break; }
     }
     /* La regla de Ruffini: q entre (X − r). Una sola línia vertical, després de l'arrel. */
@@ -416,19 +429,22 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irraciona
       + `${K('Rx', M.texNombre(r))} & ${mig.map((v, i) => (i <= fins && i > 0 ? cel(`Rm${i}`, v) : '')).join(' & ')} \\\\ \\hline `
       + `& ${baix.map((v, i) => (i <= fins ? cel(`Rb${i}`, v) : '')).join(' & ')} \\end{array}`;
     g.files[fila('ruffini')] = taula(-1);
-    g.afegeix(`Divideix per $${texP([r.oposada(), U], X)}$ amb la regla de Ruffini: a dalt, els coeficients (també els zeros); a l'esquerra, l'arrel $${M.texNombre(r)}$.`);
+    g.afegeix(algebra ? `Com que $${X} = ${M.texNombre(r)}$ és una arrel, a continuació divideix el polinomi per $${texP([r.oposada(), U], X)}$ amb la regla de Ruffini.`
+      : `Divideix per $${texP([r.oposada(), U], X)}$ amb la regla de Ruffini: a dalt, els coeficients (també els zeros); a l'esquerra, l'arrel $${M.texNombre(r)}$.`);
     g.files[fila('ruffini')] = taula(0);
     g.afegeix('Baixa el primer coeficient.');
     for (let i = 1; i < n; i++) {
       g.files[fila('ruffini')] = taula(i);
-      g.afegeix(`Multiplica per $${M.texNombre(r)}$ i suma: $${M.texNombre(baix[i - 1])} \\cdot ${M.texEntreParentesis(r)} = ${M.texNombre(mig[i])}$, `
+      g.afegeix(algebra && i === n - 1 ? `Observació: has obtingut un residu que val $0$ perquè $${X} = ${M.texNombre(r)}$ és una arrel.`
+        : `Multiplica per $${M.texNombre(r)}$ i suma: $${M.texNombre(baix[i - 1])} \\cdot ${M.texEntreParentesis(r)} = ${M.texNombre(mig[i])}$, `
         + `$${M.texNombre(dalt[i])} + ${M.texEntreParentesis(mig[i])} = ${M.texNombre(baix[i])}$.`
         + (i === n - 1 ? ` El residu és $0$, perquè $${X} = ${M.texNombre(r)}$ és una arrel.` : ''));
     }
     resta = quocient;
     const factor = texP([r.oposada(), U], X);
     g.files[equacio] = `(${K('Ef', factor)}) \\cdot (${K('Er', texP(resta, X))})` + R('Eq', '=') + K('Ez', '0');
-    g.afegeix(`Els nombres de baix (menys el residu) són els coeficients del quocient: $${texQ} = (${factor}) \\cdot (${texP(resta, X)})$.`);
+    g.afegeix(algebra ? `Aquesta divisió et permet escriure el quocient, perquè n'has obtingut els coeficients. És aquest polinomi: $${texP(resta, X)}$.`
+      : `Els nombres de baix (menys el residu) són els coeficients del quocient: $${texQ} = (${factor}) \\cdot (${texP(resta, X)})$.`);
   }
 
   /* Un producte val 0 si algun factor val 0: «x = r o (el que queda) = 0». */
@@ -437,15 +453,17 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irraciona
   const parteix = `Un producte val $0$ si algun factor val $0$: $${X} = ${M.texNombre(r)}$`;
   let arrels = [r];
   if (resta.length > 1) {
-    const sol = F.resolEquacio(g, {fila: fila('segon'), treball: fila('treball'), P: prefix + 'Q', termes: M.termes(resta), X, irracionals, davant: davant + '\\quad\\text{o}\\quad ',
-      text: `${parteix}, o bé $${texP(resta, X)} = 0$. Resol aquesta equació.`});
+    const sol = F.resolEquacio(g, {fila: fila('segon'), treball: fila('treball'), P: prefix + 'Q', termes: M.termes(resta), X, irracionals, algebra, davant: davant + '\\quad\\text{o}\\quad ',
+      text: algebra ? `L'equació era un producte que val $0$, i això és cert si algun factor val $0$. Per tant: $${X} = ${M.texNombre(r)}$, o bé $${texP(resta, X)} = 0$. `
+        + (resta.length === 3 ? 'Resol l\'equació de segon grau.' : 'Resol aquesta equació.')
+        : `${parteix}, o bé $${texP(resta, X)} = 0$. Resol aquesta equació.`});
     sol.forEach(s => lila.push([s.fila, s.clau]));
     arrels = arrels.concat(sol.map(s => s.valor));
   } else {
     g.files[fila('segon')] = davant;
     g.afegeix(parteix + '.');
   }
-  return tanca(arrels);
+  return tanca(arrels, true);
 }
 
 

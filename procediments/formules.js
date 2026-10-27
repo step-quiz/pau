@@ -367,7 +367,7 @@ const O_DISJUNCIO = '\\quad\\text{o}\\quad ';
  * Amb {irracionals: true}, «A·x² + C = 0» pot tenir solucions irracionals: x = ±√k (simplificada, √12 = 2√3),
  * i els valors són Mates.Radical. Sense l'opció, el polinomi ha de tenir solucions racionals.
  */
-function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x', {irracionals = false} = {}) {
+function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x', {irracionals = false, algebra = false} = {}) {
   let t = normalitza(llista);
   const posa = (tex, text, opcions) => { g.files[fila] = tex; g.afegeix(text, opcions); };
   const x = n => clau(P + 'v' + n, X);
@@ -387,7 +387,9 @@ function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x'
     const k = t.reduce((m, u) => mcd(m, u.c.num), 0) * t[0].c.signe();
     if (k !== 1) {
       t = t.map(u => ({n: u.n, c: u.c.quocient(k)}));
-      posa(equacio(P, t, X), `Divideix els dos membres per $${texNombre(k)}$: l'equació és equivalent i més senzilla.`);
+      const abans = texPolinomi(t.map(u => ({n: u.n, c: u.c.producte(k)})), X);
+      posa(equacio(P, t, X), algebra ? `Planteja l'equació $${texPolinomi(t, X)} = 0$, que és equivalent a $${abans} = 0$.`
+        : `Divideix els dos membres per $${texNombre(k)}$: l'equació és equivalent i més senzilla.`);
     }
   }
   const coef = n => { const u = t.find(v => v.n === n); return u ? u.c : null; };
@@ -469,6 +471,11 @@ function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x'
   posa(formula(`\\sqrt{${texEntreParentesis(B)}^{2} - 4 \\cdot ${texEntreParentesis(A)} \\cdot ${texEntreParentesis(C)}}`, `2 \\cdot ${texEntreParentesis(A)}`),
     `Aplica la fórmula $${X} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$, amb $a = ${texNombre(A)}$, $b = ${texNombre(B)}$ i $c = ${texNombre(C)}$.`,
     {fusiona: {[P + 'nb']: fonts(P + 's1', P + 'c1', P + 'v1'), [P + 'r']: fonts(P + 's0', P + 'c0', P + 'e2', P + 'z'), [P + 'd']: fonts(P + 'c2')}});
+  if (algebra && D.signe() < 0) {
+    posa(formula(`\\sqrt{${texNombre(D)}}`, texNombre(dosA)),
+      `Calcula el radicant (el que hi ha dins de l'arrel), $b^2 - 4ac = ${texNombre(D)} < 0$. Com que és negatiu, l'equació no té solucions.`);
+    return [];
+  }
   posa(formula(`\\sqrt{${texNombre(D)}}`, texNombre(dosA)),
     `Calcula el que hi ha dins de l'arrel, $b^2 - 4ac = ${texNombre(D)}$, i el denominador, $2a = ${texNombre(dosA)}$.`);
   if (D.signe() < 0) {
@@ -479,14 +486,16 @@ function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x'
   posa(formula(texNombre(r), texNombre(dosA)), `$\\sqrt{${texNombre(D)}} = ${texNombre(r)}$.`);
   if (r.esZero()) {
     const v = B.oposada().quocient(dosA);
-    posa(x(2) + igual + clau(P + 'S1', texNombre(v)), `Com que l'arrel val $0$, només hi ha una solució: $${X} = ${texNombre(v)}$.`,
+    posa(x(2) + igual + clau(P + 'S1', texNombre(v)), algebra ? `L'equació té una sola solució doble. En aquest cas, $${X} = ${texNombre(v)}$.`
+      : `Com que l'arrel val $0$, només hi ha una solució: $${X} = ${texNombre(v)}$.`,
       {fusiona: {[P + 'S1']: [P + 'nb', P + 'pm', P + 'r', P + 'd']}});
     return [{valor: v, clau: P + 'S1'}];
   }
   const v1 = B.oposada().resta(r).quocient(dosA), v2 = B.oposada().suma(r).quocient(dosA);
-  const parcial = (s, v) => `${X} = \\frac{${texNombre(B.oposada())} ${s} ${texNombre(r)}}{${texNombre(dosA)}} = ${texNombre(v)}`;
-  return separa(P + 'v2', v1, v2, {[P + 'S1']: [P + 'nb', P + 'pm'], [P + 'S2']: [P + 'r', P + 'd']},
-    `Separa el $-$ i el $+$: $${parcial('-', v1)}$ i $${parcial('+', v2)}$.`);
+  const parcial = (s, v, i = '') => `${X}${i} = \\frac{${texNombre(B.oposada())} ${s} ${texNombre(r)}}{${texNombre(dosA)}} = ${texNombre(v)}`;
+  return separa(P + 'v2', v1, v2, {[P + 'S1']: [P + 'nb', P + 'pm'], [P + 'S2']: [P + 'r', P + 'd']}, algebra
+    ? `Obtens dues solucions: $${parcial('-', v1, '_1')}$ i $${parcial('+', v2, '_2')}$.`
+    : `Separa el $-$ i el $+$: $${parcial('-', v1)}$ i $${parcial('+', v2)}$.`);
 }
 
 
@@ -533,7 +542,7 @@ const esEquacio = (tex, P) => tex.includes(`{k=${P}z}`) && !tex.includes(`{k=${P
  *            no es marquen en lila, sinó que es tatxen en vermell.
  * Torna [{valor, clau, fila}]: la clau i la fila de cada solució a la pissarra (també les tatxades).
  */
-function resolEquacio(g, {fila, treball, P, termes, text, X = 'x', davant = '', opcions = {}, lila = false, final = null, serveix = null, irracionals = false}) {
+function resolEquacio(g, {fila, treball, P, termes, text, X = 'x', davant = '', opcions = {}, lila = false, final = null, serveix = null, irracionals = false, algebra = false}) {
   let baixat = false, equacio = '';
   const files = new Proxy(g.files, {
     get(t, k) { return k === String(fila) && baixat ? t[treball] : t[k]; },
@@ -546,7 +555,7 @@ function resolEquacio(g, {fila, treball, P, termes, text, X = 'x', davant = '', 
     },
   });
   const intermediari = {files, classes: g.classes, afegeix: g.afegeix, completa: g.completa, passos: g.passos};
-  const sol = resolPolinomi(intermediari, fila, P, termes, text, opcions, X, {irracionals})
+  const sol = resolPolinomi(intermediari, fila, P, termes, text, opcions, X, {irracionals, algebra})
     .map(s => ({valor: s.valor, clau: s.clau, fila: baixat ? treball : fila}));
   if (lila && sol.length) {
     sol.forEach(s => (!serveix || serveix(s.valor) ? marcaSolucio : tatxaSolucio)(g, s.fila, s.clau));

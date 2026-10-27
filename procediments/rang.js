@@ -83,8 +83,7 @@ const escriuAdreca = v => ({A: v.A});
 
 function enunciat(v) {
   const {A, files, columnes} = matriu(v);
-  return `Troba el rang de la matriu $A = ${Mt.texMatriu(A, null).replace(/\\htmlData\{[^}]*\}/g, '')}$ (de ${files} files i ${columnes} columnes) `
-    + 'amb el mètode d\'orlar menors.';
+  return `Troba el rang de la matriu $A = ${Mt.texMatriu(A, null).replace(/\\htmlData\{[^}]*\}/g, '')}$.`;
 }
 const resum = v => `A = ${Mt.texMatriuPetita(matriu(v).A, null)}`;
 
@@ -110,8 +109,8 @@ function passos(v) {
   };
   const rang = tex => { g.files[FILA.resposta] = K('Rg', `\\text{rang}(A) ${tex}`); };
   pintaMatriu();
-  g.afegeix(`El rang d'una matriu és l'ordre del menor no nul més gran que té (un menor és el determinant d'un tros quadrat de la matriu). `
-    + `$A$ té ${files} files i ${columnes} columnes: el rang és com a màxim $${maxim}$.`);
+  g.afegeix(`El rang d'una matriu és un nombre natural ($0$, $1$, $2$, …) i és l'ordre més gran que puguis trobar d'un menor que sigui no nul. `
+    + `Com que la matriu $A$ té ${files} files i ${columnes} columnes, el seu rang és com a màxim $${maxim}$.`);
 
   /* 1. Un element no nul. */
   const [i0, j0] = (() => { for (let i = 0; i < files; i++) for (let j = 0; j < columnes; j++) if (!N[i][j].esZero()) return [i, j]; return null; })();
@@ -119,8 +118,7 @@ function passos(v) {
   pintaMatriu();
   g.files[FILA.ordre1] = K('U1', `a_{${i0 + 1}${j0 + 1}} = ${texN(N[i0][j0])} \\neq 0`);
   rang('\\ge 1');
-  g.afegeix(`Un element que no és $0$ és un menor d'ordre 1 no nul: $a_{${i0 + 1}${j0 + 1}} = ${texN(N[i0][j0])}$. Per tant, $\\text{rang}(A) \\ge 1$.`
-    + (i0 || j0 ? ' (Agafem el primer element no nul.)' : ''));
+  g.afegeix(`Un element que no és $0$ és un menor d'ordre 1 no nul: $a_{${i0 + 1}${j0 + 1}} = ${texN(N[i0][j0])}$. Per tant, $\\text{rang}(A) \\ge 1$.`);
 
   /* 2. Orlant l'element: menors d'ordre 2. */
   const linies2 = [];
@@ -137,14 +135,16 @@ function passos(v) {
       linies2.push(K(`D${t}m`, texVmatriu(B)) + R(`D${t}q`, '=') + K(`D${t}p`, texDet2N(B))
         + R(`D${t}r`, '=') + K(`D${t}v`, texN(d) + (d.esZero() ? '' : ' \\neq 0')));
       g.files[FILA.ordre2] = linies2.length > 1 ? `\\begin{array}{l} ${linies2.join(' \\\\[8pt] ')} \\end{array}` : linies2[0];
-      const quin = `Orla $a_{${i0 + 1}${j0 + 1}}$ (verd): afegeix-hi una fila i una columna (groc), la fila ${i + 1} i la columna ${j + 1}.`;
+      const quin = t === 0 ? `Has d'orlar l'element $a_{${i0 + 1}${j0 + 1}}$ (verd): afegeix-hi una fila i una columna (groc), la fila ${i + 1} i la columna ${j + 1}.`
+        : `Una altra manera d'orlar-lo: afegint la fila ${i + 1} i la columna ${j + 1}.`;
       if (d.esZero()) {
-        g.afegeix(`${t === 0 ? quin : `Una altra manera d'orlar-lo: la fila ${i + 1} i la columna ${j + 1}.`} Aquest menor d'ordre 2 val $0$.`);
+        g.afegeix(`${quin} ${t === 0 ? 'Quan calcules aquest menor d\'ordre 2, obtens $0$.' : 'Aquest menor d\'ordre 2 és nul.'}`);
       } else {
         base = {fs, cs};
         rang(maxim === 2 ? '= 2' : '\\ge 2');
-        g.afegeix(`${t === 0 ? quin : `Una altra manera d'orlar-lo: la fila ${i + 1} i la columna ${j + 1}.`} Aquest menor d'ordre 2 no val $0$: `
-          + (maxim === 2 ? `$\\text{rang}(A) = 2$, que és el màxim (la matriu només té ${files === 2 ? '2 files' : '2 columnes'}).` : '$\\text{rang}(A) \\ge 2$.'));
+        g.afegeix(`${quin} Aquest menor d'ordre 2 és no nul. `
+          + (maxim === 2 ? `Per tant, $\\text{rang}(A) = 2$, que ja és el rang màxim, ja que la matriu només té ${files === 2 ? '2 files' : '2 columnes'}.`
+            : 'Per tant, ja pots afirmar que $\\text{rang}(A) \\ge 2$.'));
       }
       t++;
     }
@@ -154,7 +154,7 @@ function passos(v) {
     pintaMatriu();
     rang('= 1');
     g.classes[FILA.resposta] = 'final';
-    g.afegeix(`Tots els menors d'ordre 2 que contenen $a_{${i0 + 1}${j0 + 1}}$ valen $0$: totes les files són proporcionals. Per tant, $\\text{rang}(A) = 1$.`);
+    g.afegeix(`Tots els menors d'ordre 2 que contenen $a_{${i0 + 1}${j0 + 1}}$ valen $0$. Per tant, $\\text{rang}(A) = 1$.`);
     return g.passos;
   }
 
@@ -178,17 +178,17 @@ function passos(v) {
         linies3.push(F.enLinies(inici, [K(`T${t}p`, texSarrusN(B))]));
         const pinta3 = () => { g.files[FILA.ordre3] = linies3.length > 1 ? `\\begin{array}{l} ${linies3.join(' \\\\[10pt] ')} \\end{array}` : linies3[0]; };
         pinta3();
-        g.afegeix((t === 0 ? `Orla el menor d'ordre 2 no nul (verd) amb la fila ${i + 1} i la columna ${j + 1} (groc): un menor d'ordre 3.`
-          : `Una altra manera d'orlar-lo: amb la fila ${i + 1} i la columna ${j + 1}.`) + ' Calcula\'l per Sarrus: els tres productes amb $+$ i els tres amb $-$.');
+        g.afegeix(t === 0 ? `Orla el menor d'ordre 2 que acabes de trobar (verd) afegint la fila ${i + 1} i la columna ${j + 1} (groc): obtens un menor d'ordre 3. Calcula'l aplicant la regla de Sarrus.`
+          : `Una altra manera d'orlar-lo: afegint la fila ${i + 1} i la columna ${j + 1}. Calcula aquest nou menor.`);
         linies3[linies3.length - 1] = F.enLinies(inici, [K(`T${t}p`, texSarrusN(B))],
           {final: R(`T${t}r`, '=') + K(`T${t}v`, texN(d) + (d.esZero() ? '' : ' \\neq 0'))});
         pinta3();
         if (d.esZero()) {
-          g.afegeix(`Aquest menor d'ordre 3 val $0$.` + (t + 1 < total ? ' Prova una altra manera d\'orlar.' : ''));
+          g.afegeix(`Aquest menor d'ordre 3 és nul.` + (t + 1 < total ? ' Prova una altra manera d\'orlar.' : ''));
         } else {
           tres = true;
           rang('= 3');
-          g.afegeix(`Aquest menor d'ordre 3 no val $0$: $\\text{rang}(A) = 3$, que és el màxim.`);
+          g.afegeix(`Aquest menor d'ordre 3 és no nul. Per tant, $\\text{rang}(A) = 3$, que és el màxim.`);
         }
         t++;
       }
@@ -196,8 +196,8 @@ function passos(v) {
     if (!tres) {
       rang('= 2');
       g.afegeix(total === 1
-        ? 'L\'únic menor d\'ordre 3 val $0$. Per tant, $\\text{rang}(A) = 2$.'
-        : `Els ${total} menors d'ordre 3 que orlen el menor d'ordre 2 no nul valen $0$. Per tant, $\\text{rang}(A) = 2$: no cal mirar cap altre menor d'ordre 3.`);
+        ? 'No hi ha cap altre menor d\'ordre 3. Per tant, com que l\'últim menor no nul tenia ordre $2$, $\\text{rang}(A) = 2$.'
+        : `Tots els menors d'ordre 3 que orlen el menor d'ordre 2 no nul valen $0$. Per tant, pots afirmar que $\\text{rang}(A) = 2$ i no cal mirar cap altre menor d'ordre 3.`);
     }
   }
   for (const k of Object.keys(marques)) delete marques[k];
