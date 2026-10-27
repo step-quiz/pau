@@ -314,7 +314,9 @@ function creaCursor(escenari, el, temps) {
  * assenyalen què canviarà o desapareixerà, i després el segueixen.
  * Totes les posicions es mesuren respecte de la capa d'efectes.
  */
-function creaPissarra(r, nFiles, cursor, temps) {
+function creaPissarra(r, nFiles, cursor, temps, creix = false) {
+  // creix (proc.pissarraCreix): la pissarra creix cap avall, com quan s'hi escriu: les files buides que hi ha després de
+  // l'última fila escrita del pas no ocupen lloc (sense l'opció, una fila que s'escriurà més endavant ja té el seu espai).
   let capa = null;                        // capa visible: les files del pas actual
   let usades = null;                      // les files que fa servir algun pas del guió (les altres no ocupen lloc)
   let renders = new Map();                // TeX → HTML de KaTeX: cada fila es renderitza un sol cop per guió
@@ -325,11 +327,12 @@ function creaPissarra(r, nFiles, cursor, temps) {
 
   function dibuixaCapa(pas) {
     const c = element('div', {class: 'capa'});
+    const ultima = creix ? pas.files.reduce((u, tex, i) => (tex ? i : u), -1) : nFiles - 1;
     for (let i = 0; i < nFiles; i++) {
       const tex = pas.files[i];
       const figura = tex && esFilaFigura(tex);
       const fila = element('div', {class: 'fila' + (tex && esFilaText(tex) ? ' text' : '') + (figura ? ' figura' : '') + (pas.classes[i] ? ' ' + pas.classes[i] : '')});
-      if (usades && !usades.has(i)) fila.hidden = true;
+      if ((usades && !usades.has(i)) || i > ultima) fila.hidden = true;
       if (tex) fila.innerHTML = figura ? tex : esFilaText(tex) ? textAmbFrases(tex.slice(1)) : renderitza(tex);
       c.append(fila);
     }
@@ -405,8 +408,8 @@ function creaPissarra(r, nFiles, cursor, temps) {
     const sota = gap + r.controls.offsetHeight + Math.max(0, 72 - r.explicacio.offsetHeight) + 8;
     const lloc = innerHeight - dalt - sota;
     // Si la pissarra no hi cap, té la seva pròpia barra de desplaçament (i no la de la finestra).
-    r.escenari.style.maxHeight = Math.max(MIDA.alcadaMinima, Math.floor(lloc)) + 'px';
-    if (petita || mida <= MIDA.minimaAlcada) return;
+    const maxima = Math.max(MIDA.alcadaMinima, Math.floor(lloc));
+    r.escenari.style.maxHeight = maxima + 'px';
 
     // L'alçada. Les files de fórmules creixen amb la lletra, però les de text no: es repeteix el càlcul unes quantes vegades.
     const alcadaMaxima = () => {
@@ -420,6 +423,14 @@ function creaPissarra(r, nFiles, cursor, temps) {
       mesura.remove();
       return h + r.pissarra.offsetHeight - r.pissarra.clientHeight;     // + les vores
     };
+    // Una pissarra que creix (proc.pissarraCreix) ocupa des del primer pas l'alçada que tindrà al final (com a molt, la que
+    // hi cap): si no, els botons de sota baixarien a cada pas i s'escaparien de sota del ratolí.
+    const fixaAlcada = () => {
+      if (!creix || petita) { r.escenari.style.minHeight = ''; return; }
+      const e = getComputedStyle(r.pissarra);
+      r.escenari.style.minHeight = Math.min(maxima, Math.ceil(alcadaMaxima() + parseFloat(e.paddingTop) + parseFloat(e.paddingBottom) + 2)) + 'px';
+    };
+    if (petita || mida <= MIDA.minimaAlcada) { fixaAlcada(); return; }
     for (let i = 0; i < 4; i++) {
       const alt = alcadaMaxima();
       if (alt <= lloc) break;
@@ -428,6 +439,7 @@ function creaPissarra(r, nFiles, cursor, temps) {
       mida = nova;
       posaMida(mida);
     }
+    fixaAlcada();
   }
 
   /* Símbols amb clau d'una capa, i les seves posicions. */
@@ -904,7 +916,7 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
   const temps = ms => Math.max(60, (ms / velocitat) * (reduit ? 0.35 : 1));
 
   const cursor = creaCursor(r.escenari, r.cursor, temps);
-  const pissarra = creaPissarra(r, proc.files, cursor, temps);
+  const pissarra = creaPissarra(r, proc.files, cursor, temps, Boolean(proc.pissarraCreix));
   const reproductor = creaReproductor(r, pissarra, cursor, temps);
   let actuals = null, passos = [];
 

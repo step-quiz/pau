@@ -91,6 +91,7 @@ A procedure is a frozen object:
 | `titol` | Page title (`h1`). |
 | `categoria` | `algebra`, `geometria`, `analisi` or `probabilitat` (colour and breadcrumb). |
 | `files` | Number of board rows. |
+| `pissarraCreix` | Optional `true`: the board grows downwards like a blackboard — empty rows after the last written row of each step take no space (without it, a row that will be written later already has its space from the first step). The board (`.escenari`) then gets, from the first step, the height of its tallest step (at most what fits in the window), so the player below does not move from step to step. For long procedures where nothing is erased (the graph of a function). |
 | `perDefecte` | Default data, e.g. `{a3: 0, a2: 2, a1: -3, a0: 1, x0: 2}`. |
 | `exemples` | Data sets offered as chips. |
 | `titolEditor`, `notaEditor` | Editor heading and an extra sentence for its note. |
@@ -181,6 +182,7 @@ Positions are measured on the real KaTeX output, so any TeX layout works. Rules 
 
 - Player: restart, previous, play/pause, next; one dot per step (jump); speed (slow/normal/fast); keyboard Space (play/pause, except on a focused button), ← and →.
 - Board font: largest size (30 px, 22 px on phones) at which the longest line of the whole procedure fits; on large screens also small enough (down to 24 px, `MIDA.minimaAlcada`; David: smaller is «absurdly small»; if it still does not fit, the board scrolls) for the tallest step, the player and the step text to fit in the window below the header and the statement (otherwise the controls stay stuck at the bottom); refitted when the width changes or the fonts finish loading.
+- Row classes (`pas.classes[i]`): `final` (the answer, framed), `separat` (extra space above), `destacat` (tinted background), `apartat` (a text row used as a section heading: bold, category colour, a thin rule above).
 - Editor: ↑/↓ under each number, hold to repeat (stops at the limit); `valida` messages; regenerates the steps 350 ms after the last change and rewrites the address.
 - `prefers-reduced-motion`: every duration × 0.35.
 - Accessibility: buttons have Catalan labels; the step text is an `aria-live` region; KaTeX also outputs MathML; editor values are `spinbutton`s (arrow keys).

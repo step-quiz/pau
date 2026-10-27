@@ -75,7 +75,7 @@ Worked maths (verified by hand; the checker must re-verify):
 
 ## 5. Order of work suggested
 
-1. `motor.js` `pissarraCreix` + `.fila.apartat` CSS (and a browser check that other pages are unchanged).
+1. ~~`motor.js` `pissarraCreix` + `.fila.apartat` CSS (and a browser check that other pages are unchanged).~~ **Done 27/10/2026**: `creaPissarra(…, creix)` hides empty rows after the last written one; with `creix` the board's `min-height` is fixed in `ajusta` (`fixaAlcada`) so the player does not move down at every step (found with a prototype: the next button escaped from under the mouse). `.fila.text.apartat` in `estil.css`. README §3 and §5 updated.
 2. Builders + the 6 polynomial/rational problems; checker section for them; browser test; ZIP to David (stage 1).
 3. Radicals (3 scripts) + checker; ZIP (stage 2).
 4. Other types (3 scripts) + checker; ZIP (stage 3). Then frases artifact regenerated (it picks up the new page via `genera-editor-frases.js`).
