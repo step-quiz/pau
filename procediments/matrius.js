@@ -333,9 +333,11 @@ const ordena = arrels => arrels.filter((r, i) => arrels.findIndex(s => s.igual(r
  *          el segon hi substitueix el polinomi. «inici» és el text del primer pas.
  * Al final, un pas marca les solucions en lila. Torna les solucions, diferents i en ordre (Fraccio).
  * Claus: E… l'equació; P… les proves; R… Ruffini; W… «x = r o»; Q… l'equació que queda;
- * Y… la còpia de l'equació que es queda a la seva fila quan els càlculs baixen.
+ * Y… la còpia de l'equació que es queda a la seva fila quan els càlculs baixen. Amb «prefix» (p. ex. «a»), totes
+ * les claus el porten al davant («aE…», «aW…»; la còpia, «YaE…»): així hi pot haver diverses equacions a la pissarra.
  */
-function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom}) {
+function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irracionals = false, prefix = ''}) {
+  const K = (k, t) => F.clau(prefix + k, t), R = (k, t) => F.rel(prefix + k, t);   // prefix: diverses equacions alhora a la pissarra
   const termes = M.termes(p);
   const equacio = filesDonades.equacio;
   const cua = (filesDonades.lliures || ['prova', 'ruffini', 'segon', 'treball'].map(k => filesDonades[k]).filter(f => f !== undefined)).slice();
@@ -368,17 +370,18 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom}) {
 
   /* Grau 1 o 2: l'equació es queda; els càlculs, a la fila de treball. */
   if (p.length <= 3) {
-    const sol = F.resolEquacio(g, {fila: equacio, treball: fila('treball'), P: 'E', termes, text: textPolinomi, X});
+    const sol = F.resolEquacio(g, {fila: equacio, treball: fila('treball'), P: prefix + 'E', termes, text: textPolinomi, X, irracionals});
     sol.forEach(s => lila.push([s.fila, s.clau]));
     return tanca(sol.map(s => s.valor));
   }
 
-  /* Grau 3: l'equació, i dividida pel factor comú (o canviada de signe). */
-  g.files[equacio] = F.equacio('E', termes, X);
+  /* Grau 3 (o més, si hi ha factor comú x^j i el que queda és de grau 2 o menys): l'equació, i dividida pel factor comú (o canviada de signe). */
+  if (p.length > 4 && (!p[0].esZero() || p.length - p.findIndex(c => !c.esZero()) > 3)) throw new Error('passosArrels: grau no admès');
+  g.files[equacio] = F.equacio(prefix + 'E', termes, X);
   g.afegeix(textPolinomi);
   const {p: q, k} = normalitza(p);
   if (k !== 1) {
-    g.files[equacio] = F.equacio('E', M.termes(q), X);
+    g.files[equacio] = F.equacio(prefix + 'E', M.termes(q), X);
     g.afegeix(k === -1 ? 'Canvia el signe dels dos membres (multiplica per $-1$): el primer coeficient queda positiu.'
       : `Divideix els dos membres per $${k}$.`);
   }
@@ -430,11 +433,11 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom}) {
 
   /* Un producte val 0 si algun factor val 0: «x = r o (el que queda) = 0». */
   const davant = K('Wv', X) + R('Wq', '=') + K('Wr', M.texNombre(r));
-  lila.push([fila('segon'), 'Wr']);
+  lila.push([fila('segon'), prefix + 'Wr']);
   const parteix = `Un producte val $0$ si algun factor val $0$: $${X} = ${M.texNombre(r)}$`;
   let arrels = [r];
   if (resta.length > 1) {
-    const sol = F.resolEquacio(g, {fila: fila('segon'), treball: fila('treball'), P: 'Q', termes: M.termes(resta), X, davant: davant + '\\quad\\text{o}\\quad ',
+    const sol = F.resolEquacio(g, {fila: fila('segon'), treball: fila('treball'), P: prefix + 'Q', termes: M.termes(resta), X, irracionals, davant: davant + '\\quad\\text{o}\\quad ',
       text: `${parteix}, o bé $${texP(resta, X)} = 0$. Resol aquesta equació.`});
     sol.forEach(s => lila.push([s.fila, s.clau]));
     arrels = arrels.concat(sol.map(s => s.valor));

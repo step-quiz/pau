@@ -9,7 +9,7 @@ To build the same kind of pages for another subject, start from `graspable-formu
 
 ## 0. What exists (October 2026)
 
-- 30 animated step-by-step pages ("procediments") in the style of Graspable Math, all four categories complete: Àlgebra 7 (diagonalisation replaced by «Esglaonar», Oct 2026), Geometria 8, Anàlisi 12 (incl. 5 on integrals/areas), Probabilitat 3.
+- 31 animated step-by-step pages ("procediments") in the style of Graspable Math, all four categories complete: Àlgebra 7 (diagonalisation replaced by «Esglaonar», Oct 2026), Geometria 8, Anàlisi 13 (incl. 5 on integrals/areas and «Gràfica d'una funció», Oct 2026), Probabilitat 3.
 - Linked from the site home (`../index.html`): each category card has a **DEMO** button → dialog listing that category's pages (object `DEMOS` in `index.html`).
 - ~10 000 lines of vanilla JS, no build step, no dependencies except KaTeX 0.16.9 from cdnjs.
 - Tests: `node procediments/proves/comprova.js` → «Tot correcte: ~15.2 M comprovacions» (~4 min). Plus mutation scripts and Playwright browser tests (§6).
@@ -186,7 +186,7 @@ A cold-start session tends to ask the same questions before starting. The answer
 
 1. **"Is the ZIP you sent the current `main`?"** Assume yes. To be safe anyway, deliver **only the files you changed**, never the whole repo, so a stale base cannot overwrite his later work. If the change touches a file he may have edited since (rare: he does not edit code), say so in the delivery message.
 2. **"One page or all pages?"** Not a binary. Three levels:
-   - look/behaviour of the page frame (speed, colours, font size, player, buttons, editor) → shared (`estil.css`, `TEMPS`/`MIDA`, `motor.js`): all 30 pages change;
+   - look/behaviour of the page frame (speed, colours, font size, player, buttons, editor) → shared (`estil.css`, `TEMPS`/`MIDA`, `motor.js`): all pages change;
    - **notation produced by a shared writer** (how a polynomial, a fraction, an integral, a matrix, a Sarrus product, a root is written) → the shared writer, so every page using it stays consistent — grep its callers and look at each one;
    - content of one procedure (a step, a caption, the order, an example, a sketch choice) → only that page.
    If a request about one page would be better as a shared change, do the shared change and say so in one line.

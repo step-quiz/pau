@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="David Arso Civil">
+<meta name="description" content="Animació pas a pas: esbós de la gràfica d'una funció (domini, asímptotes, talls, creixement, concavitat, taula de valors i gràfica). PAU Matemàtiques.">
+<title>Gràfica d’una funció, pas a pas — PAU Matemàtiques</title>
+<link rel="icon" href="../icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="estil.css">
+</head>
+<body>
+
+<!-- La pàgina la construeix motor.js. Dades per l'adreça: ?p=cubica (vegeu README.md). -->
+<div id="procediment">
+  <noscript><p class="error-carrega">Aquesta pàgina necessita JavaScript per mostrar l'animació.</p></noscript>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="mates.js"></script>
+<script src="formules.js"></script>
+<script src="dades.js"></script>
+<script src="matrius.js"></script>
+<script src="grafiques.js"></script>
+<script src="motor.js"></script>
+<script src="grafica-funcio.js"></script>
+<script>const procediment = Motor.inicia(GraficaFuncio);   // el controlador: útil per provar-lo des de la consola</script>
+</body>
+</html>

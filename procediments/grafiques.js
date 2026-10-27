@@ -3,6 +3,7 @@
    ───────────────────────────────────────────────────────────────────
    Mòdul pur: no toca la pàgina (DOM). Depèn de mates.js. Exporta
    «Grafiques»:
+     esbos({f, trams, x, y, asimptotes, punts})   l'esbós d'una funció qualsevol
      grafica({corbes, zones, marques, x})   un SVG (text) amb els eixos,
          les corbes (polinomis, llistes de termes {n, c}), les zones
          ombrejades entre dues corbes o entre una corba i l'eix, i els
@@ -75,6 +76,74 @@ function finestra(punts) {
   return [a - marge, b + marge];
 }
 
-arrel.Grafiques = Object.freeze({grafica, finestra});
+/**
+ * L'esbós de la gràfica d'una funció qualsevol (la pàgina «Gràfica d'una funció»). Un dibuix, no una prova.
+ *   f:          la funció (nombres → nombre; NaN o ±Infinity fora del domini)
+ *   trams:      els trossos del domini, [{a, b}] (nombres; −Infinity/Infinity per als extrems oberts a l'infinit):
+ *               la corba es dibuixa a cada tros per separat (no travessa una asímptota vertical)
+ *   x, y:       la finestra, [mínim, màxim]
+ *   asimptotes: [{v: x}] verticals, [{h: y}] horitzontals, [{m, n}] obliqües y = mx + n (discontínues)
+ *   punts:      [{x, y}] els punts de la taula (rodonets)
+ *   corba:      fals → només els eixos, les asímptotes i els punts
+ *   marquesX:   opcional, [{x, text}] les marques de l'eix x (si no, els enters, cada 1, 2 o 5 unitats)
+ */
+function esbos({f, trams, x: [xmin, xmax], y: [ymin, ymax], asimptotes = [], punts = [], corba = true, marquesX = null}) {
+  const W = 420, H = 300, M = 16;
+  const X = x => arrodoneix(M + (x - xmin) / (xmax - xmin) * (W - 2 * M));
+  const Y = y => arrodoneix(M + (ymax - y) / (ymax - ymin) * (H - 2 * M));
+  const marge = (ymax - ymin) * 2;                    // fora de la finestra la corba es retalla, però no gaire lluny
+  let svg = `<defs><clipPath id="finestra-esbos"><rect x="${M}" y="${M}" width="${W - 2 * M}" height="${H - 2 * M}"/></clipPath></defs>`;
+  // Els eixos, amb les marques.
+  const y0 = Y(Math.min(Math.max(0, ymin), ymax)), x0 = X(Math.min(Math.max(0, xmin), xmax));
+  svg += `<line class="eix" x1="${M / 2}" y1="${y0}" x2="${W - M / 2}" y2="${y0}"/><line class="eix" x1="${x0}" y1="${M / 2}" x2="${x0}" y2="${H - M / 2}"/>`;
+  const pas = rang => [1, 2, 5, 10, 20, 50, 100].find(p => rang / p <= 10) || 200;
+  const mx = marquesX || (() => {
+    const p = pas(xmax - xmin), l = [];
+    for (let k = Math.ceil(xmin / p) * p; k <= xmax; k += p) if (k) l.push({x: k, text: etiqueta(k)});
+    return l;
+  })();
+  for (const {x, text} of mx) {
+    svg += `<line class="eix" x1="${X(x)}" y1="${y0 - 3}" x2="${X(x)}" y2="${y0 + 3}"/>`
+      + `<text class="petit" x="${X(x)}" y="${Math.min(y0 + 15, H - 3)}" text-anchor="middle">${text}</text>`;
+  }
+  const py = pas(ymax - ymin);
+  for (let k = Math.ceil(ymin / py) * py; k <= ymax; k += py) {
+    if (!k) continue;
+    svg += `<line class="eix" x1="${x0 - 3}" y1="${Y(k)}" x2="${x0 + 3}" y2="${Y(k)}"/>`
+      + `<text class="petit" x="${x0 - 6}" y="${Y(k) + 4}" text-anchor="end">${etiqueta(k)}</text>`;
+  }
+  // Les asímptotes.
+  let rectes = '';
+  for (const a of asimptotes) {
+    if (a.v !== undefined) rectes += `<line class="asimptota" x1="${X(a.v)}" y1="${M}" x2="${X(a.v)}" y2="${H - M}"/>`;
+    else if (a.h !== undefined) rectes += `<line class="asimptota" x1="${M}" y1="${Y(a.h)}" x2="${W - M}" y2="${Y(a.h)}"/>`;
+    else rectes += `<line class="asimptota" x1="${X(xmin)}" y1="${Y(a.m * xmin + a.n)}" x2="${X(xmax)}" y2="${Y(a.m * xmax + a.n)}"/>`;
+  }
+  // La corba, tros a tros; un salt (fora del domini o un valor enorme) talla el camí.
+  let cami = '';
+  if (corba) {
+    for (const t of trams) {
+      const a = Math.max(t.a, xmin), b = Math.min(t.b, xmax);
+      if (!(a < b)) continue;
+      const n = 600, e = (b - a) * 1e-9;
+      let obert = false;
+      for (let i = 0; i <= n; i++) {
+        let x = a + (b - a) * i / n;
+        if (i === 0 && t.a === a && !t.tancatA) x += e;
+        if (i === n && t.b === b && !t.tancatB) x -= e;
+        const y = f(x);
+        if (!Number.isFinite(y)) { obert = false; continue; }
+        const yc = Math.max(ymin - marge, Math.min(ymax + marge, y));
+        cami += `${obert ? 'L' : 'M'}${X(x)} ${Y(yc)}`;
+        obert = yc === y;
+      }
+    }
+  }
+  svg += `<g clip-path="url(#finestra-esbos)">${rectes}${cami ? `<path class="corba" d="${cami}"/>` : ''}</g>`;
+  for (const p of punts) if (p.x >= xmin && p.x <= xmax && p.y >= ymin && p.y <= ymax) svg += `<circle class="punt-esbos" cx="${X(p.x)}" cy="${Y(p.y)}" r="3.6"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">${svg}</svg>`;
+}
+
+arrel.Grafiques = Object.freeze({grafica, finestra, esbos});
 
 })(globalThis);

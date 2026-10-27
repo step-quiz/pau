@@ -50,13 +50,22 @@ class Fraccio {
     Object.freeze(this);
   }
 
-  /** Converteix un enter (o una Fraccio) en Fraccio. */
-  static de(v) { return v instanceof Fraccio ? v : new Fraccio(v); }
+  /** Converteix un enter (o una Fraccio, o un Radical racional) en Fraccio. */
+  static de(v) {
+    if (v instanceof Fraccio) return v;
+    if (v instanceof Radical) {
+      if (!v.b.esZero()) throw new TypeError(`${v.valor()} no és racional`);
+      return v.a;
+    }
+    return new Fraccio(v);
+  }
 
-  suma(b)     { b = Fraccio.de(b); return new Fraccio(this.num * b.den + b.num * this.den, this.den * b.den); }
-  resta(b)    { return this.suma(Fraccio.de(b).oposada()); }
-  producte(b) { b = Fraccio.de(b); return new Fraccio(this.num * b.num, this.den * b.den); }
+  // Amb un Radical (a + b√r) irracional, l'operació es fa com a Radical.
+  suma(b)     { if (esIrracional(b)) return Radical.de(this).suma(b); b = Fraccio.de(b); return new Fraccio(this.num * b.den + b.num * this.den, this.den * b.den); }
+  resta(b)    { if (esIrracional(b)) return Radical.de(this).resta(b); return this.suma(Fraccio.de(b).oposada()); }
+  producte(b) { if (esIrracional(b)) return Radical.de(this).producte(b); b = Fraccio.de(b); return new Fraccio(this.num * b.num, this.den * b.den); }
   quocient(b) {
+    if (esIrracional(b)) return Radical.de(this).quocient(b);
     b = Fraccio.de(b);
     if (b.num === 0) throw new RangeError('Divisió per zero');
     return new Fraccio(this.num * b.den, this.den * b.num);
@@ -74,12 +83,96 @@ class Fraccio {
   signe()     { return Math.sign(this.num); }
   esZero()    { return this.num === 0; }
   esEnter()   { return this.den === 1; }
-  igual(b)    { b = Fraccio.de(b); return this.num === b.num && this.den === b.den; }
+  igual(b)    { if (esIrracional(b)) return false; b = Fraccio.de(b); return this.num === b.num && this.den === b.den; }
   valor()     { return this.num / this.den; }
 }
 
 const ZERO = new Fraccio(0);
 const U = new Fraccio(1);
+const esIrracional = v => v instanceof Radical && !v.b.esZero();
+
+/**
+ * Nombre exacte a + b·√r (a i b racionals; r enter > 1 sense factors quadrats), immutable. Serveix per a les
+ * solucions irracionals de «x² = k» (x = ±√3) i per al valor d'un polinomi o d'una funció racional en aquests
+ * punts (5√3/4). Amb b = 0 és un racional (r = 1). Només es poden combinar nombres amb la mateixa r (o racionals).
+ * Té les mateixes operacions que Fraccio (suma, resta, producte, quocient, potencia, signe, igual, valor…),
+ * i texNombre l'escriu.
+ */
+class Radical {
+  constructor(a, b = 0, r = 1) {
+    a = Fraccio.de(a);
+    b = Fraccio.de(b);
+    if (!Number.isSafeInteger(r) || r < 1) throw new RangeError(`Radical no vàlid: √${r}`);
+    if (r === 1) { a = a.suma(b); b = ZERO; }
+    if (b.esZero()) r = 1;
+    this.a = a;
+    this.b = b;
+    this.r = r;
+    Object.freeze(this);
+  }
+
+  static de(v) { return v instanceof Radical ? v : new Radical(Fraccio.de(v)); }
+
+  /** √k simplificat (k ≥ 0 racional): √12 = 2√3, √(3/4) = √3/2. Si és exacta, un Radical racional. */
+  static arrel(k) {
+    k = Fraccio.de(k);
+    if (k.signe() < 0) throw new RangeError('Arrel quadrada d\'un nombre negatiu');
+    let n = k.num * k.den, c = 1;                    // √(p/q) = √(p·q)/q
+    for (let d = 2; d * d <= n; d++) while (n % (d * d) === 0) { n /= d * d; c *= d; }
+    return new Radical(0, new Fraccio(c, k.den), n);
+  }
+
+  /** La r comuna de dos nombres (un racional s'adapta a l'altre). */
+  comuna(o) {
+    o = Radical.de(o);
+    if (!this.b.esZero() && !o.b.esZero() && this.r !== o.r) throw new RangeError(`No es poden combinar √${this.r} i √${o.r}`);
+    return [o, this.b.esZero() ? o.r : this.r];
+  }
+  suma(o)     { const [p, r] = this.comuna(o); return new Radical(this.a.suma(p.a), this.b.suma(p.b), r); }
+  oposada()   { return new Radical(this.a.oposada(), this.b.oposada(), this.r); }
+  resta(o)    { return this.suma(Radical.de(o).oposada()); }
+  producte(o) {
+    const [p, r] = this.comuna(o);                   // (a + b√r)(c + d√r) = ac + bd·r + (ad + bc)√r
+    return new Radical(this.a.producte(p.a).suma(this.b.producte(p.b).producte(r)), this.a.producte(p.b).suma(this.b.producte(p.a)), r);
+  }
+  conjugat()  { return new Radical(this.a, this.b.oposada(), this.r); }
+  quocient(o) {
+    const p = Radical.de(o), den = p.producte(p.conjugat());   // (c + d√r)(c − d√r) = c² − d²r, racional
+    if (den.a.esZero()) throw new RangeError('Divisió per zero');
+    const num = this.producte(p.conjugat());
+    return new Radical(num.a.quocient(den.a), num.b.quocient(den.a), num.r);
+  }
+  potencia(k) {
+    let x = new Radical(1);
+    for (let i = 0; i < k; i++) x = x.producte(this);
+    return x;
+  }
+  abs()       { return this.signe() < 0 ? this.oposada() : this; }
+  signe() {
+    const sa = this.a.signe(), sb = this.b.signe();
+    if (sb === 0) return sa;
+    if (sa === 0 || sa === sb) return sb;
+    const d = this.a.producte(this.a).resta(this.b.producte(this.b).producte(this.r)).signe();   // a² − b²r
+    return d > 0 ? sa : sb;                          // (d no pot ser 0: r no és un quadrat)
+  }
+  esZero()    { return this.a.esZero() && this.b.esZero(); }
+  esEnter()   { return this.b.esZero() && this.a.esEnter(); }
+  igual(o) {
+    o = Radical.de(o);
+    if (!this.b.esZero() && !o.b.esZero() && this.r !== o.r) return false;
+    return this.resta(o).esZero();
+  }
+  valor()     { return this.a.valor() + this.b.valor() * Math.sqrt(this.r); }
+
+  /** «\sqrt{3}», «-2\sqrt{3}», «\frac{5\sqrt{3}}{4}», «1 + \sqrt{2}»; un racional, com texNombre. */
+  tex() {
+    if (this.b.esZero()) return texNombre(this.a);
+    const b = this.b.abs(), arrel = (b.num === 1 ? '' : b.num) + `\\sqrt{${this.r}}`;
+    const radical = b.den === 1 ? arrel : `\\frac{${arrel}}{${b.den}}`;
+    if (this.a.esZero()) return (this.b.signe() < 0 ? '-' : '') + radical;
+    return `${texNombre(this.a)} ${this.b.signe() < 0 ? '-' : '+'} ${radical}`;
+  }
+}
 
 
 /* ── 2. LECTURA D'EXPRESSIONS ──────────────────────────────────────── */
@@ -481,6 +574,7 @@ function arrelsRacionals(llista) {
 
 /** Nombre en TeX: «-3», «\frac{1}{2}», «-\frac{1}{2}». */
 function texNombre(v) {
+  if (v instanceof Radical) return v.tex();
   v = Fraccio.de(v);
   if (v.esEnter()) return String(v.num);
   return (v.num < 0 ? '-' : '') + `\\frac{${Math.abs(v.num)}}{${v.den}}`;
@@ -488,6 +582,7 @@ function texNombre(v) {
 
 /** Nombre en TeX, entre parèntesis si és negatiu o fraccionari: «(-2)». */
 function texEntreParentesis(v) {
+  if (esIrracional(v)) return `\\left(${v.tex()}\\right)`;
   v = Fraccio.de(v);
   if (!v.esEnter()) return `\\left(${texNombre(v)}\\right)`;
   return v.num < 0 ? `(${texNombre(v)})` : texNombre(v);
@@ -557,7 +652,7 @@ const texDecimal = x => (decimalsDe(Fraccio.de(x)) === null ? null : formaDecima
 /* ── EXPORTACIÓ ────────────────────────────────────────────────────── */
 
 arrel.Mates = Object.freeze({
-  Fraccio, ErrorLectura, mcd,
+  Fraccio, Radical, ErrorLectura, mcd,
   llegeix, llegeixNombre, avalua, polinomi,
   termes, coeficientsDe, sumaPolinomis, producteDePolinomis, derivaTermes, integraTermes, valorTermes, arrelExacta, arrelsRacionals,
   texNombre, texEntreParentesis, texPolinomi, textPolinomi, formaDecimal, texDecimal,
