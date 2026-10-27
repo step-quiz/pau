@@ -7,7 +7,7 @@ MUT=[
  ('area-corbes.js', "  const trossos = arrels.slice(1).map((r, k) => [arrels[k], r]);", "  const trossos = [[arrels[0], arrels[arrels.length - 1]]];", 'un sol tros'),
  ('area-corbes.js', "  const A = integrals.reduce((s, I) => s.suma(I.abs()), Fraccio.de(0));", "  const A = integrals.reduce((s, I) => s.suma(I), Fraccio.de(0)).abs();", 'valor absolut de la suma'),
  ('area-corbes.js', "+ `${texNombre(Hv(r))} - ${texEntreParentesis(Hv(l))} = ${texNombre(I)}`", "+ `${texNombre(Hv(l))} - ${texEntreParentesis(Hv(r))} = ${texNombre(I)}`", 'H(l) − H(r) escrit'),
- ('area-corbes.js', "    const m = l.suma(r).quocient(2), hm = val(m);", "    const m = l, hm = val(m);", 'signe al tall'),
+ ('area-corbes.js', "files: FILA, nom: 'f(x) - g(x)', inici:", "files: FILA, inici:", 'sense f(x) − g(x) = 0 tal com es planteja'),
  ('area-corbes.js', "F.membreEsquerre('G', 'H', 'x'), h, {C: false,", "F.membreEsquerre('G', 'H', 'x'), f, {C: false,", 'primitiva de f en lloc de f − g'),
 ]
 det=0

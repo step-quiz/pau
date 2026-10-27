@@ -4,11 +4,11 @@ ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '
 MUT=[
  ('area-eix.js', "  const dins = arrels.filter(r => r.resta(a).signe() > 0 && b.resta(r).signe() > 0);", "  const dins = arrels.filter(r => r.resta(a).signe() >= 0 && b.resta(r).signe() > 0);", 'compta un extrem com a tall'),
  ('area-eix.js', "  const A = integrals.reduce((s, I) => s.suma(I.abs()), Fraccio.de(0));", "  const A = integrals.reduce((s, I) => s.suma(I), Fraccio.de(0));", 'àrea sense valors absoluts'),
- ('area-eix.js', "    const m = l.suma(r).quocient(2), fm = val(m);", "    const m = l, fm = val(m);", 'signe a l\'extrem'),
+ ('area-eix.js', "files: FILA, nom: 'f(x)', inici:", "files: FILA, inici:", 'sense f(x) = 0 tal com es planteja'),
  ('area-eix.js', "+ `${texNombre(Fv(r))} - ${texEntreParentesis(Fv(l))} = ${texNombre(I)}`", "+ `${texNombre(Fv(l))} - ${texEntreParentesis(Fv(r))} = ${texNombre(I)}`", 'F(l) − F(r) escrit'),
  ('area-eix.js', "    const I = Fv(r).resta(Fv(l));", "    const I = Fv(l).resta(Fv(r));", 'integral amb el signe girat'),
- ('area-eix.js', "${texNombre(fm)} ${fm.signe() > 0 ? '> 0' : '< 0'}", "${texNombre(fm)} ${fm.signe() > 0 ? '> 0' : '> 0'}", 'signe sempre positiu'),
- ('area-eix.js', "  const arrels = Mt.passosArrels(g, {p, X: 'x',", "  const arrels = Mt.passosArrels(g, {p: p.slice().reverse(), X: 'x',", 'equació amb els coeficients girats'),
+ ('area-eix.js', "K('Al', '\\\\text{Àrea}')", "K('Al', 'A')", 'A en lloc d\'«Àrea»'),
+ ('area-eix.js', "  const arrels = Ig.passosTalls(g, {p, X: 'x',", "  const arrels = Ig.passosTalls(g, {p: p.slice().reverse(), X: 'x',", 'equació amb els coeficients girats'),
  ('area-eix.js', "K('Zs', arrels.length ? arrels.map(r => `x = ${texNombre(r)}`).join(',\\\\ ')", "K('Zs', arrels.length ? dins.map(r => `x = ${texNombre(r)}`).join(',\\\\ ')", 'resum només amb els talls de dins'),
 ]
 det=0

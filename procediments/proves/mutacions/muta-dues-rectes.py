@@ -11,7 +11,7 @@ MUT=[
  ('dues-rectes.js', "    const coincidents = cert && valors.every(x => x.igual(valors[0]));", "    const coincidents = valors.every(x => x.igual(valors[0]));", 'oblida les equacions sense λ'),
  ('dues-rectes.js', "G.esquema(tallen ? 'rectes-es-tallen' : 'rectes-es-creuen')", "G.esquema(tallen ? 'rectes-es-creuen' : 'rectes-es-tallen')", 'esquemes girats'),
  ('dues-rectes.js', "parametriques('s', s, MU, 'Ps')", "parametriques('s', r, MU, 'Ps')", 'paramètriques de s amb les dades de r'),
- ('geometria.js', "      let m1 = c.oposada().quocient(d), m2 = a.quocient(d);", "      let m1 = c.quocient(d), m2 = a.quocient(d);", 'reducció: els coeficients no queden oposats'),
+ ('matrius.js', "      let m1 = c.oposada().quocient(d), m2 = a.quocient(d);", "      let m1 = c.quocient(d), m2 = a.quocient(d);", 'reducció: els coeficients no queden oposats'),
  ('dues-rectes.js', "K('Tq', tq, tallen ? 'mes' : 'menys')", "K('Tq', tq, 'mes')", 'la tercera equació sempre en verd'),
  ('dues-rectes.js', "S[c][0].esZero() && S[c][1].esZero() && !S[c][2].esZero());", "S[c][0].esZero() && S[c][1].esZero());", '0 = 0 com si fos impossible'),
  ('dues-rectes.js', "' = ' + K('Ib', G.texGeneric(s, MU))", "' = ' + K('Ib', G.texGeneric(s))", 'la recta s amb λ'),

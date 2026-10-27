@@ -48,8 +48,9 @@ const TEMPS = Object.freeze({
 const CORBA = 'cubic-bezier(.45,.05,.25,1)';
 /** Mida de la lletra de la pissarra (px). Es redueix si la línia més llarga no hi cap. */
 const MIDA = Object.freeze({gran: 30, petita: 22, minima: 12, pantallaPetita: '(max-width: 520px)',
-  minimaAlcada: 18,
-  alcadaMinima: 260});   // la pissarra, com a mínim, té aquesta alçada abans de fer servir la seva barra de desplaçament   // a pantalla gran, la lletra es redueix fins a 18 px perquè el pas més alt i els controls hi càpiguen
+  minimaAlcada: 24,       // a pantalla gran, la lletra es redueix fins a 24 px perquè el pas més alt i els controls hi càpiguen
+                          // (no menys: David, «surt absurdament petit»; si no hi cap, la pissarra té la seva barra de desplaçament)
+  alcadaMinima: 260});   // la pissarra, com a mínim, té aquesta alçada abans de fer servir la seva barra de desplaçament
 
 /** Categories del web (index.html): clau → nom. */
 const CATEGORIES = Object.freeze({

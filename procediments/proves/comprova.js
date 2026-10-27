@@ -23,7 +23,7 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'matrius.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'matrius.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
 const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio, PolinomiCondicions, Bolzano, Asimptotes, ProbabilitatTotal, Bayes, Binomial, Matrius, Determinant, Rang, SistemaSCI, Discussio, Inversa, EquacioMatricial, Esglaonar, Geometria, Pla, RectaPlans, RectaPla, DuesRectes, Distancies, Projeccions, AreaVolum, PerpendicularComuna, Primitiva, Barrow, AreaEix, AreaCorbes, AreaParametre} = globalThis;
@@ -1326,9 +1326,59 @@ function resolPC(formes) {
 const satisfa = (forma, u) => u.reduce((s, ui, i) => s.suma(forma[i].producte(ui)), forma[4]).esZero();
 /** Línies d'un sistema «\begin{cases} … \\ … \end{cases}», en text pla. */
 function liniesDeSistema(tex) {
-  const m = /^\\begin\{cases\}(.*)\\end\{cases\}$/.exec(tex.trim());
-  if (!m) throw new Error('no és un sistema');
-  return m[1].split('\\\\').map(l => textPla(l.trim()));
+  // Cada equació amb «(EQ.n)» a la dreta, d'un altre color (David): «… & \quad \textcolor{#b45309}{\text{(EQ.n)}}».
+  const m = /^\\left\\\{\\begin\{array\}\{ll\}(.*)\\end\{array\}\\right\.$/.exec(tex.trim());
+  if (!m) throw new Error('no és un sistema amb (EQ.n)');
+  return m[1].split('\\\\').map((l, i) => {
+    const [eq, etiqueta] = l.split('&');
+    if (!etiqueta || etiqueta.trim() !== `\\quad \\textcolor{#b45309}{\\text{(EQ.${i + 1})}}`) throw new Error(`l'equació ${i + 1} no porta l'etiqueta (EQ.${i + 1})`);
+    return textPla(eq.trim());
+  });
+}
+
+/**
+ * Les línies d'una reducció de polinomi-condicions (Matrius.passosCombina, passosReduccio2), a la fila de càlcul:
+ * «(EQ.n) · m: equació» és m vegades l'equació n del sistema del mateix pas (o, amb valors ja substituïts, una
+ * equació certa); la primera línia després de la ratlla és la suma de les dues anteriors; totes són certes per a la
+ * solució; un valor («a = 1») va requadrat, i res més no ho va.
+ */
+function comprovaReduccioPC(tex, sistemaTex, sol, on) {
+  const m = /^\\begin\{array\}\{rl\}(.*)\\end\{array\}$/.exec(tex.trim());
+  if (!m) throw new Error('la reducció no és un array {rl}');
+  const formesSistema = liniesDeSistema(sistemaTex).map(formaDe);
+  const files = m[1].split(/\\\\(?:\[6pt\])?/).map(l => l.trim());
+  const etiquetades = [];
+  let suma = false, anterior = null;
+  files.forEach(fl => {
+    const [esq, dre] = fl.split('&');
+    const ratlla = esq.includes('\\hline');
+    const etiqueta = textPla(esq.replace('\\hline', ''));
+    const pla = textPla(dre.trim());
+    const forma = formaDe(pla);
+    comprova(satisfa(forma, sol), () => `${on}: «${pla}» no és certa per a la solució`);
+    const caixa = /\\boxed\{/.test(dre);
+    const unica = forma.slice(0, 4).filter(c => !c.esZero());
+    const esValor = unica.length === 1 && /^[abcd]=/.test(pla) && !/[abcd]/.test(pla.split('=')[1]);
+    comprova(caixa === esValor, () => `${on}: «${pla}» ${esValor ? 'és un valor trobat: ha d\'anar requadrat' : 'no és un valor: no va requadrat'}`);
+    if (etiqueta) {
+      const e = /^«\(EQ\.(\d)\)»(?:\*\(?(-?\d+)\)?)?:$/.exec(etiqueta);
+      comprova(e && esq.includes('\\textcolor{#b45309}{\\text{(EQ.'), () => `${on}: etiqueta «${etiqueta}» no prevista (ha de ser «(EQ.n) · m:», de color)`);
+      if (!e) return;
+      const n = Number(e[1]), k = fr(e[2] ? Number(e[2]) : 1);
+      const objectiu = formesSistema[n - 1].map(c => c.producte(k));
+      const mateixes = [0, 1, 2, 3].every(j => forma[j].esZero() === objectiu[j].esZero());
+      if (mateixes) comprova(forma.every((c, j) => c.igual(objectiu[j])), () => `${on}: «${pla}» no és (EQ.${n}) · ${k.num}`);
+      etiquetades.push(forma);
+    } else if (ratlla) {
+      suma = true;
+      const [A, B] = etiquetades.slice(-2);
+      comprova(A && B && forma.every((c, j) => c.igual(A[j].suma(B[j]))), () => `${on}: «${pla}» no és la suma de les dues equacions de sobre`);
+    } else if (anterior) {
+      comprova(proporcionals(forma, anterior) || esValor, () => `${on}: «${pla}» no surt de la línia anterior`);
+    }
+    anterior = forma;
+  });
+  comprova(suma || files.length === etiquetades.length, () => `${on}: a la reducció hi falta la ratlla de la suma`);
 }
 
 /** Veritat d'un guió del polinomi de grau 3: cada fila, a cada pas. */
@@ -1372,6 +1422,8 @@ function comprovaPolinomi(passos, problema, model, nom) {
             comprova(resolPC(formes) !== null && formes.every(f => satisfa(f, sol)), () => `${on}: el sistema «${ls}» no és equivalent`);
           }
           comprova(ls.length <= 4, () => `${on}: massa equacions`);
+          // Pel mètode de reducció, mai aïllant una incògnita en funció d'una altra (b = −3a): mètode de substitució.
+          comprova(ls.every(l => !/[abcd]/.test(l.split('=')[1] || '')), () => `${on}: «${ls.join('; ')}»: una incògnita aïllada en funció d'una altra`);
           return;
         }
         pla = textPla(tex);
@@ -1387,6 +1439,8 @@ function comprovaPolinomi(passos, problema, model, nom) {
           } else if (enTraduccio) {
             const k = sistemaTex ? liniesDeSistema(sistemaTex).length : 0;
             comprova(proporcionals(formaDe(pla), conds[k]), () => `${on}: «${pla}» no és la traducció de la dada ${k + 1}`);
+          } else if (tex.startsWith('\\begin{array}{rl}')) {
+            comprovaReduccioPC(tex, sistemaTex, sol, on);
           } else {
             const valors = pla.split('=').map(t => valorPC(t, sol));
             comprova(valors.length >= 2 && valors.every(v => v.igual(valors[0])), () => `${on}: «${pla}» no és certa per a la solució`);
@@ -1417,6 +1471,7 @@ function comprovaPolinomi(passos, problema, model, nom) {
   comprova(resolt.every(Boolean) && conjuntLletres(resolt) === 'abcd'
     && resolt.every(m => fr(Number(m[2])).igual(sol['abcd'.indexOf(m[1])])), () => `${nom}: el sistema final no és la solució: ${ls}`);
   comprova(final.classes[FILA.resposta] === 'final' && !final.files[FILA.calcul], () => `${nom}: la resposta final no està destacada`);
+  comprova((final.files[FILA.sistema].match(/\\boxed\{/g) || []).length === 4, () => `${nom}: els quatre valors trobats han d'anar requadrats`);
   comprova(!/[abcd]/.test(textPla(final.files[FILA.resposta]).split('=')[1]), () => `${nom}: la resposta final encara té lletres`);
   const enunciat = final.files[FILA.enunciat];
   model.frases.forEach((n, j) => {
@@ -2896,6 +2951,7 @@ function comprovaSCI(passos, v, nom) {
       } else if (fila === FILA.calcul) {
         for (const l of liniesDe(tex)) comprova(eqCerta(l), () => `${on}: «${l}» no és certa per a les solucions`);
       } else if (fila === FILA.valors) {
+        comprova((tex.match(/\\boxed\{/g) || []).length === liniesDe(tex).length, () => `${on}: els valors trobats han d'anar requadrats`);
         for (const l of liniesDe(tex)) {
           const m = /^([xyz])=(.+)$/.exec(l);
           const j = m ? 'xyz'.indexOf(m[1]) : -1;
@@ -5715,6 +5771,85 @@ seccio('guions i veritat de recta-tangent', () => {
   }
   comprova(['tangent', 'normal', 'normal-vertical', 'pendent0', 'pendent1', 'pendent2'].every(k => modes[k] > 0), () => `falten tipus de casos: ${JSON.stringify(modes)}`);
   return `${casos.length} casos (${Object.entries(modes).map(([k, n]) => k + ' ' + n).join(', ')}), ${passos} passos (fins a ${maxim} per cas), ${linies} línies comprovades`;
+});
+
+
+/* ── REGLES GENERALS (totes les pàgines) ───────────────────────────── */
+
+/*
+ * Les millores que el David va demanar en un lloc valen a tot arreu (auditoria, octubre 2026). Aquí es
+ * comproven a tots els passos de tots els exemples (i variants) de totes les pàgines: la pissarra, els
+ * textos dels passos i l'enunciat.
+ */
+seccio('regles generals de totes les pàgines', () => {
+  const PAGINES = {RectaTangent: 'recta-tangent', Creixement: 'creixement', Extrems: 'extrems', PolinomiCondicions: 'polinomi-condicions',
+    Optimitzacio: 'optimitzacio', Asimptotes: 'asimptotes', Bolzano: 'bolzano', Primitiva: 'primitiva', Barrow: 'barrow', AreaEix: 'area-eix',
+    AreaCorbes: 'area-corbes', AreaParametre: 'area-parametre', ProbabilitatTotal: 'probabilitat-total', Bayes: 'bayes', Binomial: 'binomial',
+    Determinant: 'determinant', Rang: 'rang', Inversa: 'inversa', EquacioMatricial: 'equacio-matricial', Discussio: 'discussio',
+    SistemaSCI: 'sistema-sci', Esglaonar: 'esglaonar', Pla: 'pla', RectaPlans: 'recta-plans', RectaPla: 'recta-pla', DuesRectes: 'dues-rectes',
+    Distancies: 'distancies', Projeccions: 'projeccions', AreaVolum: 'area-volum', PerpendicularComuna: 'perpendicular-comuna'};
+  // Comprovacions que formen part del mètode (no són opcionals): les hipòtesis de Bolzano, f'' dels extrems que demana l'enunciat.
+  const AMB_COMPROVACIO = new Set(['bolzano', 'polinomi-condicions']);
+  const sense = t => t.replace(/\\htmlData\{[^}]*\}/g, '');
+  let pagines = 0, passos = 0;
+  for (const [global, pag] of Object.entries(PAGINES)) {
+    const P = globalThis[global];
+    comprova(P, () => `falta el procediment ${global}`);
+    if (!P) continue;
+    pagines++;
+    const geometria = P.categoria === 'geometria';
+    const casos = [];
+    for (const e of P.exemples || []) casos.push(Object.assign({}, P.perDefecte || {}, e));
+    if (P.modes) for (const o of P.modes.opcions) for (const e of P.exemples || []) casos.push(Object.assign({}, P.perDefecte || {}, e, {[P.modes.id]: o.valor}));
+    for (const v of casos) {
+      if (P.valida && P.valida(v)) continue;
+      const llista = P.passos(v);
+      passos += llista.length;
+      const nom = `${pag} ${JSON.stringify(v)}`;
+      const textos = [P.enunciat ? P.enunciat(v) : ''].concat(llista.map(q => q.text));
+      llista.forEach((pas, i) => {
+        const on = `${nom}, pas ${i + 1}`;
+        const tot = sense(pas.files.join(' \n ')) + ' \n ' + pas.text;
+        // Mai Cramer; mai les sigles dels tipus de sistema ni de les asímptotes; mai «màx/mín».
+        comprova(!/cramer/i.test(tot), () => `${on}: Cramer (mai: David)`);
+        comprova(!/\b(SCD|SCI|AV|AH|AO)\b|\\text\{SI\}|\bmàx\b|\bmín\b/.test(tot), () => `${on}: una abreviatura (SCD, SCI, SI, AV, AH, AO, màx, mín): cal la paraula sencera`);
+        // Cap comprovació opcional després de la resposta.
+        if (!AMB_COMPROVACIO.has(pag)) comprova(!/comprov/i.test(pas.text), () => `${on}: una comprovació («${pas.text.slice(0, 60)}…»): no se'n fan (David)`);
+        pas.files.forEach((tex, f) => {
+          if (!tex || tex.startsWith('<svg')) return;
+          const t = sense(tex);
+          // Un punt s'escriu P(3, -5), sense «=»; i a geometria mai les lletres X ni H per a un punt.
+          if (geometria) {
+            comprova(!/(^|[^\\a-zA-Z{])[A-Z](_\{?[^}= ]*\}?)?'?\s*=\s*\((?!x)/.test(t.replace(/\\overrightarrow\{[^}]*\}|\\vec\{[^}]*\}/g, 'v')), () => `${on}, fila ${f + 1}: un punt escrit amb «=»: «${t.slice(0, 80)}»`);
+            comprova(!/(^|[^\\a-zA-Z])[XH](_\{?[^}]*\}?)?'?\(/.test(t), () => `${on}, fila ${f + 1}: un punt anomenat X o H`);
+            comprova(!/\\cap|\\varnothing|\\emptyset|\\subset/.test(t), () => `${on}, fila ${f + 1}: notació de conjunts (cal una frase)`);
+          }
+          if (tex.startsWith('§')) return;
+          // Un resultat («= 0») mai sol en una línia nova.
+          for (const l of tex.split(/\\\\(?:\[[^\]]*\])?/).slice(1)) {
+            let pla = '';
+            try { pla = textPla(l.replace(/\\end\{array\}.*$/, '').replace(/^\s*&/, '')); } catch (e) { continue; }
+            comprova(!/^=-?[\d,.]+$/.test(pla), () => `${on}, fila ${f + 1}: «${pla}» sol en una línia`);
+          }
+          // Davant d'un parèntesi, el producte porta punt (x · (x − 2), 2 · (x − 1)); les matrius, juxtaposades (A⁻¹B).
+          if (pag !== 'equacio-matricial' && pag !== 'inversa') {
+            let pla = '';
+            try { pla = textPla(t); } catch (e) { return; }
+            // π es llegeix «(pi)»; les fraccions ((a)/(b)), com un sol bloc; un interval o una fila nova després de «∪», «;», «,», «|» no és cap producte.
+            const net = pla.replace(/\(pi\)/g, 'π').replace(/\(\([^()]*\)\/\([^()]*\)\)/g, 'F').replace(/[∪;|,»]\(/g, '#').replace(/_[\w\dλμ]\(/g, '#');   // P_0(…), D_1(…): un nom de punt
+            // també una incògnita sola davant d'un parèntesi: «x(x − 2)» (les funcions, f(x), F(x), P(…), d(…), no)
+            const net2 = net.replace(/sqrt\(|det\(|lim/g, '#').replace(/[λμt]\([^()]*,[^()]*\)/g, '#');   // λ(1, 1, 0): un vector, notació habitual
+            comprova(!/(\d|\))\(/.test(net) && !/(^|[^a-zA-Z_'])[xyzkmtλμ]\(/.test(net2), () => `${on}, fila ${f + 1}: un producte sense punt davant d'un parèntesi: «${pla.slice(0, 90)}»`);
+          }
+        });
+      });
+      // Els textos (enunciat i explicacions): punts sense «=», i cap fórmula que digui «X» o «H» per a un punt a geometria.
+      if (geometria) for (const t of textos) {
+        comprova(!/\$[^$]*(^|[^\\a-zA-Z{])[A-Z](_\{?[^}= ]*\}?)?'?\s*=\s*\((?!x)[^$]*\$/.test(t.replace(/\\overrightarrow\{[^}]*\}|\\vec\{[^}]*\}/g, 'v')), () => `${nom}: un punt escrit amb «=» al text: «${t.slice(0, 90)}»`);
+      }
+    }
+  }
+  return `${pagines} pàgines, ${passos} passos`;
 });
 
 

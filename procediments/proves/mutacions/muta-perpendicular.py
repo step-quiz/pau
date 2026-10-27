@@ -11,8 +11,8 @@ MUT=[
  ('perpendicular-comuna.js', "condicio(s.u, '\\\\vec{v}', 'b')", "condicio(r.u, '\\\\vec{v}', 'b')", 'segona condició amb u'),
  ('perpendicular-comuna.js', "for (const [k, v] of [[a, L], [b, MU]])", "for (const [k, v] of [[a, MU], [b, L]])", 'λ i μ girats al text'),
  ('perpendicular-comuna.js', "' = ' + K('Ms', G.texModul(P0Q0))", "' = ' + K('Ms', G.texModul(P0))", 'mòdul d\'un altre vector'),
- ('geometria.js', "  const caixa = t => `\\\\boxed{${t}}`;", "  const caixa = t => t;", 'valors sense requadrar'),
- ('geometria.js', "const texEq = k => `\\\\textcolor{${COLOR_EQ}}{\\\\text{(EQ.${k})}}`;", "const texEq = k => `\\\\text{(EQ.${k})}`;", 'etiquetes (EQ.n) sense color'),
+ ('matrius.js', "  const caixa = t => `\\\\boxed{${t}}`;", "  const caixa = t => t;", 'valors sense requadrar'),
+ ('matrius.js', "const texEq = k => `\\\\textcolor{${COLOR_EQ}}{\\\\text{(EQ.${k})}}`;", "const texEq = k => `\\\\text{(EQ.${k})}`;", 'etiquetes (EQ.n) sense color'),
 ]
 det=0
 for f,a,b,nom in MUT:

@@ -2,8 +2,8 @@ import subprocess, shutil, os, tempfile
 # Run from anywhere: python3 procediments/proves/mutacions/<this file>
 ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MUT=[
- ('rang.js', "const det2 = B => B[0][0].producte(B[1][1]).resta(B[0][1].producte(B[1][0]));", "const det2 = B => B[0][0].producte(B[1][1]).suma(B[0][1].producte(B[1][0]));", 'menor 2×2 amb +'),
- ('rang.js', "(d, p, n) => (Mt.SARRUS[n].signe > 0 ? d.suma(p) : d.resta(p))", "(d, p, n) => d.suma(p)", 'Sarrus sense signes'),
+ ('matrius.js', "const det2N = B => B[0][0].producte(B[1][1]).resta(B[0][1].producte(B[1][0]));", "const det2N = B => B[0][0].producte(B[1][1]).suma(B[0][1].producte(B[1][0]));", 'menor 2×2 amb +'),
+ ('matrius.js', "const det3N = B => productesSarrusN(B).reduce((d, p, n) => (SARRUS[n].signe > 0 ? d.suma(p) : d.resta(p)), ZERO);", "const det3N = B => productesSarrusN(B).reduce((d, p, n) => d.suma(p), ZERO);", 'Sarrus sense signes'),
  ('rang.js', "      if (j === j0) continue;\n", "", 'orla sense la columna de l\'element'),
  ('rang.js', "        rang(maxim === 2 ? '= 2' : '\\\\ge 2');", "        rang('= 2');", 'rang = 2 massa aviat'),
  ('rang.js', "  if (!base) {\n    for (const k", "  if (!base && t > 1) {\n    for (const k", 'rang 1 sense haver-los provat tots'),

@@ -2,7 +2,7 @@ import subprocess, shutil, os, tempfile
 # Run from anywhere: python3 procediments/proves/mutacions/<this file>
 ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MUT=[
- ('geometria.js', "(a.igual(1) ? '' : M.texNombre(a)) + `(${Mt.texLineal(e, L)})`;", "(a.igual(1) ? '' : M.texNombre(a)) + `(${Mt.texLineal([e[1], e[0]], L)})`;", 'substitució amb la coordenada girada'),
+ ('geometria.js', "(a.igual(1) ? '' : `${M.texNombre(a)} \\\\cdot `) + `(${Mt.texLineal(e, L)})`;", "(a.igual(1) ? '' : `${M.texNombre(a)} \\\\cdot `) + `(${Mt.texLineal([e[1], e[0]], L)})`;", 'substitució amb la coordenada girada'),
  ('geometria.js', "    if (!x[1].esZero()) peces.push([c.producte(x[1]), L]);", "    if (!x[1].esZero()) peces.push([x[1], L]);", 'desenvolupament sense multiplicar el terme en λ'),
  ('geometria.js', "c = escalar(pla.n, r.P).suma(pla.D || fr(0)).oposada();", "c = escalar(pla.n, r.P).suma(pla.D || fr(0));", 'els nombres passen sense canviar de signe'),
  ('recta-pla.js', "    l0 = c.quocient(a);", "    l0 = c.quocient(a).oposada();", 'λ amb el signe canviat'),

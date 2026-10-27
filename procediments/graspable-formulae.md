@@ -185,6 +185,9 @@ seeded random grids that cover every branch). For each case:
    page uses minors…). Identities are checked at enough points to be a proof; equation rows must
    have exactly the right solution set.
 3. Final-state checks (the answer is highlighted, complete, in words).
+4. General rules on every page (section «regles generals de totes les pàgines»): the house style
+   (no Cramer, no abbreviations, points without «=», a product before a parenthesis with «·»,
+   no optional checks…) is linted over every step of every example. Port this section first.
 Mutation scripts inject realistic bugs into a copy and require the checker to fail; Playwright
 tests play every step in a real browser (desktop and phone widths, no console errors, no overflow).
 Rule: before delivering, `node procediments/proves/comprova.js` must end with «Tot correcte».

@@ -108,7 +108,9 @@ function passos(v) {
   const f = [0, 1, 2].find(j => !pivots.some(q => q.columna === j));
   const valor = [];                                   // cada incògnita, com a polinomi [c0, c1] en λ
   valor[f] = [M.Fraccio.de(0), M.Fraccio.de(1)];
-  const valors = [K(`V${f}`, `${nom[f]} = ${L}`)];
+  // Cada valor trobat, requadrat (David: «quan ja has trobat els valors, els has de requadrar»).
+  const caixa = t => `\\boxed{${t}}`;
+  const valors = [K(`V${f}`, caixa(`${nom[f]} = ${L}`))];
   const pintaValors = () => { g.files[FILA.valors] = `\\begin{array}{l} ${valors.join(' \\\\[8pt] ')} \\end{array}`; };
   pintaValors();
   g.afegeix(`Allibera una incògnita: la que no té pivot, $${nom[f]}$. Pot valer qualsevol nombre, i l'anomenem $\\lambda$: $${nom[f]} = \\lambda$.`);
@@ -146,12 +148,12 @@ function passos(v) {
     if (!a.igual(1)) passosC.push([`${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`, `Divideix per $${M.texNombre(a)}$.`]);
     const lin = [];
     passosC.forEach(([tex, text], k) => {
-      lin.push(K(`${P}${k}`, tex));
+      lin.push(K(`${P}${k}`, k === passosC.length - 1 ? caixa(tex) : tex));   // l'última línia ja és el valor: requadrat
       g.files[FILA.calcul] = `\\begin{array}{l} ${lin.join(' \\\\[8pt] ')} \\end{array}`;
       g.afegeix(text);
     });
     g.files[FILA.calcul] = '';
-    valors.push(K(`V${pc}`, `${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`));
+    valors.push(K(`V${pc}`, caixa(`${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`)));
     pintaValors();
     g.afegeix(`Ja tenim $${nom[pc]} = ${Mt.texLinealQ(valor[pc])}$.`, {fusiona: {[`V${pc}`]: [`${P}${passosC.length - 1}`]}});
   });

@@ -9,8 +9,12 @@
      2. traduir cada dada a una equació (f(p) = q, f'(p) = m, f''(p) = 0),
         substituir-hi x i portar-la al sistema; algunes frases amaguen
         dues dades (×2);
-     3. resoldre el sistema: primer les equacions amb una sola incògnita,
-        després substitució o reducció;
+     3. resoldre el sistema: cada equació porta «(EQ.n)» a la dreta, d'un altre
+        color; primer les equacions amb una sola incògnita (els valors trobats,
+        requadrats), es substitueixen els valors coneguts, es combinen equacions
+        pel mètode de reducció («(EQ.4) · (−1):», ratlla, suma) i el sistema 2×2
+        que queda es resol per reducció (Matrius.passosReduccio2), com vol el
+        David a tot el web;
      4. escriure f(x), i comprovar amb f'' els extrems que demana l'enunciat.
    Adreça: polinomi-condicions.html?p=ordenades
            (ordenades, maxim, tangent, inflexio, beneficis, maxmin)
@@ -24,12 +28,14 @@
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js,
    que té el seu propi model de cada problema.
 
-   La traducció de les dades la genera el codi; la resolució del sistema
-   és a les dades de cada problema, escrita amb Formules.marcat.
+   La traducció de les dades la genera el codi; la resolució del sistema és
+   un guió a les dades de cada problema (caixes, substitueix, divideix,
+   combina, reduccio), que el codi executa amb els coeficients exactes.
    Claus: Ef1, E11, E21… frases de l'enunciat; FF…Fe, GF…Ge, HF…He les
    files de f, f' i f''; q1…q4 les quatre equacions (q<n>F «f(p)»,
    q<n>a…q<n>d els termes de a…d, q<n>q «=», q<n>r el segon membre);
-   q5, q6… les equacions noves de la resolució; R… la resposta;
+   q5, q6… les equacions noves de la resolució; X… les línies de la reducció
+   (fila 5); R… la resposta;
    Y…, Z… la comprovació amb f''.
    ═══════════════════════════════════════════════════════════════════ */
 (function (arrel) {
@@ -37,6 +43,7 @@
 
 const M = arrel.Mates;
 const F = arrel.Formules;
+const Mt = arrel.Matrius;
 const {Fraccio} = M;
 const {clau: K} = F;
 
@@ -54,10 +61,17 @@ const {clau: K} = F;
                     extrem: 'maxim', 'minim' o 'extrem' si l'enunciat diu que n'hi ha un en x
                     (es comprova al final amb f''); inflexio: cert si és un punt d'inflexió;
                     avis: la frase d'avís que també es marca en aquest pas
-     resolucio    els passos de la resolució del sistema: {text, sistema, calcul, porta,
-                  cursor, fusiona}. sistema = {línia (1…4): fórmula}; calcul: la fórmula
-                  de la fila 5 ('' l'esborra); porta: la línia del sistema on va a parar
-                  la fórmula de la fila 5. Fórmules escrites amb Formules.marcat.
+     resolucio    el guió de la resolució del sistema (les línies es diuen pel número, 1…4,
+                  com les etiquetes «(EQ.n)»; als textos, «(EQ.n)» surt del seu color):
+                    {caixes: true, text}         requadra els valors que ja es coneixen
+                    {substitueix: [n, …]}        hi posa els valors coneguts, i simplifica
+                    {divideix: [n, k], text}     divideix l'equació n per k
+                    {combina: [i, j], per: [mi, mj], porta: n, text}
+                                                 (EQ.i) · mi + (EQ.j) · mj a la fila 5; el
+                                                 resultat ocupa el lloc de l'equació n
+                    {reduccio: [i, j], text}     el sistema 2×2 de les equacions i, j, per
+                                                 reducció (Matrius.passosReduccio2); els
+                                                 valors tornen al sistema, requadrats
      solucio      {a, b, c, d}
      nota         (opcional) un aclariment per a la resposta final, entre parèntesis
 */
@@ -81,26 +95,10 @@ const PROBLEMES = Object.freeze([
       {frase: '3', condicions: [{ordre: 0, x: 1, valor: 2, text: '«Passa pel punt $(1, 2)$» vol dir que $f(1) = 2$.'}]},
     ],
     resolucio: [
-      {text: 'Dues equacions ja donen el valor d\'una incògnita: $d = 4$ i $c = 0$. Substitueix $c = 0$ a la tercera equació.',
-        sistema: {3: 'q3: ⟦a:12a⟧ + ⟦b:4b⟧ + ⟦c:0⟧ = ⟦r:0⟧'}, cursor: {arrossega: 'q2r', fins: 'q3c'}},
-      {text: 'Substitueix $c = 0$ i $d = 4$ a la quarta equació.',
-        sistema: {4: 'q4: ⟦a:a⟧ + ⟦b:b⟧ + ⟦c:0⟧ + ⟦d:4⟧ = ⟦r:2⟧'}},
-      {text: 'Simplifica les dues equacions. A la quarta, el $4$ passa a l\'altre costat canviat de signe: $2 - 4 = -2$.',
-        sistema: {3: 'q3: ⟦a:12a⟧ + ⟦b:4b⟧ = ⟦r:0⟧', 4: 'q4: ⟦a:a⟧ + ⟦b:b⟧ = ⟦r:-2⟧'}, fusiona: {q4r: ['q4d']}},
-      {text: 'Queden dues equacions amb dues incògnites, $a$ i $b$. Divideix la tercera per $4$.',
-        sistema: {3: 'q3: ⟦a:3a⟧ + ⟦b:b⟧ = ⟦r:0⟧'}},
-      {text: 'Aïlla $b$: el $3a$ passa a l\'altre costat canviat de signe.',
-        sistema: {3: 'q3: ⟦b:b⟧ = ⟦r:-3a⟧'}, fusiona: {q3r: ['q3a']}},
-      {text: 'Substitueix $b = -3a$ a la quarta equació.',
-        sistema: {4: 'q4: ⟦a:a⟧ + ⟦b:(-3a)⟧ = ⟦r:-2⟧'}, cursor: {arrossega: 'q3r', fins: 'q4b'}},
-      {text: 'Opera: $a - 3a = -2a$.',
-        sistema: {4: 'q4: ⟦a:-2a⟧ = ⟦r:-2⟧'}, fusiona: {q4a: ['q4b']}},
-      {text: 'Divideix per $-2$.',
-        sistema: {4: 'q4: ⟦a:a⟧ = ⟦r:1⟧'}},
-      {text: 'Substitueix $a = 1$ a la tercera equació.',
-        sistema: {3: 'q3: ⟦b:b⟧ = ⟦r:-3 \\cdot 1⟧'}, cursor: {arrossega: 'q4r', fins: 'q3r'}},
-      {text: 'Calcula: $b = -3$. Ja tens les quatre incògnites.',
-        sistema: {3: 'q3: ⟦b:b⟧ = ⟦r:-3⟧'}},
+      {caixes: true, text: 'Les equacions $(EQ.1)$ i $(EQ.2)$ ja donen el valor d\'una incògnita: $d = 4$ i $c = 0$ (els requadrem).'},
+      {substitueix: [3, 4]},
+      {divideix: [3, 4], text: 'Divideix $(EQ.3)$ per $4$: és més senzilla i diu el mateix.'},
+      {reduccio: [3, 4], text: 'Queden dues equacions, $(EQ.3)$ i $(EQ.4)$, amb dues incògnites, $a$ i $b$ (en groc). Resol-les pel mètode de reducció.'},
     ],
     solucio: {a: 1, b: -3, c: 0, d: 4},
   },
@@ -121,36 +119,12 @@ const PROBLEMES = Object.freeze([
         text: 'Recta tangent horitzontal vol dir pendent $0$, i el pendent de la recta tangent és la derivada: $f\'(-1) = 0$.'}]},
     ],
     resolucio: [
-      {text: 'La primera equació ja diu que $d = 0$. Substitueix-ho a la tercera.',
-        sistema: {3: 'q3: ⟦a:a⟧ + ⟦b:b⟧ + ⟦c:c⟧ + ⟦d:0⟧ = ⟦r:2⟧'}, cursor: {arrossega: 'q1r', fins: 'q3d'}},
-      {text: 'Simplifica.',
-        sistema: {3: 'q3: ⟦a:a⟧ + ⟦b:b⟧ + ⟦c:c⟧ = ⟦r:2⟧'}},
-      {text: 'Fixa\'t en la segona i la quarta equació: només canvia el signe del terme de $b$. Si les restes, la $a$ i la $c$ desapareixen. Copia la segona equació.',
-        calcul: 'q5: ⟦x:(3a + 2b + c)⟧ = ⟦r:0⟧', cursor: {arrossega: 'q2q', fins: 'q5x'}},
-      {text: 'Resta-li la quarta equació, membre a membre.',
-        calcul: 'q5: ⟦x:(3a + 2b + c)⟧ ⟦m:-⟧ ⟦y:(3a - 2b + c)⟧ = ⟦r:0⟧ ⟦n:-⟧ ⟦s:0⟧', cursor: {arrossega: 'q4q', fins: 'q5y'}},
-      {text: 'Treu els parèntesis i simplifica: $3a - 3a = 0$, $2b - (-2b) = 4b$ i $c - c = 0$.',
-        calcul: 'q5: ⟦e:4b⟧ = ⟦r:0⟧', fusiona: {q5e: ['q5x', 'q5m', 'q5y'], q5r: ['q5n', 'q5s']}},
-      {text: 'Aquesta equació pot ocupar el lloc de la quarta: el sistema que en surt és equivalent.',
-        porta: 4},
-      {text: 'Divideix per $4$: $b = 0$.',
-        sistema: {4: 'q5: ⟦e:b⟧ = ⟦r:0⟧'}},
-      {text: 'Substitueix $b = 0$ a la segona i a la tercera equació.',
-        sistema: {2: 'q2: ⟦a:3a⟧ + ⟦b:2 \\cdot 0⟧ + ⟦c:c⟧ = ⟦r:0⟧', 3: 'q3: ⟦a:a⟧ + ⟦b:0⟧ + ⟦c:c⟧ = ⟦r:2⟧'}},
-      {text: 'Simplifica.',
-        sistema: {2: 'q2: ⟦a:3a⟧ + ⟦c:c⟧ = ⟦r:0⟧', 3: 'q3: ⟦a:a⟧ + ⟦c:c⟧ = ⟦r:2⟧'}},
-      {text: 'Les dues equacions tenen la mateixa $c$: resta la tercera de la segona.',
-        calcul: 'q6: ⟦x:(3a + c)⟧ ⟦m:-⟧ ⟦y:(a + c)⟧ = ⟦r:0⟧ ⟦n:-⟧ ⟦s:2⟧'},
-      {text: 'Simplifica: $3a - a = 2a$, $c - c = 0$ i $0 - 2 = -2$.',
-        calcul: 'q6: ⟦e:2a⟧ = ⟦r:-2⟧', fusiona: {q6e: ['q6x', 'q6m', 'q6y'], q6r: ['q6n', 'q6s']}},
-      {text: 'Divideix per $2$.',
-        calcul: 'q6: ⟦e:a⟧ = ⟦r:-1⟧'},
-      {text: 'Posa-la al lloc de la segona equació.',
-        porta: 2},
-      {text: 'Substitueix $a = -1$ a la tercera.',
-        sistema: {3: 'q3: ⟦a:(-1)⟧ + ⟦c:c⟧ = ⟦r:2⟧'}, cursor: {arrossega: 'q6r', fins: 'q3a'}},
-      {text: 'Aïlla $c$: $c = 2 + 1 = 3$.',
-        sistema: {3: 'q3: ⟦c:c⟧ = ⟦r:3⟧'}, fusiona: {q3r: ['q3a']}},
+      {caixes: true, text: 'L\'equació $(EQ.1)$ ja dona el valor de $d$: $d = 0$ (el requadrem).'},
+      {substitueix: [3]},
+      {combina: [2, 4], per: [1, -1], porta: 4, text: 'Fixa\'t en $(EQ.2)$ i $(EQ.4)$: només canvia el signe del terme de $b$. Multiplica $(EQ.4)$ per $-1$ i suma-les: $a$ i $c$ desapareixen.'},
+      {divideix: [4, 4], text: 'Divideix per $4$.'},
+      {substitueix: [2, 3]},
+      {reduccio: [2, 3], text: 'Queden dues equacions, $(EQ.2)$ i $(EQ.3)$, amb dues incògnites, $a$ i $c$ (en groc). Resol-les pel mètode de reducció.'},
     ],
     solucio: {a: -1, b: 0, c: 3, d: 0},
   },
@@ -170,29 +144,13 @@ const PROBLEMES = Object.freeze([
       {frase: '3', condicions: [{ordre: 0, x: -1, valor: -3, text: '«Passa pel punt $(-1, -3)$» vol dir que $f(-1) = -3$.'}]},
     ],
     resolucio: [
-      {text: 'La tercera equació diu que $c = 0$. Substitueix-ho a les altres tres.',
-        sistema: {1: 'q1: ⟦a:3a⟧ + ⟦b:2b⟧ + ⟦c:0⟧ = ⟦r:2⟧', 2: 'q2: ⟦a:a⟧ + ⟦b:b⟧ + ⟦c:0⟧ + ⟦d:d⟧ = ⟦r:1⟧',
-          4: 'q4: ⟦a:-a⟧ + ⟦b:b⟧ - ⟦c:0⟧ + ⟦d:d⟧ = ⟦r:-3⟧'}},
-      {text: 'Simplifica.',
-        sistema: {1: 'q1: ⟦a:3a⟧ + ⟦b:2b⟧ = ⟦r:2⟧', 2: 'q2: ⟦a:a⟧ + ⟦b:b⟧ + ⟦d:d⟧ = ⟦r:1⟧', 4: 'q4: ⟦a:-a⟧ + ⟦b:b⟧ + ⟦d:d⟧ = ⟦r:-3⟧'}},
-      {text: 'La segona i la quarta tenen els mateixos termes, $b + d$: si les restes, desapareixen. Resta la quarta de la segona.',
-        calcul: 'q5: ⟦x:(a + b + d)⟧ ⟦m:-⟧ ⟦y:(-a + b + d)⟧ = ⟦r:1⟧ ⟦n:-⟧ ⟦s:(-3)⟧'},
-      {text: 'Simplifica: $a - (-a) = 2a$ i $1 - (-3) = 4$.',
-        calcul: 'q5: ⟦e:2a⟧ = ⟦r:4⟧', fusiona: {q5e: ['q5x', 'q5m', 'q5y'], q5r: ['q5n', 'q5s']}},
-      {text: 'Divideix per $2$.',
-        calcul: 'q5: ⟦e:a⟧ = ⟦r:2⟧'},
-      {text: 'Posa-la al lloc de la quarta equació.',
-        porta: 4},
-      {text: 'Substitueix $a = 2$ a la primera.',
-        sistema: {1: 'q1: ⟦a:3 \\cdot 2⟧ + ⟦b:2b⟧ = ⟦r:2⟧'}, cursor: {arrossega: 'q5r', fins: 'q1a'}},
-      {text: 'Passa el $6$ a l\'altre costat canviat de signe: $2 - 6 = -4$.',
-        sistema: {1: 'q1: ⟦b:2b⟧ = ⟦r:-4⟧'}, fusiona: {q1r: ['q1a']}},
-      {text: 'Divideix per $2$.',
-        sistema: {1: 'q1: ⟦b:b⟧ = ⟦r:-2⟧'}},
-      {text: 'Substitueix $a = 2$ i $b = -2$ a la segona.',
-        sistema: {2: 'q2: ⟦a:2⟧ + ⟦b:(-2)⟧ + ⟦d:d⟧ = ⟦r:1⟧'}},
-      {text: 'Aïlla $d$: $d = 1 - 2 + 2 = 1$.',
-        sistema: {2: 'q2: ⟦d:d⟧ = ⟦r:1⟧'}, fusiona: {q2r: ['q2a', 'q2b']}},
+      {caixes: true, text: 'L\'equació $(EQ.3)$ ja dona el valor de $c$: $c = 0$ (el requadrem).'},
+      {substitueix: [1, 2, 4]},
+      {combina: [2, 4], per: [1, -1], porta: 4, text: '$(EQ.2)$ i $(EQ.4)$ tenen els mateixos termes $b + d$: multiplica $(EQ.4)$ per $-1$ i suma-les, i desapareixen.'},
+      {divideix: [4, 2], text: 'Divideix per $2$.'},
+      {substitueix: [1]},
+      {divideix: [1, 2], text: 'Divideix per $2$.'},
+      {substitueix: [2]},
     ],
     solucio: {a: 2, b: -2, c: 0, d: 1},
   },
@@ -213,26 +171,11 @@ const PROBLEMES = Object.freeze([
       ]},
     ],
     resolucio: [
-      {text: 'La primera equació només té la incògnita $b$: divideix per $2$.',
-        sistema: {1: 'q1: ⟦b:b⟧ = ⟦r:0⟧'}},
-      {text: 'Substitueix $b = 0$ i $d = 0$ a la tercera i a la quarta equació.',
-        sistema: {3: 'q3: ⟦a:a⟧ + ⟦b:0⟧ + ⟦c:c⟧ + ⟦d:0⟧ = ⟦r:-2⟧', 4: 'q4: ⟦a:8a⟧ + ⟦b:4 \\cdot 0⟧ + ⟦c:2c⟧ + ⟦d:0⟧ = ⟦r:2⟧'}},
-      {text: 'Simplifica.',
-        sistema: {3: 'q3: ⟦a:a⟧ + ⟦c:c⟧ = ⟦r:-2⟧', 4: 'q4: ⟦a:8a⟧ + ⟦c:2c⟧ = ⟦r:2⟧'}},
-      {text: 'Divideix la quarta per $2$.',
-        sistema: {4: 'q4: ⟦a:4a⟧ + ⟦c:c⟧ = ⟦r:1⟧'}},
-      {text: 'Les dues equacions tenen la mateixa $c$: resta la tercera de la quarta.',
-        calcul: 'q5: ⟦x:(4a + c)⟧ ⟦m:-⟧ ⟦y:(a + c)⟧ = ⟦r:1⟧ ⟦n:-⟧ ⟦s:(-2)⟧'},
-      {text: 'Simplifica: $4a - a = 3a$, $c - c = 0$ i $1 - (-2) = 3$.',
-        calcul: 'q5: ⟦e:3a⟧ = ⟦r:3⟧', fusiona: {q5e: ['q5x', 'q5m', 'q5y'], q5r: ['q5n', 'q5s']}},
-      {text: 'Divideix per $3$.',
-        calcul: 'q5: ⟦e:a⟧ = ⟦r:1⟧'},
-      {text: 'Posa-la al lloc de la quarta equació.',
-        porta: 4},
-      {text: 'Substitueix $a = 1$ a la tercera.',
-        sistema: {3: 'q3: ⟦a:1⟧ + ⟦c:c⟧ = ⟦r:-2⟧'}, cursor: {arrossega: 'q5r', fins: 'q3a'}},
-      {text: 'Aïlla $c$: $c = -2 - 1 = -3$.',
-        sistema: {3: 'q3: ⟦c:c⟧ = ⟦r:-3⟧'}, fusiona: {q3r: ['q3a']}},
+      {caixes: true, text: 'L\'equació $(EQ.2)$ ja dona el valor de $d$: $d = 0$ (el requadrem).'},
+      {divideix: [1, 2], text: 'L\'equació $(EQ.1)$ només té la incògnita $b$: divideix-la per $2$.'},
+      {substitueix: [3, 4]},
+      {divideix: [4, 2], text: 'Divideix $(EQ.4)$ per $2$: és més senzilla i diu el mateix.'},
+      {reduccio: [3, 4], text: 'Queden dues equacions, $(EQ.3)$ i $(EQ.4)$, amb dues incògnites, $a$ i $c$ (en groc). Resol-les pel mètode de reducció.'},
     ],
     solucio: {a: 1, b: 0, c: -3, d: 0},
   },
@@ -254,28 +197,14 @@ const PROBLEMES = Object.freeze([
         text: 'El tercer any, $x = 3$, hi ha un punt d\'inflexió: la segona derivada hi val $0$, $f\'\'(3) = 0$.'}]},
     ],
     resolucio: [
-      {text: 'La primera equació diu que $d = 0$. Substitueix-ho a la tercera.',
-        sistema: {3: 'q3: ⟦a:8a⟧ + ⟦b:4b⟧ + ⟦c:2c⟧ + ⟦d:0⟧ = ⟦r:20⟧'}, cursor: {arrossega: 'q1r', fins: 'q3d'}},
-      {text: 'Simplifica.',
-        sistema: {3: 'q3: ⟦a:8a⟧ + ⟦b:4b⟧ + ⟦c:2c⟧ = ⟦r:20⟧'}},
-      {text: 'La quarta equació només té dues incògnites: aïlla-hi $b$. Primer, passa el $18a$ a l\'altre costat canviat de signe.',
-        sistema: {4: 'q4: ⟦b:2b⟧ = ⟦r:-18a⟧'}, fusiona: {q4r: ['q4a']}},
-      {text: 'Divideix per $2$.',
-        sistema: {4: 'q4: ⟦b:b⟧ = ⟦r:-9a⟧'}},
-      {text: 'Substitueix $b = -9a$ a la segona equació.',
-        sistema: {2: 'q2: ⟦a:12a⟧ + ⟦b:4 \\cdot (-9a)⟧ + ⟦c:c⟧ = ⟦r:0⟧'}, cursor: {arrossega: 'q4r', fins: 'q2b'}},
-      {text: 'Opera: $4 \\cdot (-9a) = -36a$, i $12a - 36a = -24a$.',
-        sistema: {2: 'q2: ⟦a:-24a⟧ + ⟦c:c⟧ = ⟦r:0⟧'}, fusiona: {q2a: ['q2b']}},
-      {text: 'Aïlla $c$.',
-        sistema: {2: 'q2: ⟦c:c⟧ = ⟦r:24a⟧'}, fusiona: {q2r: ['q2a']}},
-      {text: 'Substitueix $b = -9a$ i $c = 24a$ a la tercera equació.',
-        sistema: {3: 'q3: ⟦a:8a⟧ + ⟦b:4 \\cdot (-9a)⟧ + ⟦c:2 \\cdot 24a⟧ = ⟦r:20⟧'}},
-      {text: 'Opera: $8a - 36a + 48a = 20a$.',
-        sistema: {3: 'q3: ⟦a:20a⟧ = ⟦r:20⟧'}, fusiona: {q3a: ['q3b', 'q3c']}},
-      {text: 'Divideix per $20$.',
-        sistema: {3: 'q3: ⟦a:a⟧ = ⟦r:1⟧'}},
-      {text: 'Substitueix $a = 1$ a les equacions de $b$ i de $c$: $b = -9 \\cdot 1 = -9$ i $c = 24 \\cdot 1 = 24$.',
-        sistema: {2: 'q2: ⟦c:c⟧ = ⟦r:24⟧', 4: 'q4: ⟦b:b⟧ = ⟦r:-9⟧'}},
+      {caixes: true, text: 'L\'equació $(EQ.1)$ ja dona el valor de $d$: $d = 0$ (el requadrem).'},
+      {substitueix: [3]},
+      {divideix: [3, 2], text: 'Divideix $(EQ.3)$ per $2$: és més senzilla i diu el mateix.'},
+      {combina: [2, 3], per: [1, -1], porta: 3, text: '$(EQ.2)$ i $(EQ.3)$ tenen la mateixa $c$: multiplica $(EQ.3)$ per $-1$ i suma-les, i $c$ desapareix.'},
+      {divideix: [3, 2], text: 'Divideix per $2$.'},
+      {divideix: [4, 2], text: 'Divideix també $(EQ.4)$ per $2$.'},
+      {reduccio: [3, 4], text: 'Queden dues equacions, $(EQ.3)$ i $(EQ.4)$, amb dues incògnites, $a$ i $b$ (en groc). Resol-les pel mètode de reducció.'},
+      {substitueix: [2]},
     ],
     solucio: {a: 1, b: -9, c: 24, d: 0},
     nota: '(beneficis en milers d\'euros, al cap de $x$ anys)',
@@ -296,38 +225,15 @@ const PROBLEMES = Object.freeze([
       ]},
     ],
     resolucio: [
-      {text: 'Cap equació no té una sola incògnita: caldrà combinar-les. La primera i la tercera tenen la mateixa $c$, i si les restes, desapareix. Copia la tercera.',
-        calcul: 'q5: ⟦x:(27a + 6b + c)⟧ = ⟦r:0⟧', cursor: {arrossega: 'q3q', fins: 'q5x'}},
-      {text: 'Resta-li la primera, membre a membre.',
-        calcul: 'q5: ⟦x:(27a + 6b + c)⟧ ⟦m:-⟧ ⟦y:(3a + 2b + c)⟧ = ⟦r:0⟧ ⟦n:-⟧ ⟦s:0⟧', cursor: {arrossega: 'q1q', fins: 'q5y'}},
-      {text: 'Treu els parèntesis i simplifica: $27a - 3a = 24a$, $6b - 2b = 4b$ i $c - c = 0$.',
-        calcul: 'q5: ⟦e:24a + 4b⟧ = ⟦r:0⟧', fusiona: {q5e: ['q5x', 'q5m', 'q5y'], q5r: ['q5n', 'q5s']}},
-      {text: 'Divideix per $4$.',
-        calcul: 'q5: ⟦e:6a + b⟧ = ⟦r:0⟧'},
-      {text: 'Aïlla $b$.',
-        calcul: 'q5: ⟦e:b⟧ = ⟦r:-6a⟧'},
-      {text: 'Posa-la al lloc de la tercera equació.',
-        porta: 3},
-      {text: 'Substitueix $b = -6a$ a la primera equació.',
-        sistema: {1: 'q1: ⟦a:3a⟧ + ⟦b:2 \\cdot (-6a)⟧ + ⟦c:c⟧ = ⟦r:0⟧'}, cursor: {arrossega: 'q5r', fins: 'q1b'}},
-      {text: 'Opera: $2 \\cdot (-6a) = -12a$, i $3a - 12a = -9a$.',
-        sistema: {1: 'q1: ⟦a:-9a⟧ + ⟦c:c⟧ = ⟦r:0⟧'}, fusiona: {q1a: ['q1b']}},
-      {text: 'Aïlla $c$.',
-        sistema: {1: 'q1: ⟦c:c⟧ = ⟦r:9a⟧'}, fusiona: {q1r: ['q1a']}},
-      {text: 'Substitueix $b = -6a$ i $c = 9a$ a la quarta equació.',
-        sistema: {4: 'q4: ⟦a:27a⟧ + ⟦b:9 \\cdot (-6a)⟧ + ⟦c:3 \\cdot 9a⟧ + ⟦d:d⟧ = ⟦r:-1⟧'}},
-      {text: 'Opera: $27a - 54a + 27a = 0$. La $a$ desapareix, i queda $d = -1$!',
-        sistema: {4: 'q4: ⟦d:d⟧ = ⟦r:-1⟧'}},
-      {text: 'Substitueix $b = -6a$, $c = 9a$ i $d = -1$ a la segona equació.',
-        sistema: {2: 'q2: ⟦a:a⟧ + ⟦b:(-6a)⟧ + ⟦c:9a⟧ + ⟦d:(-1)⟧ = ⟦r:3⟧'}},
-      {text: 'Opera: $a - 6a + 9a = 4a$.',
-        sistema: {2: 'q2: ⟦a:4a⟧ - ⟦d:1⟧ = ⟦r:3⟧'}, fusiona: {q2a: ['q2b', 'q2c']}},
-      {text: 'Passa el $-1$ a l\'altre costat canviat de signe: $3 + 1 = 4$.',
-        sistema: {2: 'q2: ⟦a:4a⟧ = ⟦r:4⟧'}, fusiona: {q2r: ['q2d']}},
-      {text: 'Divideix per $4$.',
-        sistema: {2: 'q2: ⟦a:a⟧ = ⟦r:1⟧'}},
-      {text: 'Substitueix $a = 1$ a les equacions de $b$ i de $c$: $b = -6 \\cdot 1 = -6$ i $c = 9 \\cdot 1 = 9$.',
-        sistema: {1: 'q1: ⟦c:c⟧ = ⟦r:9⟧', 3: 'q5: ⟦e:b⟧ = ⟦r:-6⟧'}},
+      {combina: [3, 1], per: [1, -1], porta: 3, text: 'Cap equació no té una sola incògnita: caldrà combinar-les. $(EQ.3)$ i $(EQ.1)$ tenen la mateixa $c$: multiplica $(EQ.1)$ per $-1$ i suma-les, i $c$ desapareix.'},
+      {divideix: [3, 4], text: 'Divideix per $4$.'},
+      {combina: [4, 2], per: [1, -1], porta: 4, text: '$(EQ.4)$ i $(EQ.2)$ tenen la mateixa $d$: multiplica $(EQ.2)$ per $-1$ i suma-les, i $d$ desapareix.'},
+      {divideix: [4, 2], text: 'Divideix per $2$.'},
+      {combina: [4, 1], per: [1, -1], porta: 4, text: 'Ara $(EQ.4)$ i $(EQ.1)$ tenen la mateixa $c$: multiplica $(EQ.1)$ per $-1$ i suma-les, i $c$ desapareix.'},
+      {divideix: [4, 2], text: 'Divideix per $2$.'},
+      {reduccio: [3, 4], text: 'Queden dues equacions, $(EQ.3)$ i $(EQ.4)$, amb dues incògnites, $a$ i $b$ (en groc). Resol-les pel mètode de reducció.'},
+      {substitueix: [1]},
+      {substitueix: [2]},
     ],
     solucio: {a: 1, b: -6, c: 9, d: -1},
   },
@@ -410,6 +316,36 @@ function termesSolucio(s, ordre) {
 }
 
 
+/** Si l'equació L ({coef: [a, b, c, d], r}) ja és un valor («b = -3»), l'índex de la incògnita; si no, −1. */
+function esValor(L) {
+  const nz = [0, 1, 2, 3].filter(j => !L.coef[j].esZero());
+  return nz.length === 1 && L.coef[nz[0]].igual(Fraccio.de(1)) ? nz[0] : -1;
+}
+
+/**
+ * Una equació del sistema, amb les claus P a…P d (termes), P q («=») i P r (segon membre):
+ *   subs:  els valors coneguts {a: Fraccio…}, que se substitueixen («12 \cdot 1 + 4b + 0 = 0»);
+ *   caixa: si l'equació ja és un valor, requadrada; marca: la de totes les claus (p. ex. 'tria').
+ */
+function texLinia(L, {subs = null, caixa = false, marca = ''} = {}) {
+  const {P} = L;
+  const termes = [];
+  L.coef.forEach((c, j) => {
+    if (c.esZero()) return;
+    const x = LLETRES[j], a = c.abs(), primer = !termes.length;
+    const signe = c.signe() < 0 ? (primer ? '-' : ' - ') : (primer ? '' : ' + ');
+    let t;
+    if (subs && subs[x] !== undefined) {
+      const v = subs[x];
+      t = a.igual(Fraccio.de(1)) ? (primer && c.signe() > 0 ? M.texNombre(v) : M.texEntreParentesis(v)) : `${M.texNombre(a)} \\cdot ${M.texEntreParentesis(v)}`;
+    } else t = (a.igual(Fraccio.de(1)) ? '' : M.texNombre(a)) + x;
+    termes.push(primer ? K(P + x, signe + t, marca) : signe + K(P + x, t, marca));
+  });
+  const tex = `${termes.length ? termes.join('') : '0'} ${F.rel(P + 'q', '=')} ${K(P + 'r', M.texNombre(L.r), marca)}`;
+  return caixa && !subs && esValor(L) >= 0 ? `\\boxed{${tex}}` : tex;
+}
+
+
 /* ── 3. PASSOS ─────────────────────────────────────────────────────── */
 
 function passos(valors) {
@@ -429,10 +365,15 @@ function passos(valors) {
     return d.condicions.length > 1 ? 'doble' : 'condicio';
   };
   const lectura = () => F.enunciatMarcat(p.text, marca);
+  // El sistema: cada equació amb «(EQ.n)» a la dreta (David). Durant la traducció, fórmules marcat; durant la
+  // resolució, els coeficients exactes (sist), i els valors trobats requadrats.
+  let sist = null, ambCaixes = false;
+  const marques = {};                         // línia → marca de totes les seves claus
   const dibuixa = () => {
     g.files[FILA.enunciat] = lectura().tex;
-    g.files[FILA.sistema] = sistema.length ? `\\begin{cases} ${sistema.map(F.marcat).join(' \\\\ ')} \\end{cases}` : '';
-    g.files[FILA.calcul] = calcul ? F.marcat(calcul) : '';
+    const linies = sist ? sist.map((L, i) => texLinia(L, {caixa: ambCaixes, marca: marques[i + 1] || ''})) : sistema.map(F.marcat);
+    g.files[FILA.sistema] = linies.length ? Mt.texSistemaEq(linies) : '';
+    if (!sist || calcul !== null) g.files[FILA.calcul] = calcul ? F.marcat(calcul) : '';
   };
   const pas = (text, opcions) => { dibuixa(); g.afegeix(text, opcions); };
   const funcio = (ordre, tex) => F.membreEsquerre(FUNCIONS[ordre].L, 'f', 'x', ordre) + K(FUNCIONS[ordre].L + 'e', tex);
@@ -472,22 +413,93 @@ function passos(valors) {
     {cursor: {arrossega: `q${n}q`, fins: `q${n}q`}});
   });
 
-  /* 3. La resolució del sistema (dades del problema). */
+  /* 3. La resolució del sistema: el guió de les dades, amb els coeficients exactes. */
+  sist = condicions.map((c, i) => ({P: `q${i + 1}`, coef: coeficients(c.ordre, c.x).slice(), r: Fraccio.de(c.valor)}));
+  let nova = condicions.length + 1;                                   // prefix de la propera equació nova (q5, q6…)
+  const coneguts = () => {
+    const v = {};
+    for (const L of sist) { const j = esValor(L); if (j >= 0) v[LLETRES[j]] = L.r; }
+    return v;
+  };
+  const textEq = t => t.replace(/\(EQ\.(\d)\)/g, (m, k) => Mt.texEq(k));
+  const llistaText = xs => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} i ${xs[xs.length - 1]}` : xs[0]);
   for (const r of p.resolucio) {
-    for (const [linia, tex] of Object.entries(r.sistema || {})) sistema[linia - 1] = tex;
-    if (r.calcul !== undefined) calcul = r.calcul;
-    if (r.porta) { sistema[r.porta - 1] = calcul; calcul = ''; }
-    const opcions = {};
-    if (r.cursor) opcions.cursor = r.cursor;
-    if (r.fusiona) opcions.fusiona = r.fusiona;
-    pas(r.text, opcions);
+    if (r.caixes) {
+      ambCaixes = true;
+      pas(textEq(r.text));
+    } else if (r.substitueix) {
+      ambCaixes = true;
+      const v = coneguts();
+      const linies = r.substitueix.filter(n => LLETRES.some((x, j) => !sist[n - 1].coef[j].esZero() && v[x] !== undefined && esValor(sist[n - 1]) !== j));
+      const usats = LLETRES.filter((x, j) => v[x] !== undefined && linies.some(n => !sist[n - 1].coef[j].esZero()));
+      const substituides = {};
+      for (const n of linies) substituides[n] = v;
+      const dibuixaSubs = () => {
+        dibuixa();
+        const ls = sist.map((L, i) => (substituides[i + 1] ? texLinia(L, {subs: substituides[i + 1]}) : texLinia(L, {caixa: ambCaixes})));
+        g.files[FILA.sistema] = Mt.texSistemaEq(ls);
+      };
+      dibuixaSubs();
+      g.afegeix(textEq(`Substitueix ${llistaText(usats.map(x => `$${x} = ${M.texNombre(v[x])}$`))} a ${llistaText(linies.map(n => `$(EQ.${n})$`))}.`));
+      for (const n of linies) {
+        const L = sist[n - 1];
+        LLETRES.forEach((x, j) => {
+          if (v[x] !== undefined && !L.coef[j].esZero()) { L.r = L.r.resta(L.coef[j].producte(v[x])); L.coef[j] = Fraccio.de(0); }
+        });
+      }
+      pas(linies.some(n => sist[n - 1].coef.filter(c => !c.esZero()).length === 1 && esValor(sist[n - 1]) >= 0)
+        ? 'Opera: els nombres passen a l\'altre costat, canviats de signe. Ja tens una altra incògnita (requadrada).'
+        : 'Opera: els nombres passen a l\'altre costat, canviats de signe.');
+    } else if (r.divideix) {
+      ambCaixes = true;
+      const [n, k] = r.divideix;
+      const L = sist[n - 1], q = Fraccio.de(k);
+      L.coef = L.coef.map(c => c.quocient(q));
+      L.r = L.r.quocient(q);
+      pas(textEq(r.text) + (esValor(L) >= 0 ? ` Ja tens $${LLETRES[esValor(L)]} = ${M.texNombre(L.r)}$ (requadrat).` : ''));
+    } else if (r.combina) {
+      ambCaixes = true;
+      const [i, j] = r.combina, [m1, m2] = r.per.map(x => Fraccio.de(x));
+      const P = `q${nova++}`;
+      const fila = L => L.coef.concat([L.r]);
+      calcul = null;                                                   // la fila 5 la dibuixa passosCombina
+      dibuixa();
+      const S = Mt.passosCombina(g, {fila: FILA.calcul, P: 'X', E1: fila(sist[i - 1]), E2: fila(sist[j - 1]), m1, m2, vars: LLETRES,
+        eqs: [i, j], text: textEq(r.text), textSuma: 'Suma les dues equacions, membre a membre.',
+        texSuma: T => texLinia({P, coef: T.slice(0, 4), r: T[4]})});
+      sist[r.porta - 1] = {P, coef: S.slice(0, 4), r: S[4]};
+      calcul = '';
+      pas(textEq(`Aquesta equació ocupa el lloc de $(EQ.${r.porta})$: el sistema que en surt és equivalent.`));
+    } else if (r.reduccio) {
+      ambCaixes = true;
+      const [i, j] = r.reduccio;
+      const js = [0, 1, 2, 3].filter(k => !sist[i - 1].coef[k].esZero() || !sist[j - 1].coef[k].esZero());
+      if (js.length !== 2) throw new Error(`${p.id}: (EQ.${i}) i (EQ.${j}) no són un sistema 2×2`);
+      marques[i] = marques[j] = 'tria';
+      pas(textEq(r.text));
+      calcul = null;
+      const S2 = [i, j].map(n => [sist[n - 1].coef[js[0]], sist[n - 1].coef[js[1]], sist[n - 1].r]);
+      const [v1, v2] = Mt.passosReduccio2(g, {S: S2, vars: js.map(k => LLETRES[k]), fila: FILA.calcul, P: 'X', eqs: [i, j]});
+      const valor = (k, v) => ({coef: [0, 1, 2, 3].map(q => Fraccio.de(q === k ? 1 : 0)), r: v});
+      sist[i - 1] = Object.assign({P: sist[i - 1].P}, valor(js[0], v1));
+      sist[j - 1] = Object.assign({P: sist[j - 1].P}, valor(js[1], v2));
+      delete marques[i];
+      delete marques[j];
+      calcul = '';
+      pas(`Porta els dos valors al sistema: $${LLETRES[js[0]]} = ${M.texNombre(v1)}$ i $${LLETRES[js[1]]} = ${M.texNombre(v2)}$.`);
+    }
   }
+  const final = coneguts();
+  if (!LLETRES.every(x => final[x] !== undefined && final[x].igual(Fraccio.de(p.solucio[x])))) throw new Error(`${p.id}: el guió no acaba amb la solució`);
 
   /* 4. La resposta (fila 6). */
   const s = p.solucio;
   const valorsTex = `$a = ${s.a}$, $b = ${s.b}$, $c = ${s.c}$ i $d = ${s.d}$`;
   const resposta = F.membreEsquerre('R', 'f', 'x');
-  g.files[FILA.resposta] = resposta + LLETRES.map((v, i) => K('Rt' + (3 - i), `${M.texEntreParentesis(s[v])}${i < 3 ? ' \\cdot ' + (i < 2 ? `x^{${3 - i}}` : 'x') : ''}`)).join(' + ');
+  // Sense «1 ·» (David): si el coeficient val 1, només la potència de x.
+  const potencia = i => (i < 2 ? `x^{${3 - i}}` : 'x');
+  g.files[FILA.resposta] = resposta + LLETRES.map((v, i) => K('Rt' + (3 - i), i < 3 && Fraccio.de(s[v]).igual(Fraccio.de(1)) ? potencia(i)
+    : `${M.texEntreParentesis(s[v])}${i < 3 ? ' \\cdot ' + potencia(i) : ''}`)).join(' + ');
   pas(`Substitueix ${valorsTex} a l'expressió de $f(x)$.`, {cursor: {clic: 'Fe'}});
   const termes = termesSolucio(s, 0);
   g.files[FILA.resposta] = resposta + termes.map((t, i) => {

@@ -4,7 +4,7 @@ ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '
 F='equacio-matricial.js'
 MUT=[
  (F, "const X = p.costat === 'e' ? producte(inv, Rm) : producte(Rm, inv);", "const X = p.costat === 'e' ? producte(Rm, inv) : producte(inv, Rm);", 'producte en l\'ordre equivocat'),
- (F, "eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? inv('qR') + dretaP : dretaP + inv('qR'));", "eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? dretaP + inv('qR') : inv('qR') + dretaP);", 'inversa per l\'altre costat a la dreta'),
+ (F, "eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? inv('qR') + dretaMarcada : dretaMarcada + inv('qR'));", "eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? dretaMarcada + inv('qR') : inv('qR') + dretaMarcada);", 'inversa per l\'altre costat a la dreta'),
  (F, "    eq(AX + (p.c ? termeC() : ''), dretaC + termeB(true));", "    eq(AX + (p.c ? termeC() : ''), dretaC + termeB(false));", 'B passa sense canviar de signe'),
  (F, "    eq(e ? Mx + X : X + Mx, dretaC + (p.beta ? termeB(true) : ''));", "    eq(X + Mx, dretaC + (p.beta ? termeB(true) : ''));", 'factor comú pel costat dolent'),
  (F, "const adj = [[d, b.oposada()], [c.oposada(), a]];", "const adj = [[a, b.oposada()], [c.oposada(), d]];", 'inversa 2×2 sense intercanviar'),

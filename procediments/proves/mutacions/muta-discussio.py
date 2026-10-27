@@ -3,7 +3,7 @@ import subprocess, shutil, os, tempfile
 ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MUT=[
  ('discussio.js', "return {N, rA: 2, rS: valor.esZero() ? 2 : 3,", "return {N, rA: 2, rS: valor.esZero() ? 3 : 2,", 'rang de A* al revés'),
- ('discussio.js', "const TIPUS = (rA, rS) => (rA < rS ? 'SI' : rA === 3 ? 'SCD' : 'SCI');", "const TIPUS = (rA, rS) => (rA < rS ? 'SCI' : rA === 3 ? 'SCD' : 'SI');", 'SI i SCI canviats'),
+ ('discussio.js', "const TIPUS = (rA, rS) => (rA < rS ? 'Sistema incompatible' : rA === 3 ? 'Sistema compatible determinat' : 'Sistema compatible indeterminat');", "const TIPUS = (rA, rS) => (rA < rS ? 'Sistema compatible indeterminat' : rA === 3 ? 'Sistema compatible determinat' : 'Sistema incompatible');", 'incompatible i indeterminat canviats'),
  ('discussio.js', "const orla = {fs: [0, 1, 2], cs: cs.concat([3])};", "const orla = {fs: [0, 1, 2], cs: [0, 1, 2]};", 'orla amb |A| en lloc de la columna b'),
  ('discussio.js', "const N = amb(S, r);\n  const A = N", "const N = amb(S, r + 1);\n  const A = N", 'substitueix un altre valor'),
  ('discussio.js', "  const diferent = arrels.length ? `${X} \\\\neq ${arrels.join(',\\\\ ')}`", "  const diferent = arrels.length ? `${X} \\\\neq ${arrels.slice(1).join(',\\\\ ')}`", 'el cas SCD oblida un valor'),

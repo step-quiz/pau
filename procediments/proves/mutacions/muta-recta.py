@@ -16,7 +16,7 @@ for a,b,nom in MUT:
     p=os.path.join(d,'recta-tangent.js'); s=open(p).read()
     if s.count(a)!=1: print('NO APLICA', nom, s.count(a)); continue
     open(p,'w').write(s.replace(a,b,1))
-    r=subprocess.run(['node', os.path.join(d,'proves/comprova.js')], capture_output=True, text=True)
+    r=subprocess.run(['node', os.path.join(d,'proves/comprova.js'), 'recta-tangent'], capture_output=True, text=True)
     f=r.returncode!=0; det+=f
     l=[x for x in r.stdout.splitlines() if x.strip().startswith('·')][:1]
     print(('DETECTADA ' if f else 'NO DETECTADA ')+nom, '|', l[0].strip()[:150] if l else '')

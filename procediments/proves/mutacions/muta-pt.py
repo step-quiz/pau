@@ -4,7 +4,7 @@ ORIG=os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '
 MUT=[
  ('arbres.js', "const resta = coneguts.map(b => valorDe(b.p)).reduce((s, v) => s.resta(v), Fraccio.de(1));", "const resta = coneguts.map(b => valorDe(b.p)).reduce((s, v) => s.resta(v), Fraccio.de(1)).producte(Fraccio.de(1, 1) ).suma(new Fraccio(1, 100));", 'contrari mal calculat'),
  ('arbres.js', "K(`Pr${a}${j}`, texValor(p, b.v.producte(c.v)), marca)", "K(`Pr${a}${j}`, texValor(p, b.v.suma(c.v)), marca)", 'producte del camí'),
- ('arbres.js', "    objectiu: [[0, 0], [1, 0]],\n    pregunta: {tex: 'P(D)', text: 'que una peça sigui defectuosa'},\n    bayes: {tex: 'P(F \\\\mid D)'", "    objectiu: [[0, 0], [1, 1]],\n    pregunta: {tex: 'P(D)', text: 'que una peça sigui defectuosa'},\n    bayes: {tex: 'P(F \\\\mid D)'", 'camins equivocats'),
+ ('arbres.js', "    objectiu: [[0, 0], [1, 0]],\n    pregunta: {frase: 'Quina és la probabilitat que sigui defectuosa?', tex: 'P(D)'", "    objectiu: [[0, 0], [1, 1]],\n    pregunta: {frase: 'Quina és la probabilitat que sigui defectuosa?', tex: 'P(D)'", 'camins equivocats'),
  ('arbres.js', "{e: 'F', p: '70%', dada: '1'", "{e: 'F', p: '75%', dada: '1'", 'dada equivocada'),
  ('arbres.js', "const texCondicionada = (t, a, j) => `P(${t.fills[a][j].e} \\\\mid ${t.primer[a].e})`;", "const texCondicionada = (t, a, j) => `P(${t.primer[a].e} \\\\mid ${t.fills[a][j].e})`;", 'condicionada al revés'),
  ('probabilitat-total.js', "const total = termes.reduce((s, v) => s.suma(v));", "const total = termes.reduce((s, v) => s.producte(v));", 'suma per producte'),
