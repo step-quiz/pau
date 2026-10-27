@@ -167,7 +167,7 @@ function problemesFixos(llista) {
     },
     escriuAdreca: v => ({p: v.p}),
     enunciat: () => '',
-    resum: v => `\\text{${perId(v.p).nom}}`,
+    resum: v => `\\text{${perId(v.p).nom.replace(/·/g, '}\\mathord{\\cdotp}\\text{')}}`,   // «paral·lel»: KaTeX no té «·» dins de \text{}
     nomExemple: v => perId(v.p).nom,
   });
 }

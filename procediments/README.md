@@ -58,6 +58,7 @@ Student-facing text is Catalan; code comments are Catalan; this file is English.
 | `proves/mutacions/muta-*.py` | tests | no | Mutation scripts: each injects realistic bugs, one at a time, into a temporary copy and requires `comprova.js` to fail (§7). |
 | `proves/navegador/prova-*.js` | tests | yes | Playwright browser tests per page, plus `prova-partides.js` (wrapped phrases mid-transition), `prova-index-demo.js` (DEMO menu of `../index.html`) and `mostra-esquemes.js` (screenshots of every sketch) (§7). |
 | `proves/eines/empaqueta.py` | tool | — | Bundles one page into a single self-contained HTML (for a Claude artifact preview). |
+| `frases/genera-editor-frases.js`, `frases/plantilla-editor-frases.html` | tool | — | Build the Claude artifact «Frases dels procediments», where David marks the caption changes he wants (all steps of all DEMO examples, with their boards). See `frases/EDITOR-FRASES.md`. |
 
 Dependency order: `katex` → `mates.js` → `formules.js` → `dades.js` → [`arbres.js` | `matrius.js` | `matrius.js` → `geometria.js`, when the procedure needs them] → `motor.js` and the procedure file. Plain classic scripts (no modules, no build step); each file is an IIFE that sets one frozen global on `globalThis`, so pages work from any static host and the pure files also load in Node.
 
@@ -199,7 +200,10 @@ Positions are measured on the real KaTeX output, so any TeX layout works. Rules 
 ```
 node procediments/proves/comprova.js
 node procediments/proves/comprova.js binomial    # only the sections whose name contains «binomial»
+KATEX=<katex 0.16.9>/dist node procediments/proves/comprova.js   # also the section «regles generals: KaTeX dibuixa totes les fórmules»
 ```
+
+The KaTeX section renders every board row, caption and statement formula of every example with `throwOnError: true`. The pages use `throwOnError: false`, which never fails but paints what KaTeX does not understand in red (e.g. «paral·lela» inside `\text{}` showed «paral\cdotplela»: write `\text{paral}\mathord{\cdotp}\text{lela}`). Without `KATEX` (and no `katex` that `require` can find) the section says «NO COMPROVAT» and checks nothing: always run it with `KATEX` before delivering.
 
 Mutation and browser tests (run before delivering a change to a procedure):
 

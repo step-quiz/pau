@@ -12,7 +12,7 @@ MUT=[
  ('recta-pla.js', "llista([K('Lv', `\\\\lambda = ${M.texNombre(l0)}`)", "llista([K('Lv', `\\\\lambda = ${M.texNombre(l0.oposada())}`)", 'λ escrit amb el signe canviat'),
  ('recta-pla.js', "{secant: 'recta-secant', paralela: 'recta-paralela',", "{secant: 'recta-paralela', paralela: 'recta-paralela',", 'esquema d\'un altre cas'),
  ('geometria.js', "Mt.texLineal([a, u[i]], l)", "Mt.texLineal([a, u[(i + 1) % 3]], l)", 'punt genèric amb el vector desordenat'),
- ('recta-pla.js', "K('Lr', '\\\\text{La recta } r \\\\text{ talla el pla } \\\\pi \\\\text{ en el punt } Q')", "K('Lr', '\\\\text{La recta } r \\\\text{ és paral·lela al pla } \\\\pi')", 'secant escrita com a paral·lela'),
+ ('recta-pla.js', "K('Lr', '\\\\text{La recta } r \\\\text{ talla el pla } \\\\pi \\\\text{ en el punt } Q')", "K('Lr', '\\\\text{La recta } r \\\\text{ és paral}\\\\mathord{\\\\cdotp}\\\\text{lela al pla } \\\\pi')", 'secant escrita com a paral·lela'),
 ]
 det=0
 for f,a,b,nom in MUT:

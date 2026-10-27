@@ -4070,7 +4070,7 @@ function comprovaRectaPla(passos, v, nom) {
           comprova(!Lr || Lr === '\\text{La recta } r \\text{ talla el pla } \\pi \\text{ en el punt } Q', () => `${on}: la posició no és «es tallen»`);
         } else {
           comprova(Lv === (cas === 'paralela' ? '\\text{cap valor de } \\lambda' : '\\text{tots els valors de } \\lambda') && !grups.Lq, () => `${on}: «${Lv}» no és el cas`);
-          comprova(Lr === (cas === 'paralela' ? '\\text{La recta } r \\text{ és paral·lela al pla } \\pi' : '\\text{La recta } r \\text{ està continguda en el pla } \\pi'), () => `${on}: «${Lr}» no és la posició`);
+          comprova(Lr === (cas === 'paralela' ? '\\text{La recta } r \\text{ és paral}\\mathord{\\cdotp}\\text{lela al pla } \\pi' : '\\text{La recta } r \\text{ està continguda en el pla } \\pi'), () => `${on}: «${Lr}» no és la posició`);
         }
       } else if (fila === FILA.esquema) {
         comprova(tex === Geometria.esquema({secant: 'recta-secant', paralela: 'recta-paralela', continguda: 'recta-continguda'}[cas]), () => `${on}: no és l'esquema del cas`);
@@ -4298,7 +4298,7 @@ function comprovaDuesRectes(passos, v, nom) {
         } else {
           // La resposta, amb una frase (David: res de r ∩ s).
           const esperat = {creuen: [undefined, '\\text{Les rectes } r \\text{ i } s \\text{ es creuen}'],
-            paraleles: ['\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r', '\\text{Les rectes } r \\text{ i } s \\text{ són paral·leles}'],
+            paraleles: ['\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r', '\\text{Les rectes } r \\text{ i } s \\text{ són paral}\\mathord{\\cdotp}\\text{leles}'],
             coincidents: ['\\text{el mateix } \\lambda\\ \\Rightarrow\\ Q \\in r', '\\text{Les rectes } r \\text{ i } s \\text{ són coincidents}']}[cas];
           comprova((grups.Lv ? grups.Lv.tex : undefined) === esperat[0] && Lr === esperat[1], () => `${on}: «${grups.Lv && grups.Lv.tex}», «${Lr}» no és el cas (${cas})`);
         }
@@ -5854,6 +5854,53 @@ seccio('regles generals de totes les pàgines', () => {
     }
   }
   return `${pagines} pàgines, ${passos} passos`;
+});
+
+// KaTeX amb throwOnError: false (com a les pàgines) no falla: dibuixa en vermell el que no entén (p. ex. «paral·lela» dins de
+// \text{}, que surt «paral\cdotplela»). Aquí es dibuixen amb throwOnError: true totes les fórmules de tots els exemples.
+// Cal KaTeX: KATEX=<katex/dist o katex.js> node procediments/proves/comprova.js (o bé un «katex» que require pugui trobar).
+seccio('regles generals: KaTeX dibuixa totes les fórmules', () => {
+  let katex = null;
+  for (const lloc of [process.env.KATEX, 'katex']) {
+    if (!lloc) continue;
+    try { katex = require(lloc.endsWith('.js') || lloc === 'katex' ? lloc : path.resolve(lloc, 'katex.js')); break; } catch (e) { /* el següent */ }
+  }
+  if (!katex) return 'NO COMPROVAT: falta KaTeX (KATEX=<katex/dist>)';
+  const PISSARRA = {throwOnError: true, strict: 'ignore', trust: c => c.command === '\\htmlData'}, TEXT = {throwOnError: true, strict: 'ignore'};
+  const fet = new Set();
+  const dibuixa = (tex, opcions, on) => {
+    if (fet.has(tex)) return;
+    fet.add(tex);
+    let error = '';
+    try { katex.renderToString(tex, opcions); } catch (e) { error = e.message; }
+    comprova(!error, () => `${on}: KaTeX no ho pot dibuixar (${error.slice(0, 110)}): «${tex.slice(0, 90)}»`);
+  };
+  const formulesDe = (text, on) => { for (const m of text.matchAll(/\$([^$]+)\$/g)) dibuixa(m[1], TEXT, on); };
+  const NOMS = ['RectaTangent', 'Creixement', 'Extrems', 'PolinomiCondicions', 'Optimitzacio', 'Asimptotes', 'Bolzano', 'Primitiva', 'Barrow',
+    'AreaEix', 'AreaCorbes', 'AreaParametre', 'ProbabilitatTotal', 'Bayes', 'Binomial', 'Determinant', 'Rang', 'Inversa', 'EquacioMatricial',
+    'Discussio', 'SistemaSCI', 'Esglaonar', 'Pla', 'RectaPlans', 'RectaPla', 'DuesRectes', 'Distancies', 'Projeccions', 'AreaVolum', 'PerpendicularComuna'];
+  for (const global of NOMS) {
+    const P = globalThis[global];
+    if (!P) continue;
+    const casos = [];
+    for (const e of P.exemples || []) casos.push(Object.assign({}, P.perDefecte || {}, e));
+    if (P.modes) for (const o of P.modes.opcions) for (const e of P.exemples || []) casos.push(Object.assign({}, P.perDefecte || {}, e, {[P.modes.id]: o.valor}));
+    for (const v of casos) {
+      if (P.valida && P.valida(v)) continue;
+      const nom = `${global} ${JSON.stringify(v)}`;
+      if (P.enunciat) formulesDe(P.enunciat(v), nom + ', enunciat');
+      if (P.resum && !P.nomExemple) dibuixa(P.resum(v), TEXT, nom + ', resum');   // el nom de l'exemple (si no n'hi ha, el resum)
+      P.passos(v).forEach((pas, i) => {
+        formulesDe(pas.text, `${nom}, pas ${i + 1}`);
+        pas.files.forEach((tex, f) => {
+          if (!tex || tex.startsWith('<svg')) return;
+          if (tex.startsWith('§')) formulesDe(tex.slice(1).replace(/\{\{[^|}]*\|[^|}]*\|([^}]*)\}\}/g, '$1'), `${nom}, pas ${i + 1}, fila ${f + 1}`);
+          else dibuixa(tex, PISSARRA, `${nom}, pas ${i + 1}, fila ${f + 1}`);
+        });
+      });
+    }
+  }
+  return `KaTeX ${katex.version}, ${fet.size} fórmules diferents`;
 });
 
 

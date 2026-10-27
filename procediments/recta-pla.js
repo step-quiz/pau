@@ -112,7 +112,7 @@ function passos(v) {
     g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ al punt genèric: és el punt d'intersecció, $${G.texPuntNom('Q', Q)}$. La recta talla el pla en un punt (són secants).`);
   } else if (!c.esZero()) {
     cas = 'paralela';
-    g.files[FILA.conclusio] = llista([K('Lv', '\\text{cap valor de } \\lambda'), K('Lr', '\\text{La recta } r \\text{ és paral·lela al pla } \\pi')]);
+    g.files[FILA.conclusio] = llista([K('Lv', '\\text{cap valor de } \\lambda'), K('Lr', '\\text{La recta } r \\text{ és paral}\\mathord{\\cdotp}\\text{lela al pla } \\pi')]);
     g.afegeix(`$0\\lambda = ${M.texNombre(c)}$ no es compleix per a cap $\\lambda$: la recta i el pla no tenen cap punt comú. La recta és paral·lela al pla.`);
   } else {
     cas = 'continguda';

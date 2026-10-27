@@ -1,0 +1,835 @@
+<title>Frases dels procediments</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>/*__KATEX_CSS__*/</style>
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface-2:#f0eee8; --border:#dfdbd1; --border-2:#c8c3b7;
+  --txt:#1f2328; --muted:#6a6f78; --hover:#ebe9e3;
+  --accent:#2453c7; --accent-txt:#ffffff;
+  --pend:#a85a06; --pend-fons:#fcf1e2; --ok:#1d7a46; --ok-fons:#e6f4eb; --danger:#b42318;
+  --gen:#5546b0; --gen-fons:#efecfa;
+  --cat:#475569; --cat-fons:rgba(71,85,105,.08); --catp:#475569; --catp-fons:rgba(71,85,105,.10);
+  --paper:#ffffff; --paper-dots:#e3e8ef; --paper-border:#d6dbe3; --paper-ink:#1e293b;
+  --serif:'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --mono:'Source Code Pro', ui-monospace, Menlo, Consolas, monospace;
+  --sans:system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --gl:max(16px, env(safe-area-inset-left)); --gr:max(16px, env(safe-area-inset-right));
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141619; --surface:#1c1f23; --surface-2:#24282d; --border:#30353c; --border-2:#434a53;
+    --txt:#e6e8eb; --muted:#9aa1ab; --hover:#2a2e34;
+    --accent:#86a8ff; --accent-txt:#0b1430;
+    --pend:#f0a64a; --pend-fons:#33260f; --ok:#5cc98d; --ok-fons:#14301f; --danger:#ff8a80;
+    --gen:#b6aaff; --gen-fons:#27224a;
+    --paper:#f7f7f4; --paper-border:#5a616b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141619; --surface:#1c1f23; --surface-2:#24282d; --border:#30353c; --border-2:#434a53;
+  --txt:#e6e8eb; --muted:#9aa1ab; --hover:#2a2e34;
+  --accent:#86a8ff; --accent-txt:#0b1430;
+  --pend:#f0a64a; --pend-fons:#33260f; --ok:#5cc98d; --ok-fons:#14301f; --danger:#ff8a80;
+  --gen:#b6aaff; --gen-fons:#27224a;
+  --paper:#f7f7f4; --paper-border:#5a616b;
+  color-scheme:dark;
+}
+/* Colors de categoria: --cat per a la interfície, --catp per a la pissarra (que sempre és clara, com a la web) */
+.cat-algebra{--cat:#b33c3c; --cat-fons:rgba(179,60,60,.09); --catp:#b33c3c; --catp-fons:rgba(179,60,60,.09)}
+.cat-geometria{--cat:#0f766e; --cat-fons:rgba(15,118,110,.09); --catp:#0f766e; --catp-fons:rgba(15,118,110,.09)}
+.cat-analisi{--cat:#7c5cbf; --cat-fons:rgba(124,92,191,.10); --catp:#7c5cbf; --catp-fons:rgba(124,92,191,.10)}
+.cat-probabilitat{--cat:#9a5b16; --cat-fons:rgba(154,91,22,.09); --catp:#9a5b16; --catp-fons:rgba(154,91,22,.09)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .cat-algebra{--cat:#ec8f8f; --cat-fons:rgba(236,143,143,.12)}
+  :root:not([data-theme="light"]) .cat-geometria{--cat:#4cc2b4; --cat-fons:rgba(76,194,180,.12)}
+  :root:not([data-theme="light"]) .cat-analisi{--cat:#b39cf0; --cat-fons:rgba(179,156,240,.13)}
+  :root:not([data-theme="light"]) .cat-probabilitat{--cat:#e0a660; --cat-fons:rgba(224,166,96,.12)}
+}
+:root[data-theme="dark"] .cat-algebra{--cat:#ec8f8f; --cat-fons:rgba(236,143,143,.12)}
+:root[data-theme="dark"] .cat-geometria{--cat:#4cc2b4; --cat-fons:rgba(76,194,180,.12)}
+:root[data-theme="dark"] .cat-analisi{--cat:#b39cf0; --cat-fons:rgba(179,156,240,.13)}
+:root[data-theme="dark"] .cat-probabilitat{--cat:#e0a660; --cat-fons:rgba(224,166,96,.12)}
+
+html,body{margin:0}
+body{background:var(--bg); color:var(--txt); font:15px/1.5 var(--sans); -webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit; color:inherit}
+[hidden]{display:none !important}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.muted{color:var(--muted)}
+.sp{flex:1}
+
+.btn{border:1px solid var(--border-2); background:var(--surface); border-radius:8px; padding:5px 12px; cursor:pointer; font-size:13.5px; line-height:1.35; white-space:nowrap}
+.btn:hover{background:var(--hover); border-color:var(--txt)}
+.btn:disabled{opacity:.45; cursor:default; border-color:var(--border-2); background:var(--surface)}
+.btn.primari{background:var(--accent); color:var(--accent-txt); border-color:var(--accent); font-weight:600}
+.btn.primari:hover{filter:brightness(1.07)}
+.btn.perill{color:var(--danger); border-color:transparent; background:transparent}
+.btn.perill:hover{border-color:var(--danger); background:var(--hover)}
+.btn.subtil{border-color:transparent; background:transparent; color:var(--muted)}
+.btn.subtil:hover{color:var(--txt); background:var(--hover); border-color:var(--txt)}
+
+/* ── Capçalera ── */
+.top{position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid var(--border)}
+.top-in{max-width:1320px; margin:0 auto; padding:10px var(--gr) 10px var(--gl); display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap}
+.top h1{font:700 17px/1.2 var(--serif); margin:0}
+.tabs{display:flex; gap:3px; background:var(--surface-2); padding:3px; border-radius:10px; border:1px solid var(--border)}
+.tabs button{border:0; background:transparent; padding:6px 13px; border-radius:7px; cursor:pointer; font-size:14px; color:var(--muted); white-space:nowrap}
+.tabs button:hover{background:var(--hover); color:var(--txt)}
+.tabs button[aria-selected="true"]{background:var(--surface); color:var(--txt); font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.10)}
+.compte{display:inline-block; min-width:1.5em; padding:0 6px; margin-left:5px; border-radius:999px; background:var(--pend); color:#fff; font-size:11.5px; font-weight:700; line-height:1.6; text-align:center}
+.compte:empty{display:none}
+.avis-local{font-size:12.5px; color:var(--pend); max-width:46ch}
+
+/* ── Cos: llista de pàgines + contingut ── */
+.cos{max-width:1320px; margin:0 auto; display:grid; grid-template-columns:248px minmax(0,1fr)}
+nav.pagines{position:sticky; top:var(--top-h, 56px); align-self:start; max-height:calc(100vh - var(--top-h, 56px)); overflow:auto; padding:12px 10px 40px var(--gl); border-right:1px solid var(--border)}
+.nav-cat{font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--cat); margin:16px 8px 5px}
+.nav-cat:first-child{margin-top:4px}
+.nav-pag{display:flex; align-items:center; gap:8px; width:100%; text-align:left; border:0; background:transparent; padding:5px 8px; border-radius:7px; cursor:pointer; font-size:14px; line-height:1.3}
+.nav-pag:hover{background:var(--hover)}
+.nav-pag[aria-current="true"]{background:var(--surface); font-weight:600; box-shadow:inset 3px 0 0 var(--cat), 0 1px 2px rgba(0,0,0,.06)}
+.nav-pag .n{margin-left:auto; font-size:11px; font-weight:700; color:#fff; background:var(--pend); border-radius:999px; padding:0 6px; line-height:1.6}
+main{padding:18px var(--gr) 140px 28px; min-width:0}
+
+.cap-pag{display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin:0 0 10px}
+.cap-pag h2{font:700 22px/1.25 var(--serif); margin:0}
+.cat-chip{font-size:11.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--cat)}
+.sel-pagina{display:none; width:100%; padding:7px 10px; border-radius:8px; border:1px solid var(--border-2); background:var(--surface); margin-bottom:10px}
+.exemples{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 14px}
+.chip{border:1px solid var(--border-2); background:var(--surface); border-radius:999px; padding:4px 12px; cursor:pointer; font-size:13px; display:inline-flex; align-items:center; gap:7px; max-width:100%; overflow:hidden}
+.chip:hover{background:var(--hover); border-color:var(--txt)}
+.chip.actiu{border-color:var(--cat); box-shadow:inset 0 0 0 1px var(--cat); background:var(--cat-fons); font-weight:600}
+.chip .katex{font-size:1em}
+.chip .mode{font-size:11.5px; color:var(--muted); font-weight:400}
+.chip .punt{width:7px; height:7px; border-radius:50%; background:var(--pend); flex:none}
+.enunciat-lbl{font-size:12px; color:var(--muted); margin:0 0 4px}
+
+/* ── Targetes (un pas, un enunciat, una frase de la llista, el comentari de la pàgina) ── */
+.llista{display:flex; flex-direction:column; gap:12px; max-width:900px}
+.pas{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 14px 12px; scroll-margin-top:calc(var(--top-h, 56px) + 16px); transition:box-shadow .3s}
+.pas.te-canvi{border-left:4px solid var(--pend); padding-left:11px}
+.pas.te-canvi.fet{border-left-color:var(--ok)}
+.pas.te-general{border-left:4px solid var(--gen); padding-left:11px}
+.pas.flaix{box-shadow:0 0 0 3px var(--accent)}
+.pas.tipus-pagina{padding-block:7px; background:transparent; border-style:dashed}
+.pas.tipus-pagina.te-canvi{background:var(--surface); border-style:solid}
+.pas-cap{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); min-height:28px}
+.pas-cap .num{font-weight:600; letter-spacing:.01em}
+.etiqueta{font-size:11px; font-weight:700; padding:1px 8px; border-radius:999px; letter-spacing:.02em}
+.etiqueta.pend{color:var(--pend); background:var(--pend-fons)}
+.etiqueta.ok{color:var(--ok); background:var(--ok-fons)}
+.etiqueta.gen{color:var(--gen); background:var(--gen-fons)}
+.frase{font-family:var(--serif); font-size:16px; line-height:1.75; margin:2px -6px 0; padding:2px 6px; border-radius:6px; cursor:pointer}
+.frase:hover{background:var(--hover)}
+.frase.enun{font-size:14.5px; line-height:1.7}
+.frase .katex, .nou .katex, .previa .katex, .frase-p .katex{font-size:1.05em; white-space:nowrap}
+.pas.canvi-text > .frase{text-decoration:line-through; text-decoration-color:var(--pend); color:var(--muted)}
+
+.canvi{margin-top:8px; padding:8px 12px; border-radius:8px; background:var(--pend-fons); display:grid; gap:4px}
+.canvi.fet{background:var(--ok-fons)}
+.canvi.altre{background:var(--gen-fons)}
+.canvi .nou{font-family:var(--serif); font-size:16px; line-height:1.75}
+.canvi .meta{font-size:12.5px; color:var(--muted)}
+.lbl-in{font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-right:6px}
+.com, .nota{font-size:14px; line-height:1.55; white-space:pre-wrap}
+.nota{color:var(--ok)}
+
+/* Editor */
+.editor{margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-2); display:grid; gap:6px}
+.editor .lbl{font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:4px}
+.editor textarea{width:100%; font:14.5px/1.55 var(--mono); background:var(--surface-2); color:var(--txt); border:1px solid var(--border-2); border-radius:8px; padding:8px 10px; resize:vertical; min-height:40px; overflow:hidden}
+.editor textarea:focus{border-color:var(--accent); outline:none; box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+.editor .ta-com{font-family:var(--sans); font-size:14.5px}
+.previa{font-family:var(--serif); font-size:16px; line-height:1.75; padding:6px 10px; border-radius:8px; background:var(--pend-fons)}
+.avis-tex{font-size:13px; color:var(--danger)}
+.avis-tex:empty{display:none}
+.abast{display:flex; flex-wrap:wrap; gap:4px 18px; font-size:14px; margin-top:2px}
+.abast label{display:inline-flex; align-items:center; gap:6px; cursor:pointer}
+.abast input{accent-color:var(--accent); margin:0}
+.botons{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:6px}
+.kbd{font-size:12px; color:var(--muted)}
+
+/* Pissarra (sempre clara, com a la web) */
+.pissarra{margin-top:10px; background:var(--paper); background-image:radial-gradient(var(--paper-dots) 1.1px, transparent 1.3px); background-size:20px 20px; background-position:10px 10px;
+  border:1px solid var(--paper-border); border-radius:10px; padding:8px 18px; font-size:19px; color:var(--paper-ink); overflow-x:auto; color-scheme:light}
+.fila{position:relative; min-height:2.05em; display:flex; align-items:center; white-space:nowrap; border-radius:8px; padding:.1em .45em; margin:0 -.45em}
+.fila .katex{font-size:1em}
+.fila.final{background:var(--catp-fons); box-shadow:inset 0 0 0 1.5px var(--catp); margin-block:.25em}
+.fila.separat{margin-top:.8em}
+.fila.destacat{background:var(--catp-fons)}
+.fila.canviada::before{content:''; position:absolute; left:-11px; top:.35em; bottom:.35em; width:3px; border-radius:2px; background:#e3a008}
+.fila.text{display:block; white-space:normal; min-height:0; padding:.3em .45em .4em; font-family:var(--serif); font-size:14.5px; line-height:1.7; max-width:72ch}
+.fila.text .katex{font-size:1.05em}
+.fila.figura{justify-content:center}
+.fila.figura svg{width:min(100%, 400px); height:auto; overflow:visible}
+.fila.figura .pla{fill:var(--catp-fons); stroke:var(--catp); stroke-width:1.2}
+.fila.figura .pla2{fill:none; stroke:#4f46e5; stroke-width:1.6}
+.fila.figura .vector{stroke:var(--catp); stroke-width:2.2; fill:none}
+.fila.figura .punta{fill:var(--catp)}
+.fila.figura .sobre{stroke:var(--catp); stroke-width:1.3; fill:none}
+.fila.figura .recta{stroke:#334155; stroke-width:1.6; fill:none}
+.fila.figura .cat-recta{stroke:var(--catp); stroke-width:2; fill:none}
+.fila.figura .discontinua{stroke:#64748b; stroke-width:1.2; stroke-dasharray:4 3; fill:none}
+.fila.figura .punt{fill:#334155}
+.fila.figura text{font:italic 16px var(--serif); fill:#1e293b}
+.fila.figura text.cat{fill:var(--catp); font-weight:700}
+.fila.figura tspan.sub{font-size:11px; font-style:normal}
+.fila.figura .eix{stroke:#94a3b8; stroke-width:1.2}
+.fila.figura .corba{stroke:var(--catp); stroke-width:2.4; fill:none}
+.fila.figura .corba2{stroke:#b45309; stroke-width:2.4; fill:none}
+.fila.figura .zona{fill:var(--catp); fill-opacity:.18; stroke:none}
+.fila.figura .zona2{fill:#b45309; fill-opacity:.18; stroke:none}
+.fila.figura text.nom{fill:var(--catp); font-weight:700}
+.fila.figura text.nom2{fill:#b45309; font-weight:700}
+.fila.figura text.petit{font:12px var(--mono); fill:#475569}
+
+/* Totes les frases */
+.filtres{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; margin:0 0 14px; max-width:900px}
+.filtres input[type=search]{flex:1 1 260px; min-width:0; padding:7px 12px; border-radius:8px; border:1px solid var(--border-2); background:var(--surface)}
+.filtres select{padding:6px 8px; border-radius:8px; border:1px solid var(--border-2); background:var(--surface)}
+.check{display:inline-flex; align-items:center; gap:6px; font-size:14px; cursor:pointer}
+.check input{accent-color:var(--accent)}
+h3.grup{font:700 13px/1.2 var(--sans); text-transform:uppercase; letter-spacing:.07em; color:var(--cat); margin:14px 0 -2px}
+h3.grup:first-child{margin-top:0}
+.sentinella{height:1px}
+
+/* Canvis */
+.seg{display:flex; gap:3px; background:var(--surface-2); padding:3px; border-radius:9px; border:1px solid var(--border)}
+.seg button{border:0; background:transparent; padding:4px 11px; border-radius:6px; cursor:pointer; font-size:13.5px; color:var(--muted)}
+.seg button:hover{background:var(--hover); color:var(--txt)}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--txt); font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.10)}
+.canvi-item{background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--pend); border-radius:12px; padding:10px 14px 10px 12px; display:grid; gap:8px}
+.canvi-item.fet{border-left-color:var(--ok)}
+.ci-cap{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
+.ci-cap .lloc .katex{font-size:1em}
+.dif{display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 12px; align-items:baseline}
+.frase-p{font-family:var(--serif); font-size:15.5px; line-height:1.7}
+.dif .abans{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--pend)}
+.ci-botons{display:flex; gap:8px; flex-wrap:wrap}
+.buit{color:var(--muted); font-size:15px; margin:24px 0}
+
+/* Avisos */
+.toast{position:fixed; left:50%; bottom:22px; transform:translate(-50%, 20px); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:50;
+  background:var(--txt); color:var(--bg); padding:9px 10px 9px 16px; border-radius:10px; display:flex; align-items:center; gap:12px; font-size:14px; box-shadow:0 6px 24px rgba(0,0,0,.18); max-width:calc(100vw - 32px)}
+.toast.visible{opacity:1; transform:translate(-50%, 0); pointer-events:auto}
+.toast.err{background:var(--danger); color:#fff}
+.toast .btn{background:transparent; color:inherit; border-color:currentColor}
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:60; padding:16px}
+.modal-box{background:var(--surface); border-radius:12px; padding:16px; width:min(720px, 100%); display:grid; gap:10px}
+.modal-box textarea{width:100%; height:50vh; font:13px/1.5 var(--mono); background:var(--surface-2); border:1px solid var(--border-2); border-radius:8px; padding:10px}
+.carrega{color:var(--muted); padding:40px 0}
+code.tex-cru{font:13px var(--mono); background:var(--surface-2); padding:0 4px; border-radius:4px}
+
+@media (max-width: 820px){
+  .cos{grid-template-columns:minmax(0,1fr)}
+  nav.pagines{display:none}
+  .sel-pagina{display:block}
+  main{padding:14px var(--gr) 120px var(--gl)}
+  .top{position:static}                              /* al mòbil la capçalera no es queda a dalt: ocuparia mitja pantalla */
+  .top-in{gap:8px 12px}
+  .tabs button{padding:6px 9px; font-size:13.5px}
+  .pissarra{font-size:16px; padding:6px 14px}
+  .frase .katex, .nou .katex, .previa .katex, .frase-p .katex{white-space:normal}
+  .cap-pag h2{font-size:19px}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap">
+
+<div id="app">
+  <header class="top">
+    <div class="top-in">
+      <h1>Frases dels procediments</h1>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-acc="vista" data-v="pagina">Per pàgina</button>
+        <button role="tab" data-acc="vista" data-v="frases">Totes les frases</button>
+        <button role="tab" data-acc="vista" data-v="canvis">Canvis<span class="compte" id="compte"></span></button>
+      </div>
+      <span class="avis-local" id="avis-local" hidden>Els canvis només es desen en aquest navegador: quan acabis, fes «Copia la llista» a Canvis i enganxa-la al xat.</span>
+    </div>
+  </header>
+  <div class="cos">
+    <nav class="pagines" id="nav" aria-label="Pàgines"></nav>
+    <main id="main"><p class="carrega">Carregant les frases…</p></main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal" id="modal" hidden>
+    <div class="modal-box">
+      <div>El navegador no ha deixat copiar sol. Selecciona-ho tot (Ctrl+A), copia-ho (Ctrl+C) i enganxa-ho al xat.</div>
+      <textarea id="modal-text" readonly></textarea>
+      <div class="botons"><span class="sp"></span><button class="btn" data-acc="tanca-modal">Tanca</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+(() => {
+'use strict';
+
+// ── Utilitats ──────────────────────────────────────────────────────────────────────────────────
+const POS = 'frases-procediments:pos', LOCAL = 'frases-procediments:canvis';
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sense emmagatzematge: no passa res */ } },
+};
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+/** La «plantilla» d'una frase: sense fórmules ni nombres. Dues frases amb la mateixa plantilla surten (gairebé segur) de la mateixa línia de codi. */
+const plantilla = t => t.replace(/\$[^$]*\$/g, '$·$').replace(/\d+(?:[.,]\d+)?/g, '#');
+
+const cacheTex = new Map();
+function tex(t) {
+  if (!window.katex) return `<code class="tex-cru">${esc(t)}</code>`;
+  let r = cacheTex.get(t);
+  if (r === undefined) {
+    try { r = katex.renderToString(t, {throwOnError: false, strict: 'ignore'}); } catch (e) { r = `<code class="tex-cru">${esc(t)}</code>`; }
+    if (cacheTex.size > 30000) cacheTex.clear();
+    cacheTex.set(t, r);
+  }
+  return r;
+}
+/** «Text amb $fórmules$» → HTML (com motor.js). */
+const ambFormules = text => String(text).split(/(\$[^$]+\$)/).map(t =>
+  t.length > 2 && t[0] === '$' && t.endsWith('$') ? tex(t.slice(1, -1)) : esc(t).replace(/\n/g, '<br>')).join('');
+function errorsTex(text) {
+  const e = [];
+  if ((text.match(/\$/g) || []).length % 2) e.push('Hi ha un $ sense parella.');
+  if (window.katex) for (const m of text.matchAll(/\$([^$]+)\$/g)) {
+    try { katex.renderToString(m[1], {throwOnError: true, strict: 'ignore'}); }
+    catch (err) { e.push('LaTeX: ' + String(err.message).replace(/^KaTeX parse error: /, '')); }
+  }
+  return e;
+}
+
+// ── Estat ──────────────────────────────────────────────────────────────────────────────────────
+let D = null;                          // frases.json
+const ITEMS = new Map();               // id → {id, tipus: 'frase'|'enunciat'|'pagina', pi, ei, si, total, original, pl}
+const PER_PL = new Map();              // plantilla → [ids]
+let PLANTILLES = [];                   // [{pl, ids, rep, pagines, cerca}]
+const canvis = new Map();              // id → document de la col·lecció «canvis»
+let PER_PL_CANVIS = new Map();         // plantilla → [{id, d}]
+let botiga = null;
+const est = Object.assign({vista: 'pagina', pag: null, ex: 0, pissarres: true, ordre: 'pagina', filtre: 'pendent'}, LS.get(POS, {}), {cerca: '', nomesCanvis: false});
+const desaPos = () => LS.set(POS, {vista: est.vista, pag: est.pag, ex: est.ex, pissarres: est.pissarres, ordre: est.ordre, filtre: est.filtre});
+const main = $('#main'), nav = $('#nav');
+
+function indexa() {
+  const registra = it => {
+    ITEMS.set(it.id, it);
+    if (it.pl) { if (!PER_PL.has(it.pl)) PER_PL.set(it.pl, []); PER_PL.get(it.pl).push(it.id); }
+  };
+  D.pagines.forEach((p, pi) => {
+    p.ordre = pi;
+    registra({id: `${p.id}~pagina`, tipus: 'pagina', pi, ei: -1, si: -1, original: '', pl: ''});
+    p.exemples.forEach((e, ei) => {
+      if (e.enunciat) registra({id: `${p.id}~${ei}~enunciat`, tipus: 'enunciat', pi, ei, si: -1, original: e.enunciat, pl: 'E:' + plantilla(e.enunciat)});
+      e.passos.forEach((s, si) => registra({id: `${p.id}~${ei}~${si + 1}`, tipus: 'frase', pi, ei, si, total: e.passos.length, original: s.t, pl: 'F:' + plantilla(s.t)}));
+    });
+  });
+  PLANTILLES = [...PER_PL.entries()].map(([pl, ids]) => {
+    const its = ids.map(i => ITEMS.get(i));
+    return {pl, ids, rep: ids[0], pagines: [...new Set(its.map(i => i.pi))], cerca: norm([...new Set(its.map(i => i.original))].join('\n'))};
+  });
+}
+const pagina = () => D.pagines.find(p => p.id === est.pag) || D.pagines[0];
+const pendent = d => d.estat !== 'fet';
+function indexaCanvis() {
+  PER_PL_CANVIS = new Map();
+  canvis.forEach((d, id) => {
+    if (!d.plantilla) return;
+    if (!PER_PL_CANVIS.has(d.plantilla)) PER_PL_CANVIS.set(d.plantilla, []);
+    PER_PL_CANVIS.get(d.plantilla).push({id, d});
+  });
+}
+
+// ── Desament: base de dades de l'artifact (o, si no n'hi ha, aquest navegador) ─────────────────
+const espera = ms => new Promise(r => setTimeout(r, ms));
+async function ambReintent(f) {
+  try { return await f(); }
+  catch (e) { if (e && e.code === 'unavailable') { await espera(400 + Math.random() * 700); return f(); } throw e; }
+}
+const motiu = e => e && e.code === 'quota_exceeded' ? 'la base de dades és plena' : (e && (e.code || e.message)) || 'error desconegut';
+async function iniciaBotiga() {
+  let db = null;
+  try { if (window.claude && typeof window.claude.use === 'function') db = await window.claude.use('db'); } catch (e) { db = null; }
+  if (db) {
+    const col = db.collection('canvis');
+    const subscriu = () => col.onSnapshot(snap => {
+      canvis.clear();
+      for (const doc of snap.docs) canvis.set(doc.id, doc.data());
+      refresca();
+    }, err => {
+      if (err && err.code === 'unavailable') setTimeout(subscriu, 3000);
+      else toast('No es poden llegir els canvis (' + motiu(err) + ').', true);
+    });
+    subscriu();
+    botiga = {
+      desa: (id, d) => ambReintent(() => col.doc(id).set(d)),
+      esborra: id => ambReintent(() => col.doc(id).delete()),
+    };
+    return;
+  }
+  for (const [id, d] of Object.entries(LS.get(LOCAL, {}))) canvis.set(id, d);
+  const desaLocal = () => { const o = {}; canvis.forEach((d, id) => { o[id] = d; }); LS.set(LOCAL, o); };
+  botiga = {
+    desa: async (id, d) => { canvis.set(id, d); desaLocal(); },
+    esborra: async id => { canvis.delete(id); desaLocal(); },
+  };
+  $('#avis-local').hidden = false;
+  refresca();
+}
+const botigaLlesta = iniciaBotiga();
+
+// ── Dibuix ─────────────────────────────────────────────────────────────────────────────────────
+function pinta() {
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === est.vista)));
+  pintaNav();
+  main.className = '';
+  if (est.vista === 'frases') pintaFrases();
+  else if (est.vista === 'canvis') pintaCanvis();
+  else pintaPagina();
+  desaPos();
+}
+function refresca() {
+  if (!D) return;
+  indexaCanvis();
+  const n = [...canvis.values()].filter(pendent).length;
+  $('#compte').textContent = n ? String(n) : '';
+  pintaNav();
+  document.querySelectorAll('article.pas').forEach(pintaEstat);
+  if (est.vista === 'pagina') pintaPunts();
+  if (est.vista === 'canvis') pintaCanvis();
+}
+function pintaNav() {
+  const n = new Map();
+  canvis.forEach(d => { if (pendent(d)) n.set(d.pagina, (n.get(d.pagina) || 0) + 1); });
+  let html = '', cat = null;
+  for (const p of D.pagines) {
+    if (p.cat !== cat) { cat = p.cat; html += `<div class="nav-cat cat-${p.cat}">${esc(p.categoria)}</div>`; }
+    const k = n.get(p.id) || 0;
+    html += `<button class="nav-pag cat-${p.cat}" data-acc="pagina" data-p="${esc(p.id)}"${est.vista === 'pagina' && p.id === pagina().id ? ' aria-current="true"' : ''}>`
+      + `<span>${esc(p.titol)}</span>${k ? `<span class="n">${k}</span>` : ''}</button>`;
+  }
+  nav.innerHTML = html;
+}
+
+/** Una targeta: un pas, un enunciat, el comentari de la pàgina o (mode 'plantilla') una frase de «Totes les frases». */
+function htmlTargeta(it, mode, t) {
+  const llista = mode === 'plantilla';
+  let cap;
+  if (it.tipus === 'pagina') cap = 'Comentari sobre tota la pàgina';
+  else if (llista) cap = metaPlantilla(t);
+  else cap = it.tipus === 'enunciat' ? 'Enunciat' : `Pas ${it.si + 1} de ${it.total}`;
+  const pissarra = !llista && it.tipus === 'frase' && est.pissarres;
+  return `<article class="pas tipus-${it.tipus}${llista ? ' mode-plantilla' : ''}" data-id="${esc(it.id)}"${t ? ` data-pl="${esc(t.pl)}"` : ''}>`
+    + `<div class="pas-cap"><span class="num">${cap}</span><span class="etiq"></span><span class="sp"></span>`
+    + (llista ? '<button class="btn subtil" data-acc="context">Mostra on surt</button>' : '')
+    + `<button class="btn" data-acc="canvia">${it.tipus === 'pagina' ? 'Escriu' : 'Canvia'}</button></div>`
+    + (it.tipus !== 'pagina' ? `<div class="frase${it.tipus === 'enunciat' ? ' enun' : ''}" data-acc="canvia">${ambFormules(it.original)}</div>` : '')
+    + '<div class="estat"></div><div class="editor" hidden></div>'
+    + (pissarra ? `<div class="pissarra" style="min-height:${alcadaPissarra(it)}px"></div>` : '')
+    + '</article>';
+}
+function metaPlantilla(t) {
+  const noms = t.pagines.map(pi => D.pagines[pi].titol);
+  const pags = noms.slice(0, 3).join(', ') + (noms.length > 3 ? ` i ${noms.length - 3} més` : '');
+  return `${t.pl.startsWith('E:') ? 'Enunciat · ' : ''}${t.ids.length === 1 ? '1 vegada' : t.ids.length + ' vegades'} · ${esc(pags)}`;
+}
+const etiqueta = d => d.estat === 'fet' ? '<span class="etiqueta ok">fet</span>' : '<span class="etiqueta pend">pendent</span>';
+const canviaText = d => d.tipus !== 'pagina' && !!d.nou && d.nou !== d.original;
+function htmlCanviPropi(d) {
+  return `<div class="canvi${d.estat === 'fet' ? ' fet' : ''}">`
+    + (canviaText(d) ? `<div class="nou">${ambFormules(d.nou)}</div>` : '')
+    + (d.comentari ? `<div class="com"><span class="lbl-in">Comentari</span>${ambFormules(d.comentari)}</div>` : '')
+    + (d.nota ? `<div class="nota"><span class="lbl-in">Claude</span>${ambFormules(d.nota)}</div>` : '')
+    + (canviaText(d) && d.vegades > 1 ? `<div class="meta">${d.abast === 'tot' ? `A tot arreu on surt (${d.vegades} vegades)` : 'Només aquí'}</div>` : '')
+    + '</div>';
+}
+function onEs(id, d) {
+  const it = ITEMS.get(id);
+  if (!it) return esc(d.titol || '');
+  const p = D.pagines[it.pi];
+  return esc(p.titol) + (it.tipus === 'frase' ? `, exemple ${it.ei + 1}, pas ${it.si + 1}` : it.tipus === 'enunciat' ? `, enunciat de l'exemple ${it.ei + 1}` : '');
+}
+function htmlCanviAltre({id, d}) {
+  return `<div class="canvi altre"><div class="meta">${d.abast === 'tot' ? 'Canvi general' : 'Canvi només per a un lloc'} (${onEs(id, d)})${d.estat === 'fet' ? ' · fet' : ''}</div>`
+    + (canviaText(d) ? `<div class="nou">${ambFormules(d.nou)}</div>` : '')
+    + (d.comentari ? `<div class="com"><span class="lbl-in">Comentari</span>${ambFormules(d.comentari)}</div>` : '')
+    + '</div>';
+}
+function pintaEstat(card) {
+  const it = ITEMS.get(card.dataset.id);
+  if (!it) return;
+  const propi = canvis.get(it.id);
+  const llista = card.classList.contains('mode-plantilla');
+  const pl = card.dataset.pl || it.pl;
+  const altres = pl ? (PER_PL_CANVIS.get(pl) || []).filter(x => x.id !== it.id && (llista || x.d.abast === 'tot')) : [];
+  card.classList.toggle('te-canvi', !!propi);
+  card.classList.toggle('fet', !!propi && propi.estat === 'fet');
+  card.classList.toggle('canvi-text', !!propi && canviaText(propi));
+  card.classList.toggle('te-general', !propi && altres.length > 0);
+  card.querySelector('.etiq').innerHTML = propi ? etiqueta(propi) : altres.length ? '<span class="etiqueta gen">canvi general</span>' : '';
+  card.querySelector('.estat').innerHTML = (propi ? htmlCanviPropi(propi) : '') + altres.map(htmlCanviAltre).join('');
+}
+
+// Pissarres: es dibuixen quan s'hi arriba (n'hi pot haver una quarantena per exemple)
+function alcadaPissarra(it) {
+  const s = D.pagines[it.pi].exemples[it.ei].passos[it.si];
+  return 18 + s.f.filter(f => f >= 0).length * 40;
+}
+function htmlPissarra(it) {
+  const ex = D.pagines[it.pi].exemples[it.ei], s = ex.passos[it.si], ant = it.si > 0 ? ex.passos[it.si - 1] : null;
+  return s.f.map((fi, i) => {
+    if (fi < 0) return '';
+    const t = D.files[fi], cls = (s.c[i] || '') + (ant && ant.f[i] !== fi ? ' canviada' : '');
+    if (t.startsWith('<svg')) return `<div class="fila figura ${cls}">${t}</div>`;
+    if (t.startsWith('§')) return `<div class="fila text ${cls}">${ambFormules(t.slice(1))}</div>`;
+    return `<div class="fila ${cls}">${tex(t)}</div>`;
+  }).join('');
+}
+function dibuixaPissarra(el) {
+  const it = ITEMS.get(el.closest('article').dataset.id);
+  el.innerHTML = htmlPissarra(it);
+  el.style.minHeight = '';
+}
+const obsPissarra = 'IntersectionObserver' in window
+  ? new IntersectionObserver(ents => ents.forEach(e => { if (e.isIntersecting) { obsPissarra.unobserve(e.target); dibuixaPissarra(e.target); } }), {rootMargin: '900px 0px'})
+  : null;
+function preparaTargetes(cont) {
+  cont.querySelectorAll('article.pas:not([data-llesta])').forEach(c => { c.dataset.llesta = '1'; pintaEstat(c); });
+  cont.querySelectorAll('.pissarra:empty').forEach(el => obsPissarra ? obsPissarra.observe(el) : dibuixaPissarra(el));
+}
+
+// Vista «Per pàgina»
+function pintaPagina() {
+  const p = pagina();
+  est.pag = p.id;
+  if (!p.exemples[est.ex]) est.ex = 0;
+  const ex = p.exemples[est.ex];
+  main.className = 'cat-' + p.cat;
+  let sel = '<select class="sel-pagina" id="sel-pagina" aria-label="Pàgina">', cat = null;
+  for (const q of D.pagines) {
+    if (q.cat !== cat) { sel += (cat ? '</optgroup>' : '') + `<optgroup label="${esc(q.categoria)}">`; cat = q.cat; }
+    sel += `<option value="${esc(q.id)}"${q.id === p.id ? ' selected' : ''}>${esc(q.titol)}</option>`;
+  }
+  sel += '</optgroup></select>';
+  const items = [ITEMS.get(`${p.id}~pagina`)];
+  if (ex.enunciat) items.push(ITEMS.get(`${p.id}~${est.ex}~enunciat`));
+  ex.passos.forEach((s, si) => items.push(ITEMS.get(`${p.id}~${est.ex}~${si + 1}`)));
+  main.innerHTML = sel
+    + `<div class="cap-pag"><div><div class="cat-chip">${esc(p.categoria)}</div><h2>${esc(p.titol)}</h2></div><span class="sp"></span>`
+    + `<button class="btn" data-acc="pissarres">${est.pissarres ? 'Amaga les pissarres' : 'Mostra les pissarres'}</button></div>`
+    + `<div class="exemples" id="exemples">${p.exemples.map((e, i) => `<button class="chip${i === est.ex ? ' actiu' : ''}" data-acc="exemple" data-e="${i}">`
+      + `<span class="punt" hidden></span>${e.mode ? `<span class="mode">${esc(e.mode)}</span>` : ''}${e.tex ? tex(e.nom) : esc(e.nom)}</button>`).join('')}</div>`
+    + `<div class="llista">${items.map(it => htmlTargeta(it, 'pagina')).join('')}</div>`;
+  preparaTargetes(main);
+  pintaPunts();
+}
+function pintaPunts() {
+  const p = pagina(), amb = new Set();
+  canvis.forEach(d => { if (pendent(d) && d.pagina === p.id) amb.add(d.exemple); });
+  document.querySelectorAll('#exemples .chip').forEach(c => { $('.punt', c).hidden = !amb.has(+c.dataset.e); });
+}
+
+// Vista «Totes les frases»
+let llistaFrases = [], mostrades = 0;
+const TROS = 40;
+function pintaFrases() {
+  main.innerHTML = `<div class="cap-pag"><h2>Totes les frases</h2></div>`
+    + `<div class="filtres"><input type="search" id="cerca" placeholder="Cerca (text o LaTeX)" autocomplete="off" aria-label="Cerca">`
+    + `<select id="ordre" aria-label="Ordre"><option value="pagina">En l'ordre de les pàgines</option><option value="freq">Les més repetides primer</option></select>`
+    + `<label class="check"><input type="checkbox" id="nomes-canvis"> Només les que tenen canvis</label><span id="n-frases" class="muted"></span></div>`
+    + `<div class="llista" id="llista-frases"></div><div class="sentinella" id="mes"></div>`;
+  $('#cerca').value = est.cerca;
+  $('#ordre').value = est.ordre;
+  $('#nomes-canvis').checked = est.nomesCanvis;
+  let t = null;
+  $('#cerca').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { est.cerca = e.target.value; reomple(); }, 160); });
+  $('#ordre').addEventListener('change', e => { est.ordre = e.target.value; desaPos(); reomple(); });
+  $('#nomes-canvis').addEventListener('change', e => { est.nomesCanvis = e.target.checked; reomple(); });
+  reomple();
+  if (obsMes) obsMes.observe($('#mes'));
+}
+function reomple() {
+  const q = norm(est.cerca.trim());
+  llistaFrases = PLANTILLES.filter(t => (!q || t.cerca.includes(q)) && (!est.nomesCanvis || PER_PL_CANVIS.has(t.pl)));
+  if (est.ordre === 'freq') llistaFrases = llistaFrases.slice().sort((a, b) => b.ids.length - a.ids.length);
+  mostrades = 0;
+  $('#llista-frases').innerHTML = '';
+  $('#n-frases').textContent = llistaFrases.length === 1 ? '1 frase' : `${llistaFrases.length} frases`;
+  afegeixFrases();
+}
+function afegeixFrases() {
+  const cont = $('#llista-frases');
+  if (!cont || mostrades >= llistaFrases.length) return;
+  const fi = Math.min(llistaFrases.length, mostrades + TROS);
+  let html = '';
+  for (let i = mostrades; i < fi; i++) {
+    const t = llistaFrases[i];
+    // La targeta apunta al canvi que ja hi hagi per a aquesta frase (si n'hi ha) o a la primera vegada que surt
+    const amb = (PER_PL_CANVIS.get(t.pl) || []).find(x => ITEMS.has(x.id));
+    const it = ITEMS.get(amb ? amb.id : t.rep);
+    if (est.ordre === 'pagina') {
+      const pi = ITEMS.get(t.rep).pi, ant = i > 0 ? ITEMS.get(llistaFrases[i - 1].rep).pi : -1;
+      if (pi !== ant) html += `<h3 class="grup cat-${D.pagines[pi].cat}">${esc(D.pagines[pi].titol)}</h3>`;
+    }
+    html += htmlTargeta(it, 'plantilla', t);
+  }
+  cont.insertAdjacentHTML('beforeend', html);
+  mostrades = fi;
+  preparaTargetes(cont);
+  // Si la sentinella encara es veu (pantalla alta), en posa més
+  requestAnimationFrame(() => { const m = $('#mes'); if (m && m.getBoundingClientRect().top < innerHeight + 600) afegeixFrases(); });
+}
+const obsMes = 'IntersectionObserver' in window
+  ? new IntersectionObserver(ents => { if (ents.some(e => e.isIntersecting)) afegeixFrases(); }, {rootMargin: '600px 0px'})
+  : null;
+
+// Vista «Canvis»
+function ordreCanvi(a, b) {
+  const pa = D.pagines.findIndex(p => p.id === a.d.pagina), pb = D.pagines.findIndex(p => p.id === b.d.pagina);
+  const pos = d => d.tipus === 'pagina' ? -1 : d.tipus === 'enunciat' ? 0 : d.pas;
+  return pa - pb || (a.d.exemple ?? -1) - (b.d.exemple ?? -1) || pos(a.d) - pos(b.d) || (a.d.quan || '').localeCompare(b.d.quan || '');
+}
+function llistaCanvis(filtre) {
+  return [...canvis.entries()].map(([id, d]) => ({id, d}))
+    .filter(x => filtre === 'tots' || (filtre === 'fet' ? !pendent(x.d) : pendent(x.d))).sort(ordreCanvi);
+}
+function llocHtml(d) {
+  const ex = d.tipus === 'pagina' ? 'tota la pàgina'
+    : (d.modeExemple ? esc(d.modeExemple) + ' · ' : '') + (d.nomTex ? tex(d.nomExemple || '') : esc(d.nomExemple || ''));
+  const on = d.tipus === 'frase' ? `Pas ${d.pas} de ${d.total}` : d.tipus === 'enunciat' ? 'Enunciat' : '';
+  return [esc(d.categoria || ''), `<strong>${esc(d.titol || d.pagina)}</strong>`, ex, on].filter(Boolean).join(' · ');
+}
+function pintaCanvis() {
+  const tots = llistaCanvis('tots'), nP = tots.filter(x => pendent(x.d)).length;
+  const ll = llistaCanvis(est.filtre);
+  const boto = (f, txt) => `<button data-acc="filtre" data-f="${f}" aria-pressed="${est.filtre === f}">${txt}</button>`;
+  main.innerHTML = `<div class="cap-pag"><h2>Canvis</h2><div class="seg">${boto('pendent', `Pendents (${nP})`)}${boto('fet', `Fets (${tots.length - nP})`)}${boto('tots', 'Tots')}</div>`
+    + `<span class="sp"></span><button class="btn" data-acc="copia"${ll.length ? '' : ' disabled'}>Copia la llista</button></div>`
+    + (ll.length ? `<div class="llista">${ll.map(htmlItemCanvi).join('')}</div>`
+      : `<p class="buit">${tots.length ? 'No n\'hi ha cap en aquest apartat.' : 'Encara no hi ha cap canvi. Fes clic en una frase per canviar-la.'}</p>`);
+}
+function htmlItemCanvi({id, d}) {
+  return `<article class="canvi-item${pendent(d) ? '' : ' fet'}" data-id="${esc(id)}">`
+    + `<div class="ci-cap"><span class="lloc">${llocHtml(d)}</span><span class="sp"></span>`
+    + (canviaText(d) && d.vegades > 1 ? `<span>${d.abast === 'tot' ? `a tot arreu (${d.vegades} vegades)` : 'només aquí'}</span>` : '')
+    + `${etiqueta(d)}</div>`
+    + (canviaText(d) ? `<div class="dif"><span class="lbl-in">Abans</span><div class="frase-p abans">${ambFormules(d.original)}</div>`
+      + `<span class="lbl-in">Ara</span><div class="frase-p">${ambFormules(d.nou)}</div></div>`
+      : d.tipus !== 'pagina' ? `<div class="dif"><span class="lbl-in">Frase</span><div class="frase-p">${ambFormules(d.original)}</div></div>` : '')
+    + (d.comentari ? `<div class="com"><span class="lbl-in">Comentari</span>${ambFormules(d.comentari)}</div>` : '')
+    + (d.nota ? `<div class="nota"><span class="lbl-in">Claude</span>${ambFormules(d.nota)}</div>` : '')
+    + `<div class="ci-botons">${ITEMS.has(id) ? '<button class="btn" data-acc="context">Mostra-la a la pàgina</button>' : ''}`
+    + '<button class="btn perill" data-acc="esborra">Esborra</button></div></article>';
+}
+function textLlista(ll) {
+  const out = [`Canvis de frases (${ll.length})`, ''];
+  ll.forEach(({id, d}, i) => {
+    const ex = d.tipus === 'pagina' ? 'tota la pàgina' : 'exemple ' + (d.modeExemple ? d.modeExemple + ' · ' : '') + (d.nomExemple || '');
+    const on = d.tipus === 'frase' ? `pas ${d.pas} de ${d.total}` : d.tipus === 'enunciat' ? 'enunciat' : '';
+    const abast = canviaText(d) && d.vegades > 1 ? (d.abast === 'tot' ? ` · a tot arreu (${d.vegades} vegades)` : ' · només aquí') : '';
+    out.push(`${i + 1}. ${[d.categoria, d.titol, ex, on].filter(Boolean).join(' · ')}${abast}${pendent(d) ? '' : ' · FET'}   [${id}]`);
+    if (canviaText(d)) { out.push('   Abans: ' + d.original); out.push('   Ara:   ' + d.nou); }
+    else if (d.tipus !== 'pagina') out.push('   Frase: ' + d.original);
+    if (d.comentari) out.push('   Comentari: ' + d.comentari.replace(/\n/g, '\n              '));
+    if (d.nota) out.push('   Claude: ' + d.nota);
+    out.push('');
+  });
+  return out.join('\n');
+}
+
+// ── Editor ─────────────────────────────────────────────────────────────────────────────────────
+let uid = 0;
+const ajusta = ta => { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; };
+function obreEditor(card) {
+  const ed = $('.editor', card);
+  if (!ed.hidden) { ($('.ta-frase', ed) || $('.ta-com', ed)).focus(); return; }
+  const it = ITEMS.get(card.dataset.id), d = canvis.get(it.id);
+  const ids = it.pl ? PER_PL.get(card.dataset.pl || it.pl) || [it.id] : [it.id];
+  const nPag = new Set(ids.map(i => ITEMS.get(i).pi)).size;
+  const frase = it.tipus !== 'pagina', n = ++uid;
+  ed.innerHTML = (frase ? `<label class="lbl" for="f${n}">${it.tipus === 'enunciat' ? 'Enunciat' : 'Frase'}</label>`
+      + `<textarea id="f${n}" class="ta-frase" rows="1" spellcheck="true" lang="ca"></textarea><div class="previa" hidden></div><div class="avis-tex"></div>` : '')
+    + (frase && ids.length > 1 ? `<div class="abast"><label><input type="radio" name="a${n}" value="tot"> A tot arreu on surt aquesta frase `
+      + `<span class="muted">(${ids.length} vegades${nPag > 1 ? ` a ${nPag} pàgines` : ''})</span></label>`
+      + `<label><input type="radio" name="a${n}" value="aqui"> Només aquí</label></div>` : '')
+    + `<label class="lbl" for="c${n}">Comentari</label><textarea id="c${n}" class="ta-com" rows="1" lang="ca"></textarea>`
+    + '<div class="botons"><button class="btn primari" data-acc="desa">Desa</button><button class="btn" data-acc="cancela">Cancel·la</button>'
+    + `<span class="kbd">Ctrl+Retorn desa · Esc tanca</span><span class="sp"></span>${d ? '<button class="btn perill" data-acc="esborra">Esborra el canvi</button>' : ''}</div>`;
+  const taF = $('.ta-frase', ed), taC = $('.ta-com', ed);
+  if (taF) taF.value = d && canviaText(d) ? d.nou : it.original;
+  taC.value = d ? d.comentari || '' : '';
+  const r = ed.querySelector(`input[value="${d && d.abast === 'aqui' ? 'aqui' : 'tot'}"]`);
+  if (r) r.checked = true;
+  ed.hidden = false;
+  [taF, taC].forEach(t => t && ajusta(t));
+  if (taF) { previa(card); taF.focus(); taF.setSelectionRange(taF.value.length, taF.value.length); } else taC.focus();
+}
+function previa(card) {
+  const taF = $('.editor .ta-frase', card);
+  if (!taF) return;
+  const pv = $('.editor .previa', card), igual = taF.value.trim() === ITEMS.get(card.dataset.id).original.trim();
+  pv.hidden = igual;
+  pv.innerHTML = igual ? '' : ambFormules(taF.value);
+  $('.editor .avis-tex', card).textContent = errorsTex(taF.value).join(' ');
+}
+function tancaEditor(card) {
+  const ed = $('.editor', card);
+  ed.hidden = true;
+  ed.innerHTML = '';
+}
+function base(it, ids) {
+  const p = D.pagines[it.pi], ex = it.ei >= 0 ? p.exemples[it.ei] : null;
+  return {
+    tipus: it.tipus, pagina: p.id, titol: p.titol, categoria: p.categoria,
+    exemple: it.ei, modeExemple: ex ? ex.mode : '', nomExemple: ex ? ex.nom : '', nomTex: ex ? ex.tex : false, adreca: ex ? ex.adreca : '',
+    pas: it.si >= 0 ? it.si + 1 : 0, total: it.total || 0,
+    original: it.original, plantilla: it.pl, vegades: ids.length,
+  };
+}
+async function desa(card) {
+  const it = ITEMS.get(card.dataset.id), ed = $('.editor', card), boto = $('[data-acc="desa"]', ed);
+  const taF = $('.ta-frase', ed), taC = $('.ta-com', ed);
+  const nou = taF ? taF.value.trim() : '', comentari = taC.value.trim();
+  const ab = ed.querySelector('input[type=radio]:checked');
+  const ids = it.pl ? PER_PL.get(it.pl) || [it.id] : [it.id];
+  const abans = canvis.get(it.id);
+  if ((!taF || nou === it.original.trim()) && !comentari) {        // ni canvi ni comentari: no queda res a desar
+    if (abans) await esborra(it.id);
+    tancaEditor(card);
+    return;
+  }
+  const d = Object.assign(base(it, ids), {
+    nou: taF && nou !== it.original.trim() ? nou : '', comentari, abast: ab ? ab.value : 'aqui',
+    estat: 'pendent', quan: new Date().toISOString(),
+  });
+  boto.disabled = true;
+  try {
+    await botigaLlesta;
+    await botiga.desa(it.id, d);
+    canvis.set(it.id, d);
+    tancaEditor(card);
+    refresca();
+    toast('Desat');
+  } catch (e) {
+    boto.disabled = false;
+    toast('No s\'ha pogut desar: ' + motiu(e), true);
+  }
+}
+async function esborra(id) {
+  const abans = canvis.get(id);
+  if (!abans) return;
+  try {
+    await botigaLlesta;
+    await botiga.esborra(id);
+    canvis.delete(id);
+    refresca();
+    toast('Canvi esborrat', false, {text: 'Desfés', fn: async () => {
+      try { await botiga.desa(id, abans); canvis.set(id, abans); refresca(); } catch (e) { toast('No s\'ha pogut refer: ' + motiu(e), true); }
+    }});
+  } catch (e) { toast('No s\'ha pogut esborrar: ' + motiu(e), true); }
+}
+
+// ── Avisos i portapapers ───────────────────────────────────────────────────────────────────────
+let tToast = null;
+function toast(msg, err, accio) {
+  const t = $('#toast');
+  t.innerHTML = `<span>${esc(msg)}</span>` + (accio ? `<button class="btn" type="button">${esc(accio.text)}</button>` : '');
+  t.className = 'toast visible' + (err ? ' err' : '');
+  if (accio) $('button', t).onclick = () => { t.className = 'toast'; accio.fn(); };
+  clearTimeout(tToast);
+  tToast = setTimeout(() => { t.className = 'toast'; }, accio ? 8000 : err ? 6000 : 1800);
+}
+async function copia(text) {
+  try { await navigator.clipboard.writeText(text); toast('Copiat: ara enganxa-ho al xat'); }
+  catch (e) {
+    $('#modal-text').value = text;
+    $('#modal').hidden = false;
+    $('#modal-text').focus();
+    $('#modal-text').select();
+  }
+}
+
+// ── Navegació ──────────────────────────────────────────────────────────────────────────────────
+function mostra(id) {
+  const it = ITEMS.get(id);
+  if (!it) return;
+  est.vista = 'pagina';
+  est.pag = D.pagines[it.pi].id;
+  est.ex = Math.max(0, it.ei);
+  pinta();
+  const card = main.querySelector(`article[data-id="${CSS.escape(id)}"]`);
+  if (!card) return;
+  card.scrollIntoView({block: 'center'});
+  card.classList.add('flaix');
+  setTimeout(() => card.classList.remove('flaix'), 1800);
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-acc]');
+  if (!b || !D) return;
+  const card = b.closest('article.pas');
+  switch (b.dataset.acc) {
+    case 'vista': est.vista = b.dataset.v; pinta(); scrollTo(0, 0); break;
+    case 'pagina': est.vista = 'pagina'; est.pag = b.dataset.p; est.ex = 0; pinta(); scrollTo(0, 0); break;
+    case 'exemple': est.ex = +b.dataset.e; pinta(); break;
+    case 'pissarres': est.pissarres = !est.pissarres; pinta(); break;
+    case 'canvia': if (!(b.classList.contains('frase') && String(getSelection()).length)) obreEditor(card); break;
+    case 'desa': desa(card); break;
+    case 'cancela': tancaEditor(card); break;
+    case 'esborra': {
+      const id = (card || b.closest('[data-id]')).dataset.id;
+      if (card) tancaEditor(card);
+      esborra(id);
+      break;
+    }
+    case 'context': mostra(b.closest('[data-id]').dataset.id); break;
+    case 'filtre': est.filtre = b.dataset.f; desaPos(); pintaCanvis(); break;
+    case 'copia': copia(textLlista(llistaCanvis(est.filtre))); break;
+    case 'tanca-modal': $('#modal').hidden = true; break;
+  }
+});
+document.addEventListener('input', e => {
+  if (!e.target.matches('.editor textarea')) return;
+  ajusta(e.target);
+  if (e.target.matches('.ta-frase')) previa(e.target.closest('article.pas'));
+});
+document.addEventListener('keydown', e => {
+  const card = e.target.closest && e.target.closest('.editor') && e.target.closest('article.pas');
+  if (card && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); desa(card); }
+  else if (card && e.key === 'Escape') { e.preventDefault(); tancaEditor(card); }
+  else if (e.key === 'Escape' && !$('#modal').hidden) $('#modal').hidden = true;
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'sel-pagina') { est.pag = e.target.value; est.ex = 0; pinta(); scrollTo(0, 0); }
+});
+const top = $('.top');
+const posaTop = () => document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px');
+if ('ResizeObserver' in window) new ResizeObserver(posaTop).observe(top);
+posaTop();
+
+// ── Inici ──────────────────────────────────────────────────────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch('frases.json');
+    if (!r.ok) throw new Error(r.status);
+    D = await r.json();
+  } catch (e) {
+    main.innerHTML = '<p class="buit">No s\'han pogut carregar les frases. Torna a obrir la pàgina.</p>';
+    return;
+  }
+  indexa();
+  if (!D.pagines.some(p => p.id === est.pag)) est.pag = D.pagines[0].id;
+  indexaCanvis();
+  pinta();
+  refresca();
+})();
+})();
+</script>

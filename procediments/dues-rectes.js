@@ -128,7 +128,7 @@ function passos(v) {
     // La resposta, amb una frase (David: res de notació de conjunts).
     g.files[FILA.conclusio] = llista(coincidents
       ? [K('Lv', '\\text{el mateix } \\lambda\\ \\Rightarrow\\ Q \\in r'), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ són coincidents}')]
-      : [K('Lv', '\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r'), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ són paral·leles}')]);
+      : [K('Lv', '\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r'), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ són paral}\\mathord{\\cdotp}\\text{leles}')]);
     g.afegeix(coincidents ? 'Totes les equacions donen el mateix $\\lambda$: $Q$ és de $r$. Les rectes tenen la mateixa direcció i un punt comú: són la mateixa recta (coincidents).'
       : 'No hi ha cap $\\lambda$ que compleixi les tres equacions: $Q$ no és de $r$. Les rectes tenen la mateixa direcció però no cap punt comú: són paral·leles.');
     g.files[FILA.esquema] = G.esquema(coincidents ? 'rectes-coincidents' : 'rectes-paraleles');

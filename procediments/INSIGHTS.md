@@ -75,6 +75,7 @@ David asked that an improvement made in one place be applied everywhere it fits.
 - Systems everywhere by the reduction method in David's format (`Matrius.passosReduccio2`, `passosCombina`, shared by geometry and calculus): «(EQ.n)» labels, «(EQ.2) · (−2):», rule over the sum, values found boxed (also `polinomi-condicions` and the values of `sistema-sci`); never isolate one unknown in terms of another.
 - Minimum board font 24 px (`MIDA.minimaAlcada`); below that the board scrolls.
 - The checker section «regles generals de totes les pàgines» enforces these rules on every page (see README §7); `muta-regles.py` proves it bites. When David gives a new general rule, add it there.
+- KaTeX must render every formula without errors: the pages use `throwOnError: false`, so an error is not an exception but red text on the board. A Catalan «l·l» inside `\text{}` is the classic case (`\text{paral}\mathord{\cdotp}\text{lela}`). The section «regles generals: KaTeX dibuixa totes les fórmules» needs `KATEX=<katex/dist>`.
 
 ## 4. Layout insights (phone, fonts, sketches)
 
@@ -129,6 +130,10 @@ Naming trap: every IIFE receives `globalThis` as the parameter `arrel` (Catalan 
 7. Section filter while iterating: `node procediments/proves/comprova.js Barrow` (substring of section name). Full run before every delivery.
 
 Checker parsing gotchas: `\text{a}` reads as «a»; new LaTeX commands in a procedure need support in `textPla` (prefer `\iff` which it knows over `\Leftrightarrow`); `grupsAmbClau` must skip escaped braces (`\left\{`); `Fraccio.de(s, 1000)` ignores its 2nd argument (use `new Fraccio(s, 1000)`); `Fraccio.de(f)` on a Fraccio is fine, `fr(f)` was not.
+
+## 6b. Caption changes from the artifact «Frases dels procediments»
+
+David reviews the captions (the step texts) in a Claude artifact that shows every step of every DEMO example with its board, and saves the changes he wants in the artifact's database (collection `canvis`). How to build it, read his changes and mark them done: `frases/EDITOR-FRASES.md`. A change with `abast: 'tot'` means «change the line of code that writes this caption» (every place where it appears); `abast: 'aqui'` means only that step (usually a condition in the code). Always regenerate the artifact after applying changes, so that he sees the new captions.
 
 ## 7. Playbook: turning David's comments into changes
 
