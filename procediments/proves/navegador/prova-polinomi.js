@@ -22,8 +22,9 @@ async function obre(nav, ruta, viewport = {width: 1000, height: 900}) {
   await p.route('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/**', r => r.fulfill({path: path.join(KATEX, new URL(r.request().url()).pathname.split('/0.16.9/')[1])}));
   await p.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({status: 200, contentType: 'text/css', body: ''}));
   await p.goto(`http://localhost:${servidor.address().port}/procediments/polinomi-condicions.html${ruta}`);
-  // La pestanya de les dades és plegada per defecte (David): s'obre, com faria qui vol canviar les dades.
-  await p.evaluate(() => document.querySelectorAll('details.targeta').forEach(d => { d.open = true; })).catch(() => {});
+  // La pestanya de les dades és plegada per defecte (David): s'obre, com faria qui vol canviar les dades. I sense el pas 0
+  // (l'enunciat a la bombolla): les comprovacions comencen al pas 1 (el pas 0 el prova prova-pas0.js).
+  await p.evaluate(() => { document.querySelectorAll('details.targeta').forEach(d => { d.open = true; }); if (typeof procediment !== 'undefined') procediment.senseInici(); }).catch(() => {});
   await p.waitForTimeout(400);
   return {p, context, consola};
 }

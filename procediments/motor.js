@@ -230,9 +230,10 @@ function construeixPagina(proc, contenidor) {
 
   const cami = ['PAU Matemàtiques', 'Procediments pas a pas', CATEGORIES[proc.categoria]].filter(Boolean).join(' · ');
   contenidor.replaceChildren(
+    // La capçalera, baixa (David, 28/10/2026): el botó per tornar, a l'esquerra, i el títol (la categoria, només per als lectors de pantalla).
     element('header', {class: 'capcalera'}, [
-      element('div', {}, [element('h1', {text: proc.titol}), element('p', {class: 'cami', text: cami})]),
       element('a', {class: 'torna', href: '../index.html', text: '← Repàs PAU'}),
+      element('div', {}, [element('h1', {text: proc.titol}), element('p', {class: 'cami', text: cami})]),
     ]),
     // La pissarra i, al costat (portàtils) o a sota (una columna: .lateral no fa caixa, estil.css), la resta.
     element('main', {class: 'contingut'}, [
@@ -684,20 +685,69 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
 /** Botons, punts dels passos i explicació de cada pas. */
 function creaReproductor(r, pissarra, cursor, temps) {
   let passos = [], idx = 0;
+  // El pas 0 (David, 28/10/2026): abans del pas 1, la bombolla de les explicacions mostra l'enunciat i la pissarra és buida;
+  // en passar al pas 1, l'enunciat vola fins al seu lloc. Només si hi ha enunciat fora de la pissarra (r.enunciat).
+  let inici = false, ambInici = true;
+  const hiHaInici = () => ambInici && !r.enunciat.hidden && r.enunciat.textContent.trim() !== '';
+  const BUIT = Object.freeze({files: [], classes: [], text: ''});
   let ocupat = false;                     // hi ha una transició en marxa
   let reproduint = false;
   let torn = 0;                           // canvia cada vegada que es talla una reproducció
   const darrer = () => passos.length - 1;
 
   function pinta() {
-    r.numPas.textContent = `Pas ${idx + 1} de ${passos.length}`;
-    r.textPas.innerHTML = textAmbFormules(passos[idx].text);
+    r.numPas.textContent = inici ? `Pas 0 de ${passos.length}` : `Pas ${idx + 1} de ${passos.length}`;
+    if (inici) r.textPas.innerHTML = r.enunciat.innerHTML; else r.textPas.innerHTML = textAmbFormules(passos[idx].text);
+    r.explicacio.classList.toggle('inici', inici);
+    r.enunciat.classList.toggle('en-espera', inici);          // amagat però ocupant el seu lloc
     [...r.punts.children].forEach((p, i) => {
-      p.className = 'punt' + (i === idx ? ' actual' : i < idx ? ' fet' : '');
-      p.setAttribute('aria-current', i === idx ? 'step' : 'false');
+      const actual = !inici && i === idx;
+      p.className = 'punt' + (actual ? ' actual' : !inici && i < idx ? ' fet' : '');
+      p.setAttribute('aria-current', actual ? 'step' : 'false');
     });
-    r.anterior.disabled = idx === 0;
-    r.seguent.disabled = idx === darrer();
+    r.anterior.disabled = inici || (idx === 0 && !hiHaInici());
+    r.seguent.disabled = !inici && idx === darrer();
+  }
+
+  /** El pas 0: l'enunciat a la bombolla, la pissarra buida. */
+  function vesAInici() {
+    if (ocupat) return;
+    if (!hiHaInici()) { salta(0); return; }
+    torn++;
+    marcaReproduccio(false);
+    inici = true;
+    idx = 0;
+    pissarra.mostra(BUIT);
+    cursor.amaga();
+    pinta();
+  }
+
+  /** Del pas 0 al pas 1: l'enunciat vola de la bombolla al seu lloc, i després s'escriu el pas 1 a la pissarra. */
+  async function surtDInici() {
+    const des = r.textPas.getBoundingClientRect();
+    const fantasma = r.textPas.cloneNode(true);
+    fantasma.removeAttribute('id');
+    fantasma.classList.add('enunciat-volant');
+    Object.assign(fantasma.style, {position: 'fixed', left: des.left + 'px', top: des.top + 'px', width: des.width + 'px', margin: '0', zIndex: 20});
+    document.body.append(fantasma);
+    inici = false;
+    idx = 0;
+    pinta();                                                  // la bombolla ja diu el pas 1; l'enunciat encara no es veu
+    r.enunciat.classList.add('en-espera');
+    const fins = r.enunciat.getBoundingClientRect();
+    const escala = parseFloat(getComputedStyle(r.enunciat).fontSize) / parseFloat(getComputedStyle(r.textPas).fontSize);
+    fantasma.style.width = (fins.width / escala) + 'px';     // el text es parteix en línies com al seu lloc
+    const anim = fantasma.animate([
+      {transform: 'translate(0, 0) scale(1)'},
+      {transform: `translate(${fins.left - des.left}px, ${fins.top - des.top}px) scale(${escala})`},
+    ], {duration: temps(TEMPS.pas), easing: CORBA, fill: 'forwards'});
+    fantasma.style.transformOrigin = '0 0';
+    // El text del pas 1 apareix a poc a poc a la bombolla, mentre l'enunciat se'n va.
+    r.textPas.animate([{opacity: 0}, {opacity: 0, offset: 0.4}, {opacity: 1}], {duration: temps(TEMPS.pas), easing: 'ease-out'});
+    try { await anim.finished; } catch (e) { /* cancel·lada */ }
+    r.enunciat.classList.remove('en-espera');
+    fantasma.remove();
+    await pissarra.transicio(passos[0]);
   }
 
   function marcaReproduccio(estat) {
@@ -713,6 +763,7 @@ function creaReproductor(r, pissarra, cursor, temps) {
     if (ocupat) return;
     torn++;
     marcaReproduccio(false);
+    inici = false;
     idx = Math.max(0, Math.min(darrer(), i));
     pissarra.mostra(passos[idx]);
     cursor.amaga();
@@ -721,12 +772,15 @@ function creaReproductor(r, pissarra, cursor, temps) {
 
   /** Anima el pas següent. */
   async function seguent() {
-    if (ocupat || idx >= darrer()) return;
+    if (ocupat || (!inici && idx >= darrer())) return;
     ocupat = true;
-    idx++;
-    pinta();
     try {
-      await pissarra.transicio(passos[idx]);
+      if (inici) await surtDInici();
+      else {
+        idx++;
+        pinta();
+        await pissarra.transicio(passos[idx]);
+      }
     } finally {
       ocupat = false;
     }
@@ -737,11 +791,11 @@ function creaReproductor(r, pissarra, cursor, temps) {
   async function reprodueix() {
     if (reproduint) { marcaReproduccio(false); return; }
     if (ocupat) return;
-    if (idx >= darrer()) salta(0);
+    if (!inici && idx >= darrer()) vesAInici();
     marcaReproduccio(true);
     const meu = ++torn;
     await espera(temps(TEMPS.esperaInici));
-    while (reproduint && meu === torn && idx < darrer()) {
+    while (reproduint && meu === torn && (inici || idx < darrer())) {
       await seguent();
       if (!reproduint || meu !== torn) break;
       await espera(temps(TEMPS.llegir + passos[idx].text.split(/\s+/).length * TEMPS.perParaula));
@@ -760,22 +814,29 @@ function creaReproductor(r, pissarra, cursor, temps) {
       return p;
     }));
     salta(0);
+    vesAInici();
   }
+
+  /** Un pas enrere (del pas 1, al pas 0). */
+  const anterior = () => (!inici && idx === 0 ? vesAInici() : salta(idx - 1));
 
   /** Torna a dibuixar el pas actual (p. ex. si canvia la mida de la lletra). */
   function redibuixa() {
     if (ocupat) return;
-    pissarra.mostra(passos[idx]);
+    pissarra.mostra(inici ? BUIT : passos[idx]);
     cursor.amaga();
   }
 
   r.reprodueix.addEventListener('click', reprodueix);
   r.seguent.addEventListener('click', () => { atura(); seguent(); });
-  r.anterior.addEventListener('click', () => salta(idx - 1));
-  r.reinicia.addEventListener('click', () => salta(0));
+  r.anterior.addEventListener('click', anterior);
+  r.reinicia.addEventListener('click', vesAInici);
 
   return {
-    carrega, salta, seguent, reprodueix, atura, redibuixa,
+    carrega, salta, seguent, reprodueix, atura, redibuixa, anterior, vesAInici,
+    /** Sense pas 0 (per a les proves que comproven els passos des del pas 1). */
+    senseInici() { ambInici = false; salta(0); },
+    get inici() { return inici; },
     get ocupat() { return ocupat; },
     get pas() { return idx; },
     get total() { return passos.length; },
@@ -1001,7 +1062,7 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
       reproductor.seguent();
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      reproductor.salta(reproductor.pas - 1);
+      reproductor.anterior();
     }
   });
 
@@ -1038,6 +1099,8 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
     carrega(valors) { editor.posa(valors); mostraAvis(''); carrega(valors); },
     salta: i => reproductor.salta(i),
     seguent: () => reproductor.seguent(),
+    senseInici: () => reproductor.senseInici(),
+    get inici() { return reproductor.inici; },
     get pas() { return reproductor.pas; },
     get total() { return reproductor.total; },
     get ocupat() { return reproductor.ocupat; },

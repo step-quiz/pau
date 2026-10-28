@@ -33,8 +33,9 @@ async function obre(navegador, ruta, opcions = {}) {
   });
   await pagina.route(/fonts\.(googleapis|gstatic)\.com/, route => route.fulfill({status: 200, contentType: 'text/css', body: ''}));
   await pagina.goto(`http://localhost:${servidor.address().port}/procediments/recta-tangent.html${ruta}`);
-  // La pestanya de les dades és plegada per defecte (David): s'obre, com faria qui vol canviar les dades.
-  await pagina.evaluate(() => document.querySelectorAll('details.targeta').forEach(d => { d.open = true; })).catch(() => {});
+  // La pestanya de les dades és plegada per defecte (David): s'obre, com faria qui vol canviar les dades. I sense el pas 0
+  // (l'enunciat a la bombolla): les comprovacions comencen al pas 1 (el pas 0 el prova prova-pas0.js).
+  await pagina.evaluate(() => { document.querySelectorAll('details.targeta').forEach(d => { d.open = true; }); if (typeof procediment !== 'undefined') procediment.senseInici(); }).catch(() => {});
   await pagina.waitForTimeout(400);
   return {pagina, context, consola};
 }
