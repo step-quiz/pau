@@ -256,15 +256,16 @@ button{font:inherit; color:inherit}
 .targeta > summary:hover h2{color:var(--cat)}
 .targeta:not([open]){padding-block:14px}
 .editor{display:flex; flex-direction:column; gap:12px}
-.editor-fila{display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px 16px; font-size:21px}
-.etiqueta, .sufix{height:46px; display:inline-flex; align-items:center; white-space:nowrap}
-.etiqueta .katex, .sufix .katex{font-size:1.2em}
+/* Les fórmules de l'editor, a 16 px (David, 28/10/2026); les fletxes es queden grans, perquè es puguin clicar bé */
+.editor-fila{display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px 16px; font-size:16px}
+.etiqueta, .sufix{height:34px; display:inline-flex; align-items:center; white-space:nowrap}
+.etiqueta .katex, .sufix .katex{font-size:1em}
 .terme{display:inline-flex; align-items:flex-start; gap:3px}
 .columna{display:inline-flex; flex-direction:column; align-items:center; gap:6px}
 .valor{
-  height:46px; min-width:60px; padding:0 6px; border-radius:9px;
+  height:34px; min-width:46px; padding:0 6px; border-radius:8px;
   display:inline-flex; align-items:center; justify-content:center;
-  font-family:KaTeX_Main, 'Times New Roman', serif; font-size:26px; font-variant-numeric:tabular-nums;
+  font-family:KaTeX_Main, 'Times New Roman', serif; font-size:16px; font-variant-numeric:tabular-nums;
   background:var(--cat-fons);
 }
 .fletxes{display:inline-flex; border:1px solid var(--border); border-radius:9px; background:var(--surface); overflow:hidden}
@@ -291,7 +292,7 @@ button{font:inherit; color:inherit}
 /* Variants del procediment (p. ex. recta tangent, recta normal, pendent donat) */
 .modes{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px}
 .mode{
-  font:inherit; font-size:15px; padding:6px 12px; border-radius:999px; cursor:pointer;
+  font:inherit; font-size:14px; padding:5px 11px; border-radius:999px; cursor:pointer;
   border:1px solid var(--border); background:var(--surface); color:var(--txt);
 }
 .mode[aria-pressed="true"]{border-color:var(--cat); background:var(--cat-fons); font-weight:700}
@@ -347,9 +348,7 @@ button{font:inherit; color:inherit}
   .capcalera{padding-block:10px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
   .pissarra{padding:14px 12px 10px}
   .targeta{padding:16px}
-  .editor-fila{gap:8px 10px; font-size:18px}
-  .etiqueta, .sufix{height:42px}
-  .valor{height:42px; min-width:50px; font-size:22px}
+  .editor-fila{gap:8px 10px; font-size:16px}
   .text-pas{font-size:15px}
   /* Al mòbil (secundari, David), una fórmula llarga del text del pas no hi cap sencera: es pot partir (pel =) abans que fer sortir la pàgina de la pantalla */
   .text-pas .katex{white-space:normal}
