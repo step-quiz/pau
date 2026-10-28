@@ -72,8 +72,8 @@ button{font:inherit; color:inherit}
   padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
   display:flex; flex-direction:column; gap:16px;
 }
-.enunciat{margin:0; max-width:68ch}
-.enunciat .katex{font-size:1.08em}
+.enunciat{margin:0; max-width:68ch; font-size:18px}
+.enunciat .katex{font-size:1.05em}
 /* Una fórmula dins d'un text mai es parteix en dues línies (David: «això no ha de passar mai»): salta sencera a la línia següent */
 .enunciat .katex, .fila.text .katex, .text-pas .katex, .avis .katex{white-space:nowrap}
 .avis{
@@ -101,7 +101,7 @@ button{font:inherit; color:inherit}
   background-size:22px 22px; background-position:11px 11px;
   border:1px solid var(--border); border-radius:12px;
 }
-.pissarra{position:relative; padding:18px 22px 14px; font-size:var(--mida, 30px)}
+.pissarra{position:relative; padding:18px 22px 14px; font-size:var(--mida, 24px)}
 .capa{width:100%}
 .capa.nova{position:absolute; left:0; top:0; padding:inherit; visibility:hidden}  /* la capa del pas següent, mentre es prepara */
 .capa.mesura{position:absolute; left:0; top:0; padding:inherit; visibility:hidden}  /* per mesurar l'alçada de cada pas (motor.js, ajusta) */
@@ -121,7 +121,7 @@ button{font:inherit; color:inherit}
 /* Files de text (enunciats) i frases marcades */
 .fila.text{
   display:block; white-space:normal; min-height:0; padding:.35em .45em .5em;
-  font-family:var(--lletra); font-size:16px; line-height:1.75; max-width:72ch;
+  font-family:var(--lletra); font-size:18px; line-height:1.7; max-width:72ch;
 }
 .fila.text .katex{font-size:1.05em}
 /* Títol d'un apartat (p. ex. «1. Domini i possibles asímptotes verticals» a la gràfica d'una funció): una fila de text */
@@ -155,6 +155,7 @@ button{font:inherit; color:inherit}
 .fila.figura text.nom{fill:var(--cat); font-weight:700}
 .fila.figura text.nom2{fill:#b45309; font-weight:700}
 .fila.figura text.petit{font:12px var(--mono, monospace); fill:#475569}
+.fila.figura svg.esbos text.petit{font-size:15px}   /* l'esbós té una finestra més ampla (420): les marques, com a les altres gràfiques */
 .fila.figura .asimptota{stroke:#64748b; stroke-width:1.3; stroke-dasharray:6 4; fill:none}   /* esbós d'una funció */
 .fila.figura .punt-esbos{fill:var(--cat); stroke:#fff; stroke-width:1.2}
 /* Marques dins de les fórmules (\htmlData{k=…,marca=…}): els productes de Sarrus, un menor triat… */
@@ -231,16 +232,25 @@ button{font:inherit; color:inherit}
 
 .explicacio{margin:0; min-height:3.4em; display:flex; gap:14px; align-items:baseline}
 .num-pas{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums}
-.text-pas{font-size:16px; max-width:62ch; min-width:0}
+.text-pas{font-size:18px; max-width:62ch; min-width:0}
 .text-pas .katex{font-size:1.05em}
 
 
 /* ── EDITOR DE DADES ───────────────────────────────────────────────── */
 .targeta{
   background:var(--surface); border:1px solid var(--border); border-radius:12px;
-  padding:18px 20px; display:flex; flex-direction:column; gap:14px;
+  padding:18px 20px; display:block;
 }
+.targeta > :not(summary){margin-top:14px}   /* (un <details> no fa de caixa flex a tots els navegadors) */
 .targeta h2{margin:0; font-size:1rem; font-weight:700}
+/* La pestanya de les dades: plegada per defecte; el títol fa de botó (amb una fletxa que gira) */
+.targeta > summary{list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px}
+.targeta > summary::-webkit-details-marker{display:none}
+.targeta > summary::after{content:''; width:9px; height:9px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted);
+  transform:rotate(45deg); margin:-4px 4px 0 0; transition:transform .15s}
+.targeta[open] > summary::after{transform:rotate(-135deg); margin-top:4px}
+.targeta > summary:hover h2{color:var(--cat)}
+.targeta:not([open]){padding-block:14px}
 .editor{display:flex; flex-direction:column; gap:12px}
 .editor-fila{display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px 16px; font-size:21px}
 .etiqueta, .sufix{height:46px; display:inline-flex; align-items:center; white-space:nowrap}
@@ -284,6 +294,41 @@ button{font:inherit; color:inherit}
 .exemple .katex{font-size:1em}
 .nota{margin:0; font-size:13px; color:var(--muted); max-width:70ch}
 
+
+/* ── DISPOSICIÓ ────────────────────────────────────────────────────── */
+/* Una columna (mòbil, tauleta): l'enunciat, la pissarra, el reproductor i les dades, l'un sota l'altre. La columna lateral
+   no fa caixa: els seus elements es col·loquen amb «order». */
+.lateral{display:contents}
+.lateral > .avis{order:1}
+.lateral > .enunciat{order:2}
+.contingut > .escenari{order:3}
+.lateral > .controls{order:4}
+.lateral > .marca-controls{order:5}
+.lateral > .targeta{order:6}
+/* Portàtils (Chromebook) i pantalles grans (igual que MIDA.duesColumnes de motor.js): la pissarra a l'esquerra, amb tota
+   l'alçada de la finestra (motor.js, ajusta), i a la dreta l'enunciat, el reproductor, l'explicació i les dades (David, 28/10/2026). */
+@media (min-width:1000px){
+  .capcalera{padding-block:8px}
+  .contingut{
+    max-width:1600px; display:grid; grid-template-columns:minmax(0, 1fr) clamp(340px, 30vw, 460px);
+    column-gap:22px; align-items:start; padding-block:12px 12px;
+  }
+  .contingut > .escenari{grid-column:1; grid-row:1; order:0; position:sticky; top:12px}
+  .lateral{display:flex; flex-direction:column; gap:30px; grid-column:2; grid-row:1; min-width:0; padding-top:6px}   /* més aire: la pestanya de les dades és plegada */
+  .lateral > *{order:0}
+  .controls{position:static; margin:0; padding:0}
+  .controls.enganxat{box-shadow:none}
+  .marca-controls{display:none}
+  .reproductor{gap:10px}
+  .punts{flex-basis:100%; order:1}                       /* els punts, a tota l'amplada de la columna (sota els botons) */
+  .velocitat{order:2}
+  .punt{width:17px}
+  .text-pas{max-width:none}
+  .explicacio{flex-direction:column; gap:2px; min-height:4.6em}   /* «Pas 3 de 20» a sobre: el text del pas té tota l'amplada de la columna */
+  /* Una fórmula més ampla que la columna (poques: p. ex. la resposta de la perpendicular comuna) es parteix pel = o pel +,
+     abans que fer sortir la pàgina de la finestra; si hi cap, no es parteix mai. */
+  .text-pas .katex, .enunciat .katex{white-space:normal}
+}
 
 /* ── PANTALLA PETITA (igual que MIDA.pantallaPetita de motor.js) ───── */
 @media (max-width:520px){

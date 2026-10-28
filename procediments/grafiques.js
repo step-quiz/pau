@@ -141,7 +141,7 @@ function esbos({f, trams, x: [xmin, xmax], y: [ymin, ymax], asimptotes = [], pun
   }
   svg += `<g clip-path="url(#finestra-esbos)">${rectes}${cami ? `<path class="corba" d="${cami}"/>` : ''}</g>`;
   for (const p of punts) if (p.x >= xmin && p.x <= xmax && p.y >= ymin && p.y <= ymax) svg += `<circle class="punt-esbos" cx="${X(p.x)}" cy="${Y(p.y)}" r="3.6"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">${svg}</svg>`;
+  return `<svg class="esbos" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">${svg}</svg>`;
 }
 
 arrel.Grafiques = Object.freeze({grafica, finestra, esbos});

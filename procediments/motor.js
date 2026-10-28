@@ -46,10 +46,13 @@ const TEMPS = Object.freeze({
 });
 /** Corba de moviment (acceleració i frenada suaus). */
 const CORBA = 'cubic-bezier(.45,.05,.25,1)';
-/** Mida de la lletra de la pissarra (px). Es redueix si la línia més llarga no hi cap. */
-const MIDA = Object.freeze({gran: 30, petita: 22, minima: 12, pantallaPetita: '(max-width: 520px)',
-  minimaAlcada: 24,       // a pantalla gran, la lletra es redueix fins a 24 px perquè el pas més alt i els controls hi càpiguen
-                          // (no menys: David, «surt absurdament petit»; si no hi cap, la pissarra té la seva barra de desplaçament)
+/**
+ * Mida de la lletra de la pissarra (px). A pantalla gran, sempre la mateixa a totes les DEMO (David, 28/10/2026: 24 px);
+ * una fila de fórmules que no hi cap a l'amplada es fa més petita ella sola. Al mòbil, tota la pissarra es redueix
+ * fins que hi cap la fila més llarga (com a molt, fins a «minima»).
+ */
+const MIDA = Object.freeze({fixa: 24, petita: 22, minima: 12, pantallaPetita: '(max-width: 520px)',
+  duesColumnes: '(min-width: 1000px)',   // portàtils (Chromebook): la pissarra a l'esquerra, amb tota l'alçada (estil.css)
   alcadaMinima: 260});   // la pissarra, com a mínim, té aquesta alçada abans de fer servir la seva barra de desplaçament
 
 /** Categories del web (index.html): clau → nom. */
@@ -231,18 +234,22 @@ function construeixPagina(proc, contenidor) {
       element('div', {}, [element('h1', {text: proc.titol}), element('p', {class: 'cami', text: cami})]),
       element('a', {class: 'torna', href: '../index.html', text: '← Repàs PAU'}),
     ]),
+    // La pissarra i, al costat (portàtils) o a sota (una columna: .lateral no fa caixa, estil.css), la resta.
     element('main', {class: 'contingut'}, [
+      r.escenari,
+      element('div', {class: 'lateral'}, [
       r.avis,
       r.enunciat,
-      r.escenari,
       r.controls,
       r.marcaControls,
-      element('section', {class: 'targeta', 'aria-labelledby': 'titol-editor'}, [
-        element('h2', {id: 'titol-editor', text: proc.titolEditor || 'Canvia les dades'}),
+      // Les dades i els exemples, en una pestanya plegada (David, 28/10/2026): s'obre clicant el títol.
+      element('details', {class: 'targeta'}, [
+        element('summary', {}, [element('h2', {id: 'titol-editor', text: proc.titolEditor || 'Canvia les dades'})]),
         r.editor, r.resum, r.errorEditor, r.exemples,
         element('p', {class: 'nota', text: proc.editor.length
           ? 'Toca ↑ o ↓ sota cada nombre, o mantén la fletxa premuda. ' + (proc.notaEditor ? proc.notaEditor + ' ' : '') + 'L\'animació es torna a generar sola.'
           : proc.notaEditor || ''}),
+      ]),
       ]),
     ]),
     element('footer', {class: 'peu', html: PEU}),
@@ -320,6 +327,7 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
   let capa = null;                        // capa visible: les files del pas actual
   let usades = null;                      // les files que fa servir algun pas del guió (les altres no ocupen lloc)
   let renders = new Map();                // TeX → HTML de KaTeX: cada fila es renderitza un sol cop per guió
+  let escales = new Map();                // TeX → mida relativa (em) de les files que no hi caben a l'amplada (pantalla gran)
   const renderitza = tex => {
     if (!renders.has(tex)) renders.set(tex, katex.renderToString(tex, OPCIONS_PISSARRA));
     return renders.get(tex);
@@ -334,6 +342,7 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
       const fila = element('div', {class: 'fila' + (tex && esFilaText(tex) ? ' text' : '') + (figura ? ' figura' : '') + (pas.classes[i] ? ' ' + pas.classes[i] : '')});
       if ((usades && !usades.has(i)) || i > ultima) fila.hidden = true;
       if (tex) fila.innerHTML = figura ? tex : esFilaText(tex) ? textAmbFrases(tex.slice(1)) : renderitza(tex);
+      if (tex && escales.has(tex)) fila.style.fontSize = escales.get(tex) + 'em';
       c.append(fila);
     }
     return c;
@@ -369,81 +378,73 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
   }
 
   /**
-   * Tria la mida de la lletra, i quines files fa servir el guió:
-   *  1. amplada: la línia més llarga de tots els passos hi ha de cabre;
-   *  2. alçada (només a pantalla gran): el pas més alt de la pissarra, el
-   *     reproductor i l'explicació han de cabre a la finestra, a sota de la
-   *     capçalera i de l'enunciat; la lletra no baixa de MIDA.minimaAlcada.
-   *     Si tot i així no hi cap, el reproductor queda enganxat a baix (estil.css).
+   * Tria la mida de la lletra, i quines files fa servir el guió.
+   *  · Pantalla gran: la lletra és sempre MIDA.fixa. Una fila de fórmules més ampla que la pissarra es fa més petita
+   *    ella sola (escales). Amb dues columnes (portàtils), la pissarra ocupa tota l'alçada de la finestra; amb una sola
+   *    columna, el que queda a sota de la capçalera i de l'enunciat i a sobre dels controls i de tres línies d'explicació.
+   *    Si un pas no hi cap, la pissarra té la seva pròpia barra de desplaçament (fesVisible hi porta la fila que canvia).
+   *  · Mòbil: tota la pissarra es redueix fins que hi cap la fila més llarga (com a molt, fins a MIDA.minima); una fila
+   *    «desplacable» (una taula ampla) no compta: es desplaça de costat.
    */
   function ajusta(passos) {
     renders = new Map();
+    escales = new Map();
     usades = new Set();
     for (const pas of passos) pas.files.forEach((tex, i) => { if (tex) usades.add(i); });
     const petita = matchMedia(MIDA.pantallaPetita).matches;
-    const base = petita ? MIDA.petita : MIDA.gran;
+    const dues = !petita && matchMedia(MIDA.duesColumnes).matches;
     const posaMida = px => r.pissarra.style.setProperty('--mida', px + 'px');
-    posaMida(base);
+    posaMida(petita ? MIDA.petita : MIDA.fixa);
+    const estil = getComputedStyle(r.pissarra);
+    const disponible = r.pissarra.clientWidth - parseFloat(estil.paddingLeft) - parseFloat(estil.paddingRight) - 12;
     const prova = element('div', {class: 'fila prova'});
     r.pissarra.append(prova);
-    let maxim = 0;
+    const amples = new Map();                       // TeX → amplada amb la lletra de partida
     for (const pas of passos) {
       for (const [i, tex] of pas.files.entries()) {
-        if (!tex || esFilaText(tex) || esFilaFigura(tex)) continue;          // el text i els esquemes s'ajusten sols a l'amplada
-        // A pantalla petita, una fila «desplacable» (una taula ampla) no fa petita tota la lletra: es desplaça de costat.
+        if (!tex || esFilaText(tex) || esFilaFigura(tex) || amples.has(tex)) continue;   // el text i els esquemes s'ajusten sols
         if (petita && /(^| )desplacable( |$)/.test((pas.classes && pas.classes[i]) || '')) continue;
         prova.innerHTML = renderitza(tex);
-        maxim = Math.max(maxim, prova.firstElementChild.getBoundingClientRect().width);
+        amples.set(tex, prova.firstElementChild.getBoundingClientRect().width);
       }
     }
     prova.remove();
-    const estil = getComputedStyle(r.pissarra);
-    const disponible = r.pissarra.clientWidth - parseFloat(estil.paddingLeft) - parseFloat(estil.paddingRight) - 12;
-    const factor = maxim > 0 ? Math.min(1, disponible / maxim) : 1;
-    let mida = Math.max(MIDA.minima, Math.floor(base * factor));
-    posaMida(mida);
+    if (petita) {
+      const maxim = Math.max(0, ...amples.values());
+      posaMida(Math.max(MIDA.minima, Math.floor(MIDA.petita * (maxim > 0 ? Math.min(1, disponible / maxim) : 1))));
+    } else {
+      for (const [tex, w] of amples) if (w > disponible) escales.set(tex, Math.floor(disponible / w * 100) / 100);
+    }
 
-    // L'espai: a sota de la capçalera i de l'enunciat (a pantalla gran), i a sobre dels controls i d'unes tres línies d'explicació.
-    const dalt = petita ? 0 : r.escenari.getBoundingClientRect().top + scrollY;
-    // (els controls poden estar enganxats a baix: només se'n mira l'alçada)
+    // L'alçada de la pissarra.
+    const dalt = r.escenari.getBoundingClientRect().top + scrollY;
+    let maxima;
+    if (dues) {
+      const peu = parseFloat(getComputedStyle(r.escenari.parentNode).paddingBottom) || 0;
+      maxima = Math.max(MIDA.alcadaMinima, Math.floor(innerHeight - dalt - peu));
+      r.escenari.style.maxHeight = r.escenari.style.minHeight = maxima + 'px';
+      return;
+    }
+    if (petita) { r.escenari.style.maxHeight = ''; r.escenari.style.minHeight = ''; }
+    // Una columna: a sota de la capçalera i de l'enunciat, i a sobre dels controls i de tres línies d'explicació.
     const gap = parseFloat(getComputedStyle(r.controls.parentNode).rowGap) || 0;
-    // Amb pissarraCreix, sempre l'espai de tres línies (no el del text que hi hagi ara, que pot ser el de l'exemple d'abans):
-    // si no, en canviar d'exemple la pissarra quedava més alta i els botons es movien.
-    const sota = gap + r.controls.offsetHeight + (creix ? 72 - r.explicacio.offsetHeight : Math.max(0, 72 - r.explicacio.offsetHeight)) + 8;
-    const lloc = innerHeight - dalt - sota;
-    // Si la pissarra no hi cap, té la seva pròpia barra de desplaçament (i no la de la finestra).
-    const maxima = Math.max(MIDA.alcadaMinima, Math.floor(lloc));
-    r.escenari.style.maxHeight = maxima + 'px';
-
-    // L'alçada. Les files de fórmules creixen amb la lletra, però les de text no: es repeteix el càlcul unes quantes vegades.
-    const alcadaMaxima = () => {
-      const mesura = element('div', {class: 'capa mesura'});
-      r.pissarra.append(mesura);
-      let h = 0;
-      for (const pas of passos) {
-        mesura.replaceChildren(...dibuixaCapa(pas).children);
-        h = Math.max(h, mesura.getBoundingClientRect().height);
-      }
-      mesura.remove();
-      return h + r.pissarra.offsetHeight - r.pissarra.clientHeight;     // + les vores
-    };
+    const sota = gap + r.controls.offsetHeight + 72 - r.explicacio.offsetHeight + 8;
+    maxima = Math.max(MIDA.alcadaMinima, Math.floor(innerHeight - (petita ? 0 : dalt) - sota));
+    if (!petita) r.escenari.style.maxHeight = maxima + 'px';
     // Una pissarra que creix (proc.pissarraCreix) ocupa des del primer pas l'alçada que tindrà al final (com a molt, la que
     // hi cap): si no, els botons de sota baixarien a cada pas i s'escaparien de sota del ratolí.
-    const fixaAlcada = () => {
-      if (!creix || petita) { r.escenari.style.minHeight = ''; return; }
-      const e = getComputedStyle(r.pissarra);
-      r.escenari.style.minHeight = Math.min(maxima, Math.ceil(alcadaMaxima() + parseFloat(e.paddingTop) + parseFloat(e.paddingBottom) + 2)) + 'px';
-    };
-    if (petita || mida <= MIDA.minimaAlcada) { fixaAlcada(); return; }
-    for (let i = 0; i < 4; i++) {
-      const alt = alcadaMaxima();
-      if (alt <= lloc) break;
-      const nova = Math.max(MIDA.minimaAlcada, Math.floor(mida * lloc / alt));
-      if (nova >= mida) break;
-      mida = nova;
-      posaMida(mida);
+    if (!creix || petita) { r.escenari.style.minHeight = ''; return; }
+    const mesura = element('div', {class: 'capa mesura'});
+    r.pissarra.append(mesura);
+    let h = 0;
+    for (const pas of passos) {
+      mesura.replaceChildren(...dibuixaCapa(pas).children);
+      h = Math.max(h, mesura.getBoundingClientRect().height);
     }
-    fixaAlcada();
+    mesura.remove();
+    const e = getComputedStyle(r.pissarra);
+    r.escenari.style.minHeight = Math.min(maxima, Math.ceil(h + r.pissarra.offsetHeight - r.pissarra.clientHeight
+      + parseFloat(e.paddingTop) + parseFloat(e.paddingBottom) + 2)) + 'px';
   }
 
   /* Símbols amb clau d'una capa, i les seves posicions. */
