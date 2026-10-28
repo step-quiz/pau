@@ -2,7 +2,9 @@
 
 Recopilatori d'enunciats, pistes i solucions de proves PAU de Matemàtiques (2023–2026).
 Web estàtica: `index.html` (tota l'aplicació; la llista d'exercicis és l'objecte `EXERS`)
-i `config.js` (exercicis optatius i vídeos de YouTube).
+i `config.js` (exercicis optatius, vídeos de YouTube i etiquetes del buscador).
+La pàgina d'inici té un buscador que cerca (sense accents ni majúscules, i tolerant a faltes d'escriptura com «bolzaano» o «crixement», amb la distància de Levenshtein de `vocabulari.html` d'operacions) al títol, l'any, la convocatòria i l'id
+de cada exercici, i a les `ETIQUETES` de `config.js`: hi van els temes que l'enunciat no anomena (p. ex. Bolzano).
 
 Hi ha **67 exercicis** (16 d'àlgebra, 31 d'anàlisi, 11 de geometria i 9 de probabilitat).
 Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:

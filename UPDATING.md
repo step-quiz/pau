@@ -29,7 +29,7 @@ A static website, published with GitHub Pages from `main` (root folder). It offe
 
 ```
 index.html                 the whole web app; the exercise list is the JS object EXERS
-config.js                  OPTATIUS (optional exercises) and VIDEOS (YouTube IDs)
+config.js                  OPTATIUS (optional exercises), VIDEOS (YouTube IDs) and ETIQUETES (search-box tags)
 data/                      <id>-e.pdf, <id>-p.pdf, <id>-s.pdf for every exercise
 pistes/src/<id>.tex        LaTeX source of each hint
 pistes/src/pista.sty       shared preamble (box style, header, determinism)
@@ -222,7 +222,7 @@ python3 pistes/build.py --png /tmp/png ana-27j-q1 alg-27j-q2 ...
 1. **`index.html`**: one `EXERS` entry per new id (§2).
 2. **`pistes/REVISIO.md`**: one row per new hint in the right category table, with lot `—` or a new lot code, origin like `2027 juny S1 Ex 1`, `Font = IA`, `Autor = IA`, `Estat = pendent`, notes `pista nova (juny 2027)`. Update the total in the first line («Seguiment de la revisió de les N pistes»).
 3. **`CLAUDE.md`**: update the exercise count («amb N exercicis de PAU»).
-4. **`config.js`**: `VIDEOS` maps ids to YouTube video IDs. David collects them from the channel «Matemàtiques amb Bogdan» (youtube.com/@matematiquesambbogdan394). **Never guess or reconstruct a video ID**: ask David to paste the URLs as text and copy them exactly (2026 lesson). `OPTATIUS` lists optional exercises; touch it only if David asks.
+4. **`config.js`**: `VIDEOS` maps ids to YouTube video IDs. David collects them from the channel «Matemàtiques amb Bogdan» (youtube.com/@matematiquesambbogdan394). **Never guess or reconstruct a video ID**: ask David to paste the URLs as text and copy them exactly (2026 lesson). `OPTATIUS` lists optional exercises; touch it only if David asks. `ETIQUETES` feeds the search box on the home page (it already searches title, year, session and id, and tolerates typos):  add an entry `id: {nota, mots}` for every new exercise that uses a topic its statement does not name. Official statements almost never say «Bolzano» («Justifiqueu que té una solució a l'interval…»); the official solution (`-s.pdf`) does, so `grep -il bolzano` on the text of the new `-s.pdf` files finds them. `nota` is shown under the title (e.g. «Teorema de Bolzano · apartat a)»); `mots` is searched only.
 5. **Do not touch** `-e`/`-s` of old exams, `pista.sty` or `build.py` unless needed.
 
 ---

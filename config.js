@@ -37,3 +37,25 @@ const VIDEOS = {
    'ana-25j-q4a':'W0JjPG41UY0',
    'geo-25j-q4b':'U-sItqNaRzM'
 };
+
+/* ── ETIQUETES DEL BUSCADOR ─────────────────────────────────────────
+   El buscador de la pàgina d'inici ja cerca al títol, l'any, la
+   convocatòria i l'id. Aquí hi poses el que NO surt al títol, perquè
+   els enunciats oficials gairebé mai diuen el nom del teorema
+   (per ex., «Justifiqueu que té una solució a l'interval…» és Bolzano).
+   Clau  → ID de l'exercici
+   nota  → text que veu l'alumne a sota del títol (i on se subratlla la cerca)
+   mots  → paraules extra que només es cerquen (opcional, separades per espais) */
+const ETIQUETES = {
+  'ana-23s-q4': {nota:'Teorema de Bolzano · apartat a)', mots:'bolzano teorema arrel'},
+  'ana-24i-q1': {nota:'Teorema de Bolzano · apartat a)  ·  Creixement i decreixement · apartat b)',
+                 mots:'bolzano teorema arrel creixement decreixement monotonia'},
+  'ana-24s-q1': {nota:'Teorema de Bolzano · apartat a)  ·  Creixement i decreixement · apartat b)',
+                 mots:'bolzano teorema arrel creixement decreixement monotonia'},
+  'pro-26j-q3': {nota:'Teorema de Bolzano · apartat 3.3', mots:'bolzano teorema arrel'},
+
+  // Creixement i decreixement (els títols no ho diuen; els enunciats sí)
+  'ana-24j-q1': {nota:'Creixement i decreixement · apartat a)', mots:'creixement decreixement monotonia'},
+  'ana-25i-q1': {nota:'Creixement i decreixement · apartat b)', mots:'creixement decreixement monotonia'},
+  'ana-26s-q1': {nota:'Creixement i decreixement · apartat 1.1', mots:'creixement decreixement monotonia'}
+};

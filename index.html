@@ -258,6 +258,27 @@ header h1{font-size:.92rem;font-weight:700;line-height:1.3;}
   border-color:color-mix(in srgb,#22c55e 35%,var(--border));
 }
 
+/* ── BUSCADOR (pàgina d'inici) ──────────────────────────────────────────────── */
+.cerca-box{margin:10px 0 4px;}
+.cerca-box input{
+  width:100%;font-family:'Libre Baskerville',Georgia,serif;font-size:.9rem;
+  padding:11px 14px;border:2px solid var(--border);border-radius:8px;
+  background:var(--surface);color:var(--txt);
+}
+.cerca-box input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18);}
+.cerca-res{display:none;margin-top:14px;}
+#v-cats.cercant .cerca-res{display:block;}
+#v-cats.cercant .cat-grid,#v-cats.cercant .cat-intro{display:none;}
+.cerca-resum{font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--muted);margin-bottom:10px;}
+.cerca-res .ex-list{margin-bottom:0;}
+.cerca-res mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px;}
+.cerca-etiq{
+  display:inline-block;margin-top:6px;
+  font-family:'Source Code Pro',monospace;font-size:.64rem;
+  color:var(--txt);background:#fef3c7;border:1px solid #fcd34d;
+  border-radius:3px;padding:2px 7px;
+}
+
 /* ── DETAIL ─────────────────────────────────────────────────────────────────── */
 .det-header{margin-bottom:16px;}
 .det-header h2{font-size:.98rem;font-weight:700;line-height:1.4;}
@@ -372,7 +393,13 @@ footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;
 
 <!-- VIEW 1: Categories -->
 <div class="view active" id="v-cats">
-  <p style="font-size:.84rem;color:var(--muted);margin:4px 0 4px;">Selecciona la categoria que vols treballar:</p>
+  <div class="cerca-box">
+    <input type="search" id="cerca" autocomplete="off" spellcheck="false"
+           placeholder="Cerca un tema o una paraula: Bolzano, Bayes, 2024…"
+           aria-label="Cerca exercicis de PAU per tema o paraula">
+  </div>
+  <div class="cerca-res" id="cerca-res" aria-live="polite"></div>
+  <p class="cat-intro" style="font-size:.84rem;color:var(--muted);margin:4px 0 4px;">Selecciona la categoria que vols treballar:</p>
   <div class="cat-grid">
     <div class="cat-card" data-cat="algebra">
       <div class="num">…</div>
@@ -765,6 +792,7 @@ let currentCat = null;
 
 function showCat(cat) {
   currentCat = cat;
+  desdeCerca = false;
   show('v-list');
   setBreadcrumb(CAT_NAME[cat]);
 
@@ -831,6 +859,8 @@ function showCat(cat) {
 
 function showExercise(ex) {
   show('v-detail');
+  document.querySelector('#v-detail .back-btn').textContent =
+    desdeCerca ? '← Torna a la cerca' : '← Torna a la llista';
   setBreadcrumb(CAT_NAME[currentCat] + ' › ' + ex.any + ' ' + ex.conv + ' ' + ex.ref.toUpperCase());
   document.getElementById('det-title').textContent = ex.titol;
   document.getElementById('det-meta').textContent  =
@@ -876,7 +906,8 @@ function showExercise(ex) {
 
 function goBack(to) {
   if (to === 'cats') { show('v-cats'); setBreadcrumb('Tria una categoria per començar'); }
-  if (to === 'list') { show('v-list'); setBreadcrumb(CAT_NAME[currentCat]); }
+  if (to === 'list' && desdeCerca) { show('v-cats'); setBreadcrumb('Cerca d\'exercicis'); }
+  else if (to === 'list') { show('v-list'); setBreadcrumb(CAT_NAME[currentCat]); }
 }
 
 function showTab(name, btn) {
@@ -899,6 +930,135 @@ function show(id) {
 function setBreadcrumb(txt) {
   document.getElementById('breadcrumb').textContent = txt;
 }
+
+/* ── BUSCADOR ───────────────────────────────────────────────────────────────
+   Cerca a títol, any, convocatòria, id, categoria i a ETIQUETES (config.js).
+   Sense accents ni majúscules; si hi ha diverses paraules, han de sortir totes.
+   Tolera faltes d'escriptura («bolzaano», «crixement», «rectas tangent»): una paraula
+   cercada també coincideix amb una paraula de l'exercici si es diferencien en 1 lletra
+   (paraules de 4-5 lletres) o 2 (de 6 o més), com la distància de Levenshtein de
+   vocabulari.html. Les paraules curtes (≤3) i les que porten xifres (2024) són exactes. */
+const ETIQ = (typeof ETIQUETES !== 'undefined') ? ETIQUETES : {};
+let desdeCerca = false;
+
+// Minúscules i sense accents, caràcter a caràcter (la longitud no canvia)
+function normCerca(s) {
+  return s.split('').map(c => c.normalize('NFD')[0].toLowerCase()[0]).join('');
+}
+// Distància de Levenshtein (mateix algorisme que vocabulari-engine.js)
+function levCerca(a, b) {
+  const dp = Array.from({length: a.length + 1}, (_, i) => [i]);
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+  return dp[a.length][b.length];
+}
+// Faltes tolerades segons la longitud de la paraula cercada (t ja normalitzada)
+function llindarCerca(t) {
+  return /\d/.test(t) || t.length <= 3 ? 0 : t.length <= 5 ? 1 : 2;
+}
+// t s'assembla a la paraula sencera w (mentre s'escriu, ja funciona la cerca exacta per trossos)
+function paraulaProxima(t, w) {
+  const l = llindarCerca(t);
+  return l > 0 && Math.abs(w.length - t.length) <= l && levCerca(t, w) <= l;
+}
+const PARAULES = /[\p{L}\p{N}]+/gu;
+function escHtml(c) {
+  return c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : c;
+}
+// Text segur per a innerHTML, amb les paraules cercades dins de <mark>
+function ressalta(text, termes) {
+  const n = normCerca(text);
+  const marca = new Array(text.length).fill(false);
+  termes.forEach(t => {
+    let i = n.indexOf(t);
+    if (i === -1) {                              // sense coincidència exacta: paraules semblants
+      for (const m of n.matchAll(PARAULES))
+        if (paraulaProxima(t, m[0]))
+          for (let k = m.index; k < m.index + m[0].length; k++) marca[k] = true;
+      return;
+    }
+    while (i !== -1) {
+      for (let k = i; k < i + t.length; k++) marca[k] = true;
+      i = n.indexOf(t, i + 1);
+    }
+  });
+  let out = '', obert = false;
+  for (let i = 0; i < text.length; i++) {
+    if (marca[i] && !obert)  { out += '<mark>';  obert = true;  }
+    if (!marca[i] && obert)  { out += '</mark>'; obert = false; }
+    out += escHtml(text[i]);
+  }
+  return out + (obert ? '</mark>' : '');
+}
+function cercaExercicis(q) {
+  const termes = normCerca(q.trim()).split(/\s+/).filter(Boolean);
+  const res = [];
+  Object.keys(EXERS).forEach(cat => EXERS[cat].forEach(ex => {
+    const e = ETIQ[ex.id] || {};
+    const farcell = normCerca([ex.titol, ex.any, ex.conv, ex.ref, ex.id, CAT_NAME[cat],
+                               e.nota || '', e.mots || ''].join(' '));
+    const paraules = farcell.match(PARAULES) || [];
+    let aproximades = 0;                         // paraules que només coincideixen per semblança
+    const tots = termes.every(t => {
+      if (farcell.includes(t)) return true;
+      if (paraules.some(w => paraulaProxima(t, w))) { aproximades++; return true; }
+      return false;
+    });
+    if (tots) res.push({cat, ex, e, aproximades});
+  }));
+  // primer les coincidències exactes; després, els més nous (l'ordre intern es manté)
+  res.sort((a, b) => a.aproximades - b.aproximades || b.ex.any - a.ex.any);
+  return {termes, res};
+}
+function pintaCerca() {
+  const q   = document.getElementById('cerca').value;
+  const box = document.getElementById('cerca-res');
+  const actiu = q.trim().length >= 2;
+  document.getElementById('v-cats').classList.toggle('cercant', actiu);
+  box.innerHTML = '';
+  if (!actiu) return;
+
+  const {termes, res} = cercaExercicis(q);
+  const resum = document.createElement('div');
+  resum.className = 'cerca-resum';
+  resum.textContent = res.length === 0
+    ? 'Cap exercici coincideix amb «' + q.trim() + '».'
+    : res.length + ' exercici' + (res.length !== 1 ? 's' : '') + ' amb «' + q.trim() + '»';
+  box.appendChild(resum);
+
+  const ul = document.createElement('ul');
+  ul.className = 'ex-list';
+  res.forEach(({cat, ex, e}) => {
+    const isOptatiu = OPTATIUS.has(ex.id);
+    const isFet     = getDoneSet().has(ex.id);
+    const li = document.createElement('li');
+    li.className = 'ex-item' + (isOptatiu ? ' is-optatiu' : '') + (isFet ? ' is-fet' : '');
+    li.dataset.cat  = cat;
+    li.dataset.exId = ex.id;
+    li.innerHTML = `
+      <span class="ex-badge" style="background:${CAT_COLOR[cat]}">${ex.any} · ${ex.conv}</span>
+      <div class="ex-info">
+        <div class="ex-title">${ressalta(ex.titol, termes)}</div>
+        <div class="ex-sub">${ex.id} · ${CAT_NAME[cat]}</div>
+        ${e.nota ? `<span class="cerca-etiq">${ressalta(e.nota, termes)}</span>` : ''}
+      </div>
+      ${isOptatiu ? '<span class="ex-optatiu-tag">optatiu</span>' : ''}
+      ${isFet     ? '<span class="ex-fet-tag">✓ Fet</span>'       : ''}
+      <span class="ex-arrow">→</span>`;
+    li.tabIndex = 0;
+    li.onclick = () => { currentCat = cat; desdeCerca = true; showExercise(ex); };
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+}
+document.getElementById('cerca').addEventListener('input', pintaCerca);
+document.getElementById('cerca').addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.target.value = ''; pintaCerca(); }
+});
 
 /* ── MARCAR COM A FET (localStorage) ────────────────────────────────────── */
 function getDoneSet() {
