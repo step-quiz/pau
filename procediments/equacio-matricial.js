@@ -98,17 +98,17 @@ function passos(valors) {
   /* 1. Aïllar X, amb lletres. */
   const AX = e ? K('qA', 'A') + X : X + K('qA', 'A');
   eq(AX + (p.c ? termeC() : '') + (p.beta ? termeB(false) : ''), dretaC);
-  g.afegeix(`L'equació és $${p.nom.replace('−', '-')}$. Primer, aïlla $X$ amb lletres, com en una equació de nombres; però amb compte: `
-    + 'el producte de matrius no és commutatiu ($AX$ i $XA$ no són iguals).');
+  g.afegeix(`L'equació és $${p.nom.replace('−', '-')}$. Primer, aïlla $X$ com si fos una equació de nombres; però amb compte: `
+    + 'el producte de matrius no és commutatiu.');
   if (p.beta) {
     eq(AX + (p.c ? termeC() : ''), dretaC + termeB(true));
-    g.afegeix(`Passa $B$ a l'altre costat: hi arriba ${p.beta > 0 ? 'restant' : 'sumant'}, com amb els nombres.`);
+    g.afegeix(p.beta > 0 ? 'Passa $B$ a l\'altre costat (restant, com quan tens una equació amb nombres).' : 'Passa $B$ a l\'altre costat.');
   }
   let Mx = K('qA', 'A');
   if (p.c) {
     Mx = `(${K('qA', 'A')}${K('qc', ` ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}I`)})`;
     eq(e ? Mx + X : X + Mx, dretaC + (p.beta ? termeB(true) : ''));
-    g.afegeix(`Treu $X$ factor comú. Compte: $X = ${e ? 'I \\cdot X' : 'X \\cdot I'}$ ($I$ és la matriu identitat), i la $X$ queda a ${e ? 'la dreta' : 'l\'esquerra'} en tots dos termes: `
+    g.afegeix(`Treu $X$ factor comú: `
       + (e ? `$AX ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}I \\cdot X = (${nomM(p)})X$.` : `$XA ${p.c > 0 ? '+' : '-'} ${Math.abs(p.c) === 1 ? '' : Math.abs(p.c)}X \\cdot I = X(${nomM(p)})$.`));
   }
   const dretaTot = dretaC + (p.beta ? termeB(true) : '');
@@ -117,15 +117,15 @@ function passos(valors) {
   // Els parèntesis del membre de la dreta, destacats el primer cop: molts alumnes se'ls obliden.
   const dretaMarcada = p.beta ? `${F.marca('(', 'tria')}${dretaTot}${F.marca(')', 'tria')}` : dretaTot;
   eq(e ? inv('qL') + Mx + X : X + Mx + inv('qL'), e ? inv('qR') + dretaMarcada : dretaMarcada + inv('qR'));
-  g.afegeix(`Com que ${e ? 'a l\'esquerra' : 'a la dreta'} de $X$ hi ha $${nomM(p)}$, multiplica els dos membres per $${nomMp(p)}^{-1}$ ${e ? 'per l\'esquerra (davant)' : 'per la dreta (darrere)'}: `
-    + `als dos membres, pel mateix costat.`
+  g.afegeix((e ? `Multiplica els dos costats per $${nomMp(p)}^{-1}$ per l'esquerra.`
+    : `Multiplica els dos membres de la igualtat per $${nomMp(p)}^{-1}$ ${p.beta ? 'per la dreta.' : '(atenció, per la dreta).'}`)
     + (p.beta ? ` Compte amb els parèntesis: la inversa multiplica tot el membre de la dreta, $${texR(p)}$, i no només $${texKappa(p)}${nomDreta(p)}$.` : ''));
   const fusio = {qI: ['qL', 'qA'].concat(p.c ? ['qc'] : [])};
   eq(e ? K('qI', 'I') + ' \\cdot ' + X : X + ' \\cdot ' + K('qI', 'I'), e ? inv('qR') + dretaP : dretaP + inv('qR'));
   g.afegeix(`$${e ? `${nomMp(p)}^{-1}${nomMp(p)}` : `${nomMp(p)}${nomMp(p)}^{-1}`} = I$, la matriu identitat.`, {fusiona: fusio});
   eq(X, e ? inv('qR') + dretaP : dretaP + inv('qR'));
   const formula = e ? `${nomMp(p)}^{-1}${texRp(p)}` : `${texRp(p)}${nomMp(p)}^{-1}`;
-  g.afegeix(`$${e ? 'I \\cdot X' : 'X \\cdot I'} = X$: ja tens $X$ aïllada, $X = ${formula}$. Ara, fes els càlculs.`);
+  g.afegeix(`$${e ? 'I \\cdot X' : 'X \\cdot I'} = X$. Ara pots trobar el valor de $X$ així: $X = ${formula}$.`);
 
   /* 2. Els càlculs. */
   const mats = [['A', dd.A], ['B', dd.B]].concat(dd.C ? [['C', dd.C]] : []);
@@ -135,25 +135,25 @@ function passos(valors) {
     const parts = [K('Rn', texR(p)), ' = ' + K('Re', (p.kappa !== 1 ? texKappa(p) : '') + texM(dd.D) + (p.beta ? (p.beta > 0 ? ' - ' : ' + ') + texM(dd.B) : ''))];
     parts.push(' = ' + K('Rv', texM(dd.Rm)));
     g.files[FILA.dreta] = F.enLinies('', parts);
-    g.afegeix(`Calcula la matriu de la dreta, $${texR(p)}$: ${p.kappa !== 1 ? `multiplica cada element de $${nomDreta(p)}$ per $${p.kappa}$ i ` : ''}${p.beta > 0 ? 'resta' : 'suma'} element a element.`);
+    g.afegeix(p.kappa !== 1 ? `Calcula la matriu $${texR(p)}$.` : `Calcula la matriu $${texR(p)}$: ${p.beta > 0 ? 'resta' : 'suma'} element a element.`);
   }
   if (p.c) {
     g.files[FILA.coef] = F.enLinies('', [K('Nn', nomM(p)), ' = ' + K('Ne', texM(dd.A) + (p.c > 0 ? ' + ' : ' - ') + (Math.abs(p.c) === 1 ? '' : Math.abs(p.c)) + texM(I2)), ' = ' + K('Nv', texM(dd.Mm))]);
-    g.afegeix(`Calcula $${nomM(p)}$: ${p.c > 0 ? 'suma' : 'resta'} ${Math.abs(p.c) === 1 ? '1' : Math.abs(p.c)} a cada element de la diagonal (la resta no canvia).`);
+    g.afegeix(`Calcula $${nomM(p)}$.`);
   }
   const [a, b, c, d] = [dd.Mm[0][0], dd.Mm[0][1], dd.Mm[1][0], dd.Mm[1][1]];
   g.files[FILA.det] = K('Gn', `|${nomM(p)}|`) + R('Gq', '=') + K('Gp', `${par(a)} \\cdot ${par(d)} - ${par(b)} \\cdot ${par(c)}`) + R('Gr', '=') + K('Gv', `${M.texNombre(dd.d)} \\neq 0`);
-  g.afegeix(`$${nomM(p)}$ té inversa si el seu determinant és no nul: $|${nomM(p)}| = ${M.texNombre(dd.d)} \\neq 0$.`);
+  g.afegeix(`$${nomM(p)}$ té inversa perquè el seu determinant ha donat diferent de $0$.`);
   const adj = [[d, b.oposada()], [c.oposada(), a]];
   // Si |M| = 1, la inversa és directament la matriu canviada (sense «1/1»).
   const pecesInv = [K('Vn', `${nomMp(p)}^{-1}`), ' = ' + K('Ve', (dd.d.igual(1) ? '' : `\\dfrac{1}{${M.texNombre(dd.d)}}`) + texM(adj))];
   if (!dd.d.igual(1)) pecesInv.push(' = ' + K('Vv', texM(dd.inv)));
   g.files[FILA.inversa] = F.enLinies('', pecesInv);
-  g.afegeix('La inversa d\'una matriu 2×2: intercanvia els dos elements de la diagonal principal, canvia de signe els de la secundària, i divideix pel determinant.');
+  g.afegeix('Calcula la inversa de la matriu 2×2.');
   const [P1, P2] = e ? [dd.inv, dd.Rm] : [dd.Rm, dd.inv];
   const sumes = P1.map((f, i) => P2[0].map((_, j) => `${par(f[0])} \\cdot ${par(P2[0][j])} + ${par(f[1])} \\cdot ${par(P2[1][j])}`));
   g.files[FILA.producte] = F.enLinies('', [K('Pn', 'X'), ' = ' + K('Pf', formula), ' = ' + K('Pm', texM(P1) + texM(P2))]);
-  g.afegeix(`Ara el producte, en aquest ordre: $X = ${formula}$. ${e ? 'La inversa va primer.' : 'La inversa va darrere.'}`);
+  g.afegeix(`Ara el producte, en aquest ordre: $X = ${formula}$.`);
   // Les sumes, a la pissarra si hi caben (al mòbil); si no, al text, i a la pissarra el resultat.
   const texSumes = texM(sumes.map(f => f.map(() => null)), (x, i, j) => sumes[i][j]);
   const caben = F.ampleTex(texSumes) <= 460;

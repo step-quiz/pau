@@ -145,17 +145,16 @@ function passos(v) {
   g.afegeix(`Discutir el sistema és dir, per a cada valor de $${X}$, si té una solució, infinites o cap. Es fa comparant els rangs de $A$ (els coeficients) `
     + `i de $A^*$ (l'ampliada): és el teorema de Rouché–Frobenius.`);
   g.files[FILA.matriu] = K('Mn', 'A^*') + R('Mq', '=') + Mt.texAmpliada(S, {X});
-  g.afegeix('La matriu ampliada $A^*$: els coeficients (la matriu $A$) i, després de la ratlla, els termes independents.');
+  g.afegeix('Escriu la matriu ampliada $A^*$.');
 
   /* |A| i els valors que l'anul·len. */
   const {det} = Mt.passosSarrus(g, {A, X, nom: '|A|', P: 'd', rapid: true, files: {matriu: FILA.det, sarrus: FILA.sarrus, calcul: FILA.calcul}});
-  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|', inici: `On és $|A| = 0$? Per a aquests valors, $\\text{rang}(A) < 3$.`, algebra: true}).map(r => r.num);
+  const arrels = Mt.passosArrels(g, {p: det, X, files: FILA, nom: '|A|', inici: `En quins casos és $|A| = 0$? Per a aquests valors precisament, $\\text{rang}(A) < 3$.`, algebra: true}).map(r => r.num);
   // El resum: els càlculs ja no calen, i les seves files es reaprofiten.
   FILA.lliures.forEach(f => { g.files[f] = ''; });
   const solucions = Mt.texSolucions(arrels.map(r => M.Fraccio.de(r)), X);
   g.files[FILA.equacio] = solucions ? K('Zf', '|A| = 0') + R('Zi', '\\iff') + K('Zs', solucions) : K('Zf', `|A| \\neq 0 \\text{ per a tot } ${X}`);
-  g.afegeix((solucions ? `Resumeix-ho: $|A| = 0$ només si $${solucions}$.` : `Resumeix-ho: $|A|$ no val mai $0$.`)
-    + ' Els càlculs s\'esborren: ja no et calen.');
+  g.afegeix((solucions ? `Resumeix-ho: $|A| = 0$ només si $${solucions}$.` : `Resumeix-ho: $|A|$ no val mai $0$.`));
 
   /* La taula, que es va omplint. */
   // La capçalera, en negreta; la taula, una mica separada dels càlculs (classe «separat»).

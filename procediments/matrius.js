@@ -175,7 +175,7 @@ function passosSarrus(g, {A, X, nom = '|A|', P = '', files, rapid = false}) {
   if (rapid) {
     SARRUS.forEach((s, n) => peces.push(K(`${P}S${n}`, s.pos.map(([i, j]) => texFactor(A[i][j], X)).join(' \\cdot '))));
     g.files[files.sarrus] = filaProductes();
-    g.afegeix('Els sis productes: al primer claudàtor, la diagonal principal i els dos triangles paral·lels; al segon (que es resta), la diagonal secundària i els seus dos triangles.');
+    g.afegeix('Calcula els sis productes.');
   }
   if (!rapid) SARRUS.forEach((s, n) => {
     const factors = s.pos.map(([i, j]) => texFactor(A[i][j], X)).join(' \\cdot ');
