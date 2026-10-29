@@ -501,7 +501,7 @@ function passosReduccio2(g, {S, vars, fila, P = 'X', eqs = [1, 2]}) {
     q = sola[0].esZero() ? 1 : 0;
     linies.push(linia(etiqueta(sola), unica[q].igual(1) ? caixa(eq(unica)) : eq(unica)));
     pinta();
-    g.afegeix(`L'equació ${texEqText(nomEq(sola))} només té una incògnita: $${eq(unica)}$. D'aquí es treu $${vars[q]}$.`);
+    g.afegeix(`L${texEqText(nomEq(sola)).slice(1)} es resol directament.`);
   } else {
     // Per a cada incògnita, els multiplicadors més petits que en fan oposats els coeficients
     // (amb el mínim comú múltiple, com a 4t d'ESO); es fa desaparèixer la que en té de més petits.
@@ -524,8 +524,8 @@ function passosReduccio2(g, {S, vars, fila, P = 'X', eqs = [1, 2]}) {
     const v = vars[e];
     const quines = [m1.igual(1) ? '' : `multiplica ${texEqText(eqs[0])} per $${M.texNombre(m1)}$`, m2.igual(1) ? '' : `${m1.igual(1) ? 'multiplica ' : ''}${texEqText(eqs[1])} per $${M.texNombre(m2)}$`].filter(Boolean);
     g.afegeix(quines.length
-      ? `Mètode de reducció: perquè $${v}$ desaparegui en sumar, ${quines.join(' i ')}${quines.length === 1 ? ' (l\'altra equació es queda igual)' : ''}. `
-        + `Així els coeficients de $${v}$ queden oposats: $${M.texNombre(A[e])}$ i $${M.texNombre(B[e])}$.`
+      ? `Mètode de reducció: ${quines.join(' i ')}${quines.length === 1 ? ' (i l\'altra equació queda igual)' : ''}. `
+        + `D'aquesta manera els coeficients de $${v}$ queden oposats: $${M.texNombre(A[e])}$ i $${M.texNombre(B[e])}$.`
       : `Mètode de reducció: els coeficients de $${v}$ ja són oposats ($${M.texNombre(A[e])}$ i $${M.texNombre(B[e])}$). Escriu les dues equacions una sota l'altra.`);
     linies.push('\\hline ' + linia('', unica[q].igual(1) ? caixa(eq(unica)) : eq(unica)));   // la ratlla de la suma, just a sobre del resultat
     pinta();
@@ -536,7 +536,7 @@ function passosReduccio2(g, {S, vars, fila, P = 'X', eqs = [1, 2]}) {
   if (!unica[q].igual(1)) {
     linies.push(linia('', caixa(`${vars[q]} = ${M.texNombre(sq)}`)));
     pinta();
-    g.afegeix(`Divideix per $${M.texNombre(unica[q])}$: $${vars[q]} = ${M.texNombre(sq)}$.`);
+    g.afegeix(`Aïlla la $${vars[q]}$.`);
   }
   // L'altra incògnita: a una equació que la tingui (millor si el seu coeficient és 1 o −1), la trobada pel seu valor.
   const candidates = [E1, E2].filter(E => E !== unica && !E[e].esZero());
@@ -559,7 +559,7 @@ function passosReduccio2(g, {S, vars, fila, P = 'X', eqs = [1, 2]}) {
     const aillat = `${termeVar(ce, vars[e], true)} = ${M.texNombre(resta)}`;
     linies.push(linia('', ce.igual(1) ? caixa(aillat) : aillat));
     pinta();
-    g.afegeix('Passa el nombre a l\'altre costat, canviat de signe.');
+    g.afegeix('Passa el nombre a l\'altre costat (per tant, canviarà de signe).');
   } else if (ce.igual(1)) {
     linies.push(linia(etiqueta(Ex), caixa(valorE)));
     pinta();
@@ -572,7 +572,7 @@ function passosReduccio2(g, {S, vars, fila, P = 'X', eqs = [1, 2]}) {
   if (!ce.igual(1)) {
     linies.push(linia('', caixa(valorE)));
     pinta();
-    g.afegeix(`Divideix per $${M.texNombre(ce)}$: $${valorE}$.`);
+    g.afegeix(`Aïlla la $${vars[e]}$.`);
   }
   return e === 0 ? [se, sq] : [sq, se];
 }

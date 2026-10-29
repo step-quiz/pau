@@ -60,7 +60,7 @@ function passos(valors) {
   if (p.D) dades.push(texPuntNom('D', p.D));
   if (p.r) dades.push(`r:\\ ${texRecta(p.r)}`, `\\text{Volum} = ${M.texNombre(p.V)}`);
   g.files[FILA.dades] = llista(dades.map((d, i) => K(`Dd${i}`, d)));
-  g.afegeix('Primer, què dona l\'enunciat.');
+  g.afegeix('Llegeix les dades de l\'enunciat.');
   const AB = resta(p.B, p.A), AC = resta(p.C, p.A);
   const tri = p.id.startsWith('triangle');
   g.files[FILA.esquema] = G.esquema(tri ? 'triangle' : p.id);
@@ -72,7 +72,7 @@ function passos(valors) {
 
   if (tri) {
     g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B)), K('Eb', texDif('AC', p.A, p.C))]);
-    g.afegeix('Els vectors de dos costats que surten del mateix vèrtex, $A$: les coordenades de l\'extrem menys les de $A$.');
+    g.afegeix('Calcula les coordenades dels vectors de dos costats que surten del mateix vèrtex $A$.');
     const w = G.passosProducteVectorial(g, {u: AB, v: AC, nom: '\\overrightarrow{AB} \\times \\overrightarrow{AC}', files: {producte: FILA.producte, valor: FILA.valor},
       text: 'El producte vectorial $\\overrightarrow{AB} \\times \\overrightarrow{AC}$, com un determinant: a la primera fila, $\\vec{i}$, $\\vec{j}$, $\\vec{k}$; a les altres, les components dels dos vectors.'});
     const W = G.modul2(w), rW = G.arrelQuadrada(W);
@@ -90,7 +90,7 @@ function passos(valors) {
   } else if (p.id === 'tetraedre') {
     const AD = resta(p.D, p.A);
     g.files[FILA.vectors] = llista([K('Ea', texDif('AB', p.A, p.B)), K('Eb', texDif('AC', p.A, p.C)), K('Ec', texDif('AD', p.A, p.D))]);
-    g.afegeix('Els vectors de les tres arestes que surten del vèrtex $A$: les coordenades de l\'extrem menys les de $A$.');
+    g.afegeix('Troba els vectors de les tres arestes que surten del vèrtex $A$.');
     const B3 = [AB, AC, AD];
     const det = Mt.det3N(B3);
     g.files[FILA.mixt] = F.enLinies(K('Mn', '\\det(\\overrightarrow{AB}, \\overrightarrow{AC}, \\overrightarrow{AD})') + R('Mq', '=') + K('Md', Mt.texVmatriuN(B3)) + ' = ',
@@ -116,7 +116,7 @@ function passos(valors) {
     const lineal = a.esZero() ? M.texNombre(b) : Mt.termeVar(a, '\\lambda', true) + (b.esZero() ? '' : b.signe() < 0 ? ` - ${M.texNombre(b.abs())}` : ` + ${M.texNombre(b)}`);
     const nomMixt = K('Mn', '(\\overrightarrow{AB} \\times \\overrightarrow{AC}) \\cdot \\overrightarrow{AD_{\\lambda}}') + R('Mq', '=');
     g.files[FILA.mixt] = F.enLinies(nomMixt, [K('Ms', G.texSubstitucioLineal(w, null, e))]);
-    g.afegeix('El producte escalar: cada component del producte vectorial per la de $\\overrightarrow{AD_{\\lambda}}$, i suma.');
+    g.afegeix('Fes el producte escalar.');
     g.files[FILA.mixt] = F.enLinies(nomMixt, [K('Ms', G.texSubstitucioLineal(w, null, e)), ' = ' + K('Mv', lineal)]);
     g.afegeix('Treu els parèntesis i agrupa: el producte mixt depèn de $\\lambda$.');
     const inici = K('Fl', '\\text{Volum}') + R('Fq', '=');

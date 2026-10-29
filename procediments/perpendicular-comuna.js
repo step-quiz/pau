@@ -103,14 +103,14 @@ function passos(v) {
   // Els punts genèrics, sense «=» (David), i els vectors directors, amb nom abans de fer-los servir.
   g.files[FILA.generics] = llista([K('Ga', `P_{\\lambda}${G.texGeneric(r)} \\in r`) + ',\\quad ' + K('Gu', `\\vec{u} = ${texPunt(r.u)}`),
     K('Gb', `Q_{\\mu}${G.texGeneric(s, MU)} \\in s`) + ',\\quad ' + K('Gw', `\\vec{v} = ${texPunt(s.u)}`)]);
-  g.afegeix('Un punt qualsevol de cada recta (els punts genèrics, cadascun amb el seu paràmetre) i els vectors directors, $\\vec{u}$ i $\\vec{v}$.');
+  g.afegeix('Considera un punt qualsevol de $r$, un punt qualsevol de $s$, i els vectors directors, $\\vec{u}$ i $\\vec{v}$.');
   const PQ = resta(s.P, r.P);
   const e = [0, 1, 2].map(i => [PQ[i], r.u[i].oposada(), s.u[i]]);              // Q_μ − P_λ = (Q − P) − λu + μv
   g.files[FILA.vector] = K('Gv', `\\overrightarrow{P_{\\lambda}Q_{\\mu}} = (${e.map(texLineal2).join(',\\ ')})`);
   g.afegeix('El vector que va de $P_{\\lambda}$ a $Q_{\\mu}$: les coordenades de $Q_{\\mu}$ menys les de $P_{\\lambda}$.');
   const condicio = (w, nom, k) => K(`C${k}`, `\\overrightarrow{P_{\\lambda}Q_{\\mu}} \\cdot ${nom} = ${texEscalarLineal(w, e)} = 0`);
   g.files[FILA.condicions] = llista([condicio(r.u, '\\vec{u}', 'a'), condicio(s.u, '\\vec{v}', 'b')]);
-  g.afegeix('Ha de ser perpendicular a les dues rectes: el producte escalar amb $\\vec{u}$ i amb $\\vec{v}$ ha de ser $0$.');
+  g.afegeix('El vector ha de ser perpendicular a les dues rectes: el producte escalar amb $\\vec{u}$ ha de ser $0$, i també el producte escalar amb $\\vec{v}$ ha de ser $0$.');
   // Les dues equacions agrupades: (w·e_λ)λ + (w·e_μ)μ = −w·e_c.
   const S = [r.u, s.u].map(w => [escalar(w, e.map(x => x[1])), escalar(w, e.map(x => x[2])), escalar(w, e.map(x => x[0])).oposada()]);
   g.files[FILA.condicions] = G.texSistemaEq(S.map((f, i) => K(`E${i + 1}`, Mt.texEquacio(f.slice(0, 2), f[2], [L, MU]))));
@@ -119,18 +119,18 @@ function passos(v) {
   const P0 = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));
   const Q0 = s.P.map((x, i) => x.suma(s.u[i].producte(m0)));
   g.files[FILA.peus] = llista([K('Pa', `\\lambda = ${M.texNombre(l0)}\\ \\Rightarrow\\ ${G.texPuntNom('P_0', P0)}`), K('Pb', `\\mu = ${M.texNombre(m0)}\\ \\Rightarrow\\ ${G.texPuntNom('Q_0', Q0)}`)]);
-  g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ al punt genèric de $r$ i $\\mu = ${M.texNombre(m0)}$ al de $s$: són els peus de la perpendicular comuna.`);
+  g.afegeix(`Substitueix $\\lambda = ${M.texNombre(l0)}$ al punt genèric de $r$ i $\\mu = ${M.texNombre(m0)}$ al de $s$: hauràs trobat els peus de la perpendicular comuna.`);
   const P0Q0 = resta(Q0, P0);
   if (G.esZero(P0Q0)) {
     /* Es tallen: distància 0, i la direcció de la perpendicular és u × v. */
     g.files[FILA.distancia] = K('Mn', `P_0 = Q_0\\ \\Rightarrow\\ d(r, s) = 0`);
     g.classes[FILA.distancia] = 'final';
-    g.afegeix('$P_0 = Q_0$: les rectes es tallen en aquest punt, i la distància entre elles és $0$. La perpendicular comuna hi passa, perpendicular a totes dues: amb la direcció de $\\vec{u} \\times \\vec{v}$.');
+    g.afegeix('$P_0 = Q_0$: les rectes es tallen en aquest punt, i la distància entre elles és $0$. La perpendicular comuna hi passa, i com que és perpendicular a totes dues, té la direcció de $\\vec{u} \\times \\vec{v}$.');
     const w = G.passosProducteVectorial(g, {u: r.u, v: s.u, nom: '\\vec{u} \\times \\vec{v}', files: {producte: FILA.producte, valor: FILA.valor}});
     const dir = G.vectorSimple(w);
     g.files[FILA.perpendicular] = K('Rp', `p:\\ (x,\\ y,\\ z) = ${texPunt(P0)} + t${texPunt(dir)}`);
     g.classes[FILA.perpendicular] = 'final';
-    g.afegeix(`Un vector director: $\\vec{u} \\times \\vec{v}$, o un de proporcional més senzill, $${texPunt(dir)}$. `
+    g.afegeix(`Un vector director és $\\vec{u} \\times \\vec{v}$, o un paral·lel i amb coordenades més senzilles: $${texPunt(dir)}$. `
       + `Resposta: les rectes es tallen a $${texPunt(P0)}$ ($d(r, s) = 0$), i la perpendicular comuna és $p: (x,\\ y,\\ z) = ${texPunt(P0)} + t${texPunt(dir)}$.`);
     return g.passos;
   }
@@ -141,7 +141,7 @@ function passos(v) {
   if (G.texArrel(d) !== `\\sqrt{${M.texNombre(D2)}}`) peces.push(' = ' + K('Mr', G.texArrel(d)));
   g.files[FILA.distancia] = F.enLinies(inici, peces);
   g.classes[FILA.distancia] = 'final';
-  g.afegeix(`La distància entre les rectes és la longitud del segment $P_0Q_0$: el mòdul de $\\overrightarrow{P_0Q_0} = ${texPunt(P0Q0)}$.`);
+  g.afegeix(`La distància entre les rectes és la longitud del segment $P_0Q_0$, és a dir, el mòdul del vector $\\overrightarrow{P_0Q_0} = ${texPunt(P0Q0)}$.`);
   const dir = G.vectorSimple(P0Q0);
   g.files[FILA.perpendicular] = K('Rp', `p:\\ (x,\\ y,\\ z) = ${texPunt(P0)} + t${texPunt(dir)}`);
   g.classes[FILA.perpendicular] = 'final';

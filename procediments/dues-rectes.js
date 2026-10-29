@@ -98,19 +98,19 @@ function passos(v) {
   const elements = [K('KP', `${G.texPuntNom('P', r.P)} \\in r`) + ',\\quad ' + K('Ku', `\\vec{u} = ${texPunt(r.u)}`),
     K('KQ', `${G.texPuntNom('Q', s.P)} \\in s`) + ',\\quad ' + K('Kv', `\\vec{v} = ${texPunt(s.u)}`)];
   g.files[FILA.direccions] = llista(elements);
-  g.afegeix('De cada recta, un punt i el vector director: $P$ i $\\vec{u}$ de $r$; $Q$ i $\\vec{v}$ de $s$.');
+  g.afegeix('Has de trobar, de cada recta, un punt i el vector director: $P$ i $\\vec{u}$ de $r$; $Q$ i $\\vec{v}$ de $s$.');
   g.files[FILA.direccions] = llista([...elements, K('Kp', prop.tex + (prop.proporcionals ? '\\ \\Rightarrow\\ \\vec{u} \\parallel \\vec{v}' : '\\ \\Rightarrow\\ \\vec{u} \\nparallel \\vec{v}'))]);
   g.afegeix(prop.proporcionals
-    ? 'Els vectors directors són proporcionals: les rectes tenen la mateixa direcció. Són paral·leles o coincidents (la mateixa recta).'
-    : 'Els vectors directors no són proporcionals' + (prop.tex.includes('dfrac') ? ' (les seves components no van en la mateixa proporció)' : ' (on $\\vec{v}$ té un $0$, $\\vec{u}$ no en té)')
-      + ': les rectes no tenen la mateixa direcció. Es tallen o es creuen.');
+    ? 'Els vectors directors tenen components proporcionals. Per tant, les rectes tenen la mateixa direcció, és a dir, que són paral·leles o bé són coincidents.'
+    : 'Els vectors directors no són proporcionals' + (prop.tex.includes('dfrac') ? ' (les seves components no canvien en la mateixa proporció)' : ' (on $\\vec{v}$ té un $0$, $\\vec{u}$ no en té)')
+      + ': això vol dir que les rectes no tenen la mateixa direcció. Per tant, o bé es tallen o bé es creuen.');
   const PQ = resta(s.P, r.P);
   const generic = G.texGeneric(r);
   // Abans d'igualar res, les equacions paramètriques de les dues rectes (David).
   const parametriques = (nomR, R0, l, k) => K(k, `${nomR}: \\left\\{\\begin{array}{l} ${VARS_R.map((x, i) => `${x} = ${Mt.texLineal([R0.P[i], R0.u[i]], l)}`).join(' \\\\ ')} \\end{array}\\right.`);
   const filaParam = parametriques('r', r, L, 'Pr') + '\\qquad ' + parametriques('s', s, MU, 'Ps');
   g.files[FILA.igualtat] = filaParam;
-  g.afegeix('Les equacions paramètriques de les dues rectes: les de $r$, amb el paràmetre $\\lambda$, i les de $s$, amb el paràmetre $\\mu$.');
+  g.afegeix('Escriu les equacions paramètriques de les dues rectes.');
 
   if (prop.proporcionals) {
     /* Paral·leles o coincidents: Q és de r? */
@@ -129,11 +129,11 @@ function passos(v) {
     g.files[FILA.conclusio] = llista(coincidents
       ? [K('Lv', '\\text{el mateix } \\lambda\\ \\Rightarrow\\ Q \\in r'), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ són coincidents}')]
       : [K('Lv', '\\text{cap } \\lambda \\text{ les compleix totes}\\ \\Rightarrow\\ Q \\notin r'), K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ són paral}\\mathord{\\cdotp}\\text{leles}')]);
-    g.afegeix(coincidents ? 'Totes les equacions donen el mateix $\\lambda$: $Q$ és de $r$. Les rectes tenen la mateixa direcció i un punt comú: són la mateixa recta (coincidents).'
-      : 'No hi ha cap $\\lambda$ que compleixi les tres equacions: $Q$ no és de $r$. Les rectes tenen la mateixa direcció però no cap punt comú: són paral·leles.');
+    g.afegeix(coincidents ? 'Les equacions es compleixen pel mateix valor de $\\lambda$: això significa que el punt $Q$ és de $r$. Per tant, les rectes tenen la mateixa direcció i tenen un punt comú. És a dir, que les dues rectes són, de fet, la mateixa recta (són rectes coincidents).'
+      : 'No hi ha cap $\\lambda$ que compleixi les tres equacions alhora. Per tant, el punt $Q$ no és de $r$. Això vol dir que les rectes (que tenien la mateixa direcció) no tenen cap punt comú: són rectes paral·leles.');
     g.files[FILA.esquema] = G.esquema(coincidents ? 'rectes-coincidents' : 'rectes-paraleles');
     g.classes[FILA.conclusio] = 'final';
-    g.afegeix(coincidents ? 'Una sola recta: $P$ i $Q$ en són dos punts.' : 'Dues rectes amb la mateixa direcció, a una certa distància.');
+    g.afegeix(coincidents ? 'En el fons, és una sola recta, i $P$ i $Q$ són dos punts que hi pertanyen.' : 'Dues rectes amb la mateixa direcció, a una certa distància.');
     return g.passos;
   }
 
@@ -151,7 +151,7 @@ function passos(v) {
   if (impossible !== undefined) {
     // Una equació «0 = c» amb c ≠ 0: el sistema no té solució, sense fer res més.
     g.files[FILA.sistema] = G.texSistemaEq([0, 1, 2].map(c => texE(c, c === impossible ? 'menys' : '')));
-    g.afegeix(`L'equació $${G.texEq(impossible + 1)}$ és $0 = ${M.texNombre(S[impossible][2])}$: no es compleix mai. El sistema no té solució: no hi ha cap punt comú.`);
+    g.afegeix(`L'equació $${G.texEq(impossible + 1)}$ afirma $0 = ${M.texNombre(S[impossible][2])}$, i això no es compleix mai. Per tant, el sistema d'equacions no té solució, i no hi ha cap punt comú.`);
   } else {
     const det = (i, j) => Mt.det2N([S[i].slice(0, 2), S[j].slice(0, 2)]);
     const [i, j] = [[0, 1], [0, 2], [1, 2]].find(([a, b]) => !det(a, b).esZero());
@@ -170,8 +170,8 @@ function passos(v) {
       + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
       : tallen ? `Ara l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. Per sort, també es compleix! `
       + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
-      : `Ara l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$: no es compleix (hauria de valer $${M.texNombre(S[k][2])}$). `
-        + 'El sistema de les tres equacions no té solució: no hi ha cap punt comú.');
+      : `Ara falta comprovar l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. `
+        + 'Com que no es compleix, significa que el sistema de les tres equacions no té solució: no hi ha cap punt comú.');
   }
   // El punt de tall es diu R (David: mai X per a un punt); la resposta, amb una frase (res de r ∩ s = {R}).
   if (tallen) {
@@ -180,7 +180,7 @@ function passos(v) {
     g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ a les equacions paramètriques de $r$ (o $\\mu = ${M.texNombre(m0)}$ a les de $s$): és el punt de tall, $${G.texPuntNom('R', Rp)}$. Les rectes $r$ i $s$ es tallen en el punt $R$.`);
   } else {
     g.files[FILA.conclusio] = K('Lr', '\\text{Les rectes } r \\text{ i } s \\text{ es creuen}');
-    g.afegeix('No tenen cap punt comú i tenen direccions diferents: les rectes $r$ i $s$ es creuen (no són en un mateix pla).');
+    g.afegeix('Com que no tenen cap punt comú i tenen direccions diferents, les rectes $r$ i $s$ es creuen (és a dir, no hi ha cap pla que les contingui).');
   }
   g.files[FILA.esquema] = G.esquema(tallen ? 'rectes-es-tallen' : 'rectes-es-creuen');
   g.classes[FILA.conclusio] = 'final';      // la resposta; sense comprovacions opcionals (David)

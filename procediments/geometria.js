@@ -154,7 +154,7 @@ function sarrusSimbolic(simbols, u, v, P) {
   const texAgrupat = noNuls.length ? noNuls.map((j, i) => K(`${P}G${j}`, texCoefSimbol(coefs[j], simbols[j], i === 0))).join('') : '0';
   return {texProductes, texValors, texSense, texAgrupat, fusiona, coefs};
 }
-const TEXT_SARRUS = 'Regla de Sarrus, amb dos claudàtors: al primer, la diagonal principal i els dos triangles paral·lels; al segon (que es resta), la diagonal secundària i els seus dos triangles.';
+const TEXT_SARRUS = 'Aplica la regla de Sarrus.';
 
 /**
  * El pla que passa per P i té els vectors directors v1 i v2: el determinant |X − P; v1; v2| = 0
@@ -165,8 +165,8 @@ function passosPlaDeterminant(g, {P, v1, v2, files, nomP = 'P'}) {
   const texV = v => v.map(x => M.texNombre(x)).join(' & ');
   g.files[files.det] = K('Gd', `\\begin{vmatrix} ${fila1.join(' & ')} \\\\ ${texV(v1)} \\\\ ${texV(v2)} \\end{vmatrix}`) + R('Gq', '=') + K('Gz', '0');
   // Els punts, sense signe igual (David): «G(x, y, z)».
-  g.afegeix(`Un punt qualsevol $G(x,\\ y,\\ z)$ és del pla si el vector $\\overrightarrow{${nomP}G} = (${fila1.join(',\\ ')})$ i els dos vectors directors són coplanaris: `
-    + `el determinant que formen val $0$. A la primera fila, $\\overrightarrow{${nomP}G}$; a les altres, els vectors directors.`);
+  g.afegeix(`El vector $\\overrightarrow{${nomP}G} = (${fila1.join(',\\ ')})$ i els dos vectors directors formen un determinant que ha de valdre $0$. `
+    + `A la primera fila, $\\overrightarrow{${nomP}G}$; a les altres, els vectors directors.`);
   // Sempre per Sarrus (mai per adjunts), amb claudàtors.
   const sr = sarrusSimbolic(fila1, v1, v2, 'H');
   const zero = R('Hq', '=') + K('Hz', '0');
@@ -177,7 +177,6 @@ function passosPlaDeterminant(g, {P, v1, v2, files, nomP = 'P'}) {
   g.files[files.desenvolupa] = sr.texSense + zero;
   g.afegeix('Treu els claudàtors: el $-$ de davant del segon canvia el signe de cada terme de dins. Els zeros desapareixen.');
   g.files[files.desenvolupa] = sr.texAgrupat + zero;
-  g.afegeix(`Agrupa els termes de cada parèntesi: $${(sr.coefs.some(c => !c.esZero()) ? sr.texAgrupat : '0').replace(/\\htmlData\{[^}]*\}/g, '')} = 0$.`, {fusiona: sr.fusiona});
   const n = sr.coefs;
   const pla = passosFormaGeneral(g, {P, n, files, escriuForma: false});
   return Object.assign(pla, {nSenseSimplificar: n});
@@ -298,7 +297,7 @@ function passosPuntGenericAlPla(g, {r, pla, files, L = '\\lambda', nom = 'P_{\\l
   const a = escalar(pla.n, r.u), c = escalar(pla.n, r.P).suma(pla.D || fr(0)).oposada();
   const esquerre = a.esZero() ? `0${L}` : Mt.termeVar(a, L, true);
   g.files[files.equacio] = K('Ge', esquerre) + R('Gf', '=') + K('Gd', M.texNombre(c));
-  g.afegeix(`Agrupa: els termes amb $${L}$ a l'esquerra (${a.esZero() ? 's\'anul·len' : `sumen $${esquerre}$`}) i els nombres a la dreta, canviats de signe.`);
+  g.afegeix('Agrupa els termes semblants.');
   return {a, c};
 }
 

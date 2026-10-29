@@ -93,7 +93,7 @@ function passos(v) {
   g.afegeix('Els punts comuns de la recta i el pla són els punts de la recta que compleixen l\'equació del pla. Busca\'ls amb el punt genèric de la recta.');
   // Com ho diu el David: «Sabem que P ∈ r: P_r = (…)» i «Si volem que P ∈ π, cal que compleixi l'equació del pla».
   const {a, c} = G.passosPuntGenericAlPla(g, {r, pla, files: FILA, nom: 'P_r', davantGeneric: 'P \\in r:\\quad ', davantSubstitucio: 'P \\in \\pi:\\quad ',
-    textos: {generic: 'Sabem que $P \\in r$: les seves coordenades són les del punt genèric de la recta, $P_r$. Cada valor de $\\lambda$ dona un punt de la recta.',
+    textos: {generic: 'Fixa\'t que $P \\in r$. Cada valor de $\\lambda$ dona un punt diferent i que pertany a la recta.',
       substitucio: 'Si volem que $P \\in \\pi$, cal que compleixi l\'equació del pla. Per tant, a l\'equació de $\\pi$, canvia $x$, $y$, $z$ per les coordenades de $P_r$: '
         + 'queda una equació en $\\lambda$.'}});
 
@@ -105,8 +105,8 @@ function passos(v) {
     Q = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));
     g.files[FILA.conclusio] = K('Lv', `\\lambda = ${M.texNombre(l0)}`);
     const simple = a.signe() > 0 && M.mcd(Math.abs(c.num), a.num) === 1;     // c/a ja és el resultat
-    g.afegeix(`Una sola solució: $\\lambda = ${a.igual(1) ? M.texNombre(c) : `\\dfrac{${M.texNombre(c)}}{${M.texNombre(a)}}`}${simple ? '' : ` = ${M.texNombre(l0)}`}$. `
-      + 'Hi ha un sol punt comú.');
+    g.afegeix(`Obtens una sola solució: $\\lambda = ${a.igual(1) ? M.texNombre(c) : `\\dfrac{${M.texNombre(c)}}{${M.texNombre(a)}}`}${simple ? '' : ` = ${M.texNombre(l0)}`}$. `
+      + 'Per tant, hi ha un sol punt d\'intersecció.');
     g.files[FILA.conclusio] = llista([K('Lv', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Lq', G.texPuntNom('Q', Q)),
       K('Lr', '\\text{La recta } r \\text{ talla el pla } \\pi \\text{ en el punt } Q')]);
     g.afegeix(`Posa $\\lambda = ${M.texNombre(l0)}$ al punt genèric: és el punt d'intersecció, $${G.texPuntNom('Q', Q)}$. La recta talla el pla en un punt (són secants).`);
@@ -117,14 +117,14 @@ function passos(v) {
   } else {
     cas = 'continguda';
     g.files[FILA.conclusio] = llista([K('Lv', '\\text{tots els valors de } \\lambda'), K('Lr', '\\text{La recta } r \\text{ està continguda en el pla } \\pi')]);
-    g.afegeix('$0\\lambda = 0$ es compleix per a tots els $\\lambda$: tots els punts de la recta són del pla. La recta és dins del pla (continguda).');
+    g.afegeix('$0\\lambda = 0$ es compleix per a qualsevol valor de $\\lambda$. Això vol dir que TOTS els punts de la recta també són del pla: la recta està continguda dins del pla.');
   }
   g.files[FILA.esquema] = G.esquema({secant: 'recta-secant', paralela: 'recta-paralela', continguda: 'recta-continguda'}[cas]);
   g.classes[FILA.conclusio] = 'final';          // la resposta (sense comprovacions opcionals: el David no les vol)
   g.afegeix({
-    secant: 'La recta travessa el pla: el punt $Q$ és a tots dos.',
-    paralela: 'La recta no toca el pla: té la direcció d\'un vector del pla (el seu vector director és perpendicular al vector normal del pla), però passa per fora.',
-    continguda: 'La recta és dins del pla: té la direcció d\'un vector del pla (el seu vector director és perpendicular al vector normal del pla) i un punt seu és del pla.',
+    secant: 'La recta i el pla tenen un punt en comú, que és $Q$.',
+    paralela: 'La recta i el pla no tenen cap punt en comú.',
+    continguda: 'La recta està continguda al pla.',
   }[cas]);
 
   return g.passos;

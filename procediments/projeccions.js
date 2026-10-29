@@ -55,7 +55,7 @@ function passos(valors) {
   const g = F.guio(9);
   const pla = Boolean(p.pi);
   g.files[FILA.dades] = llista([K('Dd0', G.texPuntNom('P', p.P)), K('Dd1', pla ? `\\pi:\\ ${texPla(p.pi)}` : `r:\\ ${texRecta(p.r)}`)]);
-  g.afegeix('Primer, què dona l\'enunciat.');
+  g.afegeix('Llegeix les dades de l\'enunciat.');
   // El punt projectat es diu Q (David: Q, no H). El simètric P′ només surt si el demanen.
   const simetric = p.id.startsWith('simetric');
   g.files[FILA.esquema] = G.esquema(`${simetric ? 'simetric' : 'projeccio'}-${pla ? 'pla' : 'recta'}`);
@@ -81,18 +81,18 @@ function passos(valors) {
     /* El punt genèric de la recta, R_λ (mai X per a un punt: David), i la condició PR_λ · u = 0. */
     const r = p.r;
     g.files[FILA.recta] = K('Xg', `R_{\\lambda}${G.texGeneric(r)}`);          // un punt, sense «=» (David)
-    g.afegeix('Un punt qualsevol de la recta: el punt genèric $R_{\\lambda}$.');
+    g.afegeix('Considera un punt qualsevol de la recta $r$: el punt genèric $R_{\\lambda}$.');
     const PR = {P: resta(r.P, p.P), u: r.u};
     const {a, c} = G.passosPuntGenericAlPla(g, {r: PR, pla: {n: r.u, D: null}, files: FILA, nom: '\\overrightarrow{PR_{\\lambda}}', etiqueta: '\\overrightarrow{PR_{\\lambda}} \\cdot \\vec{u}',
-      textos: {generic: 'El vector que va de $P$ a $R_{\\lambda}$: les coordenades de $R_{\\lambda}$ menys les de $P$.',
-        substitucio: `$Q$ és el punt $R_{\\lambda}$ per al qual $\\overrightarrow{PR_{\\lambda}}$ és perpendicular a la recta: el producte escalar amb $\\vec{u} = ${texPunt(r.u)}$ ha de ser $0$, `
-          + '$\\overrightarrow{PR_{\\lambda}} \\cdot \\vec{u} = 0$.'}});
+      textos: {generic: 'Calcula les coordenades del vector que va de $P$ a $R_{\\lambda}$.',
+        substitucio: `$Q$ és el punt $R_{\\lambda}$ per al qual $\\overrightarrow{PR_{\\lambda}}$ és perpendicular a la recta: el producte escalar amb $\\vec{u} = ${texPunt(r.u)}$ ha de ser $0$.`}});
     const l0 = c.quocient(a);
     Qp = r.P.map((x, i) => x.suma(r.u[i].producte(l0)));
     g.files[FILA.peu] = K('Hl', `\\lambda = ${M.texNombre(l0)}`) + '\\ \\Rightarrow\\ ' + K('Hp', G.texPuntNom('Q', Qp));
     if (!simetric) g.classes[FILA.peu] = 'final';
-    g.afegeix(`$\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de la recta: és la projecció, $${G.texPuntNom('Q', Qp)}$.`
-      + (simetric ? '' : ` Resposta: $${G.texPuntNom('Q', Qp)}$ (i la distància de $P$ a la recta és $|\\overrightarrow{PQ}|$).`));
+    g.afegeix(simetric
+      ? `$\\lambda = ${M.texNombre(l0)}$. Substitueix el valor que has trobat al punt genèric de la recta: és la projecció, $${G.texPuntNom('Q', Qp)}$.`
+      : `$\\lambda = ${M.texNombre(l0)}$. Posa-ho al punt genèric de la recta i obtindràs la projecció que buscaves. Resposta: $${G.texPuntNom('Q', Qp)}$.`);
   }
   if (simetric) {
     // Sense operar amb punts (David): Q és el punt mitjà, i cada coordenada de P′ és el doble de la de Q menys la de P.

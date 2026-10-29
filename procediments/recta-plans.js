@@ -97,14 +97,13 @@ function passos(v) {
   // Primer, els dos plans per separat (David); després, el vector normal de cadascun.
   const plans = S.map((e, i) => K(`P${i + 1}`, `\\pi_${i + 1}:\\ ${Mt.texEquacio(e.slice(0, 3), e[3])}`));
   g.files[FILA.normals] = llista(plans);
-  g.afegeix('Els dos plans que formen la recta, cadascun amb la seva equació.');
+  g.afegeix('Escriu l\'equació de cadascun dels plans.');
   g.files[FILA.normals] = llista(plans.map((p, i) => `${p}\\ \\Rightarrow\\ ${K(`N${i + 1}`, `\\vec{n}_${i + 1} = ${texPunt([n1, n2][i])}`)}`));
-  g.afegeix('El vector normal de cada pla: els coeficients de $x$, $y$ i $z$ de la seva equació. No són proporcionals: els plans no són paral·lels, i es tallen en una recta.');
+  g.afegeix('Troba, en cada cas, el vector normal del pla.');
 
   /* El vector director: el producte vectorial dels normals. */
   const w = G.passosProducteVectorial(g, {u: n1, v: n2, nom: '\\vec{n}_1 \\times \\vec{n}_2', files: {producte: FILA.producte, valor: FILA.valor},
-    text: 'El vector director: $\\vec{u} = \\vec{n}_1 \\times \\vec{n}_2$. El producte vectorial es calcula com un determinant: a la primera fila, '
-      + 'els vectors $\\vec{i}$, $\\vec{j}$, $\\vec{k}$; a les altres dues, les components de $\\vec{n}_1$ i de $\\vec{n}_2$.'});
+    text: 'Ara sí, troba el vector director de la recta que estàs buscant: $\\vec{u} = \\vec{n}_1 \\times \\vec{n}_2$.'});
   const primer = w.find(x => !x.esZero());
   const k = G.factorComu(w) * primer.signe();
   const u = w.map(x => x.quocient(k));
@@ -120,21 +119,21 @@ function passos(v) {
   const S2 = S.map(e => [e[altres[0]], e[altres[1]], e[3]]);
   const texS2 = S2.map((e, i) => K(`S${i + 1}`, Mt.texEquacio(e.slice(0, 2), e[2], vars)));
   g.files[FILA.punt] = K('Fz', `${VARS[f]} = 0`) + ':\\ ' + G.texSistemaEq(texS2);
-  g.afegeix(`Falta un punt: una solució qualsevol de les dues equacions. Dona un valor a una incògnita, per exemple $${VARS[f]} = 0$, i queda un sistema 2×2 amb solució única.`
-    + (f !== 2 ? ` (Amb $z = 0$ no es podria: la component $z$ de $\\vec{n}_1 \\times \\vec{n}_2$ és $0$, i el sistema no tindria solució única.)` : ''));
+  g.afegeix(f === 2
+    ? 'Falta trobar un punt que pertanyi a la recta. Ha de ser una solució (qualsevol) de les dues equacions. Per fer-ho senzill, pots assignar un valor a una incògnita, el que vulguis: per exemple, $z = 0$, i a continuació obtenir $x$ i $y$.'
+    : `Falta trobar un punt, i és una solució qualsevol de les dues equacions. Per fer-ho senzill, dona un valor a una incògnita, per exemple $${VARS[f]} = 0$, i troba el valor de $${vars[0]}$ i $${vars[1]}$.`);
   const sol = G.passosReduccio2(g, {S: S2, vars, fila: FILA.reduccio});
   const P = [0, 1, 2].map(j => (j === f ? M.Fraccio.de(0) : sol[altres.indexOf(j)]));
 
   /* El punt (sense comprovacions opcionals). */
   g.files[FILA.comprovacio] = K('Pp', G.texPuntNom('P', P));          // sense signe igual (David)
-  g.afegeix(`El punt: $${G.texPuntNom('P', P)}$ (amb $${VARS[f]} = 0$).`);
+  g.afegeix(`Ja has trobat el punt, és: $${G.texPuntNom('P', P)}$ (recorda que havies escollit $${VARS[f]} = 0$).`);
 
   /* Les equacions de la recta. */
   const parametriques = VARS.map((x, j) => `${x} = ${Mt.texLineal([P[j], u[j]])}`);
   g.files[FILA.recta] = llista([K('Rv', `r:\\ ${G.texRecta({P, u})}`), K('Rp', `\\left\\{\\begin{array}{l} ${parametriques.join(' \\\\ ')} \\end{array}\\right.`)], '10pt');
   g.classes[FILA.recta] = 'final';
-  g.afegeix(`Resposta: $r: ${G.texRecta({P, u})}$, $\\lambda \\in \\mathbb{R}$; a sota, les equacions paramètriques (cada coordenada per separat). `
-    + '(També es pot resoldre el sistema amb una incògnita igual a $\\lambda$: surt la mateixa recta, potser amb un altre punt i un altre vector director proporcional.)');
+  g.afegeix('Escriu la resposta, és a dir, l\'equació vectorial i a sota les equacions paramètriques.');
   return g.passos;
 }
 

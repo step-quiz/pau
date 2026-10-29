@@ -65,8 +65,8 @@ const ENUNCIATS = {
 
 /** La idea de cada esquema (el text del pas que el mostra). */
 const IDEES = {
-  'tres-punts': '$A$, $B$ i $C$ són del pla; per tant, els vectors $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ hi són, i també $\\overrightarrow{AG}$ per a qualsevol punt $G$ del pla.',
-  'punt-recta': 'La recta és dins del pla: el seu vector director $\\vec{u}$ hi és. I el vector que va d\'un punt $Q$ de la recta fins a $P$, també.',
+  'tres-punts': '$A$, $B$ i $C$ pertanyen al pla; per tant, els vectors $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ són vectors directors del pla.',
+  'punt-recta': 'La recta és dins del pla: el seu vector director $\\vec{u}$ hi és. I el vector $\\overrightarrow{QP}$ també pertany al pla.',
   'dues-rectes': 'Les dues rectes són dins del pla: els seus vectors directors, $\\vec{u}$ i $\\vec{v}$, són dos vectors directors del pla.',
   'conte-perpendicular': 'El pla $\\sigma$ que busquem conté la recta i és perpendicular a $\\pi$: el vector normal de $\\pi$, $\\vec{n}$, és paral·lel a $\\sigma$. Ja tenim dos vectors directors: $\\vec{u}$ i $\\vec{n}$.',
   'perpendicular': 'Una recta perpendicular a un pla té la direcció del vector normal del pla: el vector director de la recta, $\\vec{u}$, és un vector normal del pla.',
@@ -91,8 +91,10 @@ function passos(valors) {
     'mediador': () => [texPuntNom('A', p.A), texPuntNom('B', p.B)],
   }[p.id]();
   g.files[FILA.dades] = llista(dades.map((d, i) => K(`Dd${i}`, d)));
-  g.afegeix('Per escriure l\'equació d\'un pla cal un punt i dos vectors directors (o un punt i un vector normal, perpendicular al pla). '
-    + 'Primer, què dona l\'enunciat.');
+  g.afegeix({'perp-recta': 'En aquest cas, busca un vector normal al pla i també un punt pel qual hi passi.',
+    'paralel': 'En aquest cas, aprofita que els dos plans són paral·lels i treballa amb els vectors normals.',
+    'mediador': 'En aquest cas, intenta aconseguir el vector normal del pla que estàs buscant.'}[p.id]
+    || 'Pots escriure l\'equació d\'un pla si tens un punt pel qual passa i també dos vectors directors.');
   g.files[FILA.esquema] = G.esquema(p.esquema);
   g.afegeix(IDEES[p.esquema]);
   const elements = linies => { g.files[FILA.elements] = llista(linies.map((l, i) => K(`e${i}`, l))); };
@@ -105,12 +107,12 @@ function passos(valors) {
       [P, v1, v2] = [p.A, resta(p.B, p.A), resta(p.C, p.A)];
       nomP = 'A';
       elements([texPuntNom('A', P), texDif('AB', p.A, p.B), texDif('AC', p.A, p.C)]);
-      g.afegeix('Un punt, $A$, i dos vectors del pla: $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$ (van d\'un punt del pla a un altre; les seves components són les coordenades de l\'extrem menys les de l\'origen). Com que $A$, $B$ i $C$ no estan alineats, no són proporcionals.');
+      g.afegeix('Calcula $\\overrightarrow{AB}$ i $\\overrightarrow{AC}$.');
     } else if (p.id === 'punt-recta') {
       [P, v1, v2] = [p.r.P, p.r.u, resta(p.P, p.r.P)];
       nomP = 'Q';
       elements([`${texPuntNom('Q', P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, texDif('QP', p.r.P, p.P)]);
-      g.afegeix('Un punt de la recta, $Q$, que també és del pla; el vector director de la recta, $\\vec{u}$; i el vector que va de $Q$ a $P$.');
+      g.afegeix('El punt $Q$ pertany a la recta, però també al pla; pots trobar dos vectors directors del pla: el de la recta, $\\vec{u}$; i també el vector que va de $Q$ a $P$.');
     } else if (p.id === 'rectes') {
       [P, v1, v2] = [p.r.P, p.r.u, p.s.u];
       elements([`${texPuntNom('P', P)} \\in r`, `\\vec{u} = ${texPunt(v1)}`, `\\vec{v} = ${texPunt(v2)}`]);
@@ -124,7 +126,7 @@ function passos(valors) {
     pla = G.passosPlaDeterminant(g, {P, v1, v2, files: FILA, nomP});
   } else if (p.id === 'perp-recta') {
     elements([texPuntNom('P', p.P), `\\vec{n} = \\vec{u} = ${texPunt(p.r.u)}`]);
-    g.afegeix('Si la recta és perpendicular al pla, el seu vector director és perpendicular al pla: és un vector normal. (Mira l\'esquema.)');
+    g.afegeix('Si la recta és perpendicular al pla, el seu vector director és perpendicular al pla: és un vector normal.');
     pla = G.passosPlaNormal(g, {P: p.P, n: p.r.u, files: FILA, text: 'Un pla de vector normal $\\vec{n} = (A,\\ B,\\ C)$ que passa per $P(a,\\ b,\\ c)$: '
       + '$A(x - a) + B(y - b) + C(z - c) = 0$.'});
   } else if (p.id === 'paralel') {
@@ -138,7 +140,7 @@ function passos(valors) {
     g.files[FILA.desenvolupa] = K('Hf', `${sub} + D`) + R('Hq', '=') + K('Hz', '0') + '\\ \\Rightarrow\\ ' + K('HD', `D = ${M.texNombre(D)}`);
     g.afegeix(`$P$ és del pla: substitueix-hi les seves coordenades. Queda una equació en $D$: $D = ${M.texNombre(D)}$.`);
     g.files[FILA.pla] = K('Pe', G.texEsquerre(n, D)) + R('Pq', '=') + K('Pz', '0');
-    g.afegeix('Posa el valor de $D$ a l\'equació.');
+    g.afegeix('Substitueix el valor de $D$ a l\'equació.');
     pla = {n, D};
   } else {
     const Mm = p.A.map((x, i) => x.suma(p.B[i]).quocient(2));
@@ -146,11 +148,10 @@ function passos(valors) {
     // El punt mitjà, sense signe igual (David): primer les mitjanes, després el punt.
     const mitjana = j => `\\tfrac{${M.texNombre(p.A[j])} + ${M.texNombre(p.B[j])}}{2}`;
     elements([`M\\left(${[0, 1, 2].map(mitjana).join(',\\ ')}\\right)`, `\\vec{n} = ${texDif('AB', p.A, p.B)}`]);
-    g.afegeix('El pla mediador és perpendicular al segment $AB$ pel seu punt mitjà $M$: les coordenades de $M$ són les mitjanes de les de $A$ i $B$, i un vector normal és $\\overrightarrow{AB}$ (mira l\'esquema). '
-      + '(També es pot fer amb un punt qualsevol $G$: els que compleixen $d(G, A) = d(G, B)$.)');
+    g.afegeix('El pla mediador és perpendicular al segment $AB$ pel seu punt mitjà $M$: les coordenades de $M$ són les mitjanes de les de $A$ i $B$, i un vector normal és $\\overrightarrow{AB}$.');
     elements([texPuntNom('M', Mm), `\\vec{n} = ${texDif('AB', p.A, p.B)}`]);
-    g.afegeix(`Calcula les mitjanes: $${texPuntNom('M', Mm)}$.`);
-    pla = G.passosPlaNormal(g, {P: Mm, n: AB, files: FILA, text: 'Pla de vector normal $\\overrightarrow{AB}$ que passa per $M$: $A(x - a) + B(y - b) + C(z - c) = 0$.'});
+    g.afegeix(`Calcula les coordenades del punt mig $M$: $${texPuntNom('M', Mm)}$.`);
+    pla = G.passosPlaNormal(g, {P: Mm, n: AB, files: FILA, text: 'L\'equació del pla serà la següent: $A(x - a) + B(y - b) + C(z - c) = 0$.'});
   }
 
   // Sense comprovacions opcionals (David: quan es troba la solució, s'ha acabat).
