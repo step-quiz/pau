@@ -40,11 +40,11 @@ const {clau: K, rel: R} = F;
 const MAX_N = 10;
 /** Les relacions de la pregunta: id (adreça), TeX, text i quins valors de X hi entren. */
 const RELACIONS = Object.freeze([
-  {id: 'eq', tex: '=', text: k => `exactament ${k}`, entra: (j, k) => j === k},
-  {id: 'ge', tex: '\\ge', text: k => `almenys ${k}`, entra: (j, k) => j >= k},
-  {id: 'le', tex: '\\le', text: k => `com a màxim ${k}`, entra: (j, k) => j <= k},
-  {id: 'gt', tex: '>', text: k => (k === 1 ? 'més d\'1' : `més de ${k}`), entra: (j, k) => j > k},
-  {id: 'lt', tex: '<', text: k => (k === 1 ? 'menys d\'1' : `menys de ${k}`), entra: (j, k) => j < k},
+  {id: 'eq', tex: '=', text: k => `exactament ${k === 1 ? 'un' : k}`, entra: (j, k) => j === k},
+  {id: 'ge', tex: '\\ge', text: k => `almenys ${k === 1 ? 'un' : k}`, entra: (j, k) => j >= k},
+  {id: 'le', tex: '\\le', text: k => `com a màxim ${k === 1 ? 'un' : k}`, entra: (j, k) => j <= k},
+  {id: 'gt', tex: '>', text: k => (k === 1 ? 'més d\'un' : `més de ${k}`), entra: (j, k) => j > k},
+  {id: 'lt', tex: '<', text: k => (k === 1 ? 'menys d\'un' : `menys de ${k}`), entra: (j, k) => j < k},
 ]);
 
 const PER_DEFECTE = Object.freeze({n: 5, p: 25, r: 1, k: 4, mode: 'cent'});
@@ -234,8 +234,9 @@ function passos(v) {
     const c = contraris;
     const cRel = c.length === 1 ? `X = ${c[0]}` : c[0] === 0 ? `X \\le ${c[c.length - 1]}` : `X \\ge ${c[0]}`;
     g.files[FILA.pregunta] = K('Pl', P) + R('Pq', '=') + K('Pe', `1 - P(${cRel})`);
-    g.afegeix(`Directament, serien ${directes.length} casos (${llista(directes)}). El contrari, $${cRel}$, només en té ${c.length === 1 ? 'un' : c.length}: `
-      + 'és més curt. La probabilitat d\'un esdeveniment és $1$ menys la del contrari.');
+    g.afegeix(c.length === 1
+      ? `Directament, serien ${directes.length} casos (${llista(directes)}). Si treballes amb l'esdeveniment contrari, $${cRel}$, acabaràs molt abans. Recorda, finalment, que la probabilitat d'un esdeveniment és $1$ menys la del contrari.`
+      : `Directament, suposa fer un càlcul llarguíssim de ${directes.length} casos (${llista(directes)}). L'esdeveniment contrari, $${cRel}$, només comporta calcular ${c.length} casos: és molt més curt. Finalment, recorda que la probabilitat d'un esdeveniment és $1$ menys la de l'esdeveniment contrari.`);
     if (c.length > 1) {
       g.files[FILA.pregunta] = K('Pl', P) + R('Pq', '=') + K('Pe', `1 - [${suma(c)}]`);
       g.afegeix(`$P(${cRel})$ són ${c.length} casos: ${llista(c)}. Se sumen.`);
@@ -244,7 +245,7 @@ function passos(v) {
     g.files[FILA.pregunta] = K('Pl', P) + R('Pq', '=') + K('Pe', suma(directes));
     const que = `«${rel.text(v.k)}»`.replace(/«./, x => x.toUpperCase());
     g.afegeix(directes.length === 1 ? `${que} és un sol cas: $X = ${directes[0]}$.`
-      : `${que} són ${directes.length} casos: ${llista(directes)}. Se sumen.`
+      : `${que} implica ${directes.length} casos independents: ${llista(directes)}.`
         + (contraris.length === directes.length ? ' (Pel contrari, n\'hi hauria els mateixos.)' : ''));
   }
 
@@ -297,8 +298,7 @@ function passos(v) {
     if (trossos.length > 1 && ultim > 8) sumaLinies.push('\\qquad ' + tancament); else sumaLinies[sumaLinies.length - 1] += tancament;
     g.files[FILA.suma] = linies(sumaLinies);
     g.afegeix((perContrari ? 'Resta-ho de $1$' : 'Suma els casos') + `: $${P} ${igualOAprox(total.aprox)} ${total.tex}$.`
-      + (arrodonits ? ' Compte: fes el càlcul amb tots els decimals (els de la calculadora) i arrodoneix només al final; '
-        + 'amb els valors arrodonits, l\'última xifra podria sortir diferent.' : ''));
+      + (arrodonits ? ' Compte: fes el càlcul amb tots els decimals (els de la calculadora) i arrodoneix només ' + (perContrari ? 'al resultat final.' : 'quan arribis al resultat final.') : ''));
     origen = 'Sv';
   }
   g.files[FILA.resposta] = K('Rr', `${P} ${igualOAprox(total.aprox)} ${total.tex}`);

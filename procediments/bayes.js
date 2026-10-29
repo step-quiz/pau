@@ -71,13 +71,13 @@ function passos(valors) {
   pas('Llegeix l\'enunciat, i sobretot la pregunta.');
   // Primer els noms dels esdeveniments: així, quan s'escrigui P(A | B), ja se sap què vol dir cada lletra.
   g.files[FILA.llegenda] = A.texLlegenda(p);
-  pas('Posa nom als esdeveniments: una lletra per a cada cosa que pot passar. La barra (com a $\\overline{D}$) vol dir «no»: és el contrari.');
+  pas('Assigna una lletra diferent a cadascun dels esdeveniments que pot passar.');
   marcaPregunta = 'objectiu';
   let marcaNum = '';                     // el numerador, del color del seu camí, quan ja és un nombre
   const formula = (num, den, resta = '') => K('Bl', b.tex) + R('Bq', '=') + `\\dfrac{${K('Bn', num, marcaNum)}}{${K('Bd', den)}}` + resta;
   g.files[FILA.formula] = K('Bl', b.tex);
   pas(`La pregunta ja diu una cosa que sabem: $${condicio}$ (és la condició, va darrere de la barra). I demana $${demanat}$. `
-    + `És $${b.tex}$, ${b.text}. Compte: a l'arbre hi ha $P(${condicio} \\mid ${demanat})$, que és al revés. Per girar-la, cal el teorema de Bayes.`,
+    + `És $${b.tex}$, ${b.text}. Compte: a l'arbre hi ha $P(${condicio} \\mid ${demanat})$, l'inrevés del que ens demanen: necessites aplicar el teorema de Bayes.`,
   {cursor: {arrossega: 'Eq1', fins: 'Bl'}});
 
   /* 2. L'arbre complet, com a la pàgina de la probabilitat total. */
@@ -87,8 +87,7 @@ function passos(valors) {
     etiquetes[`Bl${a}`] = x.tex;
     t.fills[a].forEach((y, j) => { etiquetes[`Bl${a}${j}`] = y.tex; });
   });
-  pas('Dibuixa l\'arbre amb les dades de l\'enunciat. Les branques que no diu surten del contrari. '
-    + '(A la pàgina «Arbre de probabilitats i probabilitat total», es fa pas a pas.)');
+  pas('Dibuixa l\'arbre amb les dades de l\'enunciat.');
 
   /* 3. La definició de la probabilitat condicionada. */
   const cami = A.texCami(t, fa, fj);

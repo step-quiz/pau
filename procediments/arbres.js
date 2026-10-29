@@ -54,7 +54,7 @@ const PROBLEMES = Object.freeze([
     fills: {
       F: [{e: 'D', resta: true},
         {e: '\\overline{D}', p: '90%', dada: '2', text: '«El 90 % de les peces de ferro no tenen defecte»: aquí només es compten les peces de ferro. '
-          + 'És una probabilitat condicionada: $P(\\overline{D} \\mid F) = 0{,}9$, la probabilitat que no sigui defectuosa sabent que és de ferro.'}],
+          + 'És una probabilitat condicionada: $P(\\overline{D} \\mid F) = 0{,}9$, que és la probabilitat que no sigui defectuosa sabent que és de ferro.'}],
       A: [{e: 'D', p: '4%', dada: '3', text: '«El 4 % de les peces d\'acer són defectuoses»: també és condicionada, només entre les d\'acer: $P(D \\mid A) = 0{,}04$.'},
         {e: '\\overline{D}', resta: true}],
     },

@@ -62,7 +62,7 @@ function passos(valors) {
   /* 1. La lectura i la llegenda. */
   pas('Llegeix l\'enunciat. Primer, posa nom als esdeveniments.');
   g.files[FILA.llegenda] = A.texLlegenda(p);
-  pas('Posa nom als esdeveniments: una lletra per a cada cosa que pot passar. La barra (com a $\\overline{D}$) vol dir «no»: és el contrari.');
+  pas('Assigna una lletra diferent a cadascun dels esdeveniments que pot passar.');
 
   /* 2. Les dades, traduïdes a probabilitats (fila 2), en l'ordre de l'enunciat. */
   const branques = [];                    // totes les branques: {a, j (o null), b, valor}
@@ -87,7 +87,7 @@ function passos(valors) {
   /* 3. L'arbre: primer les branques, i després les probabilitats. */
   ambArbre = true;
   pas(`Dibuixa l'arbre. Al primer nivell, ${t.primer.map(b => `$${b.e}$`).join(', ').replace(/, ([^,]*)$/, ' o $1')}; `
-    + 'de cada branca en surten dues: l\'esdeveniment i el seu contrari.');
+    + 'al segon nivell, surten dues branques de cadascuna.');
 
   const nivells = [t.primer.map((_, a) => branques.find(x => x.a === a && x.j === null))]
     .concat(t.primer.map((_, a) => branques.filter(x => x.a === a && x.j !== null)));
@@ -96,7 +96,7 @@ function passos(valors) {
     for (const x of ordre) {
       if (x.b.dada) {
         etiquetes[clauDe(x)] = x.valor.tex;
-        pas(`Posa $${nomDe(x)} = ${x.valor.tex}$ a la seva branca.`, {cursor: {arrossega: `Dv${indexDada.get(x)}`, fins: clauDe(x)}});
+        pas(x.j === null ? `Assigna la probabilitat $${nomDe(x)} = ${x.valor.tex}$ a la branca que correspon.` : `Assigna $${nomDe(x)} = ${x.valor.tex}$ a la seva branca.`, {cursor: {arrossega: `Dv${indexDada.get(x)}`, fins: clauDe(x)}});
       } else if (x.b.raonat) {
         if (x.b.frase) marcades.add(x.b.frase);
         etiquetes[clauDe(x)] = x.valor.tex;
@@ -108,12 +108,12 @@ function passos(valors) {
         const resta = germanes.map(y => y.valor.tex).join(' - ');
         g.files[FILA.calcul] = K('Cl', nomDe(x)) + R('Cq', '=') + K('Ce', `1 - ${resta}`) + R('Cr', '=') + K('Cv', x.valor.tex);
         const que = x.j === null
-          ? `$${x.b.e}$ és el que queda («la resta»): és el contrari de ${germanes.map(y => `$${y.b.e}$`).join(' i ')}. Les branques que surten d'un mateix punt sumen $1$.`
-          : `Dins de $${t.primer[x.a].e}$, $${x.b.e}$ és el contrari de $${germanes[0].b.e}$: les dues branques sumen $1$.`;
-        pas(`${que} $${nomDe(x)} = 1 - ${resta} = ${x.valor.tex}$.`);
+          ? `$${x.b.e}$ és l'esdeveniment contrari ${germanes.length === 1 ? 'de' : 'a que passi'} ${germanes.map(y => `$${y.b.e}$`).join(' o ')}.`
+          : `Dins de $${t.primer[x.a].e}$, $${x.b.e}$ és l'esdeveniment contrari a $${germanes[0].b.e}$.`;
+        pas(`${que} Per tant, $${nomDe(x)} = 1 - ${resta} = ${x.valor.tex}$.`);
         g.files[FILA.calcul] = '';
         etiquetes[clauDe(x)] = x.valor.tex;
-        pas('Posa-la a la seva branca.', {cursor: {arrossega: 'Cv', fins: clauDe(x)}});
+        pas('Assigna la probabilitat a la branca que correspon.', {cursor: {arrossega: 'Cv', fins: clauDe(x)}});
       }
     }
   }
@@ -135,10 +135,10 @@ function passos(valors) {
   const total = termes.reduce((s, v) => s.suma(v));
   const suma = termes.map((v, i) => K(`S${i}`, A.texValor(p, v), A.marcaCami(i))).join(' + ');
   g.files[FILA.calcul] = K('Cl', p.pregunta.tex) + R('Cq', '=') + suma;
-  pas('Teorema de la probabilitat total: la probabilitat que busques és la suma dels camins. Cada terme té el color del seu camí.');
+  pas('Aplica el teorema de la probabilitat total.');
   const decimal = p.format === 'fraccio' ? ` = ${M.texDecimal(total) || M.formaDecimal(total).tex}` : '';
   g.files[FILA.calcul] = K('Cl', p.pregunta.tex) + R('Cq', '=') + suma + R('Cr', '=') + K('Cv', A.texValor(p, total) + decimal);
-  pas(`Suma: $${A.texValor(p, total)}${decimal}$.`);
+  pas('Obté la probabilitat total.');
   g.files[FILA.calcul] = '';
   g.files[FILA.resposta] = K('Rr', `${p.pregunta.tex} = ${A.texValor(p, total)}${decimal}`);
   g.classes[FILA.resposta] = 'final';
