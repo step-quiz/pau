@@ -23,10 +23,10 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'matrius.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js', 'grafica-funcio.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'matrius.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js', 'grafica-funcio.js', 'domini.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
-const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio, PolinomiCondicions, Bolzano, Asimptotes, ProbabilitatTotal, Bayes, Binomial, Matrius, Determinant, Rang, SistemaSCI, Discussio, Inversa, EquacioMatricial, Esglaonar, Geometria, Pla, RectaPlans, RectaPla, DuesRectes, Distancies, Projeccions, AreaVolum, PerpendicularComuna, Primitiva, Barrow, AreaEix, AreaCorbes, AreaParametre} = globalThis;
+const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio, PolinomiCondicions, Bolzano, Asimptotes, ProbabilitatTotal, Bayes, Binomial, Matrius, Determinant, Rang, SistemaSCI, Discussio, Inversa, EquacioMatricial, Esglaonar, Geometria, Pla, RectaPlans, RectaPla, DuesRectes, Distancies, Projeccions, AreaVolum, PerpendicularComuna, Primitiva, Barrow, AreaEix, AreaCorbes, AreaParametre, Domini} = globalThis;
 const {Fraccio} = M;
 const fr = (a, b = 1) => new Fraccio(a, b);
 
@@ -154,6 +154,7 @@ function textPla(tex) {
           case '\\neq': case '\\ne': s += '≠'; break;
           case '\\hline': break;
           case '\\ge': s += '≥'; break;
+          case '\\ln': s += 'ln'; break;
           case '\\le': s += '≤'; break;
           case '\\binom': { const a = grup(), b = grup(); s += `C(${a},${b})`; break; }   // nombre combinatori
           case '\\limits': break;
@@ -6338,10 +6339,302 @@ seccio("gràfica d'una funció", () => {
 });
 
 
+/* ── DOMINI D'UNA FUNCIÓ ───────────────────────────────────────────── */
+/*
+ * Model escrit aquí, a mà, per a cada funció: el text pla de f, f com a nombre (JS) per saber on es pot calcular,
+ * el domini esperat i les condicions (relació i g). Les files del guió es llegeixen per la seva funció (FILA):
+ * f; la cadena d'equivalències de cada condició (cada pas, amb el mateix conjunt de solucions que la condició);
+ * l'equació g = 0 i el seu treball (mateixes arrels que g); la taula de signes (trossos i signes de g, marcats els
+ * que serveixen); la recta real (SVG: un grup per línia, els segments i els punts oberts i tancats que toquen);
+ * la intersecció; el domini.
+ */
+const INF_D = Infinity;
+const TOT_D = [[-INF_D, INF_D, false, false]];
+const obert = (...ext) => ext.map(([a, b]) => [a, b, false, false]);
+const MODELS_DOMINI = {
+  'polinomi': {fPla: 'x^(3)-3x+1', num: x => x ** 3 - 3 * x + 1, dom: TOT_D, conds: []},
+  'fraccio-lineal': {fPla: '((x+1)/(x-2))', num: x => (x + 1) / (x - 2), dom: obert([-INF_D, 2], [2, INF_D]), conds: [{rel: 'ne', g: 'x-2'}]},
+  'fraccio-quadrat': {fPla: '((1)/(x^(2)-4))', num: x => 1 / (x * x - 4), dom: obert([-INF_D, -2], [-2, 2], [2, INF_D]), conds: [{rel: 'ne', g: 'x^2-4'}]},
+  'fraccio-trinomi': {fPla: '((x)/(x^(2)-x-2))', num: x => x / (x * x - x - 2), dom: obert([-INF_D, -1], [-1, 2], [2, INF_D]), conds: [{rel: 'ne', g: 'x^2-x-2'}]},
+  'fraccio-sense-arrels': {fPla: '((x)/(x^(2)+1))', num: x => x / (x * x + 1), dom: TOT_D, conds: [{rel: 'ne', g: 'x^2+1'}]},
+  'arrel-lineal': {fPla: 'sqrt(x-3)', num: x => Math.sqrt(x - 3), dom: [[3, INF_D, true, false]], conds: [{rel: 'ge', g: 'x-3'}]},
+  'arrel-negatiu': {fPla: 'sqrt(5-2x)', num: x => Math.sqrt(5 - 2 * x), dom: [[-INF_D, 2.5, false, true]], conds: [{rel: 'ge', g: '5-2x'}]},
+  'arrel-cercle': {fPla: 'sqrt(1-x^(2))', num: x => Math.sqrt(1 - x * x), dom: [[-1, 1, true, true]], conds: [{rel: 'ge', g: '1-x^2'}]},
+  'arrel-quadrat': {fPla: 'sqrt(x^(2)-4)', num: x => Math.sqrt(x * x - 4), dom: [[-INF_D, -2, false, true], [2, INF_D, true, false]], conds: [{rel: 'ge', g: 'x^2-4'}]},
+  'arrel-sempre': {fPla: 'sqrt(1+x^(2))', num: x => Math.sqrt(1 + x * x), dom: TOT_D, conds: [{rel: 'ge', g: '1+x^2'}]},
+  'arrel-quarta': {fPla: '((x^(2)-3x)^(1/4))', num: x => Math.pow(x * x - 3 * x, 0.25), dom: [[-INF_D, 0, false, true], [3, INF_D, true, false]], conds: [{rel: 'ge', g: 'x^2-3x'}]},
+  'arrel-denominador': {fPla: '((1)/(sqrt(x-3)))', num: x => 1 / Math.sqrt(x - 3), dom: obert([3, INF_D]), conds: [{rel: 'gt', g: 'x-3'}]},
+  'arrel-denominador-cercle': {fPla: '((1)/(sqrt(1-x^(2))))', num: x => 1 / Math.sqrt(1 - x * x), dom: obert([-1, 1]), conds: [{rel: 'gt', g: '1-x^2'}]},
+  'arrel-i-fraccio': {fPla: '((sqrt(x+2))/(x-1))', num: x => Math.sqrt(x + 2) / (x - 1), dom: [[-2, 1, true, false], [1, INF_D, false, false]],
+    conds: [{rel: 'ge', g: 'x+2'}, {rel: 'ne', g: 'x-1'}]},
+  'arrel-cubica': {fPla: '((x-1)^(1/3))', num: x => Math.cbrt(x - 1), dom: TOT_D, conds: []},
+  'arrel-cubica-denominador': {fPla: '((1)/(((x+2)^(1/3))))', num: x => 1 / Math.cbrt(x + 2), dom: obert([-INF_D, -2], [-2, INF_D]), conds: [{rel: 'ne', g: 'x+2'}]},
+  'logaritme-lineal': {fPla: 'ln(x-1)', num: x => Math.log(x - 1), dom: obert([1, INF_D]), conds: [{rel: 'gt', g: 'x-1'}]},
+  'logaritme-cercle': {fPla: 'ln(4-x^(2))', num: x => Math.log(4 - x * x), dom: obert([-2, 2]), conds: [{rel: 'gt', g: '4-x^2'}]},
+  'logaritme-sempre': {fPla: 'ln(x^(2)+1)', num: x => Math.log(x * x + 1), dom: TOT_D, conds: [{rel: 'gt', g: 'x^2+1'}]},
+  'logaritme-i-fraccio': {fPla: '((ln(x))/(x-2))', num: x => Math.log(x) / (x - 2), dom: obert([0, 2], [2, INF_D]), conds: [{rel: 'gt', g: 'x'}, {rel: 'ne', g: 'x-2'}]},
+  'exponencial': {fPla: 'e^(x^(2)-1)', num: x => Math.exp(x * x - 1), dom: TOT_D, conds: []},
+  'exponencial-fraccio': {fPla: 'e^(((1)/(x)))', num: x => Math.exp(1 / x), dom: obert([-INF_D, 0], [0, INF_D]), conds: [{rel: 'ne', g: 'x'}]},
+  'exponencial-arrel': {fPla: '2^(sqrt(x))', num: x => Math.pow(2, Math.sqrt(x)), dom: [[0, INF_D, true, false]], conds: [{rel: 'ge', g: 'x'}]},
+};
+
+/** La graella de comprovació: múltiples de 1/8 entre −12 i 12 (hi són tots els extrems, que són enters o meitats). */
+const GRAELLA_DOMINI = Array.from({length: 193}, (_, k) => fr(k - 96, 8));
+const enModel = (dom, x) => dom.some(([a, b, ca, cb]) => (x > a || (ca && x === a)) && (x < b || (cb && x === b)));
+const RELACIONS_DOMINI = {ne: (v) => v.signe() !== 0, ge: v => v.signe() >= 0, gt: v => v.signe() > 0};
+
+/** Un conjunt en text pla («ℝ-{-2,2}», «(-∞,-2]∪[2,+∞)», «A∩(B∪C)»): una funció «x (Fraccio) → bool». */
+function conjuntDomini(text) {
+  let i = 0;
+  const nombreFins = () => {
+    let prof = 0;
+    const ini = i;
+    while (i < text.length) {
+      const c = text[i];
+      if (c === '(' || c === '[') prof++;
+      else if (c === ')' || c === ']') { if (prof === 0) break; prof--; } else if (c === ',' && prof === 0) break;
+      i++;
+    }
+    return text.slice(ini, i);
+  };
+  const valor = s => (s === '-∞' || s === '+∞' || s === '∞' ? null : exacte(M.llegeix(s, {variables: []}), {variables: {}, funcions: {}}));
+  const interval = () => {
+    const obre = text[i];
+    if (obre !== '(' && obre !== '[') throw new Error('no és un interval');
+    i++;
+    const a = valor(nombreFins());
+    if (text[i] !== ',') throw new Error('falta la coma');
+    i++;
+    const b = valor(nombreFins());
+    const tanca = text[i];
+    if (tanca !== ')' && tanca !== ']') throw new Error('falta el final');
+    i++;
+    const [ca, cb] = [obre === '[', tanca === ']'];
+    if (ca && a === null) throw new Error('claudàtor a l\'infinit');
+    if (cb && b === null) throw new Error('claudàtor a l\'infinit');
+    return x => (a === null || x.resta(a).signe() > 0 || (ca && x.resta(a).signe() === 0)) && (b === null || x.resta(b).signe() < 0 || (cb && x.resta(b).signe() === 0));
+  };
+  const atom = () => {
+    if (text[i] === 'ℝ') {
+      i++;
+      if (text[i] !== '-') return () => true;
+      if (text.slice(i + 1, i + 2) !== '{') throw new Error('falta {');
+      const fi = text.indexOf('}', i);
+      const punts = text.slice(i + 2, fi).split(',').map(s => valor(s));
+      i = fi + 1;
+      return x => !punts.some(p => x.resta(p).signe() === 0);
+    }
+    const inici = i;
+    try { return interval(); } catch (e) { i = inici; }
+    if (text[i] !== '(') throw new Error(`conjunt no entès: «${text.slice(inici)}»`);
+    i++;
+    const r = unio();
+    if (text[i] !== ')') throw new Error('falta )');
+    i++;
+    return r;
+  };
+  const inter = () => {
+    const fs = [atom()];
+    while (text[i] === '∩') { i++; fs.push(atom()); }
+    return x => fs.every(f => f(x));
+  };
+  function unio() {
+    const fs = [inter()];
+    while (text[i] === '∪') { i++; fs.push(inter()); }
+    return x => fs.some(f => f(x));
+  }
+  const r = unio();
+  if (i !== text.length) throw new Error(`sobra text a «${text}» (posició ${i})`);
+  return r;
+}
+/** Els intervals d'un conjunt escrit com a unió d'intervals («(a,b]∪[c,d)»), per comprovar que és la forma normal. */
+function intervalsDomini(text) {
+  const peces = [];
+  let prof = 0, ini = 0;
+  for (let q = 0; q < text.length; q++) {
+    if (text[q] === '(' || text[q] === '[') prof++; else if (text[q] === ')' || text[q] === ']') prof--; else if (text[q] === '∪' && prof === 0) { peces.push(text.slice(ini, q)); ini = q + 1; }
+  }
+  peces.push(text.slice(ini));
+  return peces.map(p => {
+    const m = /^([[(])(.*),(.*)([\])])$/.exec(p);
+    if (!m) throw new Error(`«${p}» no és un interval`);
+    return {a: m[2] === '-∞' ? null : valorNum(m[2]).v, b: m[3] === '+∞' ? null : valorNum(m[3]).v, ca: m[1] === '[', cb: m[4] === ']'};
+  });
+}
+
+/** Una línia de la cadena d'equivalències («g ≥ 0», «x ≠ a, x ≠ b», «x ∈ conjunt»): una funció «x → bool». */
+function liniaDomini(text) {
+  if (text.startsWith('x∈')) return conjuntDomini(text.slice(2));
+  const atoms = text.split(',').map(a => {
+    const m = /^(.*?)(≥|≤|≠|>|<)(.*)$/.exec(a);
+    if (!m) throw new Error(`«${a}» no és una desigualtat`);
+    const REL = {'≥': (p, q) => p.resta(q).signe() >= 0, '≤': (p, q) => p.resta(q).signe() <= 0, '≠': (p, q) => p.resta(q).signe() !== 0,
+      '>': (p, q) => p.resta(q).signe() > 0, '<': (p, q) => p.resta(q).signe() < 0};
+    return {e: m[1], r: m[2], d: m[3], f: REL[m[2]]};
+  });
+  return x => atoms.every(a => a.f(valorX(a.e, 'x', x), valorX(a.d, 'x', x)));
+}
+
+function comprovaDomini(passos, p, nom) {
+  const model = MODELS_DOMINI[p.id];
+  comprova(model, () => `${nom}: no hi ha model`);
+  if (!model) return 0;
+  const FILA = Domini.FILA;
+  let linies = 0;
+  // El model és coherent: f es pot calcular exactament als punts del domini, i el domini és la conjunció de les condicions.
+  for (const x of GRAELLA_DOMINI) {
+    const xf = x.num / x.den;
+    comprova(Number.isFinite(model.num(xf)) === enModel(model.dom, xf), () => `${nom}: el model del domini falla a x = ${xf}`);
+    comprova(model.conds.every(c => RELACIONS_DOMINI[c.rel](valorX(c.g, 'x', x))) === enModel(model.dom, xf), () => `${nom}: les condicions del model no donen el seu domini a x = ${xf}`);
+  }
+  const reals = (S, x) => S(x);
+  const conjModel = model.dom.map(([a, b, ca, cb]) => ({a, b, ca, cb}));
+  const sol = model.conds.map(c => arrelsX(M.polinomi(M.llegeix(c.g, {variables: ['x']}), 'x')));
+  const FC = [{cond: FILA.c0, eq: FILA.e0, tr: FILA.t0, sg: FILA.s0}, {cond: FILA.c1, eq: FILA.e1, tr: FILA.t1, sg: FILA.s1}];
+  const n = model.conds.length;
+  const darrer = passos[passos.length - 1];
+  comprova(darrer.classes[FILA.fi] === 'final', () => `${nom}: el domini no està destacat`);
+  passos.forEach((pas, s) => pas.files.forEach((tex, fila) => {
+    if (!tex) return;
+    const on = `${nom}, pas ${s + 1}, fila ${fila}`;
+    linies++;
+    try {
+      if (fila === FILA.f) {
+        comprova(textPla(tex) === `f(x)=${model.fPla}`, () => `${on}: «${textPla(tex)}» no és f(x) = ${model.fPla}`);
+        const marcades = Object.entries(grupsAmbClau(tex)).filter(([, v]) => v.marca);
+        comprova(marcades.length <= 1 && marcades.every(([k, v]) => v.marca === 'tria' && /^Gp\d$/.test(k)), () => `${on}: marques de f incorrectes`);
+        if (marcades.length) {
+          const c = +marcades[0][0][2];
+          comprova(c < n && pas.text.length > 20, () => `${on}: es marca un tros que no posa cap condició`);
+        }
+      } else if (FC.some(b => b.cond === fila)) {
+        const c = FC.findIndex(b => b.cond === fila);
+        comprova(c < n, () => `${on}: una condició que no existeix`);
+        const llinks = liniesLogiques(tex).join('').split('⇔');
+        const rel = {ne: '≠', ge: '≥', gt: '>'}[model.conds[c].rel];
+        const m = /^(.*?)(≥|≠|>)0$/.exec(llinks[0]);
+        comprova(m && m[2] === rel && PUNTS_X.every(x => valorX(m[1], 'x', x).igual(valorX(model.conds[c].g, 'x', x))), () => `${on}: la primera línia «${llinks[0]}» no és «g ${rel} 0»`);
+        llinks.forEach((l, k) => {
+          const f = liniaDomini(l);
+          for (const x of GRAELLA_DOMINI) {
+            if (f(x) !== RELACIONS_DOMINI[model.conds[c].rel](valorX(model.conds[c].g, 'x', x))) {
+              comprova(false, () => `${on}: «${l}» no és equivalent a la condició a x = ${x.num}/${x.den}`);
+              break;
+            }
+          }
+          // L'última línia, en forma normal d'intervals (ordenats, sense poder unir-ne cap).
+          if (k === llinks.length - 1 && /^x∈[([]/.test(l)) {
+            const iv = intervalsDomini(l.slice(2));
+            iv.forEach((q, j) => {
+              if (j) {
+                const prev = iv[j - 1];
+                comprova(prev.b !== null && q.a !== null && (prev.b < q.a || (prev.b === q.a && !prev.cb && !q.cb)), () => `${on}: «${l}»: intervals no normals`);
+              }
+            });
+          }
+        });
+      } else if (FC.some(b => b.eq === fila || b.tr === fila)) {
+        const c = FC.findIndex(b => b.eq === fila || b.tr === fila);
+        comprova(c < n && model.conds[c], () => `${on}: una equació que no existeix`);
+        const trobades = solucionsX(textPla(tex), 'x');
+        comprova(trobades === conjunt(sol[c]), () => `${on}: «${textPla(tex)}» té les solucions {${trobades}} i g = 0, {${conjunt(sol[c])}}`);
+      } else if (FC.some(b => b.sg === fila)) {
+        const c = FC.findIndex(b => b.sg === fila);
+        comprova(c < n, () => `${on}: una taula que no existeix`);
+        const [cap, cos] = cellesTaula(tex);
+        const arrels = sol[c].slice().sort((a, b) => a.resta(b).signe());
+        comprova(cap.length === 2 * arrels.length + 2 && cap[0] === 'x', () => `${on}: capçalera de la taula: ${cap}`);
+        const g = model.conds[c].g;
+        comprova(model.conds[c].rel !== 'ne' && PUNTS_X.every(x => valorX(cos[0], 'x', x).igual(valorX(g, 'x', x))), () => `${on}: la fila de signes no és de g`);
+        const marques = grupsAmbClau(tex);
+        const omplerta = cos.slice(1).some(t => t);
+        cap.slice(1).forEach((h, j) => {
+          const esPunt = j % 2 === 1;
+          const a = j === 0 ? null : arrels[(j - 1) >> 1], b = j >> 1 < arrels.length && !esPunt ? arrels[j >> 1] : null;
+          if (esPunt) comprova(valorX(h, 'x', fr(0)).igual(arrels[(j - 1) >> 1]), () => `${on}: punt ${h} de la capçalera`);
+          else {
+            const q = llegeixParell(h);
+            const esq = a === null ? -Infinity : a.num / a.den, dre = (j >> 1) < arrels.length ? arrels[j >> 1].num / arrels[j >> 1].den : Infinity;
+            comprova(q && q[0] === esq && q[1] === dre, () => `${on}: interval ${h} de la capçalera`);
+          }
+          const prova = esPunt ? arrels[(j - 1) >> 1]
+            : j === 0 ? (arrels.length ? arrels[0].resta(1) : fr(0)) : (j >> 1) < arrels.length ? arrels[(j - 1) >> 1].suma(arrels[j >> 1]).quocient(2) : arrels[arrels.length - 1].suma(1);
+          const v = valorX(g, 'x', prova).signe();
+          const esperat = v > 0 ? '+' : v < 0 ? '-' : '0';
+          if (omplerta) comprova(cos[1 + j] === esperat, () => `${on}: signe de g al tros ${h}: «${cos[1 + j]}», i és ${esperat}`);
+          const marca = (marques[`T${c}s${j}`] || {}).marca || '';
+          const serveix = model.conds[c].rel === 'ge' ? v >= 0 : v > 0;
+          if (omplerta && marca) comprova(marca === 'mes', () => `${on}: marca estranya`);
+          if (marca) comprova(serveix, () => `${on}: marcat el tros ${h}, que no compleix la condició`);
+        });
+        const hiHaMarques = Object.values(marques).some(v => v.marca);
+        if (hiHaMarques) {
+          const total = cap.slice(1).filter((h, j) => {
+            const prova = j % 2 === 1 ? arrels[(j - 1) >> 1] : j === 0 ? (arrels.length ? arrels[0].resta(1) : fr(0)) : (j >> 1) < arrels.length ? arrels[(j - 1) >> 1].suma(arrels[j >> 1]).quocient(2) : arrels[arrels.length - 1].suma(1);
+            const v = valorX(g, 'x', prova).signe();
+            return model.conds[c].rel === 'ge' ? v >= 0 : v > 0;
+          }).length;
+          comprova(Object.values(marques).filter(v => v.marca).length === total, () => `${on}: falten trossos per marcar (o en sobren)`);
+        }
+      } else if (fila === FILA.recta) {
+        comprova(tex.startsWith('<svg'), () => `${on}: la recta ha de ser un dibuix`);
+        const grups = tex.split('<g class="').slice(1);
+        comprova(grups.length === (n >= 2 ? (passos.slice(s).some(q => q.files[FILA.inter].includes('{k=Ir}')) && tex.includes('conj-dom') ? 3 : 2) : 1), () => `${on}: nombre de línies de la recta: ${grups.length}`);
+      } else if (fila === FILA.inter) {
+        comprova(n === 2, () => `${on}: una intersecció sense dues condicions`);
+        const pla = textPla(tex);
+        const [esq, dre] = pla.split('=');
+        const [A, B] = esq.split('∩');
+        const fA = conjuntDomini(A), fB = conjuntDomini(B);
+        const truth = c => x => RELACIONS_DOMINI[model.conds[c].rel](valorX(model.conds[c].g, 'x', x));
+        for (const x of GRAELLA_DOMINI) {
+          comprova(fA(x) === truth(0)(x) && fB(x) === truth(1)(x), () => `${on}: «${esq}» no són els conjunts de les condicions (x = ${x.num}/${x.den})`);
+          if (dre !== undefined) comprova(conjuntDomini(dre)(x) === (truth(0)(x) && truth(1)(x)), () => `${on}: «${dre}» no és la intersecció (x = ${x.num}/${x.den})`);
+        }
+      } else if (fila === FILA.fi) {
+        const pla = textPla(tex);
+        const m = /^«Dom»f=(ℝ=)?(.*)$/.exec(pla);
+        comprova(m, () => `${on}: el domini no s'entén: «${pla}»`);
+        if (!m) return;
+        const tot = model.dom.length === 1 && model.dom[0][0] === -INF_D && model.dom[0][1] === INF_D;
+        comprova(Boolean(m[1]) === tot, () => `${on}: «ℝ =» ${tot ? 'falta' : 'sobra'}`);
+        const f = conjuntDomini(m[2]);
+        for (const x of GRAELLA_DOMINI) comprova(f(x) === enModel(model.dom, x.num / x.den), () => `${on}: «${m[2]}» no és el domini (x = ${x.num}/${x.den})`);
+        const iv = intervalsDomini(m[2]);
+        comprova(iv.length === model.dom.length, () => `${on}: el nombre d'intervals del domini és ${iv.length}, i ha de ser ${model.dom.length}`);
+      } else {
+        comprova(false, () => `${on}: una fila que no hauria d'existir`);
+      }
+    } catch (e) {
+      comprova(false, () => `${on}: no es pot llegir «${tex.slice(0, 120)}»: ${e.message}`);
+    }
+  }));
+  // El guió acaba amb el domini; la intersecció només amb dues condicions.
+  comprova(Boolean(darrer.files[FILA.fi]) && Boolean(darrer.files[FILA.recta]) && Boolean(darrer.files[FILA.inter]) === (n === 2), () => `${nom}: l'últim pas no té les files que toca`);
+  return linies;
+}
+
+seccio('domini d\'una funció', () => {
+  let linies = 0, passos = 0;
+  comprova(Domini.problemes.length === Object.keys(MODELS_DOMINI).length && Domini.problemes.every(p => MODELS_DOMINI[p.id]), () => 'la llista de problemes no és la del model');
+  for (const problema of Domini.problemes) {
+    const llista = Domini.passos({p: problema.id});
+    comprovaGuio(llista, Domini.files, problema.id);
+    linies += comprovaDomini(llista, problema, problema.id);
+    passos += llista.length;
+    // L'adreça: anada i tornada.
+    const a = Domini.escriuAdreca({p: problema.id});
+    comprova(Domini.llegeixAdreca(a).valors.p === problema.id, () => `${problema.id}: adreça`);
+  }
+  comprova(Domini.llegeixAdreca({p: 'no-existeix'}).error, () => 'cal un error per a un problema que no existeix');
+  return `${Domini.problemes.length} funcions, ${passos} passos, ${linies} línies comprovades`;
+});
+
+
 seccio('regles generals de totes les pàgines', () => {
   const PAGINES = {RectaTangent: 'recta-tangent', Creixement: 'creixement', Extrems: 'extrems', PolinomiCondicions: 'polinomi-condicions',
     Optimitzacio: 'optimitzacio', Asimptotes: 'asimptotes', Bolzano: 'bolzano', Primitiva: 'primitiva', Barrow: 'barrow', AreaEix: 'area-eix',
-    AreaCorbes: 'area-corbes', AreaParametre: 'area-parametre', ProbabilitatTotal: 'probabilitat-total', Bayes: 'bayes', Binomial: 'binomial',
+    AreaCorbes: 'area-corbes', AreaParametre: 'area-parametre', Domini: 'domini', ProbabilitatTotal: 'probabilitat-total', Bayes: 'bayes', Binomial: 'binomial',
     Determinant: 'determinant', Rang: 'rang', Inversa: 'inversa', EquacioMatricial: 'equacio-matricial', Discussio: 'discussio',
     SistemaSCI: 'sistema-sci', Esglaonar: 'esglaonar', Pla: 'pla', RectaPlans: 'recta-plans', RectaPla: 'recta-pla', DuesRectes: 'dues-rectes',
     Distancies: 'distancies', Projeccions: 'projeccions', AreaVolum: 'area-volum', PerpendicularComuna: 'perpendicular-comuna', GraficaFuncio: 'grafica-funcio'};

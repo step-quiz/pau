@@ -159,6 +159,14 @@ button{font:inherit; color:inherit}
 .fila.figura svg.esbos text.petit{font-size:15px}   /* l'esbós té una finestra més ampla (420): les marques, com a les altres gràfiques */
 .fila.figura .asimptota{stroke:#64748b; stroke-width:1.3; stroke-dasharray:6 4; fill:none}   /* esbós d'una funció */
 .fila.figura .punt-esbos{fill:var(--cat); stroke:#fff; stroke-width:1.2}
+/* La recta real amb conjunts (domini.js): una línia per conjunt; punt tancat = l'extrem hi pertany, obert = no hi pertany. */
+.fila.figura g.conj-cond{--c:var(--cat)}
+.fila.figura g.conj-dom{--c:#15803d}
+.fila.figura .conj{stroke:var(--c); stroke-width:6; stroke-linecap:butt}
+.fila.figura .punta-conj{fill:var(--c)}
+.fila.figura .pt-tancat{fill:var(--c); stroke:var(--c); stroke-width:2}
+.fila.figura .pt-obert{fill:#fff; stroke:var(--c); stroke-width:2.6}
+.fila.figura text[text-anchor=middle]{font-style:normal}
 /* Marques dins de les fórmules (\htmlData{k=…,marca=…}): els productes de Sarrus, un menor triat… */
 .katex [data-marca="mes"]{background:rgba(16,185,129,.30); box-shadow:0 0 0 3px rgba(16,185,129,.30); border-radius:2px}
 .katex [data-marca="menys"]{background:rgba(220,38,38,.22); box-shadow:0 0 0 3px rgba(220,38,38,.22); border-radius:2px}

@@ -9,7 +9,7 @@ To build the same kind of pages for another subject, start from `graspable-formu
 
 ## 0. What exists (October 2026)
 
-- 31 animated step-by-step pages ("procediments") in the style of Graspable Math, all four categories complete: Àlgebra 7 (diagonalisation replaced by «Esglaonar», Oct 2026), Geometria 8, Anàlisi 13 (incl. 5 on integrals/areas and «Gràfica d'una funció», Oct 2026), Probabilitat 3.
+- 32 animated step-by-step pages ("procediments") in the style of Graspable Math, all four categories complete: Àlgebra 7 (diagonalisation replaced by «Esglaonar», Oct 2026), Geometria 8, Anàlisi 14 (incl. «Domini d'una funció», Oct 2026, 23 fixed problems with interval notation, a real-line SVG and sign tables;  5 on integrals/areas and «Gràfica d'una funció», Oct 2026), Probabilitat 3.
 - Linked from the site home (`../index.html`): each category card has a **DEMO** button → dialog listing that category's pages (object `DEMOS` in `index.html`).
 - ~10 000 lines of vanilla JS, no build step, no dependencies except KaTeX 0.16.9 from cdnjs.
 - Tests: `node procediments/proves/comprova.js` → «Tot correcte: ~15.2 M comprovacions» (~4 min). Plus mutation scripts and Playwright browser tests (§6).

@@ -2,9 +2,7 @@
 
 Recopilatori d'enunciats, pistes i solucions de proves PAU de Matemàtiques (2023–2026).
 Web estàtica: `index.html` (tota l'aplicació; la llista d'exercicis és l'objecte `EXERS`)
-i `config.js` (exercicis optatius, vídeos de YouTube i etiquetes del buscador).
-La pàgina d'inici té un buscador que cerca (sense accents ni majúscules, i tolerant a faltes d'escriptura com «bolzaano» o «crixement», amb la distància de Levenshtein de `vocabulari.html` d'operacions) al títol, l'any, la convocatòria i l'id
-de cada exercici, i a les `ETIQUETES` de `config.js`: hi van els temes que l'enunciat no anomena (p. ex. Bolzano).
+i `config.js` (exercicis optatius i vídeos de YouTube).
 
 Hi ha **67 exercicis** (16 d'àlgebra, 31 d'anàlisi, 11 de geometria i 9 de probabilitat).
 Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
@@ -30,7 +28,7 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 
 ## Procediments animats
 
-`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. Del bloc d'Àlgebra: el determinant d'una matriu 3×3 amb un paràmetre (Sarrus) i els valors que l'anul·len, el rang d'una matriu orlant menors, un sistema compatible indeterminat resolt pel mètode de Gauss amb el seu conjunt de solucions, la discussió d'un sistema amb un paràmetre, la matriu inversa 3×3 per adjunts, les equacions matricials, i l'esglaonament d'una matriu 3×4 pel mètode de Gauss. Del bloc de Probabilitat: l'arbre de probabilitats i la probabilitat total, el teorema de Bayes i la distribució binomial. Del bloc d'Anàlisi: l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes), sis problemes d'optimització i sis polinomis de grau 3 que cal trobar a partir de condicions, el teorema de Bolzano amb el mètode de la bisecció, les asímptotes d'una funció racional, i les integrals: la primitiva amb una condició, la regla de Barrow, l'àrea entre una corba i l'eix OX, l'àrea entre dues corbes i un paràmetre a partir d'una integral o d'una àrea. Del bloc de Geometria: l'equació d'un pla, la recta donada per dos plans, la posició relativa d'una recta i un pla i de dues rectes, les distàncies, les projeccions i els simètrics, l'àrea d'un triangle i el volum d'un tetraedre, i la perpendicular comuna. Totes s'obren des del botó DEMO de cada categoria de la portada. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
+`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. Del bloc d'Àlgebra: el determinant d'una matriu 3×3 amb un paràmetre (Sarrus) i els valors que l'anul·len, el rang d'una matriu orlant menors, un sistema compatible indeterminat resolt pel mètode de Gauss amb el seu conjunt de solucions, la discussió d'un sistema amb un paràmetre, la matriu inversa 3×3 per adjunts, les equacions matricials, i l'esglaonament d'una matriu 3×4 pel mètode de Gauss. Del bloc de Probabilitat: l'arbre de probabilitats i la probabilitat total, el teorema de Bayes i la distribució binomial. Del bloc d'Anàlisi: el domini d'una funció (polinomis, fraccions, arrels, logaritmes i exponencials, i com s'expressa amb intervals), l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes), sis problemes d'optimització i sis polinomis de grau 3 que cal trobar a partir de condicions, el teorema de Bolzano amb el mètode de la bisecció, les asímptotes d'una funció racional, i les integrals: la primitiva amb una condició, la regla de Barrow, l'àrea entre una corba i l'eix OX, l'àrea entre dues corbes i un paràmetre a partir d'una integral o d'una àrea. Del bloc de Geometria: l'equació d'un pla, la recta donada per dos plans, la posició relativa d'una recta i un pla i de dues rectes, les distàncies, les projeccions i els simètrics, l'àrea d'un triangle i el volum d'un tetraedre, i la perpendicular comuna. Totes s'obren des del botó DEMO de cada categoria de la portada. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
 
 - `procediments/recta-tangent.html?f=x^3-3x+1&x0=-1` (també la recta normal, `&recta=normal`, i les tangents d'un pendent donat, `?f=x^3-3x&m=9`)
 - `procediments/extrems.html?f=x^3-3x^2+1`
@@ -38,6 +36,7 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 - `procediments/optimitzacio.html?p=capsa` (sis problemes fixos: hort, capsa, llauna, diposit, pista, nombres)
 - `procediments/bolzano.html?f=x^3+x-1&a=0&b=1&n=3`
 - `procediments/asimptotes.html?f=(x^2+3)/(x-1)`
+- `procediments/domini.html?p=arrel-cercle`
 - `procediments/probabilitat-total.html?p=peces` (sis problemes fixos: peces, dau, prova, correu, maquines, bossa)
 - `procediments/bayes.html?p=prova` (els mateixos sis problemes, amb la pregunta de Bayes)
 - `procediments/determinant.html?A=m,1,1;1,m,1;1,1,m` (la matriu per files, separades per `;`; el paràmetre pot ser a, k, m, p o t)
