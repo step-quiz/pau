@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="David Arso Civil">
+<meta name="description" content="Animació pas a pas: com es deriva una funció (polinomis, arrels, exponencials, logaritmes, productes, quocients i regla de la cadena). PAU Matemàtiques.">
+<title>Tècnica de derivació, pas a pas — PAU Matemàtiques</title>
+<link rel="icon" href="../icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="estil.css">
+<style>.fila{padding-block:.6em}   /* les fraccions dins de fraccions necessiten aire */</style>
+</head>
+<body>
+
+<!-- La pàgina la construeix motor.js. Problemes fixos per l’adreça: ?p=arrel-cercle (vegeu README.md). -->
+<div id="procediment">
+  <noscript><p class="error-carrega">Aquesta pàgina necessita JavaScript per mostrar l'animació.</p></noscript>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="mates.js"></script>
+<script src="formules.js"></script>
+<script src="dades.js"></script>
+<script src="motor.js"></script>
+<script src="tecnica-derivacio.js"></script>
+<script>const procediment = Motor.inicia(TecnicaDerivacio);   // el controlador: útil per provar-lo des de la consola</script>
+</body>
+</html>

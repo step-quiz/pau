@@ -23,10 +23,10 @@ const path = require('path');
 const vm = require('vm');
 
 const DIR = path.join(__dirname, '..');
-for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'matrius.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js', 'grafica-funcio.js', 'domini.js']) {
+for (const fitxer of ['mates.js', 'formules.js', 'dades.js', 'recta-tangent.js', 'extrems.js', 'creixement.js', 'optimitzacio.js', 'matrius.js', 'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'determinant.js', 'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js', 'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js', 'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js', 'grafica-funcio.js', 'domini.js', 'tecnica-derivacio.js']) {
   vm.runInThisContext(fs.readFileSync(path.join(DIR, fitxer), 'utf8'), {filename: fitxer});
 }
-const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio, PolinomiCondicions, Bolzano, Asimptotes, ProbabilitatTotal, Bayes, Binomial, Matrius, Determinant, Rang, SistemaSCI, Discussio, Inversa, EquacioMatricial, Esglaonar, Geometria, Pla, RectaPlans, RectaPla, DuesRectes, Distancies, Projeccions, AreaVolum, PerpendicularComuna, Primitiva, Barrow, AreaEix, AreaCorbes, AreaParametre, Domini} = globalThis;
+const {Mates: M, Formules: F, Dades: Dd, RectaTangent: RT, Extrems, Creixement, Optimitzacio, PolinomiCondicions, Bolzano, Asimptotes, ProbabilitatTotal, Bayes, Binomial, Matrius, Determinant, Rang, SistemaSCI, Discussio, Inversa, EquacioMatricial, Esglaonar, Geometria, Pla, RectaPlans, RectaPla, DuesRectes, Distancies, Projeccions, AreaVolum, PerpendicularComuna, Primitiva, Barrow, AreaEix, AreaCorbes, AreaParametre, Domini, TecnicaDerivacio} = globalThis;
 const {Fraccio} = M;
 const fr = (a, b = 1) => new Fraccio(a, b);
 
@@ -137,7 +137,7 @@ function textPla(tex) {
           case '\\xrightarrow': s += `→⟨${grup()}⟩`; break;      // branca d'un arbre, amb la probabilitat
           case '\\boxed': s += grup(); break;
           case '\\phantom': grup(); break;
-          case '\\textstyle': case '\\displaystyle': break;
+          case '\\textstyle': case '\\displaystyle': case '\\Bigl': case '\\Bigr': break;
           case '\\overline': s += '¬' + grup(); break;
           case '\\mid': s += '∣'; break;
           case '\\%': s += '%'; break;
@@ -6631,13 +6631,108 @@ seccio('domini d\'una funció', () => {
 });
 
 
+seccio('tècnica de derivació: cada línia és certa i les regles són les esperades', () => {
+  const POS = [0.6, 1.1, 1.7, 2.9], TOT = [-2.3, -0.7, 0.4, 1.3, 2.2];
+  const e = Math.exp, l = Math.log, q = Math.sqrt;
+  const MODELS = {
+    'polinomi': [x => 4*x**3-6*x**2+5*x-7, x => 12*x**2-12*x+5, TOT, ['suma','constant','basica']],
+    'arrel': [q, x => 1/(2*q(x)), POS, ['basica']],
+    'arrel-polinomi': [x => 5*q(x)+x*x-3, x => 5/(2*q(x))+2*x, POS, ['suma','constant','basica']],
+    'exponencial': [x => 3*e(x)-x*x, x => 3*e(x)-2*x, TOT, ['suma','constant','basica']],
+    'logaritme': [x => 3*l(x)-x*x, x => 3/x-2*x, POS, ['suma','constant','basica']],
+    'producte-polinomi-exp': [x => x*x*e(x), x => e(x)*(2*x+x*x), TOT, ['producte','basica']],
+    'producte-x-ln': [x => x*l(x), x => l(x)+1, POS, ['producte','basica']],
+    'producte-arrel': [x => (x*x+1)*q(x), x => (5*x*x+1)/(2*q(x)), POS, ['producte','suma','basica']],
+    'producte-exponencial-base': [x => x*2**x, x => 2**x*(1+x*l(2)), TOT, ['producte','basica']],
+    'quocient-polinomis': [x => x*x/(x+1), x => (x*x+2*x)/(x+1)**2, [-3,-2,-0.5,0.5,2], ['quocient','suma','basica']],
+    'quocient-exp': [x => e(x)/x, x => e(x)*(x-1)/(x*x), TOT, ['quocient','basica']],
+    'quocient-ln': [x => l(x)/x**2, x => (1-2*l(x))/x**3, POS, ['quocient','basica']],
+    'cadena-potencia': [x => (3*x*x-1)**4, x => 24*x*(3*x*x-1)**3, TOT, ['cadena','suma','constant','basica']],
+    'cadena-exp': [x => e(x*x-3*x), x => (2*x-3)*e(x*x-3*x), TOT, ['cadena','suma','constant','basica']],
+    'cadena-ln': [x => l(x*x+1), x => 2*x/(x*x+1), TOT, ['cadena','suma','basica']],
+    'cadena-arrel': [x => q(x*x+1), x => x/q(x*x+1), TOT, ['cadena','suma','basica']],
+    'cadena-doble-exp': [x => e((2*x+1)**3), x => 6*(2*x+1)**2*e((2*x+1)**3), [-1,-0.6,0,0.2,0.4], ['cadena','cadena','suma','constant','basica']],
+    'cadena-doble-arrel': [x => q(l(x*x+1)), x => x/((x*x+1)*q(l(x*x+1))), [-1.5,0.5,1,2], ['cadena','cadena','suma','basica']],
+    'producte-cadena': [x => x*x*e(3*x), x => x*e(3*x)*(2+3*x), [-1,-0.4,0.3,1], ['producte','cadena','constant','basica']],
+    'quocient-cadena': [x => l(2*x+1)/x, x => (2*x/(2*x+1)-l(2*x+1))/(x*x), [-0.3,0.3,1,2.5], ['quocient','cadena','suma','constant','basica']],
+  };
+  const CL = [[/^La derivada d'una suma/,'suma'],[/^(El signe menys|Un nombre que multiplica)/,'constant'],[/^(Hi ha un producte|La regla del producte)/,'producte'],[/^(Hi ha un quocient|La regla del quocient)/,'quocient'],[/^(Torna a aparèixer[^.]*\. )?Regla de la cadena/,'cadena'],[/^Aplica (la|les) derivad/,'basica']];
+  const pro = (a, b, t) => Math.abs(a - b) <= t * Math.max(1, Math.abs(a), Math.abs(b));
+  const ambD = pla => {            // (…)' → *D(…)
+    let s = pla;
+    for (;;) {
+      const k = s.indexOf(")'");
+      if (k < 0) return s;
+      let n = 0, j = k;
+      for (; j >= 0; j--) { if (s[j] === ')') n++; else if (s[j] === '(') { n--; if (!n) break; } }
+      const abans = s.slice(0, j);
+      s = abans + (abans && !/[(+\-*\/^=]$/.test(abans) ? '*' : '') + 'D' + s.slice(j, k + 1) + s.slice(k + 2);
+    }
+  };
+  const ev = (n, x) => {
+    switch (n.tipus) {
+      case 'nombre': return n.valor.valor();
+      case 'variable': return x;
+      case 'constant': return n.nom === 'e' ? Math.E : Math.PI;
+      case 'oposat': return -ev(n.a, x);
+      case 'suma': return ev(n.a, x) + ev(n.b, x);
+      case 'resta': return ev(n.a, x) - ev(n.b, x);
+      case 'producte': return ev(n.a, x) * ev(n.b, x);
+      case 'quocient': return ev(n.a, x) / ev(n.b, x);
+      case 'potencia': return ev(n.base, x) ** ev(n.exponent, x);
+      case 'crida': {
+        if (n.nom === 'D') { const h = 1e-3 * Math.max(1, Math.abs(x)), g = t => ev(n.arg, t);
+          return (-g(x+2*h) + 8*g(x+h) - 8*g(x-h) + g(x-2*h)) / (12*h); }
+        return {ln: Math.log, sqrt: Math.sqrt, exp: Math.exp}[n.nom](ev(n.arg, x));
+      }
+    }
+    throw new Error('ev ' + n.tipus);
+  };
+  const fila = tex => { const pla = textPla(tex), i = pla.indexOf('='); return {esq: pla.slice(0, i), dre: pla.slice(i + 1)}; };
+  const arbre = dre => M.llegeix(ambD(dre).replace(/([0-9a-zA-Z)])(sqrt\(|ln\()/g, '$1*$2'), {funcions: ['D']});
+
+  comprova(Object.keys(MODELS).join() === TecnicaDerivacio.problemes.map(p => p.id).join(), 'tècnica derivació: els 20 models coincideixen amb les funcions');
+  for (const p of TecnicaDerivacio.problemes) {
+    const [f, df, punts, regles] = MODELS[p.id];
+    const nom = `tècnica derivació ${p.id}`;
+    comprova(punts.every(x => pro(df(x), derivadaNum(f, x), 1e-6)), `${nom}: el model f′ és la derivada de f`);
+    const llista = TecnicaDerivacio.passos({p: p.id});
+    comprovaGuio(llista, 2, nom);
+    const seq = llista.map(s => (CL.find(c => c[0].test(s.text)) || [0, null])[1]).filter(Boolean);
+    comprova(seq.join() === regles.join(), `${nom}: regles ${seq.join()} (esperades ${regles.join()})`);
+    comprova(seq.filter(c => c === 'cadena').length <= 2, `${nom}: com a màxim dues regles de la cadena`);
+    let zero = false;
+    llista.forEach((s, i) => {
+      const on = `${nom}, pas ${i + 1}`;
+      const a = fila(s.files[0]);
+      comprova(a.esq === 'f(x)' && punts.every(x => pro(ev(arbre(a.dre), x), f(x), 1e-9)), `${on}: f(x) correcta`);
+      if (!s.files[1]) return;
+      const b = fila(s.files[1]);
+      comprova(b.esq === "f'(x)" && punts.every(x => pro(ev(arbre(b.dre), x), df(x), 1e-6)), `${on}: f′(x) certa (${b.dre})`);
+      const pend = (b.dre.match(/\)'/g) || []).length;
+      comprova((s.files[1].match(/marca=tria/g) || []).length === 3 * pend, `${on}: marques grogues = derivades pendents`);
+      if (zero) comprova(pend === 0, `${on}: no reapareixen derivades pendents`);
+      if (!pend) zero = true;
+    });
+    const ult = llista[llista.length - 1];
+    comprova(zero && /final/.test(ult.classes[1]), `${nom}: acaba sense derivades pendents i amb la fila final`);
+    const m = /Per tant, \$f'\(x\) = (.*)\$\.$/.exec(ult.text);
+    comprova(m && punts.every(x => pro(ev(arbre(textPla(m[1])), x), df(x), 1e-6)), `${nom}: el resultat de l'explicació és correcte`);
+    llista.filter(s => /^Fes les operacions/.test(s.text)).forEach(s => {
+      for (const t of s.text.matchAll(/\$([^$=]+) = ([^$]+)\$/g))
+        comprova(pro(ev(arbre(textPla(t[1])), 1), ev(arbre(textPla(t[2])), 1), 1e-12), `${nom}: ${t[1]} = ${t[2]}`);
+    });
+    comprova(TecnicaDerivacio.enunciat({p: p.id}).includes('f(x)'), `${nom}: enunciat`);
+  }
+});
+
 seccio('regles generals de totes les pàgines', () => {
   const PAGINES = {RectaTangent: 'recta-tangent', Creixement: 'creixement', Extrems: 'extrems', PolinomiCondicions: 'polinomi-condicions',
     Optimitzacio: 'optimitzacio', Asimptotes: 'asimptotes', Bolzano: 'bolzano', Primitiva: 'primitiva', Barrow: 'barrow', AreaEix: 'area-eix',
     AreaCorbes: 'area-corbes', AreaParametre: 'area-parametre', Domini: 'domini', ProbabilitatTotal: 'probabilitat-total', Bayes: 'bayes', Binomial: 'binomial',
     Determinant: 'determinant', Rang: 'rang', Inversa: 'inversa', EquacioMatricial: 'equacio-matricial', Discussio: 'discussio',
     SistemaSCI: 'sistema-sci', Esglaonar: 'esglaonar', Pla: 'pla', RectaPlans: 'recta-plans', RectaPla: 'recta-pla', DuesRectes: 'dues-rectes',
-    Distancies: 'distancies', Projeccions: 'projeccions', AreaVolum: 'area-volum', PerpendicularComuna: 'perpendicular-comuna', GraficaFuncio: 'grafica-funcio'};
+    Distancies: 'distancies', Projeccions: 'projeccions', AreaVolum: 'area-volum', PerpendicularComuna: 'perpendicular-comuna', GraficaFuncio: 'grafica-funcio', TecnicaDerivacio: 'tecnica-derivacio'};
   // Comprovacions que formen part del mètode (no són opcionals): les hipòtesis de Bolzano, f'' dels extrems que demana l'enunciat.
   const AMB_COMPROVACIO = new Set(['bolzano', 'polinomi-condicions']);
   const sense = t => t.replace(/\\htmlData\{[^}]*\}/g, '');
@@ -6726,7 +6821,7 @@ seccio('regles generals: KaTeX dibuixa totes les fórmules', () => {
   const formulesDe = (text, on) => { for (const m of text.matchAll(/\$([^$]+)\$/g)) dibuixa(m[1], TEXT, on); };
   const NOMS = ['RectaTangent', 'Creixement', 'Extrems', 'PolinomiCondicions', 'Optimitzacio', 'Asimptotes', 'Bolzano', 'Primitiva', 'Barrow',
     'AreaEix', 'AreaCorbes', 'AreaParametre', 'ProbabilitatTotal', 'Bayes', 'Binomial', 'Determinant', 'Rang', 'Inversa', 'EquacioMatricial',
-    'Discussio', 'SistemaSCI', 'Esglaonar', 'Pla', 'RectaPlans', 'RectaPla', 'DuesRectes', 'Distancies', 'Projeccions', 'AreaVolum', 'PerpendicularComuna', 'GraficaFuncio'];
+    'Discussio', 'SistemaSCI', 'Esglaonar', 'Pla', 'RectaPlans', 'RectaPla', 'DuesRectes', 'Distancies', 'Projeccions', 'AreaVolum', 'PerpendicularComuna', 'GraficaFuncio', 'TecnicaDerivacio'];
   for (const global of NOMS) {
     const P = globalThis[global];
     if (!P) continue;
