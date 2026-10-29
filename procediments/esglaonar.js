@@ -80,8 +80,7 @@ function passos(v) {
   const cadena = (fins, marca) => { g.files[FILA.gauss] = Mt.texCadenaGauss(N, gauss, {fins, marca}); };
 
   cadena(0);
-  g.afegeix('Esglaonar: aconseguir zeros a sota de la diagonal, columna per columna, amb operacions entre files. '
-    + 'Sempre el mateix algorisme: el pivot de cada columna, i a sota, zeros amb $F_i \\to a F_i + b F_j$ (a és el pivot i b, l\'oposat del nombre que vols anul·lar). Mai fraccions.');
+  g.afegeix('Esglaonar: aconseguir zeros a sota de la diagonal, columna per columna, amb operacions entre files.');
   gauss.forEach((pas, t) => { cadena(t + 1); g.afegeix(pas.text); });
 
   /* La forma esglaonada: els pivots, i el que s'hi llegeix. */
@@ -95,13 +94,15 @@ function passos(v) {
     files.push(f[3].esZero() ? `la fila ${i + 1} és tota de zeros (una equació $0 = 0$)`
       : `la fila ${i + 1} té zeros a $A$ però no a l'última columna (una equació $0 = ${M.texNombre(f[3])}$, impossible)`);
   });
-  g.afegeix(`Ja està esglaonada: cada pivot (verd) és més a la dreta que el de la fila de sobre, i a sota de cada pivot hi ha zeros.`
-    + (files.length ? ` Fixa't: ${files.join('; ')}.` : ''));
+  g.afegeix('La matriu ja està esglaonada.' + (files.length > 1 ? ` Fixa't: ${files.join('; a més, ')}.` : ''));
   g.files[FILA.resultat] = K('Rr', `\\text{rang}(A) = ${rA},\\quad \\text{rang}(A^*) = ${rAm}`);
   g.classes[FILA.resultat] = 'final';
-  g.afegeix('A la forma esglaonada es llegeixen els rangs: el nombre de files que no són de zeros, a $A$ (les tres primeres columnes) i a $A^*$ (tota la matriu). '
-    + (rA === rAm ? `Per tant, $\\text{rang}(A) = \\text{rang}(A^*) = ${rA}$` + (rA === 3 ? '.' : ', més petit que 3.')
-      : `Per tant, $\\text{rang}(A) = ${rA}$ i $\\text{rang}(A^*) = ${rAm}$: són diferents.`));
+  const files0 = n => (n === 1 ? '1 fila no nul·la' : `${n} files no nul·les`);
+  g.afegeix(rA === rAm && rA === 3
+    ? 'Si una matriu està en forma esglaonada, és molt fàcil trobar el seu rang: és el nombre de files que no siguin nul·les. Per tant, $\\text{rang}(A) = \\text{rang}(A^*) = 3$.'
+    : rA === rAm
+      ? `La matriu està esglaonada. En aquest cas, és molt senzill determinar el rang, perquè és el nombre de files no nul·les. Per tant, $\\text{rang}(A) = ${rA}$ i $\\text{rang}(A^*) = ${rAm}$.`
+      : `La matriu ja està esglaonada. En aquest cas, és directe trobar els rangs. Per exemple, $\\text{rang}(A) = ${rA}$ perquè hi ha ${files0(rA)}. En canvi, $\\text{rang}(A^*) = ${rAm}$ perquè hi ha ${files0(rAm)}.`);
   return g.passos;
 }
 

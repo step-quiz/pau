@@ -457,7 +457,8 @@ function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x'
     posa(primera + dins + igual + clau(P + 'z', '0'), 'Un producte val $0$ quan algun dels factors val $0$.');
     const v = B.oposada().quocient(A);
     posa(primera + x(2) + igual + clau(P + 'c1', texNombre(v)),
-      `Resol $${texPolinomi([{n: 1, c: A}, {n: 0, c: B}], X)} = 0$: $${X} = ${texNombre(v)}$.`,
+      algebra ? `Resol $${texPolinomi([{n: 1, c: A}, {n: 0, c: B}], X)} = 0$.`
+        : `Resol $${texPolinomi([{n: 1, c: A}, {n: 0, c: B}], X)} = 0$: $${X} = ${texNombre(v)}$.`,
       {fusiona: esU(A) ? {[P + 'c1']: [P + 'z']} : {[P + 'c1']: [P + 'z', P + 'c2']}});
     return [{valor: zero, clau: P + 'z0'}, {valor: v, clau: P + 'c1'}].sort((a, b) => a.valor.resta(b.valor).signe());
   }

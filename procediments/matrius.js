@@ -712,7 +712,7 @@ function passosGauss(S) {
   let B = S.map(f => f.slice());
   const passos = [];
   const nC = B[0].length;
-  const nom = c => (c < 3 && nC === 4 ? `la columna de $${INCOGNITES[c]}$` : c === 3 && nC === 4 ? 'la columna dels termes independents' : `la columna ${c + 1}`);
+  const ORD = ['primera', 'segona', 'tercera', 'quarta'];
   const copia = () => B.map(f => f.slice());
   const intercanvi = (i, k, text) => {
     [B[i], B[k]] = [B[k], B[i]];
@@ -726,7 +726,7 @@ function passosGauss(S) {
   for (let c = 0; c < nC && r < 3; c++) {          // també l'última columna: «0 0 0 | 3» i «0 0 0 | 5» encara no és esglaonada
     const k = [0, 1, 2].find(i => i >= r && !B[i][c].esZero());
     if (k === undefined) continue;
-    if (k !== r) intercanvi(r, k, `A ${nom(c)}, l'element de la fila ${r + 1} és $0$ i no pot ser pivot: canvia l'ordre de les files ${r + 1} i ${k + 1}.`);
+    if (k !== r) intercanvi(r, k, `A la ${ORD[c]} columna, l'element de la fila ${r + 1} és $0$ i no pot ser pivot: per tant, has de canviar l'ordre de les files ${r + 1} i ${k + 1}.`);
     pivots.push({fila: r, columna: c});
     const p = B[r][c];
     const et = ['', '', ''], ops = [], textos = [];
@@ -742,9 +742,8 @@ function passosGauss(S) {
     if (ops.length) {
       // La regla, només el primer cop (David: als passos mecànics, sense repetir l'explicació).
       passos.push({B: copia(), etiquetes: et, ops,
-        text: explicat ? `Ara, zeros a sota del pivot de ${nom(c)}, el $${M.texNombre(p)}$ de la fila ${r + 1}: ${textos.join(' i ')}.`
-          : `Zeros a sota del pivot de ${nom(c)}, el $${M.texNombre(p)}$ de la fila ${r + 1}: per a cada fila, multiplica-la pel pivot i suma-li `
-          + `la fila del pivot multiplicada per l'oposat del nombre que vols anul·lar. ${textos.join(' i ')}.`});
+        text: explicat ? `Ara, has d'obtenir alguns zeros a la ${ORD[c]} columna.`
+          : `Has d'obtenir una matriu equivalent, amb alguns zeros a la ${ORD[c]} columna.`});
       explicat = true;
     }
     r++;

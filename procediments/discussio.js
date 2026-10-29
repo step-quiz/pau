@@ -135,7 +135,7 @@ const resum = v => `\\scriptsize ${texSistemaNet(sistema(v))}`;
 const TIPUS = (rA, rS) => (rA < rS ? 'Sistema incompatible' : rA === 3 ? 'Sistema compatible determinat' : 'Sistema compatible indeterminat');
 const DESCRIPCIO = (rA, rS) => (rA < rS ? 'sistema incompatible: no té solució'
   : rA === 3 ? 'sistema compatible determinat: té una sola solució'
-    : `sistema compatible indeterminat: té infinites solucions, que depenen de $3 - ${rA} = ${3 - rA}$ ${rA === 2 ? 'paràmetre' : 'paràmetres'}`);
+    : 'sistema compatible indeterminat: té infinites solucions');
 
 function passos(v) {
   const {S, X} = sistema(v);
@@ -169,9 +169,14 @@ function passos(v) {
   g.files[FILA.scd] = K('Dc', diferent) + ':\\quad ' + K('Dr', '|A| \\neq 0 \\Rightarrow \\text{rang}(A) = \\text{rang}(A^*) = 3');
   files.push([K('T1a', diferent), K('T1b', '3'), K('T1c', '3'), K('T1d', '\\text{Sistema compatible determinat}')]);
   taula();
-  g.afegeix((arrels.length ? `Si $${X}$ no és ${arrels.length === 1 ? 'aquest valor' : 'cap d\'aquests valors'}` : `Per a qualsevol valor de $${X}$`)
-    + ', $|A| \\neq 0$: $\\text{rang}(A) = 3$, i també $\\text{rang}(A^*) = 3$ (no pot ser més gran: $A^*$ només té 3 files). '
-    + `Són iguals al nombre d'incògnites: ${DESCRIPCIO(3, 3)}.`);
+  const noSon = arrels.map(r => `$${X}\\neq ${r}$`);
+  const llistaNoSon = noSon.length > 1 ? `${noSon.slice(0, -1).join(', ')} i ${noSon[noSon.length - 1]}` : noSon[0];
+  g.afegeix(arrels.length > 1
+    ? `Si ${llistaNoSon}, llavors $|A| \\neq 0$ i $\\text{rang}(A) = 3$, i també $\\text{rang}(A^*) = 3$ (no pot ser més gran perquè $A^*$ només té 3 files). `
+      + 'Finalment, $n=3$ (nombre d\'incògnites). Per tant, és un sistema compatible determinat: té una sola solució.'
+    : `${arrels.length ? `Si ${llistaNoSon} llavors` : `Per a qualsevol valor de $${X}$,`} $|A| \\neq 0$ i $\\text{rang}(A) = 3$. `
+      + 'Observa que també $\\text{rang}(A^*) = 3$ (no pot ser més gran: $A^*$ només té 3 files). '
+      + 'Per tant, coincideixen els rangs i són iguals al nombre d\'incògnites. En conclusió, el sistema és compatible determinat: té una sola solució.');
 
   /* Cada valor que anul·la |A|. */
   arrels.forEach((r, c) => {
@@ -202,14 +207,14 @@ function passos(v) {
         {final: R(`${P}F`, '=') + K(`${P}V`, M.texNombre(k.orla.valor) + (k.orla.valor.esZero() ? '' : ' \\neq 0'))}));
       linies.push(K(`${P}R`, k.rS === 3 ? '\\text{rang}(A^*) = 3' : '\\text{rang}(A^*) = 2'));
       pinta();
-      g.afegeix(`Per a $A^*$, orla el menor amb la fila ${r3 + 1} i la columna dels termes independents (groc). L'altra manera d'orlar-lo dins de $A^*$ és $|A|$, que ja saps que val $0$. `
-        + (k.rS === 3 ? 'Aquest menor és no nul. Per tant, $\\text{rang}(A^*) = 3$.' : 'Aquest també és nul. Per tant, $\\text{rang}(A^*) = 2$.'));
+      g.afegeix(`Per trobar un menor d'ordre 3 de la matriu ampliada $A^*$: orla el menor amb la fila ${r3 + 1} i la columna dels termes independents (groc). L'altra manera d'orlar-lo dins de $A^*$ és $|A|$, que ja saps que val $0$. `
+        + (k.rS === 3 ? 'En tot cas, el primer menor que calcules serà no nul. Per tant, $\\text{rang}(A^*) = 3$.' : 'Aquest també és nul. Per tant, $\\text{rang}(A^*) = 2$.'));
     } else {
       const [i0, j0] = k.element;
       marques[`${i0}${j0}`] = 'mes';
       linies.push(K(`${P}m`, `\\text{les files de } A \\text{ són proporcionals}`) + '\\ \\Rightarrow\\ ' + K(`${P}r`, '\\text{rang}(A) = 1'));
       pinta();
-      g.afegeix('Les tres files de $A$ són proporcionals (tots els menors d\'ordre 2 de $A$ valen $0$), i hi ha algun element no nul (verd). Per tant, $\\text{rang}(A) = 1$.');
+      g.afegeix('Tots els menors d\'ordre 2 de $A$ valen $0$, i hi ha algun element no nul (verd). Per tant, $\\text{rang}(A) = 1$.');
       if (k.orla) {
         const {fs, cs, valor} = k.orla;
         const B = Mt.submatriu(k.N, fs, cs);
@@ -221,20 +226,23 @@ function passos(v) {
       } else {
         linies.push(K(`${P}M`, `\\text{les files de } A^* \\text{ també}`) + '\\ \\Rightarrow\\ ' + K(`${P}R`, '\\text{rang}(A^*) = 1'));
         pinta();
-        g.afegeix('Les files de $A^*$ també són proporcionals (amb el terme independent i tot). Per tant, $\\text{rang}(A^*) = 1$.');
+        g.afegeix('$\\text{rang}(A^*) = 1$.');
       }
     }
     const t = files.length;
     files.push([K(`T${t}a`, `${X} = ${r}`), K(`T${t}b`, String(k.rA)), K(`T${t}c`, String(k.rS)), K(`T${t}d`, `\\text{${TIPUS(k.rA, k.rS)}}`)]);
     taula();
-    g.afegeix(`Per a $${X} = ${r}$: $\\text{rang}(A) = ${k.rA}$ i $\\text{rang}(A^*) = ${k.rS}$. ` + (k.rA < k.rS ? 'Són diferents' : 'Són iguals, i més petits que 3')
-      + `: ${DESCRIPCIO(k.rA, k.rS)}.`);
+    const rangs = `$\\text{rang}(A) = ${k.rA}$ i $\\text{rang}(A^*) = ${k.rS}$`;
+    g.afegeix(k.rA < k.rS
+      ? `Mira ara el cas $${X} = ${r}$. Resulta que ${rangs}. Com que són diferents, el sistema és incompatible: no té solució.`
+      : k.rA === 2
+        ? `Mira el cas $${X} = ${r}$. Resulta que ${rangs}. Però el nombre d'incògnites és 3. Per tant, és un sistema compatible indeterminat: té infinites solucions.`
+        : `Per a $${X} = ${r}$: ${rangs}. Són iguals, i més petits que 3: ${DESCRIPCIO(k.rA, k.rS)}.`);
   });
 
   g.files[FILA.cas] = '';
   g.classes[FILA.taula] = 'separat final';
-  g.afegeix('Resposta: la taula resumeix la discussió.' + (arrels.some(r => cas(S, r).rA === 2 && cas(S, r).rS === 2)
-    ? ' (Per resoldre un cas compatible indeterminat, consulta el procediment «Sistema compatible indeterminat».)' : ''));
+  g.afegeix('Resposta: es troba en aquesta taula.');
   return g.passos;
 }
 

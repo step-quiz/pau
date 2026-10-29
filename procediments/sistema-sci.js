@@ -92,17 +92,17 @@ function passos(v) {
   /* 1. Gauss: cada matriu nova, a sota, amb les operacions al costat de les files que canvien. */
   const cadena = (fins, marca) => { g.files[FILA.gauss] = Mt.texCadenaGauss(S, gauss, {fins, marca}); };
   cadena(0);
-  g.afegeix('La matriu ampliada $A^*$: els coeficients de les incògnites i, després de la ratlla, els termes independents.');
+  g.afegeix('La matriu ampliada $A^*$ és aquesta.');
   gauss.forEach((pas, t) => { cadena(t + 1); g.afegeix(pas.text); });
 
   /* 2. L'última fila: 0 = 0. Sistema compatible indeterminat. */
   cadena(gauss.length, i => (i === 2 ? 'tria' : ''));
   g.files[FILA.esglaonat] = Mt.texSistema(B, {P: 'E', marca: i => (i === 2 ? 'tria' : '')});
-  g.afegeix('Ja està esglaonada. Torna-la a escriure com a sistema: l\'última fila és tota de zeros, és a dir, $0 = 0$, que sempre és cert. '
+  g.afegeix('La matriu $A^*$ ja està esglaonada. Escriu les seves files com a equacions: veuràs que l\'última fila és tota de zeros, o sigui que la seva equació és $0 = 0$, que sempre és cert. '
     + 'Queden només dues equacions per a tres incògnites: és un sistema compatible indeterminat (té infinites solucions).');
   cadena(gauss.length);
   g.files[FILA.esglaonat] = Mt.texSistema(B.slice(0, 2), {P: 'E'});
-  g.afegeix('L\'equació $0 = 0$ no diu res: treu-la.');
+  g.afegeix('L\'equació $0 = 0$ no aporta cap condició, per tant: treu-la.');
 
   /* 3. S'allibera la incògnita sense pivot, i se substitueix cap amunt. */
   const f = [0, 1, 2].find(j => !pivots.some(q => q.columna === j));
@@ -113,7 +113,7 @@ function passos(v) {
   const valors = [K(`V${f}`, caixa(`${nom[f]} = ${L}`))];
   const pintaValors = () => { g.files[FILA.valors] = `\\begin{array}{l} ${valors.join(' \\\\[8pt] ')} \\end{array}`; };
   pintaValors();
-  g.afegeix(`Allibera una incògnita: la que no té pivot, $${nom[f]}$. Pot valer qualsevol nombre: anomena-la $\\lambda$, és a dir, $${nom[f]} = \\lambda$.`);
+  g.afegeix(`Allibera la incògnita $${nom[f]}$. Pot valer qualsevol nombre: anomena-la $\\lambda$, és a dir, $${nom[f]} = \\lambda$.`);
 
   const zero = M.Fraccio.de(0);
   const sumaQ = (p, q) => [(p[0] || zero).suma(q[0] || zero), (p[1] || zero).suma(q[1] || zero)];
@@ -132,20 +132,28 @@ function passos(v) {
     const passosC = [];
     const ja = altres.filter(j => j !== f).map(j => `$${nom[j]} = ${Mt.texLinealQ(valor[j])}$`);
     const quina = fila === 0 ? 'la primera' : 'la segona';
+    const substitucions = ja.length + (altres.includes(f) ? 1 : 0);
     const terme = Mt.termeVar(a, nom[pc], true);
     if (altres.length) {
       passosC.push([`${terme}${altres.map(j => sumand(fl[j], j, false)).join('')} = ${M.texNombre(d)}`,
-        `Ara $${nom[pc]}$, de ${quina} equació: substitueix-hi ${ja.concat(altres.includes(f) ? [`$${nom[f]} = \\lambda$`] : []).join(' i ')}.`]);
+        (() => {
+          const substitueix = `substitueix-hi ${ja.concat(altres.includes(f) ? [`$${nom[f]} = \\lambda$`] : []).join(' i ')}`;
+          if (fila === 1 && substitucions === 1) return `Ara aïlla la $${nom[pc]}$ en funció de $\\lambda$.`;
+          if (fila === 0 && substitucions > 1) return `Aïlla finalment la $${nom[pc]}$, de la primera equació: ${substitueix}.`;
+          if (fila === 0) return `Ara has d'aïllar $${nom[pc]}$, de la primera equació: ${substitueix}.`;
+          return `Ara $${nom[pc]}$, de ${quina} equació: ${substitueix}.`;
+        })()]);
       const dreta = (d.esZero() ? '' : M.texNombre(d)) + altres.map((j, k) => sumand(fl[j].oposada(), j, d.esZero() && k === 0)).join('');
       passosC.push([`${terme} = ${dreta}`, `Deixa sol el terme amb $${nom[pc]}$: els altres passen a l'altre costat, canviats de signe.`]);
     } else {
-      passosC.push([`${terme} = ${M.texNombre(d)}`, `Ara $${nom[pc]}$, de ${quina} equació, que només té $${nom[pc]}$.`]);
+      passosC.push([`${terme} = ${M.texNombre(d)}`, `La incògnita $${nom[pc]}$ ja estava aïllada, en el fons.`]);
     }
     const R_ = altres.reduce((acc, j) => sumaQ(acc, perQ(valor[j], fl[j].oposada())), [d, zero]);
     const opera = `${terme} = ${Mt.texLinealQ(R_)}`;
     if (opera !== passosC[passosC.length - 1][0]) passosC.push([opera, 'Opera el costat de la dreta.']);
     valor[pc] = perQ(R_, M.Fraccio.de(1).quocient(a));
-    if (!a.igual(1)) passosC.push([`${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`, `Divideix per $${M.texNombre(a)}$.`]);
+    if (!a.igual(1)) passosC.push([`${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`, `Divideix per $${M.texNombre(a)}$.`
+      + (a.signe() < 0 ? ' Fixa\'t que la fracció es pot escriure tal com veus, amb un canvi de signes al numerador i al denominador.' : '')]);
     const lin = [];
     passosC.forEach(([tex, text], k) => {
       lin.push(K(`${P}${k}`, k === passosC.length - 1 ? caixa(tex) : tex));   // l'última línia ja és el valor: requadrat
@@ -155,20 +163,19 @@ function passos(v) {
     g.files[FILA.calcul] = '';
     valors.push(K(`V${pc}`, caixa(`${nom[pc]} = ${Mt.texLinealQ(valor[pc])}`)));
     pintaValors();
-    g.afegeix(`Ja tens $${nom[pc]} = ${Mt.texLinealQ(valor[pc])}$.`, {fusiona: {[`V${pc}`]: [`${P}${passosC.length - 1}`]}});
+    g.afegeix(n === pivots.length - 1 ? 'Ja tens les incògnites aïllades en funció del paràmetre $\\lambda$.' : `Ja tens $${nom[pc]} = ${Mt.texLinealQ(valor[pc])}$.`, {fusiona: {[`V${pc}`]: [`${P}${passosC.length - 1}`]}});
   });
 
   /* 4. El conjunt de solucions, i l'equació vectorial d'una recta. */
   const comps = [0, 1, 2].map(j => Mt.texLinealQ(valor[j]));
   g.files[FILA.solucio] = K('Sl', '(x,\\ y,\\ z)') + R('Sq', '=') + K('Sv', `\\left(${comps.join(',\\ ')}\\right)`) + ',\\quad ' + K('Sp', '\\lambda \\in \\mathbb{R}');
   g.classes[FILA.solucio] = 'final';
-  g.afegeix('El conjunt de solucions: $(x,\\ y,\\ z) = (f_1(\\lambda),\\ f_2(\\lambda),\\ \\lambda)$. Cada valor de $\\lambda$ dona una solució.');
+  g.afegeix('Finalment, la resposta és que el conjunt de solucions: $(x,\\ y,\\ z)$ s\'expressa en funció del paràmetre $\\lambda$. Cada valor de $\\lambda$ dona una solució diferent. Per això n\'hi ha infinites.');
   const num = c => (c.esEnter() ? M.texNombre(c) : `${c.signe() < 0 ? '-' : ''}\\dfrac{${Math.abs(c.num)}}{${c.den}}`);
   const punt = [0, 1, 2].map(j => valor[j][0]), vector = [0, 1, 2].map(j => valor[j][1]);
   g.files[FILA.recta] = K('Ll', '(x,\\ y,\\ z)') + R('Lq', '=') + K('Lp', `\\left(${punt.map(num).join(',\\ ')}\\right)`) + ' + ' + K('Lv', `\\lambda \\left(${vector.map(num).join(',\\ ')}\\right)`);
   g.classes[FILA.recta] = 'final';
-  g.afegeix('Separa la part sense $\\lambda$ i la part amb $\\lambda$: és l\'equació vectorial d\'una recta. El conjunt de solucions és la recta que passa pel punt '
-    + `$(${punt.map(num).join(',\\ ')})$ (la solució amb $\\lambda = 0$) i té vector director $(${vector.map(num).join(',\\ ')})$.`);
+  g.afegeix('També pots expressar la solució d\'aquesta altra forma:');
   return g.passos;
 }
 
