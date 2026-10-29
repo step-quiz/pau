@@ -46,6 +46,7 @@ header{
 }
 .hd-left{}
 header h1{font-size:.92rem;font-weight:700;line-height:1.3;}
+.breadcrumb:empty{display:none;}
 .breadcrumb{
   font-family:'Source Code Pro',monospace;font-size:.67rem;
   color:rgba(255,255,255,.55);margin-top:3px;
@@ -265,10 +266,11 @@ header h1{font-size:.92rem;font-weight:700;line-height:1.3;}
   padding:11px 14px;border:2px solid var(--border);border-radius:8px;
   background:var(--surface);color:var(--txt);
 }
+.cerca-box input::placeholder{font-style:italic;}
 .cerca-box input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18);}
 .cerca-res{display:none;margin-top:14px;}
 #v-cats.cercant .cerca-res{display:block;}
-#v-cats.cercant .cat-grid,#v-cats.cercant .cat-intro{display:none;}
+#v-cats.cercant .cat-grid{display:none;}
 .cerca-resum{font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--muted);margin-bottom:10px;}
 .cerca-res .ex-list{margin-bottom:0;}
 .cerca-res mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px;}
@@ -380,8 +382,8 @@ footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;
 
 <header>
   <div class="hd-left">
-    <h1>PAU Matemàtiques — Repàs per categories</h1>
-    <div class="breadcrumb" id="breadcrumb">Tria una categoria per començar</div>
+    <h1>PAU Matemàtiques</h1>
+    <div class="breadcrumb" id="breadcrumb"></div>
   </div>
   <a class="site-link" href="https://step-quiz.net" target="_blank" rel="noopener"
      title="Step Quiz — David Arso Civil">
@@ -399,7 +401,6 @@ footer span{font-size:.83rem;color:#333;font-family:'Source Code Pro',monospace;
            aria-label="Cerca exercicis de PAU per tema o paraula">
   </div>
   <div class="cerca-res" id="cerca-res" aria-live="polite"></div>
-  <p class="cat-intro" style="font-size:.84rem;color:var(--muted);margin:4px 0 4px;">Selecciona la categoria que vols treballar:</p>
   <div class="cat-grid">
     <div class="cat-card" data-cat="algebra">
       <div class="num">…</div>
@@ -529,6 +530,7 @@ const DEMOS = {
     ['perpendicular-comuna', 'Perpendicular comuna'],
   ],
   analisi: [
+    ['domini',              'Domini d’una funció'],
     ['recta-tangent',       'Recta tangent'],
     ['creixement',          'Creixement i decreixement'],
     ['extrems',             'Màxims i mínims relatius'],
@@ -905,7 +907,7 @@ function showExercise(ex) {
 }
 
 function goBack(to) {
-  if (to === 'cats') { show('v-cats'); setBreadcrumb('Tria una categoria per començar'); }
+  if (to === 'cats') { show('v-cats'); setBreadcrumb(''); }
   if (to === 'list' && desdeCerca) { show('v-cats'); setBreadcrumb('Cerca d\'exercicis'); }
   else if (to === 'list') { show('v-list'); setBreadcrumb(CAT_NAME[currentCat]); }
 }
