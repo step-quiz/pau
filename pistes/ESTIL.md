@@ -56,7 +56,7 @@ Pedagogical failure modes. Each 🟠 proposal names one; the review page shows i
 - **References to parts:** «l'apartat *a)*», «l'apartat 3.1».
 - **Ordinals for equations:** «la 1a equació», «la 3a equació» (feminine abbreviations).
 - **Vocabulary:** «altura» everywhere (triangle, rectangle, prism, tetrahedron, box), never «alçària» or «alçada»; when the statement uses another word, the statement keeps it. «respectivament» when two lists are matched («són, respectivament, els mòduls dels vectors…»).
-- **Apostrophe before symbols:** follow how the letter's name is pronounced. Apostrophise if the name starts with a vowel sound: d'$A$, d'$e$, d'$f$ (efa), d'$h$ (hac), d'$l$ (ela), d'$m$ (ema), d'$n$ (ena), d'$r$ (erra), d'$s$ (essa), d'$x$ (ics), d'$y$ (i grega), d'$\alpha$. Do not apostrophise if it starts with a consonant: de $B$, de $k$ (ca), de $p$ (pe), de $t$ (te), de $\lambda$, de $\pi$.
+- **No apostrophe before a symbol** (David, 2026-10-30, replaces the old pronunciation rule). Never write d'$A$, d'$f'(x)$, l'$x$: put the noun in front of the symbol, which also says what the symbol is: «el determinant de la matriu $A$», «cada valor del paràmetre $m$», «el signe de la funció $f'$», «la distància del punt $S$», «la recta $r$». The same for a bare symbol that opens a sentence: «A la recta $r$, …», «Per a la matriu $D$, …», not «A $r$, …». A bare symbol is fine when the noun was named just before (`geo-24i-q6` b): «un punt qualsevol $P_{2}$ de $s$»).
 - **Punctuation:** em dashes (`---…---`) for asides. No comma before «i».
 
 ## 5. Notation and layout
@@ -109,6 +109,11 @@ Pedagogical failure modes. Each 🟠 proposal names one; the review page shows i
 | A direct procedure instead of an analogy that holds only under conditions | `alg-23s-q1` b): «fent directament el producte $(A - 2I) \cdot (A - 2I)$», not «com si fos $(a - 2)^{2}$» |
 | Naming the theorem last, after the concrete move, as a sentence without parentheses | `pro-26j-q3` 3.2: «Això és el teorema de Bayes.» |
 | Reminding a basic formula, on its own line, with the meaning of each letter | Barrow's rule, the area of a triangle, the tangent line (§7.6); «el volum d'un prisma es calcula seguint aquesta fórmula: $V = a \cdot b \cdot h$, on $a$ i $b$ són els costats de la base i $h$ és l'altura» (`ana-24j-q5` a)) |
+
+### 7.2b Fixed reminders
+
+- **An equation with an absolute value** always gets the reminder: «Recorda que una equació com $|X| = 5$ vol dir que $X = 5$ o bé $X = -5$.» (David, 2026-10-30, `geo-26j-q4b` 4.3).
+- **Parameter discussion (Rouché)**, the same paragraph in every discussion: «A continuació, estudia el sistema d'equacions. D'una banda, has d'estudiar a part cada valor del paràmetre $m$ que anul·la el determinant de la matriu $A$. D'altra banda, la resta de valors que no anul·len el determinant fan que el sistema sigui compatible determinat, és a dir, que té solució única.» (David, 2026-10-30).
 
 ### 7.3 Phrasing rules (from David's edits, 2026-10-24)
 

@@ -29,3 +29,13 @@ Canvis a les pistes (`pistes/src/<id>.tex`) fets amb l'artifact «Pistes PAU WYS
 | `ana-26j-q4a` | «Comprova que realment és un mínim relatiu (estudia el signe d'$A''$ en aquest punt)» |
 | `ana-26s-q1` | 1.1 «En aquest cas, només cal igualar a zero el numerador»; frase del màxim i el mínim relatius |
 | `pro-26j-q3` | 3.1 «Fes un diagrama d'arbre.» en paràgraf propi i els dos camins més explícits; 3.2 el denominador a partir de l'apartat 3.1; 3.3 Bolzano amb la funció $D$ i la cerca per dècimes |
+
+## 30/10/2026 (tarda): segona tanda
+
+33 pistes noves revisades pel David a l'editor (65 de 165 revisades en total: 54 amb canvis i 11 marcades com a correctes), més els seus comentaris convertits en regles (`ESTIL.md` §4 i §7.2b):
+
+- **Cap apòstrof davant d'un símbol**: 72 casos a tot el corpus de pistes, reescrits amb el nom de l'objecte («el determinant de la matriu $A$», «cada valor del paràmetre $m$», «el signe de la funció $f'$», «la distància del punt $S$», «la recta $r$», «del vèrtex $A$»). També «Per a la matriu $D$» (`alg-23j-q2` b) en lloc de «Per a $D$».
+- **Equació amb valor absolut**: sempre el recordatori «$|X| = 5$ vol dir que $X = 5$ o bé $X = -5$» (afegit a `geo-26j-q4b` 4.3).
+- **Rouché**: «cada valor del paràmetre $k$» a les 9 discussions.
+- Correccions de Claude sobre el text del David: `alg-26j2-q2` 2.2 «calcula» (no «calcular»); `alg-26s-q2` 2.2 l'equació $(1 - k) \cdot y = 0$ en línia a part, «que es compleix sempre»; `ana-23j-q3` b) «com tens costum de veure»; `geo-24j-q6` c) «Si hi pertany» / «si no hi pertany»; `ana-23j2-q1` b) fórmula del vèrtex amb punt final; paràgrafs buits i espais finals.
+- Per cabre en una pàgina: `pro-26j-q3` 3.1 «Fes un diagrama d'arbre.» torna al mateix paràgraf i 3.3 «fins que tornis a trobar un canvi de signe»; `alg-26j-q2` 2.2 un paràgraf menys; `ana-26j2-q4a` 4.1 «correspon a $f'$, i no a $f$», 4.2 «On la gràfica és per sobre/sota…», 4.3 «escriu que $f$ és una primitiva de la seva derivada: es puntua».
