@@ -23,6 +23,7 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 | `pistes/ESTIL.md` | Guia d'estil de les pistes (en anglès) |
 | `pistes/REVISIO.md` | Seguiment de la revisió, una fila per pista |
 | `pistes/editor/EDITOR-PISTES-PAU.md` | L'artifact «Editor de pistes PAU» i els seus scripts |
+| `pistes/editor/wysiwyg/EDITOR-WYSIWYG.md` | L'artifact «Pistes PAU WYSIWYG»: el web de PROBLEMES amb les pistes editables (en anglès) |
 | `procediments/INSIGHTS.md` | Procediments animats: com estan pensats i com fer-hi canvis (per a una IA, en anglès) |
 | `procediments/README.md` | Procediments animats: arquitectura, format dels passos, proves (en anglès) |
 

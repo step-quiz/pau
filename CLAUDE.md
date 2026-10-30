@@ -49,3 +49,4 @@ Flux de treball: el David diu què canviar → s'edita `pistes/src/<id>.tex` →
 - Actualitzeu `pistes/REVISIO.md` (estat i notes) al mateix commit que la pista.
 - Comuniqueu-vos amb el David en català. Quan calgui que faci passos de git o GitHub, doneu-los detallats i amb ordres per copiar i enganxar.
 - L'artifact «Editor de pistes PAU» (per editar les pistes i copiar-les a GitHub) es documenta a `pistes/editor/EDITOR-PISTES-PAU.md`.
+- L'artifact «Pistes PAU WYSIWYG» (el web de PROBLEMES amb les pistes editables tal com surten al PDF; el David hi escriu els canvis, Claude els aplica i hi deixa notes) es documenta a `pistes/editor/wysiwyg/EDITOR-WYSIWYG.md`.
