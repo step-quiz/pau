@@ -12,10 +12,16 @@
 
 \subsection*{\textit{a)} \normalfont Si agafem una peça a l'atzar, quina és la probabilitat que sigui defectuosa? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Fes un diagrama d'arbre. A la primera branca hi ha si la peça és de ferro o d'acer; a la segona, si és defectuosa o no. Fixa't que el $95\,\%$ de les peces de ferro no tenen cap defecte. Recorda que el $95\,\%$ ens permet dir que $p = 0{,}95$. Per tant, el $5\,\%$ de les peces de ferro són defectuoses.
+\pista{Fes un diagrama d'arbre. A la primera branca hi ha si la peça és de ferro o d'acer; a la segona, si és defectuosa o no.
 
 \medskip
-Hi ha dues maneres d'arribar a una peça defectuosa: és de ferro i és defectuosa, o és d'acer i és defectuosa. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats. Això és el teorema de la probabilitat total.}
+Fixa't que el $95\,\%$ de les peces de ferro no tenen cap defecte. Recorda que el $95\,\%$ et permet dir que $p = 0{,}95$. Per tant, el $5\,\%$ de les peces de ferro són defectuoses.
+
+\medskip
+Hi ha dues maneres d'arribar a una peça defectuosa: és de ferro i és defectuosa, o és d'acer i és defectuosa. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats.
+
+\medskip
+Per resoldre aquest apartat, has aplicat el teorema de la probabilitat total.}
 
 \subsection*{\textit{b)} \normalfont L'empresa aviat diversificarà la producció i començarà a produir també peces de titani, que es vendran en paquets de 5. Si la probabilitat que una peça de titani sigui defectuosa és un valor desconegut $p$, i cada peça és defectuosa independentment de les altres, comproveu que l'expressió que ens dona la probabilitat que en un paquet de 5 peces n'hi hagi exactament 4 de defectuoses (en funció de $p$) és $f(p) = 5(p^{4} - p^{5})$. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
@@ -23,11 +29,11 @@ Hi ha dues maneres d'arribar a una peça defectuosa: és de ferro i és defectuo
 \[
 P(X = k) = \binom{n}{k}\, p^{k}\, (1 - p)^{n - k}
 \]
-Escriu-la amb $n = 5$ i $k = 4$. Finalment, multiplica $p^{4}$ per $(1 - p)$ per arribar a l'expressió de l'enunciat.}
+Escriu-la amb $n = 5$ i $k = 4$. Finalment, multiplica $p^{4}$ per $(1 - p)$ fent distributiva i arribaràs a l'expressió exacta de l'enunciat.}
 
 \subsection*{\textit{c)} \normalfont Considereu la funció $f(p)$ de l'apartat anterior. Determineu el valor màxim que pren $f(p)$ quan $p \geq 0$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{En primer lloc, deriva $f(p)$ i resol $f'(p) = 0$: et convé treure factor comú. A continuació, estudia el signe de $f'(p)$ per a $p \ge 0$ amb una taula de signes: on creix i on decreix $f$?
+\pista{En primer lloc, deriva $f(p)$ i resol $f'(p) = 0$. A continuació, estudia el signe de $f'(p)$ per a $p \ge 0$ amb una taula de signes: on creix i on decreix $f(p)$?
 
 \medskip
 Com que et demanen el màxim per a tots els valors $p \ge 0$, la taula de signes et serveix per justificar que el màxim que trobis és el més gran de tots. Finalment, calcula el valor de $f$ en aquest punt.}

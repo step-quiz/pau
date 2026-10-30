@@ -16,31 +16,31 @@
 
 \subsection*{3.1. \normalfont Quina és la probabilitat que s'arribi als $1\,000\,\text{MW}$ de potència total al parc? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Anomena $X$ el nombre d'aerogeneradors que funcionen. Cadascun funciona o no, independentment dels altres i amb la mateixa probabilitat: per tant, $X \sim B(10, p)$. Fixa't que el $10\,\%$ és la probabilitat d'estar aturat: un $10\,\%$ es tradueix en $0{,}1$, i la probabilitat de funcionar és $p = 1 - 0{,}1$.
+\pista{Anomena $X$ el nombre d'aerogeneradors que funcionen. Cadascun funciona o no, independentment dels altres i amb la mateixa probabilitat: per tant, $X$ segueix una distribució binomial, $X \sim B(10, p)$. Fixa't que el $10\,\%$ és la probabilitat d'estar aturat: un $10\,\%$ es tradueix en $0{,}1$, i la probabilitat de funcionar és $p = 1 - 0{,}1$.
 
 \medskip
 Quants aerogeneradors han de funcionar per arribar als $1\,000\,\text{MW}$? Calcula la probabilitat d'aquest únic cas.}
 
 \subsection*{3.2. \normalfont Quina és la probabilitat que la potència total del parc superi els $150\,\text{MW}$? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Cada aerogenerador aporta $100\,\text{MW}$ o res. En primer lloc, tradueix «superar els $150\,\text{MW}$» a una condició sobre $X$: quants aerogeneradors han de funcionar, com a mínim?
+\pista{Cada aerogenerador, o bé aporta $100\,\text{MW}$, o bé no aporta res. En primer lloc, tradueix «superar els $150\,\text{MW}$» a una condició sobre $X$: quants aerogeneradors han de funcionar, com a mínim?
 
 \medskip
-A continuació, passa al contrari: és molt més curt, perquè només té dos casos. Recorda la fórmula de la binomial:
+Et recomano que estudiïs l'esdeveniment contrari, perquè només té dos casos. Recorda la fórmula de la binomial:
 \[
 P(X = k) = \binom{n}{k}\, p^{k}\, (1 - p)^{n - k}
 \]
-Les probabilitats d'aquests dos casos són molt petites: escriu-les en notació científica i no arrodoneixis el resultat final.}
+Les probabilitats d'aquests dos casos són molt petites. Per evitar acumular errors, treballa amb tots els decimals possibles i no arrodoneixis fins que arribis al resultat final.}
 
 \subsection*{3.3. \normalfont Calculeu l'àrea de les pales d'un d'aquests aerogeneradors (part ombrejada al gràfic). \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{En primer lloc, resol $f(x) = g(x)$: els punts de tall són els límits d'integració. Et convé treure factor comú.
+\pista{En primer lloc, resol $f(x) = g(x)$: els punts de tall són els límits d'integració. Per resoldre l'equació, et recomano treure factor comú.
 
 \medskip
-A continuació, a cada interval entre dos punts de tall seguits, calcula el valor absolut de la integral de la diferència:
+Les solucions de l'equació et marquen intervals. Per a cada interval, calcula el valor absolut de la integral de la diferència:
 \[
 \text{Àrea} = \left| \int_{x_{1}}^{x_{2}} \bigl(f(x) - g(x)\bigr)\,dx \right|
 \]
-Finalment, suma els resultats de tots els intervals. Les unitats són $\text{m}^{2}$.}
+Finalment, suma els resultats de tots els intervals. L'àrea s'expressa en $\text{m}^{2}$.}
 
 \end{document}

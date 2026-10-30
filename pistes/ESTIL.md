@@ -107,12 +107,13 @@ Pedagogical failure modes. Each 🟠 proposal names one; the review page shows i
 | The target state before the action, stated so it can be counted | `alg-23j2-q2` a): «has d'aconseguir dos zeros a la primera columna» |
 | Reasoning on a picture the student already has | `pro-26j-q3` 3.2: the tree from 3.1, «Hi ha dues maneres de quedar-se sense entrada» |
 | A direct procedure instead of an analogy that holds only under conditions | `alg-23s-q1` b): «fent directament el producte $(A - 2I) \cdot (A - 2I)$», not «com si fos $(a - 2)^{2}$» |
-| Naming the theorem last, after the concrete move, as a sentence without parentheses | `pro-26j-q3` 3.2: «Això és el teorema de Bayes.» |
+| Naming the theorem last, as the hint's last sentence (David, 2026-10-30) | «Per resoldre aquest apartat, has aplicat el teorema de Bayes.» / «…el teorema de la probabilitat total.» Not «Això és el teorema de…» |
 | Reminding a basic formula, on its own line, with the meaning of each letter | Barrow's rule, the area of a triangle, the tangent line (§7.6); «el volum d'un prisma es calcula seguint aquesta fórmula: $V = a \cdot b \cdot h$, on $a$ i $b$ són els costats de la base i $h$ és l'altura» (`ana-24j-q5` a)) |
 
 ### 7.2b Fixed reminders
 
 - **An equation with an absolute value** always gets the reminder: «Recorda que una equació com $|X| = 5$ vol dir que $X = 5$ o bé $X = -5$.» (David, 2026-10-30, `geo-26j-q4b` 4.3).
+- **Complementary event**: «la probabilitat de l'esdeveniment contrari», «és l'esdeveniment contrari de «…»», never «el contrari» on its own (David, 2026-10-30).
 - **Parameter discussion (Rouché)**, the same paragraph in every discussion: «A continuació, estudia el sistema d'equacions. D'una banda, has d'estudiar a part cada valor del paràmetre $m$ que anul·la el determinant de la matriu $A$. D'altra banda, la resta de valors que no anul·len el determinant fan que el sistema sigui compatible determinat, és a dir, que té solució única.» (David, 2026-10-30).
 
 ### 7.3 Phrasing rules (from David's edits, 2026-10-24)

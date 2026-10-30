@@ -12,10 +12,16 @@
 
 \subsection*{\textit{a)} \normalfont Quina és la probabilitat que un missatge sigui enviat pel filtre a la carpeta de correu brossa? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Fes un diagrama d'arbre. A la primera branca hi ha si el missatge és brossa o no; a la segona, si el filtre l'envia a la carpeta de brossa o no. Fixa't que el $90\,\%$ és dels missatges bons que es queden a la safata d'entrada. Un $90\,\%$ es tradueix en $p = 0{,}9$. Per tant, el $10\,\%$ dels missatges bons van a la carpeta de brossa.
+\pista{Fes un diagrama d'arbre. A la primera branca hi ha si el missatge és brossa o no; a la segona, si el filtre l'envia a la carpeta de brossa o no.
 
 \medskip
-Hi ha dues maneres d'arribar a la carpeta de brossa: el missatge és brossa i el filtre l'hi envia, o el missatge és bo però el filtre s'equivoca i l'hi envia. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats. Això és el teorema de la probabilitat total.}
+Fixa't que el $90\,\%$ és dels missatges bons que es queden a la safata d'entrada. Un $90\,\%$ es tradueix en $p = 0{,}9$. Per tant, el $10\,\%$ dels missatges bons van a la carpeta de brossa.
+
+\medskip
+Hi ha dues maneres d'arribar a la carpeta de brossa: el missatge és brossa i el filtre l'hi envia, o el missatge és bo però el filtre s'equivoca i l'hi envia. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats.
+
+\medskip
+Per resoldre aquest apartat, has aplicat el teorema de la probabilitat total.}
 
 \subsection*{\textit{b)} \normalfont Un dia, aquest usuari obre la carpeta de correu brossa. Quin percentatge de missatges que no són correu brossa hi trobarà? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
@@ -23,7 +29,7 @@ Hi ha dues maneres d'arribar a la carpeta de brossa: el missatge és brossa i el
 \[
 \frac{P(\text{és bo i va a la carpeta de brossa})}{P(\text{va a la carpeta de brossa})}
 \]
-El denominador és el resultat de l'apartat \textit{a)}. Dona la resposta en percentatge, com demana l'enunciat. Això és el teorema de Bayes.}
+El denominador és el resultat de l'apartat \textit{a)}. Dona la resposta en percentatge, com demana l'enunciat.}
 
 \vspace{0.6em}
 \noindent En un servidor de correu electrònic determinat, la probabilitat de rebre com a mínim dos correus en menys de $t$ minuts ve donada per la funció
@@ -34,13 +40,10 @@ on $A$ és una constant real.
 
 \subsection*{\textit{c)} \normalfont Sabent que la probabilitat de rebre com a mínim dos correus en menys de dos minuts és $1 - e^{-1}$, trobeu el valor de $A$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{En primer lloc, calcula la integral definida, aplicant la regla de Barrow. Recorda aquesta primitiva:
+\pista{En primer lloc, calcula la integral definida, aplicant la regla de Barrow. Hauràs d'aplicar una primitiva d'aquest estil:
 \[
 \int e^{kx}\,dx = \frac{1}{k}\,e^{kx} + C
 \]
-Aquí, $k = -0{,}5$. Obtindràs $F(t)$ en funció de la variable $t$ i de la constant $A$.
-
-\medskip
-A continuació, imposa que $F(2) = 1 - e^{-1}$: obtindràs una equació amb la variable $A$. No és tan difícil com sembla, perquè el factor $1 - e^{-1}$ apareix als dos costats.}
+A continuació, imposa que $F(2) = 1 - e^{-1}$: obtindràs una equació d'on podràs deduir el valor de $A$. No és tan difícil com sembla, perquè el factor $1 - e^{-1}$ apareix als dos costats.}
 
 \end{document}

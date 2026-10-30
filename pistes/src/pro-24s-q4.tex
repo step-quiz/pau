@@ -15,17 +15,23 @@
 \pista{Sigui $X$ el nombre de persones amb arrítmia entre les 4. Cada persona en pateix amb probabilitat $0{,}2$, i per tant $X \sim B(4;\ 0{,}2)$.
 
 \medskip
-«Almenys una» és el contrari de «cap». Per tant:
+«Almenys una» és l'esdeveniment contrari de «cap». Per tant:
 \[
 P(X \ge 1) = 1 - P(X = 0)
 \]}
 
 \subsection*{\textit{b)} \normalfont Quina és la probabilitat que una persona escollida a l'atzar obtingui un diagnòstic positiu d'arrítmia? \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{Fes un diagrama d'arbre. A la primera branca hi ha si la persona pateix arrítmia o no; a la segona, si el Holter dona positiu o no. Fixa't que el $0{,}5\,\%$ de falsos positius és dels qui no pateixen arrítmia. En tant per u, és $0{,}005$.
+\pista{Fes un diagrama d'arbre. A la primera branca hi ha si la persona pateix arrítmia o no; a la segona, si el Holter dona positiu o no. Fixa't que el $0{,}5\,\%$ de falsos positius és dels qui no pateixen arrítmia. Expressat com una probabilitat, és $0{,}005$.
 
 \medskip
-Hi ha dues maneres d'arribar a un diagnòstic positiu: pateix arrítmia i el Holter la detecta, o no en pateix però el Holter dona un fals positiu. Multiplica les probabilitats al llarg de cada camí i suma els dos resultats. Això és el teorema de la probabilitat total.}
+Hi ha dues maneres d'arribar a un diagnòstic positiu: o bé pateix arrítmia realment i el Holter la detecta, o bé no en pateix però el Holter també la «detecta», és a dir, dona un fals positiu.
+
+\medskip
+Multiplica les probabilitats al llarg de cada camí i suma els dos resultats.
+
+\medskip
+Per resoldre aquest apartat, has aplicat el teorema de la probabilitat total.}
 
 \subsection*{\textit{c)} \normalfont Si una persona obté un diagnòstic negatiu a la prova del Holter, quina és la probabilitat que realment pateixi arrítmies? \hspace*{\fill}\textnormal{[1~punt]}}
 
@@ -33,6 +39,9 @@ Hi ha dues maneres d'arribar a un diagnòstic positiu: pateix arrítmia i el Hol
 \[
 \frac{P(\text{pateix arrítmia i dona negatiu})}{P(\text{negatiu})}
 \]
-Fixa't que, si la persona pateix arrítmia, la probabilitat que el Holter doni negatiu és $1 - 0{,}95$. El denominador és 1 menys el resultat de l'apartat \textit{b)}. Això és el teorema de Bayes.}
+Fixa't que, si la persona pateix arrítmia, la probabilitat que el Holter doni negatiu és $1 - 0{,}95$. El denominador és 1 menys el resultat de l'apartat \textit{b)}.
+
+\medskip
+Per resoldre aquest apartat, has aplicat el teorema de Bayes.}
 
 \end{document}

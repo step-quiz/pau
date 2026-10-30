@@ -39,3 +39,12 @@ Canvis a les pistes (`pistes/src/<id>.tex`) fets amb l'artifact «Pistes PAU WYS
 - **Rouché**: «cada valor del paràmetre $k$» a les 9 discussions.
 - Correccions de Claude sobre el text del David: `alg-26j2-q2` 2.2 «calcula» (no «calcular»); `alg-26s-q2` 2.2 l'equació $(1 - k) \cdot y = 0$ en línia a part, «que es compleix sempre»; `ana-23j-q3` b) «com tens costum de veure»; `geo-24j-q6` c) «Si hi pertany» / «si no hi pertany»; `ana-23j2-q1` b) fórmula del vèrtex amb punt final; paràgrafs buits i espais finals.
 - Per cabre en una pàgina: `pro-26j-q3` 3.1 «Fes un diagrama d'arbre.» torna al mateix paràgraf i 3.3 «fins que tornis a trobar un canvi de signe»; `alg-26j-q2` 2.2 un paràgraf menys; `ana-26j2-q4a` 4.1 «correspon a $f'$, i no a $f$», 4.2 «On la gràfica és per sobre/sota…», 4.3 «escriu que $f$ és una primitiva de la seva derivada: es puntua».
+
+## 30/10/2026 (vespre): tercera tanda (probabilitat)
+
+16 pistes de probabilitat revisades pel David, i dues regles noves a tot el corpus (`ESTIL.md` §7.2 i §7.2b):
+
+- **Teorema al final**: «Això és el teorema de…» → «Per resoldre aquest apartat, has aplicat el teorema de la probabilitat total / de Bayes.», sempre com a última frase de la pista (12 pistes; a `pro-26j-q3` i `pro-26j2-q3`, al final de l'últim paràgraf, perquè la pista càpiga en una pàgina).
+- **Esdeveniment contrari**: «la probabilitat de l'esdeveniment contrari», «és l'esdeveniment contrari de…» (`pro-24j-q4`, `pro-24s-q4`, `pro-26s-q3`).
+- Correccions de Claude sobre el text del David: `pro-24s-q4` b) «probabilitat» (faltava una lletra), «Expressat com una probabilitat» (sense «expressem»), cometes «detecta», «és a dir»; `pro-25j-q3` a) «et permet dir», paràgraf; c) $f(p)$ (no $f(x)$); `pro-26s-q3` 3.1 «$X$ segueix una distribució binomial» (el text estava trencat: «bino$X$…»), 3.2 «Et recomano» i un «perquè» repetit, 3.3 «et recomano» i `\medskip` enganxat a «Les» (error de LaTeX).
+- Per cabre en una pàgina: `pro-24j-q4` 2: $\frac{2}{9} \cdot \frac{1}{8}$ dins del text; 4: la suma $P(X = 2) + \ldots$ dins del text; `pro-26j2-q3` 3.1 «Fes un diagrama d'arbre.» al mateix paràgraf.
