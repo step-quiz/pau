@@ -48,3 +48,12 @@ Canvis a les pistes (`pistes/src/<id>.tex`) fets amb l'artifact «Pistes PAU WYS
 - **Esdeveniment contrari**: «la probabilitat de l'esdeveniment contrari», «és l'esdeveniment contrari de…» (`pro-24j-q4`, `pro-24s-q4`, `pro-26s-q3`).
 - Correccions de Claude sobre el text del David: `pro-24s-q4` b) «probabilitat» (faltava una lletra), «Expressat com una probabilitat» (sense «expressem»), cometes «detecta», «és a dir»; `pro-25j-q3` a) «et permet dir», paràgraf; c) $f(p)$ (no $f(x)$); `pro-26s-q3` 3.1 «$X$ segueix una distribució binomial» (el text estava trencat: «bino$X$…»), 3.2 «Et recomano» i un «perquè» repetit, 3.3 «et recomano» i `\medskip` enganxat a «Les» (error de LaTeX).
 - Per cabre en una pàgina: `pro-24j-q4` 2: $\frac{2}{9} \cdot \frac{1}{8}$ dins del text; 4: la suma $P(X = 2) + \ldots$ dins del text; `pro-26j2-q3` 3.1 «Fes un diagrama d'arbre.» al mateix paràgraf.
+
+## 31/10/2026: quarta tanda (anàlisi i àlgebra)
+
+48 pistes (165 de 165 revisades). Regles noves del David a tot el corpus:
+
+- **Discussió d'un sistema amb paràmetre: mai amb Gauss**, sempre amb el determinant i els menors (orlar). `alg-23j2-q2` a) reescrita; b) ara esglaona des del principi per resoldre. `alg-25i-q2` a): els valors que anul·len el determinant, amb menors.
+- «fins que trobis dos valors seguits **on les imatges tenen** signes oposats» (Bolzano, `ana-24i-q1`, `ana-24s-q1`, `pro-26j-q3`).
+- «**Escriu una equació imposant que** el volum valgui…».
+- Correccions de Claude: errors de LaTeX (`itemize` sense obrir a `ana-24j-q1` b) i `ana-24s-q3` a); `\medskip` enganxat a `ana-25i-q4a` a); paràgraf dins de `\textit` a `ana-26j2-q1` 1.3); salts de línia al voltant de `\[ \]`; `ana-23s-q4` a) sense «tindrem»; `ana-24s-q3` c) «calcular» i un paràgraf menys per cabre en una pàgina; `ana-25s-q4a` a) l'equació en línia a part; `ana-26s-q4a` 4.2 «Comprova que realment és un màxim relatiu (estudia el signe de la funció $V''(x)$ en aquest punt)».
