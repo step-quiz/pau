@@ -18,7 +18,7 @@ const FITXERS = ['mates.js', 'formules.js', 'dades.js', 'matrius.js', 'recta-tan
   'polinomi-condicions.js', 'bolzano.js', 'asimptotes.js', 'arbres.js', 'probabilitat-total.js', 'bayes.js', 'binomial.js', 'determinant.js',
   'rang.js', 'sistema-sci.js', 'discussio.js', 'inversa.js', 'equacio-matricial.js', 'esglaonar.js', 'geometria.js', 'pla.js', 'recta-plans.js',
   'recta-pla.js', 'dues-rectes.js', 'distancies.js', 'projeccions.js', 'area-volum.js', 'perpendicular-comuna.js', 'primitiva.js', 'barrow.js',
-  'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js', 'grafica-funcio.js'];
+  'grafiques.js', 'integrals.js', 'area-eix.js', 'area-corbes.js', 'area-parametre.js', 'grafica-funcio.js', 'operacions-matrius.js', 'integrals-immediates.js', 'equacions-recta.js'];
 for (const f of FITXERS) vm.runInThisContext(fs.readFileSync(path.join(DIR, f), 'utf8'), {filename: f});
 
 // L'ordre del menú DEMO de l'index (categoria → [[fitxer, títol], …]).
@@ -30,7 +30,7 @@ const GLOBALS = {'recta-tangent': 'RectaTangent', 'creixement': 'Creixement', 'e
   'determinant': 'Determinant', 'rang': 'Rang', 'inversa': 'Inversa', 'equacio-matricial': 'EquacioMatricial', 'discussio': 'Discussio',
   'sistema-sci': 'SistemaSCI', 'esglaonar': 'Esglaonar', 'pla': 'Pla', 'recta-plans': 'RectaPlans', 'recta-pla': 'RectaPla', 'dues-rectes': 'DuesRectes',
   'distancies': 'Distancies', 'projeccions': 'Projeccions', 'area-volum': 'AreaVolum', 'perpendicular-comuna': 'PerpendicularComuna',
-  'grafica-funcio': 'GraficaFuncio'};
+  'grafica-funcio': 'GraficaFuncio', 'operacions-matrius': 'OperacionsMatrius', 'integrals-immediates': 'IntegralsImmediates', 'equacions-recta': 'EquacionsRecta'};
 const CAT = {algebra: 'Àlgebra', geometria: 'Geometria', analisi: 'Càlcul', probabilitat: 'Probabilitat'};
 
 // ── 2. Les pissarres sense claus ─────────────────────────────────────────────────────────────────

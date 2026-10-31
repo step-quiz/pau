@@ -23,13 +23,12 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 | `pistes/ESTIL.md` | Guia d'estil de les pistes (en anglès) |
 | `pistes/REVISIO.md` | Seguiment de la revisió, una fila per pista |
 | `pistes/editor/EDITOR-PISTES-PAU.md` | L'artifact «Editor de pistes PAU» i els seus scripts |
-| `pistes/editor/wysiwyg/EDITOR-WYSIWYG.md` | L'artifact «Pistes PAU WYSIWYG»: el web de PROBLEMES amb les pistes editables (en anglès) |
 | `procediments/INSIGHTS.md` | Procediments animats: com estan pensats i com fer-hi canvis (per a una IA, en anglès) |
 | `procediments/README.md` | Procediments animats: arquitectura, format dels passos, proves (en anglès) |
 
 ## Procediments animats
 
-`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. Del bloc d'Àlgebra: el determinant d'una matriu 3×3 amb un paràmetre (Sarrus) i els valors que l'anul·len, el rang d'una matriu orlant menors, un sistema compatible indeterminat resolt pel mètode de Gauss amb el seu conjunt de solucions, la discussió d'un sistema amb un paràmetre, la matriu inversa 3×3 per adjunts, les equacions matricials, i l'esglaonament d'una matriu 3×4 pel mètode de Gauss. Del bloc de Probabilitat: l'arbre de probabilitats i la probabilitat total, el teorema de Bayes i la distribució binomial. Del bloc d'Anàlisi: la tècnica de derivació (polinomis, arrels, exponencials, logaritmes, productes, quocients i regla de la cadena), la tècnica de derivació i el domini d'una funció (polinomis, fraccions, arrels, logaritmes i exponencials, i com s'expressa amb intervals), l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes), sis problemes d'optimització i sis polinomis de grau 3 que cal trobar a partir de condicions, el teorema de Bolzano amb el mètode de la bisecció, les asímptotes d'una funció racional, i les integrals: la primitiva amb una condició, la regla de Barrow, l'àrea entre una corba i l'eix OX, l'àrea entre dues corbes i un paràmetre a partir d'una integral o d'una àrea. Del bloc de Geometria: l'equació d'un pla, la recta donada per dos plans, la posició relativa d'una recta i un pla i de dues rectes, les distàncies, les projeccions i els simètrics, l'àrea d'un triangle i el volum d'un tetraedre, i la perpendicular comuna. Totes s'obren des del botó DEMO de cada categoria de la portada. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
+`procediments/` té pàgines que mostren un procediment mecànic pas a pas, amb animacions. Del bloc d'Àlgebra: les operacions amb matrius (el producte files per columnes, AB i BA, A², matrius que commuten, A² = I, A⁻¹ = A i la inversa a partir d'una igualtat), el determinant d'una matriu 3×3 amb un paràmetre (Sarrus) i els valors que l'anul·len, el rang d'una matriu orlant menors, un sistema compatible indeterminat resolt pel mètode de Gauss amb el seu conjunt de solucions, la discussió d'un sistema amb un paràmetre, la matriu inversa 3×3 per adjunts, les equacions matricials, i l'esglaonament d'una matriu 3×4 pel mètode de Gauss. Del bloc de Probabilitat: l'arbre de probabilitats i la probabilitat total, el teorema de Bayes i la distribució binomial. Del bloc d'Anàlisi: la tècnica de derivació (polinomis, arrels, exponencials, logaritmes, productes, quocients i regla de la cadena), la tècnica de derivació i el domini d'una funció (polinomis, fraccions, arrels, logaritmes i exponencials, i com s'expressa amb intervals), l'equació de la recta tangent, els màxims i mínims relatius, l'estudi del creixement (taula de signes), sis problemes d'optimització i sis polinomis de grau 3 que cal trobar a partir de condicions, el teorema de Bolzano amb el mètode de la bisecció, les asímptotes d'una funció racional, i les integrals: la primitiva amb una condició, la regla de Barrow, les integrals immediates (exponencials, logaritmes, sinus, cosinus i potències), l'àrea entre una corba i l'eix OX, l'àrea entre dues corbes i un paràmetre a partir d'una integral o d'una àrea. Del bloc de Geometria: les equacions d'una recta (vectorial, paramètriques i contínua, i com treure'n un punt i un vector director), l'equació d'un pla, la recta donada per dos plans, la posició relativa d'una recta i un pla i de dues rectes, les distàncies, les projeccions i els simètrics, l'àrea d'un triangle i el volum d'un tetraedre, i la perpendicular comuna. Totes s'obren des del botó DEMO de cada categoria de la portada. Les dades es poden canviar amb fletxes o des de l'adreça, per exemple:
 
 - `procediments/recta-tangent.html?f=x^3-3x+1&x0=-1` (també la recta normal, `&recta=normal`, i les tangents d'un pendent donat, `?f=x^3-3x&m=9`)
 - `procediments/extrems.html?f=x^3-3x^2+1`
@@ -40,6 +39,7 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 - `procediments/domini.html?p=arrel-cercle`
 - `procediments/probabilitat-total.html?p=peces` (sis problemes fixos: peces, dau, prova, correu, maquines, bossa)
 - `procediments/bayes.html?p=prova` (els mateixos sis problemes, amb la pregunta de Bayes)
+- `procediments/operacions-matrius.html?p=producte` (sis problemes fixos: producte, quadrat, commuten, familia, inversa-igual, identitat)
 - `procediments/determinant.html?A=m,1,1;1,m,1;1,1,m` (la matriu per files, separades per `;`; el paràmetre pot ser a, k, m, p o t)
 - `procediments/rang.html?A=1,2,3;2,4,1;3,6,4` (de 2 o 3 files i de 2 a 4 columnes)
 - `procediments/sistema-sci.html?S=1,1,1,2;1,-1,2,1;2,0,3,3` (una equació per fila: `1,1,1,2` és x + y + z = 2)
@@ -47,6 +47,7 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 - `procediments/inversa.html?A=1,0,1;0,1,1;1,1,1`
 - `procediments/equacio-matricial.html?p=axb` (sis equacions fixes: ax, xa, axb, xab, axx, xa2x)
 - `procediments/esglaonar.html?A=1,1,1,6;2,-1,1,3;1,2,-1,2` (una matriu ampliada 3×4, per files; Gauss sense fraccions)
+- `procediments/equacions-recta.html?p=continua` (set problemes fixos: dos-punts, continua, amagada, parametre, coeficient, zero, pla)
 - `procediments/pla.html?p=tres` (set problemes fixos d'equació d'un pla: tres, punt-recta, rectes, conte-perp, perp-recta, paralel, mediador)
 - `procediments/recta-plans.html?S=1,1,-1,1;2,-1,1,5` (la recta com a intersecció de dos plans, una equació per fila: `1,1,-1,1` és x + y − z = 1)
 - `procediments/recta-pla.html?r=1,0,2;1,-1,1&pi=2,-1,1,-12` (posició relativa d'una recta i un pla: `r` és un punt i el vector director; `pi` és A, B, C, D de Ax + By + Cz + D = 0)
@@ -57,6 +58,7 @@ Per a cada exercici `<id>` (per exemple `ana-26j-q1`), `data/` té tres PDF:
 - `procediments/perpendicular-comuna.html?r=3,0,0;1,-1,0&s=1,3,2;1,0,-1` (perpendicular comuna i distància entre dues rectes no paral·leles)
 - `procediments/primitiva.html?f=6x^2-4x+1&x0=1&y0=3` (la primitiva que compleix F(x₀) = y₀)
 - `procediments/barrow.html?f=3x^2-2x&a=0&b=2` (integral definida per la regla de Barrow)
+- `procediments/integrals-immediates.html?p=exponencial` (set problemes fixos: exponencial, parametre, logaritme, condicio, sinus, cosinus, potencies)
 - `procediments/area-eix.html?f=x^3-4x&a=-2&b=2` (àrea entre la corba i l'eix OX a [a, b])
 - `procediments/area-corbes.html?f=x^2&g=x+2` (àrea tancada per dues corbes)
 - `procediments/area-parametre.html?p=limit` (tres problemes fixos: limit, coeficient, parabola)
