@@ -20,23 +20,23 @@ en què $k$ és un paràmetre real.
 
 \subsection*{\textit{a)} \normalfont Discutiu el sistema en funció del valor de $k$. \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{Esglaona la matriu ampliada, aplicant el mètode de Gauss. En primer lloc, has d'aconseguir dos zeros a la primera columna:
-\[
-F_{2} \to F_{2} - F_{1}, \qquad F_{3} \to F_{3} - 2F_{1}
-\]
-Fixa't que les noves files 2 i 3 comencen igual. Per això, amb $F_{3} \to F_{3} - F_{2}$ eliminaràs la $y$ de la tercera fila.
+\pista{Escriu la matriu $A$ i la matriu ampliada $A^{'}$, i calcula el determinant de la matriu $A$, aplicant la regla de Sarrus.
 
 \medskip
-Ara mira la diagonal: per a quins valors de $k$ hi surt algun zero? Són els casos especials. Estudia'ls d'un en un, i la resta de valors es tracten tots en un sol cas, perquè el sistema és determinat i té solució única.
+A continuació, estudia el sistema d'equacions. D'una banda, has d'estudiar a part cada valor del paràmetre $k$ que anul·la el determinant de la matriu $A$. D'altra banda, la resta de valors que no anul·len el determinant fan que el sistema sigui compatible determinat, és a dir, que té solució única.
 
 \medskip
-\textbf{Atenció:} en algun cas especial, potser caldrà un pas més de Gauss abans de comptar rangs.}
+Per a cada valor del paràmetre $k$ que anul·la el determinant, busca un menor d'ordre 2 de la matriu $A$ que no valgui zero. A continuació, per trobar el rang de la matriu $A^{'}$, orla'l amb la fila que hi falta i amb la columna dels termes independents.}
 
 \subsection*{\textit{b)} \normalfont Resoleu el sistema per a $k = 0$ i per a $k = 1$. \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{Aprofita la matriu esglaonada de l'apartat \textit{a)}: substitueix-hi el valor de $k$ i resol les equacions, començant per la 3a equació, després la 2a equació i finalment la 1a equació.
+\pista{Mira en quin dels casos de la discussió de l'apartat \textit{a)} és cada valor. A continuació, substitueix-hi el valor del paràmetre $k$ i esglaona la matriu ampliada, aplicant el mètode de Gauss. En primer lloc, has d'aconseguir dos zeros a la primera columna:
+\[
+F_{2} \to F_{2} - F_{1}, \qquad F_{3} \to F_{3} - 2F_{1}
+\]
+Després, resol les equacions, començant per la 3a equació, després la 2a equació i finalment la 1a equació.
 
 \medskip
-Si amb algun dels dos valors et queda una fila tota de zeros, tindràs més incògnites que equacions. Llavors, pren-ne una com a paràmetre, per exemple $z = t$, i expressa les altres en funció de $t$.}
+Si amb algun dels dos valors et queda una fila tota de zeros, tindràs més incògnites que equacions. Llavors, escriu simplement \mbox{$z = t$} (és un paràmetre lliure), i expressa les altres incògnites en funció de $t$.}
 
 \end{document}

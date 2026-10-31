@@ -12,14 +12,17 @@
 
 \subsection*{\textit{a)} \normalfont Comproveu que, d'entre tots aquests rectangles, el que té $x = \dfrac{1}{2}$ és el d'àrea màxima. Quin és el valor d'aquesta àrea? \hspace*{\fill}\textnormal{[1,5~punts]}}
 
-\pista{Prova-ho en primer lloc amb un número inventat. Per exemple, si $x = 2$, el vèrtex $(2, y)$ és sobre la corba, i per tant $y = e^{-4}$. Llavors, el rectangle fa $2$ de base i $e^{-4}$ d'altura, i la seva àrea és $2 \cdot e^{-4}$. Ara fes el mateix amb $x$ en lloc de $2$: obtindràs l'àrea $A(x)$.
+\pista{Prova-ho, en primer lloc, amb un número inventat. Per exemple, si t'inventes $x = 2$, llavors el vèrtex $(2, y)$ és sobre la corba, i per tant $y = e^{-4}$. Llavors, el rectangle fa $2$ de base i $e^{-4}$ d'altura, i la seva àrea és $2 \cdot e^{-4}$.
 
 \medskip
-A continuació, deriva $A(x)$ amb la regla del producte:
+A continuació, fes el mateix amb $x$ en lloc de $2$: obtindràs l'àrea $A(x)$.
+
+\medskip
+Calcula $A'(x)$ amb la regla del producte:
 \[
 (u \cdot v)' = u' \cdot v + u \cdot v'
 \]
-Per derivar $e^{-2x}$, recorda que $\bigl(e^{u}\bigr)' = u' \cdot e^{u}$. Quan resolguis $A'(x) = 0$, treu factor comú $e^{-2x}$: com que una exponencial no s'anul·la mai, només cal igualar a zero l'altre factor.
+Quan resolguis $A'(x) = 0$, treu factor comú $e^{-2x}$: com que una exponencial no s'anul·la mai, només cal igualar a zero l'altre factor.
 
 \medskip
 Finalment, comprova que $x = \frac{1}{2}$ és un màxim (per exemple, estudiant el signe de la funció $A'$), i calcula el valor de l'àrea màxima substituint a la funció $A(x)$.}
@@ -30,7 +33,7 @@ Finalment, comprova que $x = \frac{1}{2}$ és un màxim (per exemple, estudiant 
 \[
 y - f(0) = f'(0)\,(x - 0)
 \]
-En primer lloc, calcula $f'(x)$. Fixa't que no és la $A'(x)$ de l'apartat \textit{a)}, perquè ara derives només l'exponencial. A continuació, calcula $f(0)$ i $f'(0)$, i substitueix-los a la fórmula. Recorda que $e^{0} = 1$.
+En primer lloc, calcula $f'(x)$. Fixa't que no és la $A'(x)$ de l'apartat anterior, perquè ara derives només l'exponencial. A continuació, calcula $f(0)$ i $f'(0)$, i substitueix-los a la fórmula. Recorda que $e^{0} = 1$.
 
 \medskip
 Finalment, per al tall amb l'eix d'abscisses, fes $y = 0$ a l'equació de la recta tangent i resol l'equació. La teva resposta ha de ser un punt, amb dues coordenades.}

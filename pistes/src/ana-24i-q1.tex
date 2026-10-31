@@ -12,28 +12,36 @@
 
 \subsection*{\textit{a)} \normalfont Comproveu que $f(x)$ té una arrel a l'interval $[1, 1{,}5]$ i busqueu un interval d'una dècima de longitud que també contingui aquesta mateixa arrel. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
-\pista{En primer lloc, justifica que $f$ és contínua a $[1, 1{,}5]$: la funció $\ln x$ és contínua per a $x > 0$. A continuació, calcula $f(1)$ i $f(1{,}5)$. Si tenen signes oposats, el teorema de Bolzano assegura que $f$ té una arrel en algun valor de l'interval $(1, 1{,}5)$.
+\pista{En primer lloc, justifica que $f$ és contínua a $[1, 1{,}5]$: la funció $\ln x$ és contínua per a $x > 0$.
 
 \medskip
-Per trobar un interval d'una dècima de longitud, prova valors intermedis amb salts d'una dècima, com ara $f(1{,}1)$, $f(1{,}2)$…, fins que trobis dos valors seguits amb signes oposats.}
+A continuació, calcula $f(1)$ i $f(1{,}5)$. Si tenen signes oposats, el teorema de Bolzano assegura que $f$ té una arrel en algun valor de l'interval $(1, 1{,}5)$.
+
+\medskip
+Per trobar un interval d'una dècima de longitud, prova valors intermedis amb salts d'una dècima, com ara $f(1{,}1)$, $f(1{,}2)$…, fins que trobis dos valors seguits on les imatges tenen signes oposats.}
 
 \subsection*{\textit{b)} \normalfont Sense calcular els punts crítics, justifiqueu que $f(x)$ és decreixent a l'interval $(0, 1)$ i creixent a $(1, +\infty)$. Quins màxims i mínims té aquesta funció? \hspace*{\fill}\textnormal{[1~punt]}}
 
-\pista{«Sense calcular els punts crítics» vol dir que no has de resoldre $f'(x) = 0$, però sí que has de derivar. En primer lloc, calcula $f'(x)$ amb la regla del producte:
+\pista{En primer lloc, calcula $f'(x)$ amb la regla del producte:
 \[
 (u \cdot v)' = u' \cdot v + u \cdot v'
 \]
-A continuació, estudia el signe de cada terme de $f'(x)$ a l'interval $(0, 1)$ i a l'interval $(1, +\infty)$. Recorda que $\ln x$ és negatiu si $0 < x < 1$, i positiu si $x > 1$.
 
 \medskip
-Finalment, dedueix-ne on hi ha un mínim, i digues si la funció té algun màxim o no en té.}
+«Sense calcular els punts crítics» vol dir que no has de resoldre l'equació $f'(x)=0$.
+
+\medskip
+El que sí pots fer és estudiar el signe de cada terme de $f'(x)$ a l'interval $(0, 1)$ i a l'interval $(1, +\infty)$. Recorda que $\ln x$ és negatiu si $0 < x < 1$, i positiu si $x > 1$.
+
+\medskip
+A partir d'aquest estudi pots deduir on hi ha un mínim, i també pots determinar si la funció té algun màxim, o bé no en té cap.}
 
 \subsection*{\textit{c)} \normalfont Calculeu $\displaystyle \lim_{x \to 0^{+}} f(x)$ i $\displaystyle \lim_{x \to +\infty} f(x)$, i feu un esbós de la gràfica d'aquesta funció. \hspace*{\fill}\textnormal{[0,75~punts]}}
 
 \pista{Tens gairebé tota la feina feta als apartats \textit{a)} i \textit{b)}. Et falten els dos límits:
 \begin{itemize}
-\item \textit{Quan $x \to 0^{+}$.} El factor $x - 1$ tendeix a $-1$, i $\ln x$ tendeix a $-\infty$. Quin signe té el producte?
-\item \textit{Quan $x \to +\infty$.} Tots dos factors, $x - 1$ i $\ln x$, tendeixen a $+\infty$.
+\item \textit{Límit quan $x \to 0^{+}$.} El factor $x - 1$ tendeix a $-1$, i $\ln x$ tendeix a $-\infty$. Quin signe té el producte?
+\item \textit{Límit quan $x \to +\infty$.} Tots dos factors, $x - 1$ i $\ln x$, tendeixen a $+\infty$.
 \end{itemize}
 Per a l'esbós, fes servir aquests dos límits, el mínim de l'apartat \textit{b)} i l'arrel que has localitzat a l'apartat \textit{a)}. No et cal la segona derivada.}
 
