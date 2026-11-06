@@ -6,7 +6,7 @@ MUT=[
  ('geometria.js', "M.texNombre(a) + (factor.length > 1 ? ' \\\\cdot ' : '')", "M.texNombre(a) + ''", 'producte sense punt al pla: 2(x − 1)'),
  ('formules.js', "clau(P + 'f', X) + op(P + 'pt', '\\\\cdot') + clau(P + 'l', '(')", "clau(P + 'f', X) + clau(P + 'l', '(')", 'factor comú sense punt: x(x − 2)'),
  ('creixement.js', "cel.Fp[j] = '\\\\text{màxim}';", "cel.Fp[j] = '\\\\text{màx}';", 'abreviatura màx'),
- ('determinant.js', "Iguala el determinant a zero.`", "Iguala el determinant a zero (no cal Cramer).`", 'la paraula Cramer'),
+ ('determinant.js', "serà un polinomi en la variable $${X}$.`", "serà un polinomi en la variable $${X}$ (no cal Cramer).`", 'la paraula Cramer'),
  ('geometria.js', "const texPuntNom = (nom, P) => `${nom}${texPunt(P)}`;", "const texPuntNom = (nom, P) => `${nom} = ${texPunt(P)}`;", 'punts amb «=»: P = (1, 2)'),
  ('dues-rectes.js', "K('Lr', '\\\\text{Les rectes } r \\\\text{ i } s \\\\text{ es tallen en el punt } R')", "K('Lr', 'r \\\\cap s = \\\\{R\\\\}')", 'notació de conjunts a la resposta'),
  ('area-volum.js', "'triangle': p => `Calcula l'àrea del triangle de vèrtexs $${texPuntNom('A', p.A)}$,", "'triangle': p => `Calcula l'àrea del triangle de vèrtexs ${texPuntNom('A', p.A)}$,", 'un «$» sense parella a l\'enunciat'),

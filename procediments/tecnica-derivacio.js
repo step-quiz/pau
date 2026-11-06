@@ -304,6 +304,84 @@ const clausDe = t => [...t.matchAll(/\\htmlData\{k=([A-Za-z0-9]+)/g)].map(m => m
 
 /* ── 4. LES REGLES ─────────────────────────────────────────────────── */
 
+/*
+   Polinomis (David, nov. 2026: «per derivar un polinomi, directament posa la
+   seva derivada en una sola animació»). Un subarbre és un polinomi si només
+   té nombres, x, potències x^n (n natural), sumes, productes en què un factor
+   és un nombre i quocients per un nombre. La seva derivada és una derivada
+   bàsica: es fa d'un sol cop, sense la regla de la suma ni la del nombre per
+   funció. (x² + 1)ⁿ no hi compta: és la regla de la cadena.
+*/
+
+/** Coeficients [a₀, a₁, …] (Fraccio) si el subarbre és un polinomi; si no, null. */
+function coefsPolinomi(n) {
+  const suma = (p, q, s = 1) => {
+    const r = [];
+    for (let i = 0; i < Math.max(p.length, q.length); i++) r.push((p[i] || fr(0)).suma((q[i] || fr(0)).producte(s)));
+    return r;
+  };
+  const escala = (p, k) => p.map(c => c.producte(k));
+  switch (n.t) {
+    case 'num': return [n.v];
+    case 'x': return [fr(0), fr(1)];
+    case 'suma': {
+      let r = [fr(0)];
+      for (const t of n.termes) { const c = coefsPolinomi(t.e); if (!c) return null; r = suma(r, c, t.s); }
+      return r;
+    }
+    case 'mul': {
+      const a = coefsPolinomi(n.a), b = coefsPolinomi(n.b);
+      if (!a || !b) return null;
+      if (!conteX(n.a)) return escala(b, a[0]);
+      if (!conteX(n.b)) return escala(a, b[0]);
+      return null;                                  // producte de dues funcions: la regla del producte
+    }
+    case 'div': {
+      const a = coefsPolinomi(n.a);
+      return a && n.b.t === 'num' && !n.b.v.esZero() ? escala(a, fr(1).quocient(n.b.v)) : null;
+    }
+    case 'pow':
+      if (n.b.t !== 'x' || n.e.t !== 'num' || !n.e.v.esEnter() || n.e.v.num < 0 || n.e.v.num > 12) return null;
+      return Array.from({length: n.e.v.num + 1}, (_, i) => fr(i === n.e.v.num ? 1 : 0));
+  }
+  return null;
+}
+const esPolinomi = n => coefsPolinomi(n) !== null;
+
+/** Un monomi c·xᵏ (c > 0) com a arbre net: 3, x, 3x, x², 3x². */
+function monomi(A, c, k) {
+  if (k === 0) return A.num(c);
+  const xk = k === 1 ? A.x() : A.pow(A.x(), A.num(k));
+  return c.igual(1) ? xk : A.mul(A.num(c), xk);
+}
+/** El node que rep el terme antic quan vola: el coeficient o, si no n'hi ha, la x. */
+const dianaMonomi = m => (m.t === 'mul' ? m.a : m.t === 'pow' ? m.b : m);
+
+/**
+ * La derivada d'un polinomi, ja feta. Torna {node, fusions: [{nou, antics}]}: cada terme de grau k + 1
+ * del polinomi vola cap al terme de grau k de la derivada.
+ */
+function derivadaPolinomi(A, a) {
+  const c = coefsPolinomi(a);
+  const termes = [];
+  for (let k = c.length - 2; k >= 0; k--) {
+    const v = c[k + 1].producte(k + 1);
+    if (!v.esZero()) termes.push({k, s: v.signe() < 0 ? -1 : 1, e: monomi(A, v.abs(), k)});
+  }
+  // Els termes antics de cada grau (només si el polinomi és una suma de monomis).
+  const antics = new Map();
+  const peces = a.t === 'suma' ? a.termes.map(t => t.e) : [a];
+  peces.forEach(p => {
+    const q = coefsPolinomi(p);
+    const graus = q.map((v, i) => (v.esZero() ? -1 : i)).filter(i => i >= 0);
+    if (graus.length === 1 && graus[0] >= 1) antics.set(graus[0] - 1, (antics.get(graus[0] - 1) || []).concat([p]));
+  });
+  const fusions = termes.filter(t => antics.has(t.k)).map(t => ({nou: dianaMonomi(t.e), antics: antics.get(t.k)}));
+  if (!termes.length) return {node: A.num(0), fusions: []};
+  if (termes.length === 1 && termes[0].s > 0) return {node: termes[0].e, fusions};
+  return {node: A.suma(termes.map(t => [t.s, t.e])), fusions};
+}
+
 /** Les derivades pendents (D), d'esquerra a dreta. */
 function pendents(n, sortida = []) {
   if (n.t === 'D') sortida.push(n);
@@ -316,14 +394,14 @@ const ORDRE_CLASSES = Object.freeze(['suma', 'constant', 'producte', 'quocient',
 
 /**
  * La classe de la regla que cal per a D(a):
- *   basica    (xⁿ)′, (x)′, (k)′, (eˣ)′, (aˣ)′, (ln x)′
+ *   basica    (xⁿ)′, (x)′, (k)′, (eˣ)′, (aˣ)′, (ln x)′ i (polinomi)′, que es fa d'un sol cop
  *   suma      (u ± v)′
  *   constant  (k·u)′ i (−u)′
  *   producte  (u·v)′     quocient  (u/v)′
  *   cadena    (uⁿ)′, (eᵘ)′, (aᵘ)′, (ln u)′ amb u diferent de x
  */
 function classeDe(a) {
-  if (!conteX(a)) return 'basica';
+  if (!conteX(a) || esPolinomi(a)) return 'basica';
   switch (a.t) {
     case 'x': return 'basica';
     case 'suma': return a.termes.length === 1 && a.termes[0].s < 0 ? 'constant' : 'suma';
@@ -340,21 +418,30 @@ function basicaDe(a) {
   if (!conteX(a)) return 'const';
   switch (a.t) {
     case 'x': return 'x';
-    case 'pow': return 'potencia';
+    case 'pow': if (a.b.t === 'x') return 'potencia'; break;
     case 'exp': return 'exp';
     case 'expb': return 'expb';
     case 'ln': return 'ln';
   }
+  if (esPolinomi(a)) return 'polinomi';
   throw new Error('basicaDe');
 }
 
-/** El resultat d'aplicar la regla a D(a) (el node D és «d»). A és el creador de nodes. */
-function aplica(A, d) {
+/**
+ * El resultat d'aplicar la regla a D(a) (el node D és «d»). A és el creador de nodes. Les fusions (d'on
+ * vola cada terme d'un polinomi derivat) s'afegeixen a «fusions».
+ */
+function aplica(A, d, fusions = []) {
   const a = d.a;
   const D = e => A.D(e);
   switch (classeDe(a)) {
     case 'basica': {
       if (!conteX(a)) return A.num(0);
+      if (esPolinomi(a)) {                       // x, xⁿ i qualsevol polinomi: la derivada, ja feta
+        const r = derivadaPolinomi(A, a);
+        fusions.push(...r.fusions);
+        return r.node;
+      }
       switch (a.t) {
         case 'x': return A.num(1);
         case 'pow': return A.mul(a.e, A.pow(a.b, A.suma([[1, A.clona(a.e)], [-1, A.num(1)]])));   // l'exponent baixa davant
@@ -392,9 +479,9 @@ function aplica(A, d) {
 }
 
 /** Substitueix els D triats pel seu resultat. */
-function aplicaTots(A, n, triats) {
-  if (n.t === 'D') return triats.has(n) ? aplica(A, n) : n;
-  return refa(n, f => aplicaTots(A, f, triats));
+function aplicaTots(A, n, triats, fusions = []) {
+  if (n.t === 'D') return triats.has(n) ? aplica(A, n, fusions) : n;
+  return refa(n, f => aplicaTots(A, f, triats, fusions));
 }
 
 /** Les arrels, com a potències d'exponent 1/2. */
@@ -600,6 +687,7 @@ const MEMBRE_D = F.membreEsquerre('B', 'f', 'x', 1);
 const llista = peces => (peces.length < 2 ? peces.join('') : peces.slice(0, -1).join(', ') + ' i ' + peces[peces.length - 1]);
 
 const REGLES_BASIQUES = Object.freeze({
+  polinomi: 'un polinomi es deriva directament, terme a terme: $(a \\cdot x^{n})\' = n \\cdot a \\cdot x^{n-1}$, i la derivada d\'un nombre és $0$',
   potencia: '$(x^{n})\' = n \\cdot x^{n-1}$ (l\'exponent baixa multiplicant, i el nou exponent és un menys)',
   x: '$(x)\' = 1$',
   const: 'la derivada d\'un nombre és $0$',
@@ -628,7 +716,13 @@ function textRegla(classe, nodes, ordreCadena) {
     case 'basica': {
       const tipus = [];
       nodes.forEach(d => { const b = basicaDe(d.a); if (!tipus.includes(b)) tipus.push(b); });
-      const ordenades = ['potencia', 'x', 'exp', 'expb', 'ln', 'const'].filter(b => tipus.includes(b));
+      if (tipus.length === 1 && tipus[0] === 'polinomi') {
+        return nodes.length === 1
+          ? 'Deriva el polinomi directament, terme a terme: $(a \\cdot x^{n})\' = n \\cdot a \\cdot x^{n-1}$, i la derivada d\'un nombre és $0$.'
+          : 'Deriva els polinomis directament, terme a terme: $(a \\cdot x^{n})\' = n \\cdot a \\cdot x^{n-1}$, i la derivada d\'un nombre és $0$.';
+      }
+      const ordenades = ['polinomi', 'potencia', 'x', 'exp', 'expb', 'ln', 'const']
+        .filter(b => tipus.includes(b) && !(b === 'const' && tipus.includes('polinomi')));   // la del polinomi ja ho diu
       return `Aplica ${ordenades.length > 1 ? 'les derivades bàsiques' : 'la derivada bàsica'}: ${llista(ordenades.map(b => REGLES_BASIQUES[b]))}.`;
     }
     case 'cadena': {
@@ -683,8 +777,9 @@ function passos(valors) {
     const triats = pen.filter(q => classeDe(q.a) === classe);
     const text = textRegla(classe, triats, cadenes);
     if (classe === 'cadena') cadenes++;
-    const nou = aplicaTots(A, d, new Set(triats));
-    afegeix({f, d: nou, text, cursor: {clic: `n${triats[0].id}p`}});
+    const fusions = [];
+    const nou = aplicaTots(A, d, new Set(triats), fusions);
+    afegeix({f, d: nou, text, fusions, cursor: {clic: `n${triats[0].id}p`}});
     d = nou;
   }
 

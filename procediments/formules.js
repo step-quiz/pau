@@ -278,6 +278,26 @@ function derivadaFeta(P, Q, llista) {
 }
 
 
+/**
+ * Derivada directa (David, nov. 2026: «per derivar un polinomi, posa la seva
+ * derivada en una sola animació»): de (…)' amb claus P a la derivada acabada
+ * amb claus Q, en un sol pas. Cada terme de grau n ≥ 1 vola cap al terme de
+ * grau n − 1 (cap al coeficient, o cap a la x si el coeficient nou és 1); els
+ * signes canvien de nom; la constant, els parèntesis i la prima s'esvaeixen.
+ * Torna {tex, fusiona, reanomena}.
+ */
+function derivadaDirecta(P, Q, llista) {
+  const fusiona = {}, reanomena = {};
+  normalitza(llista).filter(t => t.n >= 1).forEach((t, i) => {
+    const k = t.n - 1, a = t.c.abs(), nou = a.producte(t.n);
+    if (i > 0 || t.c.signe() < 0) reanomena[Q + 's' + k] = P + 's' + t.n;
+    const fonts = (esU(a) ? [] : [P + 'c' + t.n]).concat([P + 'v' + t.n], t.n >= 2 ? [P + 'e' + t.n] : []);
+    fusiona[k === 0 || !esU(nou) ? Q + 'c' + k : Q + 'v' + k] = fonts;
+  });
+  return {tex: polinomi(Q, derivaTermes(llista)), fusiona, reanomena};
+}
+
+
 /* ── 3b. INTEGRAL D'UN POLINOMI AMB CLAUS ──────────────────────────── */
 
 /** ∫ (6x² − 4x + 1) dx, o amb límits ∫_a^b (…) dx («limits»: [a, b], en TeX). Els parèntesis, si hi ha més d'un terme. */
@@ -705,7 +725,7 @@ arrel.Formules = Object.freeze({
   AMPLE_LINIA, clau, marca, op, rel, marcat, membreEsquerre,
   polinomi, substituit, avaluat, fusionsAvaluat,
   resultat, fusionsResultat, clausResultat,
-  derivadaIndicada, derivadaBaixada, derivadaFeta,
+  derivadaIndicada, derivadaBaixada, derivadaFeta, derivadaDirecta,
   integralIndicada, integralRegla, integralFeta, mesC, passosIntegral,
   equacio, resolPolinomi, resolEquacio, marcaSolucio, tatxaSolucio, textSolucions, tatxa,
   filaText, frase, enunciatMarcat,

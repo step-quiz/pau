@@ -188,16 +188,9 @@ function passos(v) {
     const D1 = F.membreEsquerre('D', 'f', 'x', 1);
     g.files[1] = D1 + F.derivadaIndicada('d', P);
     g.afegeix('Ara la derivada, $f\'(x)$: el seu signe diu on $f$ creix i on decreix.');
-    g.files[1] = D1 + F.derivadaBaixada('d', P);
-    g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(P)}`, {cursor: {clic: 'dQ'}});
-    const feta = F.derivadaFeta('d', 'q', P);
+    const feta = F.derivadaDirecta('d', 'q', P);       // en una sola animació (David, nov. 2026)
     g.files[1] = D1 + feta.tex;
-    if (feta.multiplica) {
-      const primer = P.find(t => t.n >= 2 && !Fraccio.de(t.c).abs().igual(1));
-      g.afegeix(`Multiplica: $f'(x) = ${texPolinomi(N)}$.`, {fusiona: feta.fusiona, reanomena: feta.reanomena, cursor: {clic: 'dm' + primer.n}});
-    } else {
-      pendent = feta.reanomena;                         // el text no canvia: les claus noves van al pas següent
-    }
+    g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(P)}`, {fusiona: feta.fusiona, reanomena: feta.reanomena, cursor: {clic: 'dQ'}});
   } else {
     const c = M.coeficientsDe;
     const dP = M.derivaTermes(P), dQ = M.derivaTermes(Q);

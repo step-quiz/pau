@@ -170,7 +170,7 @@ function passos(v) {
       + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
       : tallen ? `Ara l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. Per sort, també es compleix! `
       + 'Per tant, el sistema de les tres equacions té solució única: les rectes es tallen en un punt.'
-      : `Ara falta comprovar l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. `
+      : `Ara falta l'equació $${G.texEq(k + 1)}$, amb $\\lambda = ${M.texNombre(l0)}$ i $\\mu = ${M.texNombre(m0)}$. `
         + 'Com que no es compleix, significa que el sistema de les tres equacions no té solució: no hi ha cap punt comú.');
   }
   // El punt de tall es diu R (David: mai X per a un punt); la resposta, amb una frase (res de r ∩ s = {R}).

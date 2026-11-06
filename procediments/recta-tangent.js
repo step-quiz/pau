@@ -232,10 +232,10 @@ function recta(g, f, x0, tipus, previ = '', mConegut = null) {
   /* 3. f'(x) i f'(x₀), a la fila 1 (si el pendent no és conegut). */
   let m = mt;                                               // pendent de la recta
   if (tipus !== 'pendent') {
-    let reanomenaPendent = derivada(g, f);
+    derivada(g, f);
     const derX0 = F.membreEsquerre('D', 'f', X, true);
     g.files[1] = derX0 + F.substituit('q', d, x0);
-    g.afegeix(`Calcula $f'(${X})$: substitueix $x$ per $${Xp}$.`, {reanomena: reanomenaPendent, cursor: {clic: 'DX'}});
+    g.afegeix(`Calcula $f'(${X})$: substitueix $x$ per $${Xp}$.`, {cursor: {clic: 'DX'}});
     g.files[1] = derX0 + F.avaluat('q', d, x0);
     g.afegeix('Calcula cada terme.', {fusiona: F.fusionsAvaluat('q', d), cursor: {clic: d[0].n >= 1 ? 'qv' + d[0].n : null}});
     if (d.length > 1) {
@@ -307,23 +307,14 @@ function recta(g, f, x0, tipus, previ = '', mConegut = null) {
   return {recta: eq, text: `Aquesta és la recta ${nom}: $${eq}$.` + (m.esZero() ? ' És horitzontal, perquè el pendent és $0$.' : '')};
 }
 
-/**
- * La derivada f'(x), pas a pas, a la fila 1. Torna els canvis de nom que
- * queden pendents per al pas següent (si l'últim pas no ha canviat el text).
- */
+/** La derivada f'(x), a la fila 1: primer indicada, després feta en una sola animació. */
 function derivada(g, f) {
-  const d = M.derivaTermes(f);
   const derX = F.membreEsquerre('D', 'f', 'x', true);
   g.files[1] = derX + F.derivadaIndicada('d', f);
   g.afegeix('Ara calcula la derivada, $f\'(x)$.');
-  g.files[1] = derX + F.derivadaBaixada('d', f);
-  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {cursor: {clic: 'dQ'}});
-  const feta = F.derivadaFeta('d', 'q', f);
-  if (!feta.multiplica) return feta.reanomena;              // el text no canvia: les claus noves van al pas següent
-  const primer = f.find(t => t.n >= 2 && !Fraccio.de(t.c).abs().igual(1));
+  const feta = F.derivadaDirecta('d', 'q', f);              // en una sola animació (David, nov. 2026)
   g.files[1] = derX + feta.tex;
-  g.afegeix(`Multiplica: $f'(x) = ${texPolinomi(d)}$.`, {fusiona: feta.fusiona, reanomena: feta.reanomena, cursor: {clic: 'dm' + primer.n}});
-  return {};
+  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {fusiona: feta.fusiona, reanomena: feta.reanomena, cursor: {clic: 'dQ'}});
 }
 
 /** Variant «pendent»: els punts on f'(x) = m, i la recta tangent a cadascun. */
@@ -332,18 +323,14 @@ function passosPendent(g, f, v) {
   const derX = F.membreEsquerre('D', 'f', 'x', true);
   g.files[1] = derX + F.derivadaIndicada('d', f);
   g.afegeix(`El pendent de la recta tangent en un punt és la derivada en aquest punt. Els punts que busques són les solucions de $f'(x) = ${M_}$. Primer, la derivada.`);
-  g.files[1] = derX + F.derivadaBaixada('d', f);
-  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {cursor: {clic: 'dQ'}});
-  const feta = F.derivadaFeta('d', 'q', f);
+  const feta = F.derivadaDirecta('d', 'q', f);              // en una sola animació (David, nov. 2026)
   const d = M.derivaTermes(f);
   g.files[1] = derX + feta.tex;
-  let pendents = {};
-  if (feta.multiplica) g.afegeix(`Multiplica: $f'(x) = ${texPolinomi(d)}$.`, {fusiona: feta.fusiona, reanomena: feta.reanomena});
-  else pendents = feta.reanomena;                           // el text no canvia: les claus noves van al pas següent
+  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {fusiona: feta.fusiona, reanomena: feta.reanomena, cursor: {clic: 'dQ'}});
   // L'equació, primer tal com es planteja (David): f'(x) = m. Es queda a la fila 2; els càlculs, a la fila 3.
   const zero = m.esZero();
   g.files[2] = F.membreEsquerre('e', 'f', 'x', 1) + K(zero ? 'ez' : 'em', M_);
-  g.afegeix(`Els punts que busques són les solucions de l'equació $f'(x) = ${M_}$.`, {reanomena: pendents});
+  g.afegeix(`Els punts que busques són les solucions de l'equació $f'(x) = ${M_}$.`);
   const termes = equacioPendent(v);
   let text = 'Substitueix $f\'(x)$ per la seva expressió.', opcions = {};
   if (!zero) {

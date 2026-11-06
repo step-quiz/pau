@@ -6361,6 +6361,8 @@ const MODELS_DOMINI = {
   'arrel-negatiu': {fPla: 'sqrt(5-2x)', num: x => Math.sqrt(5 - 2 * x), dom: [[-INF_D, 2.5, false, true]], conds: [{rel: 'ge', g: '5-2x'}]},
   'arrel-cercle': {fPla: 'sqrt(1-x^(2))', num: x => Math.sqrt(1 - x * x), dom: [[-1, 1, true, true]], conds: [{rel: 'ge', g: '1-x^2'}]},
   'arrel-quadrat': {fPla: 'sqrt(x^(2)-4)', num: x => Math.sqrt(x * x - 4), dom: [[-INF_D, -2, false, true], [2, INF_D, true, false]], conds: [{rel: 'ge', g: 'x^2-4'}]},
+  'arrel-trinomi': {fPla: 'sqrt(x^(2)-5x+6)', num: x => Math.sqrt(x * x - 5 * x + 6), dom: [[-INF_D, 2, false, true], [3, INF_D, true, false]], conds: [{rel: 'ge', g: 'x^2-5x+6'}]},
+  'arrel-factor-comu': {fPla: 'sqrt(-x^(2)+4x)', num: x => Math.sqrt(-x * x + 4 * x), dom: [[0, 4, true, true]], conds: [{rel: 'ge', g: '-x^2+4x'}]},
   'arrel-sempre': {fPla: 'sqrt(1+x^(2))', num: x => Math.sqrt(1 + x * x), dom: TOT_D, conds: [{rel: 'ge', g: '1+x^2'}]},
   'arrel-quarta': {fPla: '((x^(2)-3x)^(1/4))', num: x => Math.pow(x * x - 3 * x, 0.25), dom: [[-INF_D, 0, false, true], [3, INF_D, true, false]], conds: [{rel: 'ge', g: 'x^2-3x'}]},
   'arrel-denominador': {fPla: '((1)/(sqrt(x-3)))', num: x => 1 / Math.sqrt(x - 3), dom: obert([3, INF_D]), conds: [{rel: 'gt', g: 'x-3'}]},
@@ -6635,28 +6637,28 @@ seccio('tècnica de derivació: cada línia és certa i les regles són les espe
   const POS = [0.6, 1.1, 1.7, 2.9], TOT = [-2.3, -0.7, 0.4, 1.3, 2.2];
   const e = Math.exp, l = Math.log, q = Math.sqrt;
   const MODELS = {
-    'polinomi': [x => 4*x**3-6*x**2+5*x-7, x => 12*x**2-12*x+5, TOT, ['suma','constant','basica']],
+    'polinomi': [x => 4*x**3-6*x**2+5*x-7, x => 12*x**2-12*x+5, TOT, ['basica']],
     'arrel': [q, x => 1/(2*q(x)), POS, ['basica']],
     'arrel-polinomi': [x => 5*q(x)+x*x-3, x => 5/(2*q(x))+2*x, POS, ['suma','constant','basica']],
     'exponencial': [x => 3*e(x)-x*x, x => 3*e(x)-2*x, TOT, ['suma','constant','basica']],
     'logaritme': [x => 3*l(x)-x*x, x => 3/x-2*x, POS, ['suma','constant','basica']],
     'producte-polinomi-exp': [x => x*x*e(x), x => e(x)*(2*x+x*x), TOT, ['producte','basica']],
     'producte-x-ln': [x => x*l(x), x => l(x)+1, POS, ['producte','basica']],
-    'producte-arrel': [x => (x*x+1)*q(x), x => (5*x*x+1)/(2*q(x)), POS, ['producte','suma','basica']],
+    'producte-arrel': [x => (x*x+1)*q(x), x => (5*x*x+1)/(2*q(x)), POS, ['producte','basica']],
     'producte-exponencial-base': [x => x*2**x, x => 2**x*(1+x*l(2)), TOT, ['producte','basica']],
-    'quocient-polinomis': [x => x*x/(x+1), x => (x*x+2*x)/(x+1)**2, [-3,-2,-0.5,0.5,2], ['quocient','suma','basica']],
+    'quocient-polinomis': [x => x*x/(x+1), x => (x*x+2*x)/(x+1)**2, [-3,-2,-0.5,0.5,2], ['quocient','basica']],
     'quocient-exp': [x => e(x)/x, x => e(x)*(x-1)/(x*x), TOT, ['quocient','basica']],
     'quocient-ln': [x => l(x)/x**2, x => (1-2*l(x))/x**3, POS, ['quocient','basica']],
-    'cadena-potencia': [x => (3*x*x-1)**4, x => 24*x*(3*x*x-1)**3, TOT, ['cadena','suma','constant','basica']],
-    'cadena-exp': [x => e(x*x-3*x), x => (2*x-3)*e(x*x-3*x), TOT, ['cadena','suma','constant','basica']],
-    'cadena-ln': [x => l(x*x+1), x => 2*x/(x*x+1), TOT, ['cadena','suma','basica']],
-    'cadena-arrel': [x => q(x*x+1), x => x/q(x*x+1), TOT, ['cadena','suma','basica']],
-    'cadena-doble-exp': [x => e((2*x+1)**3), x => 6*(2*x+1)**2*e((2*x+1)**3), [-1,-0.6,0,0.2,0.4], ['cadena','cadena','suma','constant','basica']],
-    'cadena-doble-arrel': [x => q(l(x*x+1)), x => x/((x*x+1)*q(l(x*x+1))), [-1.5,0.5,1,2], ['cadena','cadena','suma','basica']],
-    'producte-cadena': [x => x*x*e(3*x), x => x*e(3*x)*(2+3*x), [-1,-0.4,0.3,1], ['producte','cadena','constant','basica']],
-    'quocient-cadena': [x => l(2*x+1)/x, x => (2*x/(2*x+1)-l(2*x+1))/(x*x), [-0.3,0.3,1,2.5], ['quocient','cadena','suma','constant','basica']],
+    'cadena-potencia': [x => (3*x*x-1)**4, x => 24*x*(3*x*x-1)**3, TOT, ['cadena','basica']],
+    'cadena-exp': [x => e(x*x-3*x), x => (2*x-3)*e(x*x-3*x), TOT, ['cadena','basica']],
+    'cadena-ln': [x => l(x*x+1), x => 2*x/(x*x+1), TOT, ['cadena','basica']],
+    'cadena-arrel': [x => q(x*x+1), x => x/q(x*x+1), TOT, ['cadena','basica']],
+    'cadena-doble-exp': [x => e((2*x+1)**3), x => 6*(2*x+1)**2*e((2*x+1)**3), [-1,-0.6,0,0.2,0.4], ['cadena','cadena','basica']],
+    'cadena-doble-arrel': [x => q(l(x*x+1)), x => x/((x*x+1)*q(l(x*x+1))), [-1.5,0.5,1,2], ['cadena','cadena','basica']],
+    'producte-cadena': [x => x*x*e(3*x), x => x*e(3*x)*(2+3*x), [-1,-0.4,0.3,1], ['producte','cadena','basica']],
+    'quocient-cadena': [x => l(2*x+1)/x, x => (2*x/(2*x+1)-l(2*x+1))/(x*x), [-0.3,0.3,1,2.5], ['quocient','cadena','basica']],
   };
-  const CL = [[/^La derivada d'una suma/,'suma'],[/^(El signe menys|Un nombre que multiplica)/,'constant'],[/^(Hi ha un producte|La regla del producte)/,'producte'],[/^(Hi ha un quocient|La regla del quocient)/,'quocient'],[/^(Torna a aparèixer[^.]*\. )?Regla de la cadena/,'cadena'],[/^Aplica (la|les) derivad/,'basica']];
+  const CL = [[/^La derivada d'una suma/,'suma'],[/^(El signe menys|Un nombre que multiplica)/,'constant'],[/^(Hi ha un producte|La regla del producte)/,'producte'],[/^(Hi ha un quocient|La regla del quocient)/,'quocient'],[/^(Torna a aparèixer[^.]*\. )?Regla de la cadena/,'cadena'],[/^(Aplica (la|les) derivad|Deriva (el|els) polinomis? directament)/,'basica']];
   const pro = (a, b, t) => Math.abs(a - b) <= t * Math.max(1, Math.abs(a), Math.abs(b));
   const ambD = pla => {            // (…)' → *D(…)
     let s = pla;

@@ -66,6 +66,8 @@ const PROBLEMES = Object.freeze([
   {id: 'arrel-negatiu', nom: '√(5 − 2x)', f: '\\sqrt{@0}', conds: [C('arrel', '5-2x', '5 - 2x', {index: 2})]},
   {id: 'arrel-cercle', nom: '√(1 − x²)', f: '\\sqrt{@0}', conds: [C('arrel', '1-x^2', '1 - x^{2}', {index: 2})]},
   {id: 'arrel-quadrat', nom: '√(x² − 4)', f: '\\sqrt{@0}', conds: [C('arrel', 'x^2-4', 'x^{2} - 4', {index: 2})]},
+  {id: 'arrel-trinomi', nom: '√(x² − 5x + 6)', f: '\\sqrt{@0}', conds: [C('arrel', 'x^2-5x+6', 'x^{2} - 5x + 6', {index: 2})]},
+  {id: 'arrel-factor-comu', nom: '√(−x² + 4x)', f: '\\sqrt{@0}', conds: [C('arrel', '-x^2+4x', '-x^{2} + 4x', {index: 2})]},
   {id: 'arrel-sempre', nom: '√(1 + x²)', f: '\\sqrt{@0}', conds: [C('arrel', '1+x^2', '1 + x^{2}', {index: 2})]},
   {id: 'arrel-quarta', nom: '⁴√(x² − 3x)', f: '\\sqrt[4]{@0}', conds: [C('arrel', 'x^2-3x', 'x^{2} - 3x', {index: 4})]},
   {id: 'arrel-denominador', nom: '1/√(x − 3)', f: '\\dfrac{1}{\\sqrt{@0}}', conds: [C('arrelDen', 'x-3', 'x - 3', {index: 2})]},

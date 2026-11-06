@@ -91,8 +91,6 @@ const resum = v => `f(x) = ${texPolinomi(Dd.termesDe(v))}`;
 /** «(x − 2)», «(x + 1)», «x»: per escriure c·(x − a)². */
 const xMenys = a => (a.esZero() ? 'x' : `(x ${a.signe() < 0 ? '+' : '-'} ${texNombre(a.abs())})`);
 
-/** El primer terme que s'ha de multiplicar en derivar (coeficient ≠ ±1, grau ≥ 2). */
-const primerAMultiplicar = llista => llista.find(t => t.n >= 2 && !Fraccio.de(t.c).abs().igual(1));
 
 
 /* ── 4. PASSOS ─────────────────────────────────────────────────────── */
@@ -107,21 +105,15 @@ function passos(v) {
   const D1 = F.membreEsquerre('D', 'f', 'x', 1);
   g.files[0] = D1 + F.derivadaIndicada('d', f);
   g.afegeix('Un màxim o un mínim relatiu només pot ser en un punt crític, on $f\'(x) = 0$. Primer, calcula la derivada $f\'(x)$.');
-  g.files[0] = D1 + F.derivadaBaixada('d', f);
-  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {cursor: {clic: 'dQ'}});
-  const feta1 = F.derivadaFeta('d', 'q', f);
+  const feta1 = F.derivadaDirecta('d', 'q', f);      // en una sola animació (David, nov. 2026)
   g.files[0] = D1 + feta1.tex;
-  if (feta1.multiplica) {
-    g.afegeix(`Multiplica: $f'(x) = ${texPolinomi(d1)}$.`,
-      {fusiona: feta1.fusiona, reanomena: feta1.reanomena, cursor: {clic: 'dm' + primerAMultiplicar(f).n}});
-  }
+  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(f)}`, {fusiona: feta1.fusiona, reanomena: feta1.reanomena, cursor: {clic: 'dQ'}});
 
-  /* 2. Els punts crítics: f'(x) = 0, a la fila 1. Si no s'ha multiplicat, les claus noves de la fila 0 van aquí. */
+  /* 2. Els punts crítics: f'(x) = 0, a la fila 1. */
   // Primer l'equació tal com es planteja, f'(x) = 0; després, amb l'expressió de f'(x). El «=» i el «0» (claus eq, ez) es queden.
   // L'equació es continua veient: els càlculs baixen a la fila 2 (Formules.resolEquacio), i les solucions acaben en lila.
   g.files[1] = F.membreEsquerre('e', 'f', 'x', 1) + K('ez', '0');
-  g.afegeix('Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.',
-    {reanomena: feta1.multiplica ? {} : feta1.reanomena});
+  g.afegeix('Els punts crítics són les solucions de l\'equació $f\'(x) = 0$.');
   const solucions = F.resolEquacio(g, {fila: 1, treball: 2, P: 'e', termes: d1, text: 'Substitueix $f\'(x)$ per la seva expressió.', lila: true,
     final: sol => `${sol.length > 1 ? 'Els punts crítics són' : 'L\'únic punt crític és'} ${sol.map(s => `$x = ${texNombre(s.valor)}$`).join(' i ')}.`});
 
@@ -147,14 +139,9 @@ function passos(v) {
   const D2 = F.membreEsquerre('D', 'f', 'x', 2);
   g.files[0] = D2 + F.derivadaIndicada('q', d1);
   g.afegeix('Per decidir-ho, fes servir la segona derivada: deriva $f\'(x)$.');
-  g.files[0] = D2 + F.derivadaBaixada('q', d1);
-  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(d1)}`, {cursor: {clic: 'qQ'}});
-  const feta2 = F.derivadaFeta('q', 'r', d1);
+  const feta2 = F.derivadaDirecta('q', 'r', d1);
   g.files[0] = D2 + feta2.tex;
-  if (feta2.multiplica) {
-    g.afegeix(`Multiplica: $f''(x) = ${texPolinomi(d2)}$.`,
-      {fusiona: feta2.fusiona, reanomena: feta2.reanomena, cursor: {clic: 'qm' + primerAMultiplicar(d1).n}});
-  }
+  g.afegeix(`Deriva terme a terme. ${Dd.reglesDerivada(d1)}`, {fusiona: feta2.fusiona, reanomena: feta2.reanomena, cursor: {clic: 'qQ'}});
 
   /* 5. Cada candidat: el signe de f''(a) i, si és un extrem, f(a). */
   const resultats = [];
@@ -164,7 +151,7 @@ function passos(v) {
     const H = F.membreEsquerre('H', 'f', A, 2);
     g.files[1] = H + F.substituit('s', d2, a);
     g.afegeix(`Substitueix el candidat $x = ${A}$ a $f''(x)$.`,
-      {reanomena: i === 0 && !feta2.multiplica ? feta2.reanomena : {}, cursor: {clic: 'Kv' + i}});
+      {cursor: {clic: 'Kv' + i}});
     g.files[1] = H + F.avaluat('s', d2, a);
     g.afegeix('Calcula cada terme.', {fusiona: F.fusionsAvaluat('s', d2), cursor: {clic: d2[0].n >= 1 ? 'sv' + d2[0].n : null}});
     const segona = M.valorTermes(d2, a);

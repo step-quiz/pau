@@ -9,7 +9,7 @@ To build the same kind of pages for another subject, start from `graspable-formu
 
 ## 0. What exists (October 2026)
 
-- 35 animated step-by-step pages ("procediments") in the style of Graspable Math, all four categories complete: Àlgebra 8 (diagonalisation replaced by «Esglaonar», Oct 2026; «Operacions amb matrius», 29 Oct 2026), Geometria 9 («Equacions de la recta», 29 Oct 2026), Anàlisi 15 (incl. «Domini d'una funció», Oct 2026, 23 fixed problems with interval notation, a real-line SVG and sign tables;  5 on integrals/areas and «Gràfica d'una funció», Oct 2026; «Integrals immediates», 29 Oct 2026), Probabilitat 3.
+- 35 animated step-by-step pages ("procediments") in the style of Graspable Math, all four categories complete: Àlgebra 8 (diagonalisation replaced by «Esglaonar», Oct 2026; «Operacions amb matrius», 29 Oct 2026), Geometria 9 («Equacions de la recta», 29 Oct 2026), Anàlisi 15 (incl. «Domini d'una funció», Oct 2026, 25 fixed problems (√(x² − 5x + 6) and √(−x² + 4x) added Nov 2026) with interval notation, a real-line SVG and sign tables;  5 on integrals/areas and «Gràfica d'una funció», Oct 2026; «Integrals immediates», 29 Oct 2026), Probabilitat 3.
 - Linked from the site home (`../index.html`): each category card has a **DEMO** button → dialog listing that category's pages (object `DEMOS` in `index.html`).
 - ~10 000 lines of vanilla JS, no build step, no dependencies except KaTeX 0.16.9 from cdnjs.
 - Tests: `node procediments/proves/comprova.js` → «Tot correcte: ~15.2 M comprovacions» (~4 min). Plus mutation scripts and Playwright browser tests (§6).
@@ -64,6 +64,8 @@ These came from David's feedback during development. Apply them by default.
 8. **Small sketches** (SVG, `Geometria.esquema(nom)`, `Grafiques.grafica`) to give the idea (normal ⟂ plane, shaded area pieces), never as proof. Tests check values, not drawings.
 9. Catalan notation: decimal comma, `;` between interval endpoints, `\iff` (⟺), `ℝ`, `λ, μ` for line parameters, `Dom f = ℝ − {…}`, full words instead of `AV/AH/AO`, `màx/mín`, answers with units and %.
 10. Target devices: **Chromebooks (students) and Lenovo laptops (teachers)**, i.e. small landscape screens (~1280–1366 × 600–700 CSS px, often with zoom). The play controls and the step text must be visible without scrolling there (the engine's height fit does this, §4). Phones are secondary: David said (Oct 2026) it is not worth a big effort; the growth table (intervals + `x = a` columns) is wider than a phone on purpose, at his request. Still avoid gratuitous horizontal overflow.
+
+5j. **Derivative of a polynomial in ONE animation (David, Nov 2026)**: «per derivar un polinomi, directament posa la seva derivada en una sola animació». Never the sum rule term by term, never `(a·xⁿ)′ = a·(xⁿ)′`, never the intermediate `2·2x − 3` + «Multiplica». Board: `f′(x) = (P)′` → `f′(x) = P′` (each monomial flies to its derivative). Shared writer `Formules.derivadaDirecta` (recta-tangent, extrems, creixement; grafica-funcio already did it); in tecnica-derivacio a polynomial subtree is a basic derivative (`coefsPolinomi`), also inside other rules ((3x² − 1)⁴ → chain rule, then `(3x² − 1)′ = 6x` at once).
 
 ### 3b. Rules generalised to every page (audit, Oct 2026)
 David asked that an improvement made in one place be applied everywhere it fits. Already applied:
