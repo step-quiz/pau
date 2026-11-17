@@ -145,6 +145,11 @@ button{font:inherit; color:inherit}
 .esquema{color:var(--txt)}
 .esquema .ob{fill:rgba(234,179,8,.30)}
 .esquema .ob.fons{fill:rgba(234,179,8,.55)}
+.esquema .cof{fill:rgba(16,161,113,.16)}                                       /* una àrea que és la condició (la finca) */
+.esquema .obl{fill:none; stroke:#d39e00; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round}   /* una línia que s'optimitza (la tanca de la finca) */
+.esquema .obl.gruixut{stroke-width:5.5}
+.esquema .ei{stroke:currentColor; stroke-width:1; opacity:.55}                 /* eixos */
+.esquema .vertex{fill:#10a171}
 .esquema .co{fill:none; stroke:#10a171; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round}
 .esquema .tr{fill:none; stroke:currentColor; stroke-width:1.4; stroke-linejoin:round}
 .esquema .td{fill:none; stroke:currentColor; stroke-width:1.1; stroke-dasharray:4 3}
