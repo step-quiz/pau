@@ -37,6 +37,7 @@ const TEMPS = Object.freeze({
   clic: 120,           // durada d'un clic
   aparta: 230,         // el cursor s'aparta del símbol
   agafa: 180,          // el cursor agafa un símbol abans d'arrossegar-lo
+  repos: 450,          // el cursor quiet s'esvaeix al cap d'aquest temps (David, 17/11/2026: si no fa res, molesta)
   esperaInici: 500,    // abans del primer pas, en reproduir
   llegir: 900,         // pausa entre passos en reproduir…
   perParaula: 120,     // …més aquest temps per paraula del text
@@ -263,7 +264,15 @@ function construeixPagina(proc, contenidor) {
 
 /** El cursor que clica i arrossega els símbols. Les posicions són les de la punta. */
 function creaCursor(escenari, el, temps) {
-  let x = null, y = null;                 // null: amagat
+  let x = null, y = null;                 // null: amagat i sense posició (la propera vegada surt de la cantonada)
+  let premut = false;
+  let repos = null;                       // temporitzador que l'esvaeix quan es queda quiet
+  const desperta = () => { clearTimeout(repos); repos = null; };
+  /** Quan acaba de fer alguna cosa, al cap d'una estona quiet s'esvaeix (però recorda on és). */
+  const descansa = () => {
+    desperta();
+    if (!premut && x !== null) repos = setTimeout(() => { repos = null; el.classList.remove('visible'); }, temps(TEMPS.repos));
+  };
   const transforma = (escala = 1) => `translate(${x}px, ${y}px) scale(${escala})`;
 
   /** Apareix per sota de la cantonada inferior dreta de l'escenari. */
@@ -277,17 +286,22 @@ function creaCursor(escenari, el, temps) {
   return {
     /** Va fins a (nx, ny), amb el botó premut si escala < 1. */
     async va(nx, ny, ms = temps(TEMPS.cursor), escala = 1) {
+      desperta();
       if (x === null) apareix();
+      else el.classList.add('visible');   // torna a aparèixer allà on s'havia esvaït
       const sortida = transforma(escala);
       x = nx;
       y = ny;
       await anima(el, [{transform: sortida}, {transform: transforma(escala)}], {duration: ms});
       el.style.transform = transforma(escala);
       aturaAnimacions(el);
+      if (x !== null) descansa();
     },
     /** Prem el botó, o el deixa anar. */
-    prem(premut) {
-      const [de, a] = premut ? [1, 0.86] : [0.86, 1];
+    prem(p) {
+      premut = p;
+      if (p) desperta(); else descansa();
+      const [de, a] = p ? [1, 0.86] : [0.86, 1];
       el.animate([{transform: transforma(de)}, {transform: transforma(a)}], {duration: temps(TEMPS.clic), fill: 'forwards'});
     },
     /** Ona d'un clic al punt (px, py). */
@@ -300,6 +314,8 @@ function creaCursor(escenari, el, temps) {
         {duration: temps(420), easing: 'ease-out'}).finished.then(() => o.remove());
     },
     amaga() {
+      desperta();
+      premut = false;
       x = y = null;
       el.classList.remove('visible');
       aturaAnimacions(el);
@@ -469,7 +485,8 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
   /** Còpia d'un símbol, posada exactament damunt del rectangle «q». */
   function fantasma(el, q) {
     const estil = getComputedStyle(el);
-    const f = element('div', {class: 'katex fantasma', 'data-de': el.dataset.k});
+    // Una frase d'una fila de text no és KaTeX: amb la classe «katex», la lletra i la mida de les fórmules de dins canviarien.
+    const f = element('div', {class: (el.closest('.fila.text') ? 'fantasma text' : 'katex fantasma'), 'data-de': el.dataset.k});
     f.style.fontSize = estil.fontSize;
     f.style.color = estil.color;
     f.style.fontFamily = estil.fontFamily;            // una frase de text no ha de canviar de lletra
@@ -510,7 +527,28 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     r.pissarra.append(nova);
     fesVisible(vella, nova);
 
-    const A = ambClau(vella), B = ambClau(nova);
+    // Files fixes: la mateixa fila, igual i al mateix lloc a les dues capes (p. ex. l'enunciat). No s'esvaeixen ni es
+    // redibuixen: es veu la de la capa vella fins al final (David, 17/11/2026: l'enunciat que es tornava a escriure a cada
+    // pas, i canviava una mica de mida, marejava). Els seus símbols no es mouen: no compten com a claus del pas.
+    // Una fila de text on només canvien les marques de les frases també és fixa: les marques hi canvien al seu lloc.
+    const senseMarques = h => h.replace(/ marca-[\w-]+/g, '');
+    const fixes = [];
+    [...nova.children].forEach((fn, i) => {
+      const fv = vella.children[i];
+      const text = fn.classList.contains('text');
+      if (!fv || fv.hidden || fn.hidden || !fn.innerHTML
+        || (text ? senseMarques(fv.innerHTML) !== senseMarques(fn.innerHTML) : fv.innerHTML !== fn.innerHTML)
+        || fv.className !== fn.className.replace(/\s*\bnova\b/, '')) return;
+      const a = rectangle(fv, r.efectes), b = rectangle(fn, r.efectes);
+      if (Math.abs(a.x - b.x) > 0.5 || Math.abs(a.y - b.y) > 0.5 || Math.abs(a.w - b.w) > 0.5 || Math.abs(a.h - b.h) > 0.5) return;
+      fv.classList.add('fixa');
+      fn.classList.add('fixa');
+      fixes.push([fv, fn]);
+    });
+    const deFilaMobil = m => new Map([...m].filter(([, e]) => !e.closest('.fixa')));
+
+    const A0 = ambClau(vella), RA0 = posicions(A0);       // el cursor pot clicar un símbol d'una fila fixa
+    const A = deFilaMobil(A0), B = deFilaMobil(ambClau(nova));
     const RA = posicions(A), RB = posicions(B);
     const reanomena = new Map(Object.entries(pas.reanomena || {}));
     const fusiona = new Map(Object.entries(pas.fusiona || {}));
@@ -559,8 +597,8 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
       arrossegat = {r0, r1, el: requadre(r0, temps(TEMPS.agafa))};
       cursor.prem(true);
       await espera(temps(TEMPS.agafa));
-    } else if (c.clic && RA.has(c.clic)) {
-      const q = lloc(RA, TA, c.clic);
+    } else if (c.clic && RA0.has(c.clic)) {
+      const q = RA.has(c.clic) ? lloc(RA, TA, c.clic) : RA0.get(c.clic);
       await cursor.va(q.cx, q.cy + q.h * 0.15);
       cursor.prem(true);
       cursor.ona(q.cx, q.cy);
@@ -597,8 +635,20 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     vella.classList.add('amaga-claus');
     nova.classList.add('amaga-claus');
     nova.style.visibility = 'visible';
-    feines.push(anima(vella, [{opacity: 1}, {opacity: 0}], {duration: D * 0.6}));
-    feines.push(anima(nova, [{opacity: 0}, {opacity: 1}], {duration: D * 0.6, delay: D * 0.4}));
+    // Les marques noves de les frases de les files fixes (el color de fons hi apareix a poc a poc: estil.css, .frase).
+    for (const [fv, fn] of fixes) {
+      const fn_ = fn.querySelectorAll('.frase');
+      fv.querySelectorAll('.frase').forEach((e, j) => { if (fn_[j] && e.className !== fn_[j].className) e.className = fn_[j].className; });
+    }
+    if (fixes.length) {
+      // Les files fixes de la capa nova no es veuen fins al final (a sota hi ha les velles, idèntiques); la resta es fon fila a fila.
+      for (const [, fn] of fixes) fn.style.opacity = '0';
+      for (const f of vella.children) if (!f.classList.contains('fixa')) feines.push(anima(f, [{opacity: 1}, {opacity: 0}], {duration: D * 0.6}));
+      for (const f of nova.children) if (!f.classList.contains('fixa')) feines.push(anima(f, [{opacity: 0}, {opacity: 1}], {duration: D * 0.6, delay: D * 0.4}));
+    } else {
+      feines.push(anima(vella, [{opacity: 1}, {opacity: 0}], {duration: D * 0.6}));
+      feines.push(anima(nova, [{opacity: 0}, {opacity: 1}], {duration: D * 0.6, delay: D * 0.4}));
+    }
 
     // Els requadres d'avís segueixen el seu símbol, o s'esvaeixen amb ell.
     for (const a of avisos) {
@@ -663,6 +713,7 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     nova.querySelectorAll('.sense-fantasma').forEach(e => e.classList.remove('sense-fantasma'));
     nova.style.visibility = '';
     aturaAnimacions(nova);
+    for (const f of nova.children) { aturaAnimacions(f); f.classList.remove('fixa'); f.style.opacity = ''; }
     capa = nova;
     for (const e of [...r.efectes.children]) if (!arrossegat || e !== arrossegat.el) e.remove();
     if (arrossegat) {
