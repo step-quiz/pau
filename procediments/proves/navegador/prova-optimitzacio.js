@@ -73,8 +73,8 @@ const estat = p => p.evaluate(() => {
       ok(bons === total - 1 && pitjor <= 0, `example ${e + 1}: ${bons}/${total - 1} animated steps end on the expected board, overflow ${pitjor}`);
       await p.screenshot({path: path.join(SHOTS, `o-ex${e + 1}-final.png`), fullPage: true});
     }
-    ok(await p.evaluate(() => location.search) === '?p=nombres', 'address follows the problems: ' + await p.evaluate(() => location.search));
-    ok(await p.$$eval('.exemple[aria-pressed="true"]', b => b.map(x => x.textContent).join()) === 'Dos nombres', 'active problem chip');
+    ok(await p.evaluate(() => location.search) === '?p=pista', 'address follows the problems: ' + await p.evaluate(() => location.search));
+    ok(await p.$$eval('.exemple[aria-pressed="true"]', b => b.map(x => x.textContent).join()) === 'Pista d\'atletisme', 'active problem chip');
     ok(await p.$eval('.editor', e => e.hidden) && await p.$eval('.resum', e => e.hidden), 'no editor and no summary');
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();

@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    optimitzacio.js — Procediment: problemes d'optimització
    ───────────────────────────────────────────────────────────────────
-   Sis problemes fixos (sense editor), versions simplificades de
+   Cinc problemes fixos (sense editor), versions simplificades de
    problemes de PAU, tots resolts amb la mateixa tècnica:
      0. llegir l'enunciat i marcar-hi què s'ha d'optimitzar (funció
         objectiu, en groc) i quina condició lliga les variables (en verd);
@@ -16,10 +16,10 @@
         domini, tatxades;
      6. la segona derivada diu si és un màxim o un mínim;
      7. la resposta: totes les mides i el valor òptim.
-   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, nombres)
+   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista)
 
    La pissarra té vuit files (FILA):
-     fila 0  l'esquema petit (flota a la dreta de l'enunciat; buida a «Dos nombres»)
+     fila 0  l'esquema petit (a dalt a la dreta de l'enunciat)
      fila 1  l'enunciat, amb les frases marcades
      fila 2  la funció          fila 3  la condició (al pas de la funció, l'esquema gran)
      fila 4  el domini          fila 5  la derivada (i la segona)
@@ -71,7 +71,7 @@ const {clau: K, rel: R} = F;
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
      resposta                  el text final, amb les unitats
-     figura                    l'esquema (no n'hi ha a «Dos nombres»): dibuix (la funció de
+     figura                    l'esquema: dibuix (la funció de
                                ESQUEMES), lletres (mides per dibuixar-lo amb les lletres, sense
                                proporcions reals), final (les mides òptimes, a escala), textos
                                (com s'escriuen les mides òptimes; '2r' és el doble de r) i valor
@@ -238,33 +238,6 @@ const PROBLEMES = Object.freeze([
       text: 'Calcula l\'àrea màxima: $A = 2r \\cdot x$.'},
     resposta: 'Els semicercles han de tenir radi $\\frac{100}{\\pi} \\approx 31{,}8$ m, i les rectes, $100$ m. El camp fa $100$ m per $\\frac{200}{\\pi} \\approx 63{,}7$ m, '
       + 'i l\'àrea màxima és $\\frac{20000}{\\pi} \\approx 6366$ m².',
-  },
-  {
-    id: 'nombres', nom: 'Dos nombres',
-    lectura: {
-      text: 'Busquem [c*:dos nombres positius que sumin $12$], tals que [o*:el producte d\'un pel quadrat de l\'altre sigui el més gran possible]. '
-        + 'Quins són? Quin és aquest producte?',
-      objectiu: 'Què volem optimitzar? «El producte d\'un pel quadrat de l\'altre», que ha de ser el més gran possible: aquesta és la funció objectiu.',
-      condicio: 'Què lliga els dos nombres? «Que sumin $12$»: aquesta és la condició.',
-    },
-    v: 'y', w: 'x', f: 'P', maxim: true,
-    funcio: {tex: 'x \\cdot y^{2}', text: 'Escriu la funció objectiu amb dues variables: el producte d\'un nombre, $x$, pel quadrat de l\'altre, $y$, és $P = x \\cdot y^2$.'},
-    condicio: [
-      {tex: 'x + y = 12', text: 'Escriu la condició com una igualtat: els dos nombres sumen $12$.'},
-      {aillada: '12 - y', text: 'Aïlla $x$: és més fàcil que aïllar $y$.'},
-    ],
-    substitucio: {tex: '(12 - y) \\cdot y^{2}', text: 'Substitueix $x$ a la funció: ara el producte només depèn de $y$.'},
-    simplifica: [{tex: '12y^{2} - y^{3}', text: 'Fes el producte.'}],
-    domini: {tex: '0 < y < 12', text: 'El domini: els dos nombres són positius, $y > 0$ i $x = 12 - y > 0$.'},
-    derivada: {tex: '-3y^{2} + 24y', text: 'Deriva la funció (ordena els termes de més a menys grau).'},
-    equacio: {
-      polinomi: {termes: [{n: 2, c: -3}, {n: 1, c: 24}], text: 'Substitueix $P\'(y)$ per la seva expressió.'},
-      candidat: '8', descarta: ' Però $y = 0$ no és del domini: els nombres han de ser positius.',
-    },
-    segona: {tex: '24 - 6y', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'P\'\'(8) = 24 - 6 \\cdot 8 = -24'},
-    altra: {calcul: 'x = 12 - 8 = 4', resposta: 'x = 4', text: 'Calcula l\'altre nombre: $x = 12 - y$.'},
-    optim: {calcul: 'P(8) = 12 \\cdot 8^{2} - 8^{3} = 256', resposta: 'P = 256', text: 'Calcula el producte màxim.'},
-    resposta: 'Els nombres són $x = 4$ i $y = 8$, i el producte màxim és $4 \\cdot 8^2 = 256$.',
   },
 ]);
 
