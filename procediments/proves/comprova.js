@@ -219,7 +219,7 @@ function separaTatxades(tex) {
 }
 
 /** Claus d'una línia TeX, en ordre. */
-const clausDe = tex => [...tex.matchAll(/\\htmlData\{k=([^},]*)[^}]*\}|\{\{([^|}]+)\|/g)].map(m => m[1] || m[2]);
+const clausDe = tex => [...tex.matchAll(/\\htmlData\{k=([^},]*)[^}]*\}|\{\{([^|}]+)\||^<svg[^>]* data-k="([^"]+)"/g)].map(m => m[1] || m[2] || m[3]);
 
 /** Valor exacte (Fraccio) d'un arbre de Mates.llegeix. */
 function exacte(n, entorn) {
@@ -1107,6 +1107,10 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   const FILA = Optimitzacio.FILA;
   passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
     if (!tex || fila === FILA.enunciat) return;                      // l'enunciat no és una igualtat
+    if (tex.startsWith('<svg')) {                                    // l'esquema: a part (comprovaEsquemes)
+      comprova(fila === FILA.esquema || (fila === FILA.condicio && !passos[i - 1].files[FILA.condicio]), () => `${nom}, pas ${i + 1}: l'esquema no és al seu lloc`);
+      return;
+    }
     const on = `${nom}, pas ${i + 1}, fila ${fila + 1}`;
     let pla = '';
     try {
@@ -1210,6 +1214,46 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   return linies;
 }
 
+/**
+ * Els esquemes d'optimització: les mides amb lletres són exactament les dues variables del problema; a l'últim pas,
+ * l'esquema és el final, i cada mida i el valor òptim són els del model (amb «≈», arrodonits a l'última xifra escrita).
+ * El valor de π és el de veritat (355/113 n'és prou a prop per a una xifra decimal).
+ */
+function comprovaEsquemes(problema, model, llista) {
+  const nom = problema.id, FILA = Optimitzacio.FILA;
+  const amb = llista.filter(q => q.files.some(t => t.startsWith('<svg')));
+  if (!problema.figura) { comprova(!amb.length, () => `${nom}: no hauria de tenir esquema`); return; }
+  const mides = svg => [...svg.matchAll(/<text class="(et|en)" data-l="(\w+)"(?: data-f="(\d+)")? [^>]*>([^<]*)<\/text>/g)]
+    .map(m => ({classe: m[1], l: m[2], f: Number(m[3] || 1), text: m[4]}));
+  const inicial = Optimitzacio.esquema(problema), final = Optimitzacio.esquema(problema, true);
+  const lletres = new Set(mides(inicial).map(m => m.l));
+  comprova(lletres.size === 2 && lletres.has(model.v) && lletres.has(model.w), () => `${nom}: les lletres de l'esquema (${[...lletres]}) no són ${model.v} i ${model.w}`);
+  comprova(mides(inicial).every(m => m.classe === 'et' && m.text === (m.f === 1 ? m.l : m.f + m.l)), () => `${nom}: una mida de l'esquema no és la seva lletra`);
+  const pi = fr(355, 113), optim = model.optim(pi);
+  const valorDe = {[model.v]: optim.valor(), [model.w]: model.W(optim, pi).valor()};
+  const llegeix = t => {               // «10», «≈ 31,8», «27π»: el nombre i la tolerància
+    const aprox = t.includes('≈'), net = t.replace('≈', '').replace(',', '.').trim();
+    const m = /^(-?[\d.]+)(π?)$/.exec(net);
+    if (!m) return null;
+    const dec = (m[1].split('.')[1] || '').length;
+    return {n: Number(m[1]) * (m[2] ? Math.PI : 1), aprox, dec};
+  };
+  // Amb «≈», mitja unitat de l'última xifra (més l'error de 355/113); sense, el valor exacte.
+  const quadra = (t, esperat) => { const q = llegeix(t); return Boolean(q) && Math.abs(q.n - esperat) <= (q.aprox ? 0.5 * 10 ** -q.dec + 1e-4 : 1e-6 * Math.max(1, Math.abs(esperat))); };
+  for (const m of mides(final)) comprova(m.classe === 'en' && quadra(m.text, m.f * valorDe[m.l]), () => `${nom}: a l'esquema final, ${m.f === 1 ? '' : m.f}${m.l} = «${m.text}» no és ${m.f * valorDe[m.l]}`);
+  comprova(new Set(mides(final).map(m => m.l)).size === 2, () => `${nom}: a l'esquema final hi falten mides`);
+  const valor = /^(\w) ([=≈]) (.+?) (m²|cm³|€)$/.exec(problema.figura.valor);
+  comprova(valor && valor[1] === model.f && quadra((valor[2] === '≈' ? '≈ ' : '') + valor[3], model.O(optim, model.W(optim, pi), pi).valor()),
+    () => `${nom}: el valor òptim de l'esquema («${problema.figura.valor}») no és el del model`);
+  comprova(final.includes(problema.figura.valor), () => `${nom}: l'esquema final no escriu el valor òptim`);
+  // On surt: gran a la condició al pas de la funció, després al costat de l'enunciat, i el final a l'últim pas.
+  const darrer = llista[llista.length - 1];
+  comprova(darrer.files[FILA.esquema] === final, () => `${nom}: a l'últim pas no hi ha l'esquema final`);
+  comprova(amb[0].files[FILA.condicio] === inicial && amb[0].files[FILA.funcio], () => `${nom}: l'esquema ha de sortir gran amb la funció objectiu`);
+  comprova(llista.every(q => q.classes[FILA.esquema] === 'esquema-costat' && q.classes[FILA.enunciat] === 'amb-esquema'), () => `${nom}: classes de l'esquema i de l'enunciat`);
+  comprova(llista.some(q => (q.llum || []).length), () => `${nom}: cap pas il·lumina les lletres de l'esquema`);
+}
+
 seccio('optimització', () => {
   let linies = 0, passos = 0;
   for (const problema of Optimitzacio.problemes) {
@@ -1241,6 +1285,7 @@ seccio('optimització', () => {
       const llista = Optimitzacio.passos({p: problema.id});
       comprovaGuio(llista, Optimitzacio.files, problema.id);
       linies += comprovaOptimitzacio(llista, model, pi, `${problema.id} (π = ${pi.num}/${pi.den})`);
+      comprovaEsquemes(problema, model, llista);
       passos += llista.length;
     }
     comprova(iguals(Optimitzacio.llegeixAdreca(Optimitzacio.escriuAdreca({p: problema.id})).valors, {p: problema.id}), () => `${problema.id}: adreça`);

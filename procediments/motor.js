@@ -37,6 +37,7 @@ const TEMPS = Object.freeze({
   clic: 120,           // durada d'un clic
   aparta: 230,         // el cursor s'aparta del símbol
   agafa: 180,          // el cursor agafa un símbol abans d'arrossegar-lo
+  llum: 1300,          // una lletra d'un esquema que s'il·lumina (pas.llum)
   repos: 450,          // el cursor quiet s'esvaeix al cap d'aquest temps (David, 17/11/2026: si no fa res, molesta)
   esperaInici: 500,    // abans del primer pas, en reproduir
   llegir: 900,         // pausa entre passos en reproduir…
@@ -715,6 +716,13 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     aturaAnimacions(nova);
     for (const f of nova.children) { aturaAnimacions(f); f.classList.remove('fixa'); f.style.opacity = ''; }
     capa = nova;
+    // pas.llum: les mides d'un esquema (data-l) de les variables que surten en una fórmula nova s'il·luminen un moment.
+    const llum = getComputedStyle(r.pissarra).getPropertyValue('--llum').trim() || '#2563eb';
+    for (const l of pas.llum || []) {
+      for (const e of nova.querySelectorAll(`[data-l="${l}"]`)) {
+        e.animate([{fill: llum, offset: 0.2}, {fill: llum, offset: 0.75}], {duration: temps(TEMPS.llum), easing: 'ease-in-out'});
+      }
+    }
     for (const e of [...r.efectes.children]) if (!arrossegat || e !== arrossegat.el) e.remove();
     if (arrossegat) {
       const {r1, el} = arrossegat;
