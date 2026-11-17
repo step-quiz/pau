@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    optimitzacio.js — Procediment: problemes d'optimització
    ───────────────────────────────────────────────────────────────────
-   Sis problemes fixos (sense editor), versions simplificades de
+   Vuit problemes fixos (sense editor), versions simplificades de
    problemes de PAU, tots resolts amb la mateixa tècnica:
      0. llegir l'enunciat i marcar-hi què s'ha d'optimitzar (funció
         objectiu, en groc) i quina condició lliga les variables (en verd);
@@ -16,10 +16,10 @@
         domini, tatxades;
      6. la segona derivada diu si és un màxim o un mínim;
      7. la resposta: totes les mides i el valor òptim.
-   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, nombres)
+   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, cartell, finca, parabola)
 
    La pissarra té vuit files (FILA):
-     fila 0  l'esquema petit (flota a la dreta de l'enunciat; buida a «Dos nombres»)
+     fila 0  l'esquema petit (a dalt a la dreta de l'enunciat)
      fila 1  l'enunciat, amb les frases marcades
      fila 2  la funció          fila 3  la condició (al pas de la funció, l'esquema gran)
      fila 4  el domini          fila 5  la derivada (i la segona)
@@ -71,7 +71,7 @@ const {clau: K, rel: R} = F;
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
      resposta                  el text final, amb les unitats
-     figura                    l'esquema (no n'hi ha a «Dos nombres»): dibuix (la funció de
+     figura                    l'esquema: dibuix (la funció de
                                ESQUEMES), lletres (mides per dibuixar-lo amb les lletres, sense
                                proporcions reals), final (les mides òptimes, a escala), textos
                                (com s'escriuen les mides òptimes; '2r' és el doble de r) i valor
@@ -240,31 +240,109 @@ const PROBLEMES = Object.freeze([
       + 'i l\'àrea màxima és $\\frac{20000}{\\pi} \\approx 6366$ m².',
   },
   {
-    id: 'nombres', nom: 'Dos nombres',
+    id: 'cartell', nom: 'Cartell amb marges',
+    figura: {dibuix: 'cartell', lletres: {x: 7, y: 13.7}, final: {x: 8, y: 12}, textos: {x: '8', y: '12'}, valor: 'A = 216 cm²'},
     lectura: {
-      text: 'Busquem [c*:dos nombres positius que sumin $12$], tals que [o*:el producte d\'un pel quadrat de l\'altre sigui el més gran possible]. '
-        + 'Quins són? Quin és aquest producte?',
-      objectiu: 'Què volem optimitzar? «El producte d\'un pel quadrat de l\'altre», que ha de ser el més gran possible: aquesta és la funció objectiu.',
-      condicio: 'Què lliga els dos nombres? «Que sumin $12$»: aquesta és la condició.',
+      text: 'El [c*:text d\'un cartell ha d\'ocupar $96$ cm²]. [o:Els marges de dalt i de baix fan $3$ cm, i els dels costats, $2$ cm]. '
+        + 'Quines mides ha de tenir el cartell [o*:perquè es gasti tan poc paper com sigui possible]? Quant paper caldrà?',
+      objectiu: 'Què volem optimitzar? «Que es gasti tan poc paper com sigui possible»: la funció objectiu és l\'àrea del cartell, i en busquem el mínim. Per escriure-la calen els marges.',
+      condicio: 'Què lliga les mides? L\'àrea del text, que ha de fer $96$ cm². Aquesta és la condició.',
     },
-    v: 'y', w: 'x', f: 'P', maxim: true,
-    funcio: {tex: 'x \\cdot y^{2}', text: 'Escriu la funció objectiu amb dues variables: el producte d\'un nombre, $x$, pel quadrat de l\'altre, $y$, és $P = x \\cdot y^2$.'},
+    v: 'x', w: 'y', f: 'A', maxim: false,
+    funcio: {tex: '(x + 4) \\cdot (y + 6)', text: 'Escriu la funció objectiu amb dues variables: el text fa $x$ d\'amplada i $y$ d\'altura. '
+      + 'El cartell fa $2$ cm més a cada costat, $x + 4$, i $3$ cm més a dalt i a baix, $y + 6$. El paper és $A = (x + 4) \\cdot (y + 6)$.'},
     condicio: [
-      {tex: 'x + y = 12', text: 'Escriu la condició com una igualtat: els dos nombres sumen $12$.'},
-      {aillada: '12 - y', text: 'Aïlla $x$: és més fàcil que aïllar $y$.'},
+      {tex: 'x \\cdot y = 96', text: 'Escriu la condició com una igualtat: el text, $x \\cdot y$, fa $96$ cm².'},
+      {aillada: '\\dfrac{96}{x}', text: 'Aïlla $y$.'},
     ],
-    substitucio: {tex: '(12 - y) \\cdot y^{2}', text: 'Substitueix $x$ a la funció: ara el producte només depèn de $y$.'},
-    simplifica: [{tex: '12y^{2} - y^{3}', text: 'Fes el producte.'}],
-    domini: {tex: '0 < y < 12', text: 'El domini: els dos nombres són positius, $y > 0$ i $x = 12 - y > 0$.'},
-    derivada: {tex: '-3y^{2} + 24y', text: 'Deriva la funció (ordena els termes de més a menys grau).'},
+    substitucio: {tex: '(x + 4) \\cdot \\left(\\dfrac{96}{x} + 6\\right)', text: 'Substitueix $y$ a la funció: ara el paper només depèn de $x$.'},
+    simplifica: [
+      {tex: '96 + 6x + \\dfrac{384}{x} + 24', text: 'Fes el producte: cada terme del primer parèntesi per cada terme del segon.'},
+      {tex: '6x + 120 + \\dfrac{384}{x}', text: 'Suma els nombres: $96 + 24 = 120$.'},
+    ],
+    domini: {tex: 'x > 0', text: 'El domini: l\'amplada del text ha de ser positiva, $x > 0$ (i llavors l\'altura també ho és).'},
+    derivada: {tex: '6 - \\dfrac{384}{x^{2}}', text: 'Deriva la funció. El $120$ és una constant: la seva derivada és $0$. '
+      + 'Per derivar $\\frac{384}{x}$, escriu-la com una potència: $384x^{-1}$. La seva derivada és $-384x^{-2} = -\\frac{384}{x^2}$.'},
     equacio: {
-      polinomi: {termes: [{n: 2, c: -3}, {n: 1, c: 24}], text: 'Substitueix $P\'(y)$ per la seva expressió.'},
-      candidat: '8', descarta: ' Però $y = 0$ no és del domini: els nombres han de ser positius.',
+      manual: [
+        {tex: '6 - \\dfrac{384}{x^{2}} = 0', text: 'Substitueix $A\'(x)$ per la seva expressió.'},
+        {tex: '6x^{2} - 384 = 0', text: 'Multiplica els dos membres per $x^2$, que no és $0$.'},
+        {tex: 'x^{2} = 64', text: 'Passa el $-384$ a l\'altre costat i divideix per $6$.'},
+        {tex: 'x = \\pm 8', text: 'Fes l\'arrel quadrada: hi ha dues solucions.'},
+        {tex: 'x = 8', text: 'Però $x = -8$ no és del domini: l\'amplada ha de ser positiva.'},
+      ],
+      candidat: '8',
     },
-    segona: {tex: '24 - 6y', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'P\'\'(8) = 24 - 6 \\cdot 8 = -24'},
-    altra: {calcul: 'x = 12 - 8 = 4', resposta: 'x = 4', text: 'Calcula l\'altre nombre: $x = 12 - y$.'},
-    optim: {calcul: 'P(8) = 12 \\cdot 8^{2} - 8^{3} = 256', resposta: 'P = 256', text: 'Calcula el producte màxim.'},
-    resposta: 'Els nombres són $x = 4$ i $y = 8$, i el producte màxim és $4 \\cdot 8^2 = 256$.',
+    segona: {tex: '\\dfrac{768}{x^{3}}', text: 'Per saber si és un mínim, calcula la segona derivada: $-384x^{-2}$ es deriva com $768x^{-3}$.',
+      valor: 'A\'\'(8) = \\dfrac{768}{8^{3}} = \\dfrac{3}{2}'},
+    altra: {calcul: 'y = \\dfrac{96}{8} = 12', resposta: 'y = 12', text: 'Calcula l\'altura del text: $y = \\frac{96}{x}$.'},
+    optim: {calcul: 'A(8) = 6 \\cdot 8 + 120 + \\dfrac{384}{8} = 216', resposta: 'A = 216', text: 'Calcula el paper mínim.'},
+    resposta: 'El text fa $8 \\times 12$ cm, i el cartell, amb els marges, $12 \\times 18$ cm. Cal un mínim de $216$ cm² de paper.',
+  },
+  {
+    id: 'finca', nom: 'Finca al costat d\'un camí',
+    figura: {dibuix: 'finca', lletres: {x: 26, y: 31}, final: {x: 40, y: 20}, textos: {x: '40', y: '20'}, valor: 'C = 1600 €'},
+    lectura: {
+      text: 'Volem tancar [c*:una finca rectangular de $800$ m²] que toca un camí. [o:La tanca del costat del camí costa $30$ €/m, '
+        + 'i la dels altres tres costats, $10$ €/m]. Quines mides fan [o*:que la tanca costi tan poc com sigui possible]? Quant costarà?',
+      objectiu: 'Què volem optimitzar? «Que la tanca costi tan poc com sigui possible»: la funció objectiu és el cost de la tanca. Per escriure-la calen els dos preus.',
+      condicio: 'Què lliga les mides? L\'àrea: la finca ha de fer $800$ m². Aquesta és la condició.',
+    },
+    v: 'x', w: 'y', f: 'C', maxim: false,
+    funcio: {tex: '20x + 40y', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ els dos costats perpendiculars al camí i $y$ els dos paral·lels. '
+      + 'El costat del camí costa $30y$ €, l\'altre costat paral·lel, $10y$ €, i els dos costats $x$, $10 \\cdot 2x = 20x$ €. En total, $C = 20x + 40y$.'},
+    condicio: [
+      {tex: 'x \\cdot y = 800', text: 'Escriu la condició com una igualtat: l\'àrea, $x \\cdot y$, és $800$ m².'},
+      {aillada: '\\dfrac{800}{x}', text: 'Aïlla $y$.'},
+    ],
+    substitucio: {tex: '20x + 40 \\cdot \\dfrac{800}{x}', text: 'Substitueix $y$ a la funció: ara el cost només depèn de $x$.'},
+    simplifica: [{tex: '20x + \\dfrac{32000}{x}', text: 'Fes el producte: $40 \\cdot 800 = 32000$.'}],
+    domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altre costat també ho és).'},
+    derivada: {tex: '20 - \\dfrac{32000}{x^{2}}', text: 'Deriva la funció. Per derivar $\\frac{32000}{x}$, escriu-la com una potència: $32000x^{-1}$. '
+      + 'La seva derivada és $-32000x^{-2} = -\\frac{32000}{x^2}$.'},
+    equacio: {
+      manual: [
+        {tex: '20 - \\dfrac{32000}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
+        {tex: '20x^{2} - 32000 = 0', text: 'Multiplica els dos membres per $x^2$, que no és $0$.'},
+        {tex: 'x^{2} = 1600', text: 'Passa el $-32000$ a l\'altre costat i divideix per $20$.'},
+        {tex: 'x = \\pm 40', text: 'Fes l\'arrel quadrada: hi ha dues solucions.'},
+        {tex: 'x = 40', text: 'Però $x = -40$ no és del domini: un costat no pot ser negatiu.'},
+      ],
+      candidat: '40',
+    },
+    segona: {tex: '\\dfrac{64000}{x^{3}}', text: 'Per saber si és un mínim, calcula la segona derivada: $-32000x^{-2}$ es deriva com $64000x^{-3}$.',
+      valor: 'C\'\'(40) = \\dfrac{64000}{40^{3}} = 1'},
+    altra: {calcul: 'y = \\dfrac{800}{40} = 20', resposta: 'y = 20', text: 'Calcula l\'altre costat: $y = \\frac{800}{x}$.'},
+    optim: {calcul: 'C(40) = 20 \\cdot 40 + \\dfrac{32000}{40} = 1600', resposta: 'C = 1600', text: 'Calcula el cost mínim.'},
+    resposta: 'La finca ha de fer $40$ m (els costats perpendiculars al camí) per $20$ m (el costat del camí), i la tanca costa $1600$ €.',
+  },
+  {
+    id: 'parabola', nom: 'Rectangle sota una paràbola',
+    figura: {dibuix: 'parabola', lletres: {x: 2.7}, final: {x: 2}, textos: {x: '2', y: '8'}, valor: 'A = 32'},
+    lectura: {
+      text: 'Un rectangle té [c:la base sobre l\'eix $OX$] i [c*:els dos vèrtexs de dalt sobre la paràbola $y = 12 - x^2$]. '
+        + 'Quines mides fan [o*:que la seva àrea sigui màxima]? Quina és aquesta àrea?',
+      objectiu: 'Què volem optimitzar? «Que la seva àrea sigui màxima»: la funció objectiu és l\'àrea del rectangle, i en busquem el màxim.',
+      condicio: 'Què lliga les mides? Els vèrtexs de dalt són sobre la paràbola: la seva altura és la $y$ de la paràbola. Aquesta és la condició.',
+    },
+    v: 'x', w: 'y', f: 'A', maxim: true,
+    funcio: {tex: '2x \\cdot y', text: 'Escriu la funció objectiu amb dues variables: els vèrtexs de dalt són $(x, y)$ i $(-x, y)$, amb $x > 0$. '
+      + 'La base fa $2x$ i l\'altura, $y$: $A = 2x \\cdot y$.'},
+    condicio: [
+      {aillada: '12 - x^{2}', text: 'Escriu la condició: el vèrtex $(x, y)$ és sobre la paràbola, és a dir, $y = 12 - x^2$.'},
+    ],
+    substitucio: {tex: '2x \\cdot (12 - x^{2})', text: 'Substitueix $y$ a la funció: ara l\'àrea només depèn de $x$.'},
+    simplifica: [{tex: '24x - 2x^{3}', text: 'Fes el producte.'}],
+    domini: {tex: '0 < x < \\sqrt{12}', text: 'El domini: $x > 0$, i l\'altura també ha de ser positiva: $12 - x^2 > 0$, és a dir, $x < \\sqrt{12}$.'},
+    derivada: {tex: '-6x^{2} + 24', text: 'Deriva la funció (ordena els termes de més a menys grau).'},
+    equacio: {
+      polinomi: {termes: [{n: 2, c: -6}, {n: 0, c: 24}], text: 'Substitueix $A\'(x)$ per la seva expressió.'},
+      candidat: '2', descarta: ' Però $x = -2$ no és del domini: $x$ ha de ser positiu.',
+    },
+    segona: {tex: '-12x', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'A\'\'(2) = -12 \\cdot 2 = -24'},
+    altra: {calcul: 'y = 12 - 2^{2} = 8', resposta: 'y = 8', text: 'Calcula l\'altura: $y = 12 - x^2$.'},
+    optim: {calcul: 'A(2) = 24 \\cdot 2 - 2 \\cdot 2^{3} = 32', resposta: 'A = 32', text: 'Calcula l\'àrea màxima.'},
+    resposta: 'Els vèrtexs de dalt són a $x = \\pm 2$: el rectangle fa $4$ de base i $8$ d\'altura, i l\'àrea màxima és $32$.',
   },
 ]);
 
@@ -365,6 +443,39 @@ const ESQUEMES = {
     t += mida(et, 'r', fi[0] + 4, fi[1] - 12, 'middle');
     t += mida(et, 'x', 130, Y0 - 8) + mida(et, 'r', 130, cy + 5, 'middle', 2);
     if (et.final) t += paraula(et.valor, 130, cy + R + 22);
+    return t;
+  },
+  cartell(m, et) {
+    const W = m.x + 4, H = m.y + 6, s = Math.min(170 / W, 136 / H), w = W * s, h = H * s, X0 = 130 - w / 2, Y0 = 10 + (136 - h) / 2;
+    let t = `<rect class="ob" x="${nombre(X0)}" y="${nombre(Y0)}" width="${nombre(w)}" height="${nombre(h)}"/>`
+      + `<rect class="tr" x="${nombre(X0)}" y="${nombre(Y0)}" width="${nombre(w)}" height="${nombre(h)}"/>`;
+    const tx = X0 + 2 * s, ty = Y0 + 3 * s, tw = m.x * s, th = m.y * s;
+    t += `<rect class="co" x="${nombre(tx)}" y="${nombre(ty)}" width="${nombre(tw)}" height="${nombre(th)}"/>`;
+    t += paraula('3', 130, Y0 + 1.5 * s + 4) + paraula('2', X0 + s, ty + th / 2 + 4);
+    t += mida(et, 'x', 130, ty + 17) + mida(et, 'y', tx + tw - 6, ty + th / 2 + 5, 'end');   // el rectangle verd és el text
+    if (et.final) t += paraula(et.valor, 130, 166);
+    return t;
+  },
+  finca(m, et) {
+    const s = Math.min(180 / m.y, 96 / m.x), w = m.y * s, h = m.x * s, X0 = 130 - w / 2, Yb = 128, Y0 = Yb - h;
+    let t = `<rect class="tr" x="24" y="${Yb + 4}" width="212" height="16"/>` + paraula('camí', 130, Yb + 16);
+    t += `<rect class="cof" x="${nombre(X0)}" y="${nombre(Y0)}" width="${nombre(w)}" height="${nombre(h)}"/>`;
+    t += pol([[X0, Yb], [X0, Y0], [X0 + w, Y0], [X0 + w, Yb]], 'obl', false) + lin([X0, Yb], [X0 + w, Yb], 'obl gruixut');
+    t += mida(et, 'x', X0 - 8, Y0 + h / 2 + 5, 'end') + mida(et, 'y', 130, Y0 - 9);
+    if (et.final) t += paraula(et.valor, 130, 166);
+    return t;
+  },
+  parabola(m, et) {
+    const ox = 130, oy = 142, sx = 27, sy = 10, y = 12 - m.x * m.x, X = u => ox + u * sx, Y = v => oy - v * sy;
+    let t = lin([18, oy], [242, oy], 'ei') + lin([ox, oy + 10], [ox, 12], 'ei') + paraula('O', ox - 6, oy + 14, 'end');
+    t += `<rect class="ob" x="${nombre(X(-m.x))}" y="${nombre(Y(y))}" width="${nombre(2 * m.x * sx)}" height="${nombre(y * sy)}"/>`;
+    t += pol([[X(-m.x), oy], [X(-m.x), Y(y)], [X(m.x), Y(y)], [X(m.x), oy]], 'tr', false);
+    const punts = [];
+    for (let u = -3.6; u <= 3.601; u += 0.1) punts.push([X(u), Y(12 - u * u)]);
+    t += pol(punts, 'co', false);
+    for (const u of [-m.x, m.x]) t += `<circle class="vertex" cx="${nombre(X(u))}" cy="${nombre(Y(y))}" r="3"/>`;
+    t += mida(et, 'x', X(m.x / 2), oy + 16) + mida(et, 'y', X(m.x) - 6, Y(y / 2) + 5, 'end');
+    if (et.final) t += paraula(et.valor, X(-m.x / 2), Y(y / 2) + 5);
     return t;
   },
 };

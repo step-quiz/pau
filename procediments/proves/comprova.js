@@ -1086,9 +1086,15 @@ const OPT = (() => {
     pista: {v: 'r', w: 'x', f: 'A', maxim: true, domini: '0<r<((200)/((pi)))', mostres: [q(10), q(20), q(40), q(50)], pis: [q(3), q(22, 7)],
       O: (r, x) => r.producte(x).producte(2), W: (r, pi) => q(200).resta(pi.producte(r)),
       d1: (r, pi) => q(400).resta(pi.producte(4).producte(r)), d2: (r, pi) => pi.producte(-4), optim: pi => q(100).quocient(pi)},
-    nombres: {v: 'y', w: 'x', f: 'P', maxim: true, domini: '0<y<12', mostres: [q(1), q(3), q(10), q(11)], pis: sense,
-      O: (y, x) => x.producte(y).producte(y), W: y => q(12).resta(y),
-      d1: y => y.producte(24).resta(y.producte(y).producte(3)), d2: y => q(24).resta(y.producte(6)), optim: () => q(8)},
+    cartell: {v: 'x', w: 'y', f: 'A', maxim: false, domini: 'x>0', mostres: [q(1, 2), q(2), q(5), q(10)], pis: sense,
+      O: (x, y) => x.suma(4).producte(y.suma(6)), W: x => q(96).quocient(x),
+      d1: x => q(6).resta(q(384).quocient(x.producte(x))), d2: x => q(768).quocient(x.potencia(3)), optim: () => q(8)},
+    finca: {v: 'x', w: 'y', f: 'C', maxim: false, domini: 'x>0', mostres: [q(1, 2), q(3, 4), q(1), q(3, 2)], pis: sense,
+      O: (x, y) => x.producte(20).suma(y.producte(40)), W: x => q(800).quocient(x),
+      d1: x => q(20).resta(q(32000).quocient(x.producte(x))), d2: x => q(64000).quocient(x.potencia(3)), optim: () => q(40)},
+    parabola: {v: 'x', w: 'y', f: 'A', maxim: true, domini: '0<x<sqrt(12)', mostres: [q(1, 2), q(1), q(3), q(7, 2)], pis: sense,
+      O: (x, y) => x.producte(y).producte(2), W: x => q(12).resta(x.producte(x)),
+      d1: x => q(24).resta(x.producte(x).producte(6)), d2: x => x.producte(-12), optim: () => q(2)},
   };
 })();
 
@@ -1242,7 +1248,7 @@ function comprovaEsquemes(problema, model, llista) {
   const quadra = (t, esperat) => { const q = llegeix(t); return Boolean(q) && Math.abs(q.n - esperat) <= (q.aprox ? 0.5 * 10 ** -q.dec + 1e-4 : 1e-6 * Math.max(1, Math.abs(esperat))); };
   for (const m of mides(final)) comprova(m.classe === 'en' && quadra(m.text, m.f * valorDe[m.l]), () => `${nom}: a l'esquema final, ${m.f === 1 ? '' : m.f}${m.l} = «${m.text}» no és ${m.f * valorDe[m.l]}`);
   comprova(new Set(mides(final).map(m => m.l)).size === 2, () => `${nom}: a l'esquema final hi falten mides`);
-  const valor = /^(\w) ([=≈]) (.+?) (m²|cm³|€)$/.exec(problema.figura.valor);
+  const valor = /^(\w) ([=≈]) (.+?)(?: (m²|cm²|cm³|€))?$/.exec(problema.figura.valor);
   comprova(valor && valor[1] === model.f && quadra((valor[2] === '≈' ? '≈ ' : '') + valor[3], model.O(optim, model.W(optim, pi), pi).valor()),
     () => `${nom}: el valor òptim de l'esquema («${problema.figura.valor}») no és el del model`);
   comprova(final.includes(problema.figura.valor), () => `${nom}: l'esquema final no escriu el valor òptim`);
