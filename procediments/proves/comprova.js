@@ -1113,6 +1113,18 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   const FILA = Optimitzacio.FILA;
   passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
     if (!tex || fila === FILA.enunciat) return;                      // l'enunciat no és una igualtat
+    if (fila === FILA.extrem) {                                      // «En v = k hi ha un màxim (mínim) relatiu.»
+      const m = /^§En \$(.+)\$ hi ha un (màxim|mínim) relatiu\.$/.exec(tex);
+      const [esq, dre] = m ? textPla(m[1]).split('=') : [];
+      comprova(m && esq === v && valor(dre).igual(optim) && (m[2] === 'màxim') === model.maxim && model.d2(optim, pi).signe() === (model.maxim ? -1 : 1),
+        () => `${nom}, pas ${i + 1}: la conclusió «${tex}» no és certa`);
+      comprova(pas.files[FILA.calcul].includes('{k=Se}') || passos.slice(0, i).some(q => q.files[FILA.calcul].includes('{k=Se}')), () => `${nom}, pas ${i + 1}: la conclusió surt abans de la segona derivada`);
+      return;
+    }
+    if (fila === FILA.frase) {                                       // la resposta en català, al final
+      comprova(i === passos.length - 1 && tex.startsWith('§') && tex.includes('$'), () => `${nom}, pas ${i + 1}: la resposta en català no és al seu lloc`);
+      return;
+    }
     if (tex.startsWith('<svg')) {                                    // l'esquema: a part (comprovaEsquemes)
       comprova(fila === FILA.esquema || (fila === FILA.condicio && !passos[i - 1].files[FILA.condicio]), () => `${nom}, pas ${i + 1}: l'esquema no és al seu lloc`);
       return;
@@ -1215,6 +1227,8 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   comprova(enunciat.startsWith('§') && marques.includes('objectiu') && marques.includes('condicio') && marques.every(m => m === 'objectiu' || m === 'condicio'),
     () => `${nom}: l'enunciat no té les frases marcades (objectiu i condició)`);
   comprova(final.join() === [v, w, f].join(), () => `${nom}: la resposta final no té ${v}, ${w} i ${f}`);
+  comprova(passos.some(q => q.files[FILA.extrem]), () => `${nom}: falta la conclusió «hi ha un ${model.maxim ? 'màxim' : 'mínim'} relatiu» a la pissarra`);
+  comprova((passos[passos.length - 1].files[FILA.frase] || '').startsWith('§'), () => `${nom}: falta la resposta en català a la pissarra`);
   comprova(model.d2(optim, pi).signe() === (model.maxim ? -1 : 1), () => `${nom}: el model no té un ${model.maxim ? 'màxim' : 'mínim'}`);
   comprova(funcions[f + "'"](optim).esZero(), () => `${nom}: el model no té f' = 0 a l'òptim`);
   return linies;
