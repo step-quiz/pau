@@ -143,6 +143,7 @@ button{font:inherit; color:inherit}
 .fila.esquema-costat svg.esquema{font-size:18.6px}
 .fila.text.amb-esquema{max-width:min(72ch, calc(100% - 280px))}
 .esquema{color:var(--txt)}
+.fila.text.resposta-text{margin-top:.4em; font-weight:700; color:var(--cat); max-width:none}   /* la resposta en català (optimitzacio.js) */
 .esquema .ob{fill:rgba(234,179,8,.30)}
 .esquema .ob.fons{fill:rgba(234,179,8,.55)}
 .esquema .cof{fill:rgba(16,161,113,.16)}                                       /* una àrea que és la condició (la finca) */

@@ -24,7 +24,9 @@
      fila 2  la funció          fila 3  la condició (al pas de la funció, l'esquema gran)
      fila 4  el domini          fila 5  la derivada (i la segona)
      fila 6  el càlcul del moment (l'equació A'(x) = 0, mentre es resol)
-     fila 7  la fila de treball de l'equació; després, la resposta, que es va omplint
+     fila 7  la conclusió de la segona derivada: «En x = k hi ha un màxim (mínim) relatiu.»
+     fila 8  la fila de treball de l'equació; després, la resposta, que es va omplint
+     fila 9  a l'últim pas, la resposta en català (el text «resposta» del problema)
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js,
    que té el seu propi model de cada problema.
 
@@ -498,7 +500,7 @@ function lletresDe(p, tex) {
 /* ── 2. FILES I LECTURA DE L'ENUNCIAT ──────────────────────────────── */
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({esquema: 0, enunciat: 1, funcio: 2, condicio: 3, domini: 4, derivada: 5, calcul: 6, resposta: 7});
+const FILA = Object.freeze({esquema: 0, enunciat: 1, funcio: 2, condicio: 3, domini: 4, derivada: 5, calcul: 6, extrem: 7, resposta: 8, frase: 9});
 const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio'});
 
 /**
@@ -521,7 +523,7 @@ const textual = tex => tex.replace(/\\dfrac/g, '\\frac');
 function passos(valors) {
   const p = perId(valors.p);
   const {v, w, f} = p;
-  const g = F.guio(8);
+  const g = F.guio(10);
   // L'esquema (si n'hi ha): la fila esquema flota a la dreta, i l'enunciat li deixa lloc des del primer pas (així no
   // canvia de línies quan hi arriba l'esquema, i el motor el deixa quiet).
   const llum = tex => ({llum: lletresDe(p, tex)});
@@ -619,6 +621,8 @@ function passos(valors) {
   g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.tex);
   g.afegeix(p.segona.text);
   g.files[FILA.calcul] = K('Se', p.segona.valor) + R('Sw', p.maxim ? '<' : '>') + K('Sz', '0');
+  // La conclusió, també a la pissarra (David, 18/11/2026): «En x = k hi ha un màxim (mínim) relatiu».
+  g.files[FILA.extrem] = F.filaText(`En $${v} = ${textual(eq.candidat)}$ hi ha un ${p.maxim ? 'màxim' : 'mínim'} relatiu.`);
   g.afegeix(`Com que $${textual(p.segona.valor.split(' = ')[0])} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${textual(eq.candidat)}$ hi ha un `
     + (p.maxim ? 'màxim (la gràfica té forma de ∩).' : 'mínim (la gràfica té forma de ∪).'), {cursor: {clic: 'Rx'}});
 
@@ -637,6 +641,9 @@ function passos(valors) {
   g.files[FILA.resposta] = rx + ',\\ ' + rw + ',\\ ' + K('Rf', p.optim.resposta);
   g.afegeix('Porta-ho a la resposta.', {fusiona: {Rf: ['Fe']}, cursor: {arrossega: 'Fe', fins: 'Rf'}});
   g.classes[FILA.resposta] = 'final';
+  // La resposta en català, també a la pissarra (David, 18/11/2026): la frase que respon totes les preguntes.
+  g.files[FILA.frase] = F.filaText(p.resposta);
+  g.classes[FILA.frase] = 'resposta-text';
   if (p.figura) g.files[FILA.esquema] = esquema(p, true);     // l'esquema, a escala, amb les mides òptimes
   g.afegeix(`Resposta: ${p.resposta}`);
   return g.passos;
@@ -648,7 +655,7 @@ function passos(valors) {
 arrel.Optimitzacio = Object.freeze({
   titol: 'Optimització',
   categoria: 'analisi',
-  files: 8,
+  files: 10,
   perDefecte: FIXOS.perDefecte,
   exemples: FIXOS.exemples,
   titolEditor: 'Tria un problema',
