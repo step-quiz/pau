@@ -43,6 +43,7 @@ const estat = p => p.evaluate(() => {
         const real = [...f.querySelectorAll('[data-k]')].map(e => e.dataset.k + ':' + e.className.replace('frase', '').replace('marca-', '').trim()).join();
         return esperat === real && f.className === 'fila text' + (pas.classes[i] ? ' ' + pas.classes[i] : '');
       }
+      if (tex && tex.startsWith('<svg')) return f.innerHTML === norm(tex) && f.className === 'fila figura' + (pas.classes[i] ? ' ' + pas.classes[i] : '');   // l'esquema
       return f.innerHTML === (tex ? norm(katex.renderToString(tex, O)) : '') && f.className === 'fila' + (pas.classes[i] ? ' ' + pas.classes[i] : '');
     }),
     desborda: Math.max(pis.scrollWidth - pis.clientWidth, document.documentElement.scrollWidth - innerWidth),

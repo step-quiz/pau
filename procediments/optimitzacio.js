@@ -11,19 +11,20 @@
      4. el domini d'aquesta variable;
      5. la derivada i els candidats: primer l'equació tal com es planteja,
         «A'(x) = 0»; després, amb l'expressió de A'(x). L'equació es queda a
-        la fila 5 i els càlculs baixen a la 6, la de treball (que després
+        la fila calcul i els càlculs baixen a la resposta, la de treball (que després
         ocupa la resposta). Les solucions, en lila; les que no són del
         domini, tatxades;
      6. la segona derivada diu si és un màxim o un mínim;
      7. la resposta: totes les mides i el valor òptim.
    Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, nombres)
 
-   La pissarra té set files (FILA):
-     fila 0  l'enunciat, amb les frases marcades
-     fila 1  la funció          fila 2  la condició
-     fila 3  el domini          fila 4  la derivada (i la segona)
-     fila 5  el càlcul del moment (l'equació A'(x) = 0, mentre es resol)
-     fila 6  la fila de treball de l'equació; després, la resposta, que es va omplint
+   La pissarra té vuit files (FILA):
+     fila 0  l'esquema petit (flota a la dreta de l'enunciat; buida a «Dos nombres»)
+     fila 1  l'enunciat, amb les frases marcades
+     fila 2  la funció          fila 3  la condició (al pas de la funció, l'esquema gran)
+     fila 4  el domini          fila 5  la derivada (i la segona)
+     fila 6  el càlcul del moment (l'equació A'(x) = 0, mentre es resol)
+     fila 7  la fila de treball de l'equació; després, la resposta, que es va omplint
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js,
    que té el seu propi model de cada problema.
 
@@ -61,7 +62,7 @@ const {clau: K, rel: R} = F;
      derivada {tex, text}
      equacio {manual: [{tex, text}], polinomi: {termes, text}, candidat, descarta}
              abans, el guió escriu «f'(v) = 0» tal com es planteja;
-             manual: passos escrits a mà: el primer, «… = 0», hi substitueix f'(v) (fila 5);
+             manual: passos escrits a mà: el primer, «… = 0», hi substitueix f'(v) (fila calcul);
                      els altres, a la fila de treball (l'últim és «v = candidat» si no hi ha polinomi);
              polinomi: es resol amb Formules.resolEquacio (sense passos a mà, el seu text és el de
                      substituir f'(v)); candidat: el valor (TeX) del domini; descarta: per què les
@@ -70,11 +71,18 @@ const {clau: K, rel: R} = F;
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
      resposta                  el text final, amb les unitats
+     figura                    l'esquema (no n'hi ha a «Dos nombres»): dibuix (la funció de
+                               ESQUEMES), lletres (mides per dibuixar-lo amb les lletres, sense
+                               proporcions reals), final (les mides òptimes, a escala), textos
+                               (com s'escriuen les mides òptimes; '2r' és el doble de r) i valor
+                               (el valor òptim, amb unitats). proves/comprova.js comprova les lletres
+                               i els valors finals
 */
 
 const PROBLEMES = Object.freeze([
   {
     id: 'hort', nom: 'Hort adossat a una paret',
+    figura: {dibuix: 'hort', lletres: {x: 7, y: 26}, final: {x: 10, y: 20}, textos: {x: '10', y: '20'}, valor: 'A = 200 m²'},
     lectura: {
       text: '[c*:Tenim $40$ m de tanca] per fer un hort rectangular [c:adossat a una paret: la paret fa de quart costat]. '
         + 'Quines mides ha de tenir l\'hort [o*:perquè l\'àrea sigui màxima]? Quina és aquesta àrea?',
@@ -99,6 +107,7 @@ const PROBLEMES = Object.freeze([
   },
   {
     id: 'capsa', nom: 'Capsa de cartró',
+    figura: {dibuix: 'capsa', lletres: {x: 2.5, b: 7}, final: {x: 2, b: 8}, textos: {x: '2', b: '8'}, valor: 'V = 128 cm³'},
     lectura: {
       text: 'D\'un [c*:cartró quadrat de $12$ cm de costat] en [c:retallem un quadrat de costat $x$ a cada cantó], i pleguem les vores '
         + 'per fer una capsa sense tapa. Quant ha de valer $x$ [o*:perquè el volum sigui màxim]? Quines mides té la capsa, i quin volum?',
@@ -128,6 +137,7 @@ const PROBLEMES = Object.freeze([
   },
   {
     id: 'llauna', nom: 'Llauna oberta',
+    figura: {dibuix: 'llauna', lletres: {r: 3, h: 4.6}, final: {r: 3, h: 3}, textos: {r: '3', h: '3'}, valor: 'V = 27π cm³'},
     lectura: {
       text: 'Volem fer una llauna cilíndrica [c:oberta (sense tapa)] [c*:amb $27\\pi$ cm² de planxa]. '
         + 'Quin radi i quina altura ha de tenir [o*:perquè hi càpiga el màxim volum]? Quin és aquest volum?',
@@ -160,6 +170,7 @@ const PROBLEMES = Object.freeze([
   },
   {
     id: 'diposit', nom: 'Dipòsit de cost mínim',
+    figura: {dibuix: 'diposit', lletres: {x: 2.6, h: 1.3}, final: {x: 2, h: 2}, textos: {x: '2', h: '2'}, valor: 'C = 240 €'},
     lectura: {
       text: 'Volem construir un dipòsit de base quadrada, [o:sense tapa], [c*:de $8$ m³]. [o:El material del fons costa $20$ €/m², '
         + 'i el de les parets, $10$ €/m²]. Quines mides fan [o*:que el cost sigui mínim]? Quin és aquest cost?',
@@ -195,6 +206,7 @@ const PROBLEMES = Object.freeze([
   },
   {
     id: 'pista', nom: 'Pista d\'atletisme',
+    figura: {dibuix: 'pista', lletres: {x: 100, r: 22}, final: {x: 100, r: 100 / Math.PI}, textos: {x: '100', r: '≈ 31,8', '2r': '≈ 63,7'}, valor: 'A ≈ 6366 m²'},
     lectura: {
       text: 'Una pista d\'atletisme té forma de rectangle amb un semicercle a cada extrem, i [c*:la corda interior fa $400$ m]. '
         + 'Volem que [o*:el camp rectangular del mig tingui l\'àrea més gran possible]. Quines mides ha de tenir? Quina és aquesta àrea?',
@@ -256,15 +268,126 @@ const PROBLEMES = Object.freeze([
   },
 ]);
 
-/* Adreça, exemples i textos comuns (l'enunciat és a la pissarra, fila 0, per poder-hi marcar frases). */
+/* Adreça, exemples i textos comuns (l'enunciat és a la pissarra, fila enunciat, per poder-hi marcar frases). */
 const FIXOS = arrel.Dades.problemesFixos(PROBLEMES);
 const {perId} = FIXOS;
+
+
+/* ── 1b. ESQUEMES ──────────────────────────────────────────────────── */
+/*
+   Un esquema per problema (David, 17/11/2026), en SVG (viewBox 260 × 170), amb la clau «Sq»: al primer pas on
+   surt (la funció objectiu) és gran, a la fila de la condició, que encara és buida; al pas següent vola, petit, al
+   costat de l'enunciat (fila esquema, que flota a la dreta: estil.css), i a la resposta es redibuixa a escala
+   amb les mides òptimes. Colors com a l'enunciat: en groc (.ob) el que s'optimitza, en verd (.co) el que entra a
+   la condició. Les mides porten data-l=<variable> (i data-f=2 si és el doble): el motor les il·lumina quan la
+   variable surt en una fórmula nova (pas.llum), i el comprovador hi mira les lletres i els valors finals.
+*/
+const nombre = n => Math.round(n * 10) / 10;
+const lin = (a, b, c) => `<line class="${c}" x1="${nombre(a[0])}" y1="${nombre(a[1])}" x2="${nombre(b[0])}" y2="${nombre(b[1])}"/>`;
+const pol = (pts, c, tancat = true) => `<${tancat ? 'polygon' : 'polyline'} class="${c}" points="${pts.map(q => q.map(nombre).join(',')).join(' ')}"/>`;
+/** Una mida: la lletra (en cursiva) o el valor final (data-l: la variable; f: si és el doble). */
+function mida(et, l, x, y, ancora = 'middle', f = 1) {
+  const clau = f === 1 ? l : f + l;
+  const text = et.final ? et.textos[clau] : clau;
+  return `<text class="${et.final ? 'en' : 'et'}" data-l="${l}"${f === 1 ? '' : ` data-f="${f}"`} x="${nombre(x)}" y="${nombre(y)}" text-anchor="${ancora}">${text}</text>`;
+}
+const paraula = (t, x, y, ancora = 'middle', c = 'en') => `<text class="${c}" x="${nombre(x)}" y="${nombre(y)}" text-anchor="${ancora}">${t}</text>`;
+/** Un prisma obert per dalt: el front (amplada a, altura h) i la fondària en perspectiva. Torna els vèrtexs. */
+function prisma(X0, Y0, a, h) {
+  const dx = 0.42 * a, dy = -0.3 * a;
+  const A = [X0, Y0], B = [X0 + a, Y0], C = [X0 + a, Y0 + h], D = [X0, Y0 + h];
+  const m = q => [q[0] + dx, q[1] + dy];
+  return {A, B, C, D, A2: m(A), B2: m(B), C2: m(C), D2: m(D)};
+}
+function arestes(P) {
+  // Visibles: el front, la cara dreta i la vora de dalt (no hi ha tapa); amagades (discontínues), les tres del vèrtex del fons.
+  return pol([P.A, P.B, P.C, P.D], 'tr') + pol([P.B, P.B2, P.C2, P.C], 'tr') + pol([P.A, P.A2, P.B2], 'tr', false)
+    + lin(P.D2, P.A2, 'td') + lin(P.D2, P.C2, 'td') + lin(P.D2, P.D, 'td');
+}
+
+const ESQUEMES = {
+  hort(m, et) {
+    const s = Math.min(180 / m.y, 96 / m.x), w = m.y * s, h = m.x * s, X0 = 130 - w / 2, Y0 = 36;
+    let t = lin([X0 - 24, Y0 - 1], [X0 + w + 24, Y0 - 1], 'pa');
+    for (let x = X0 - 22; x < X0 + w + 22; x += 10) t += lin([x, Y0 - 2], [x + 8, Y0 - 12], 'ra');
+    t += paraula('paret', X0 + w + 24, Y0 - 17, 'end');
+    t += `<rect class="ob" x="${nombre(X0)}" y="${Y0}" width="${nombre(w)}" height="${nombre(h)}"/>`;
+    t += pol([[X0, Y0], [X0, Y0 + h], [X0 + w, Y0 + h], [X0 + w, Y0]], 'co', false);
+    t += mida(et, 'x', X0 - 8, Y0 + h / 2 + 5, 'end') + mida(et, 'x', X0 + w + 8, Y0 + h / 2 + 5, 'start') + mida(et, 'y', 130, Y0 + h + 19);
+    t += paraula(et.final ? et.valor : 'hort', 130, Y0 + h / 2 + 5);
+    return t;
+  },
+  capsa(m, et) {
+    const L = m.b + 2 * m.x, S = 104, X = 24, Y = 36, c = m.x * S / L;
+    let t = `<rect class="tr" x="${X}" y="${Y}" width="${S}" height="${S}"/>`;
+    for (const [px, py] of [[X, Y], [X + S - c, Y], [X, Y + S - c], [X + S - c, Y + S - c]]) t += `<rect class="ta" x="${nombre(px)}" y="${nombre(py)}" width="${nombre(c)}" height="${nombre(c)}"/>`;
+    t += `<rect class="td" x="${nombre(X + c)}" y="${nombre(Y + c)}" width="${nombre(S - 2 * c)}" height="${nombre(S - 2 * c)}"/>`;
+    t += lin([X, Y], [X + S, Y], 'co') + paraula('12', X + S / 2, Y - 8);
+    t += mida(et, 'x', X - 5, Y + c / 2 + 5, 'end') + mida(et, 'b', X + S / 2, Y + S / 2 + 5);
+    t += `<path class="tr" d="M134 88 h13 m-5 -4 l5 4 l-5 4"/>`;
+    const k = Math.min(88 / (1.42 * m.b), 96 / (m.x + 0.3 * m.b)), a = m.b * k, h = m.x * k;
+    const X0 = 162 + (88 - 1.42 * a) / 2, Y0 = 138 - h, P = prisma(X0, Y0, a, h);
+    t += pol([P.A, P.A2, P.B2, P.C2, P.C, P.D], 'ob') + arestes(P);
+    t += mida(et, 'b', X0 + a / 2, Y0 + h + 17) + mida(et, 'b', (P.C[0] + P.C2[0]) / 2 + 7, (P.C[1] + P.C2[1]) / 2 + 13, 'start') + mida(et, 'x', X0 - 6, Y0 + h / 2 + 5, 'end');
+    if (et.final) t += paraula(et.valor, 76, 164);
+    return t;
+  },
+  llauna(m, et) {
+    const s = Math.min(60 / m.r, 92 / m.h), rx = m.r * s, H = m.h * s, ry = 0.32 * rx, cx = 120, Y = 26 + ry, Yb = Y + H;
+    let t = `<path class="ob" d="M${nombre(cx - rx)} ${nombre(Y)} V${nombre(Yb)} A${nombre(rx)} ${nombre(ry)} 0 0 0 ${nombre(cx + rx)} ${nombre(Yb)} V${nombre(Y)} A${nombre(rx)} ${nombre(ry)} 0 0 0 ${nombre(cx - rx)} ${nombre(Y)} Z"/>`;
+    t += `<ellipse class="tr" cx="${cx}" cy="${nombre(Y)}" rx="${nombre(rx)}" ry="${nombre(ry)}"/>`;
+    t += `<path class="td" d="M${nombre(cx - rx)} ${nombre(Yb)} A${nombre(rx)} ${nombre(ry)} 0 0 1 ${nombre(cx + rx)} ${nombre(Yb)}"/>`;
+    t += `<path class="co" d="M${nombre(cx - rx)} ${nombre(Y)} V${nombre(Yb)} A${nombre(rx)} ${nombre(ry)} 0 0 0 ${nombre(cx + rx)} ${nombre(Yb)} V${nombre(Y)}"/>`;
+    t += lin([cx, Y], [cx + rx, Y], 'tr') + `<circle cx="${cx}" cy="${nombre(Y)}" r="2" fill="currentColor"/>`;
+    t += mida(et, 'r', cx + rx * 0.42, Y + ry * 0.72);
+    const xh = cx + rx + 14;
+    t += `<path class="tr" d="M${nombre(xh)} ${nombre(Y)} V${nombre(Yb)} m-5 0 h10 M${nombre(xh - 5)} ${nombre(Y)} h10"/>` + mida(et, 'h', xh + 8, (Y + Yb) / 2 + 5, 'start');
+    t += paraula('sense tapa', cx, Y - ry - 7);
+    if (et.final) t += paraula(et.valor, cx, Yb + ry + 20);
+    return t;
+  },
+  diposit(m, et) {
+    const k = Math.min(150 / (1.42 * m.x), 96 / (m.h + 0.3 * m.x)), a = m.x * k, h = m.h * k;
+    const X0 = 130 - 1.42 * a / 2, Y0 = 132 - h, P = prisma(X0, Y0, a, h);
+    let t = pol([P.A, P.A2, P.B2, P.C2, P.C, P.D], 'ob') + pol([P.D, P.C, P.C2, P.D2], 'ob fons') + arestes(P);
+    t += mida(et, 'x', X0 + a / 2, Y0 + h + 17) + mida(et, 'x', (P.C[0] + P.C2[0]) / 2 + 7, (P.C[1] + P.C2[1]) / 2 + 13, 'start') + mida(et, 'h', X0 - 7, Y0 + h / 2 + 5, 'end');
+    t += paraula('sense tapa', X0 + 0.71 * a, Y0 - 0.3 * a - 8);
+    if (et.final) t += paraula(et.valor, 130, 167);
+    return t;
+  },
+  pista(m, et) {
+    const s = Math.min(196 / (m.x + 2 * m.r), 100 / (2 * m.r)), w = m.x * s, R = m.r * s, X0 = 130 - w / 2, cy = 82, Y0 = cy - R;
+    let t = `<rect class="ob" x="${nombre(X0)}" y="${nombre(Y0)}" width="${nombre(w)}" height="${nombre(2 * R)}"/>`;
+    t += `<path class="co" d="M${nombre(X0)} ${nombre(Y0)} H${nombre(X0 + w)} A${nombre(R)} ${nombre(R)} 0 0 1 ${nombre(X0 + w)} ${nombre(cy + R)} H${nombre(X0)} A${nombre(R)} ${nombre(R)} 0 0 1 ${nombre(X0)} ${nombre(Y0)} Z"/>`;
+    t += lin([X0, Y0], [X0, cy + R], 'td') + lin([X0 + w, Y0], [X0 + w, cy + R], 'td');
+    const fi = [X0 + w + R * 0.707, cy - R * 0.707];
+    t += lin([X0 + w, cy], fi, 'tr') + `<circle cx="${nombre(X0 + w)}" cy="${cy}" r="2" fill="currentColor"/>`;
+    t += mida(et, 'r', fi[0] + 4, fi[1] - 12, 'middle');
+    t += mida(et, 'x', 130, Y0 - 8) + mida(et, 'r', 130, cy + 5, 'middle', 2);
+    if (et.final) t += paraula(et.valor, 130, cy + R + 22);
+    return t;
+  },
+};
+
+/** L'esquema d'un problema: amb les lletres, o (final) a escala amb les mides i el valor òptims. */
+function esquema(p, final = false) {
+  const fig = p.figura;
+  const et = final ? {final: true, textos: fig.textos, valor: fig.valor} : {final: false};
+  return `<svg data-k="Sq" class="esquema" viewBox="0 0 260 170" width="14em" height="9.154em" role="img" aria-label="Esquema: ${p.nom}">`
+    + ESQUEMES[fig.dibuix](final ? fig.final : fig.lletres, et) + '</svg>';
+}
+/** Les variables del problema que surten en un TeX (per il·luminar-les a l'esquema). */
+function lletresDe(p, tex) {
+  if (!p.figura) return [];
+  const net = tex.replace(/\\htmlData\{[^}]*\}/g, '').replace(/\\[A-Za-z]+/g, ' ');
+  return [p.v, p.w].filter(l => net.includes(l));      // les variables són d'una lletra (minúscula)
+}
 
 
 /* ── 2. FILES I LECTURA DE L'ENUNCIAT ──────────────────────────────── */
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({enunciat: 0, funcio: 1, condicio: 2, domini: 3, derivada: 4, calcul: 5, resposta: 6});
+const FILA = Object.freeze({esquema: 0, enunciat: 1, funcio: 2, condicio: 3, domini: 4, derivada: 5, calcul: 6, resposta: 7});
 const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio'});
 
 /**
@@ -287,10 +410,14 @@ const textual = tex => tex.replace(/\\dfrac/g, '\\frac');
 function passos(valors) {
   const p = perId(valors.p);
   const {v, w, f} = p;
-  const g = F.guio(7);
+  const g = F.guio(8);
+  // L'esquema (si n'hi ha): la fila esquema flota a la dreta, i l'enunciat li deixa lloc des del primer pas (així no
+  // canvia de línies quan hi arriba l'esquema, i el motor el deixa quiet).
+  const llum = tex => ({llum: lletresDe(p, tex)});
+  if (p.figura) { g.classes[FILA.esquema] = 'esquema-costat'; g.classes[FILA.enunciat] = 'amb-esquema'; }
   const membre = primes => F.membreEsquerre(primes ? 'P' : 'O', f, v, primes);
 
-  /* 0. La lectura de l'enunciat: què s'optimitza i quina condició lliga les variables (fila 0). */
+  /* 0. La lectura de l'enunciat: què s'optimitza i quina condició lliga les variables (fila enunciat). */
   g.files[FILA.enunciat] = lectura(p, []).tex;
   g.afegeix('Llegeix l\'enunciat. Abans de calcular res, cal trobar-hi dues coses: què volem fer màxim o mínim '
     + '(la funció objectiu) i quina condició lliga les variables.');
@@ -300,13 +427,16 @@ function passos(valors) {
   g.files[FILA.enunciat] = lectura(p, ['o', 'c']).tex;
   g.afegeix(p.lectura.condicio + ' (Ho marquem en verd.)', {cursor: {clic: frases.condicio}});
 
-  /* 1. La funció objectiu, amb dues variables (fila 1). */
+  /* 1. La funció objectiu, amb dues variables (fila funcio). */
   g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + K('Oe', p.funcio.tex);
-  g.afegeix(p.funcio.text, {cursor: {arrossega: frases.objectiu, fins: 'Oe'}});
+  if (p.figura) g.files[FILA.condicio] = esquema(p);     // l'esquema, gran, a la fila de la condició (encara buida)
+  g.afegeix(p.funcio.text, Object.assign({cursor: {arrossega: frases.objectiu, fins: 'Oe'}}, llum(p.funcio.tex)));
 
-  /* 2. La condició, i s'aïlla w (fila 2). */
+  /* 2. La condició, i s'aïlla w (fila condicio). */
   p.condicio.forEach((pas, i) => {
-    const cursor = i === 0 ? {cursor: {arrossega: frases.condicio, fins: pas.aillada ? 'Lr' : 'Ll'}} : {};
+    const cursor = Object.assign(i === 0 ? {cursor: {arrossega: frases.condicio, fins: pas.aillada ? 'Lr' : 'Ll'}} : {},
+      i === 0 ? llum(pas.tex || `${w} = ${pas.aillada}`) : {});
+    if (i === 0 && p.figura) { g.files[FILA.esquema] = esquema(p); g.files[FILA.condicio] = ''; }   // l'esquema vola al costat de l'enunciat
     if (pas.aillada) {
       const abans = Boolean(g.files[FILA.condicio]);    // si ja hi havia la condició, es transforma en w = …
       g.files[FILA.condicio] = K('Lw', w) + R('Lq', '=') + K('Lr', pas.aillada);
@@ -317,19 +447,19 @@ function passos(valors) {
     }
   });
 
-  /* 3. Se substitueix w: la funció d'una sola variable (fila 1). */
+  /* 3. Se substitueix w: la funció d'una sola variable (fila funcio). */
   g.files[FILA.funcio] = membre(0) + K('Oe', p.substitucio.tex);
-  g.afegeix(p.substitucio.text, {cursor: {arrossega: 'Lr', fins: 'Oe'}});
+  g.afegeix(p.substitucio.text, Object.assign({cursor: {arrossega: 'Lr', fins: 'Oe'}}, llum(p.substitucio.tex)));
   for (const pas of p.simplifica) {
     g.files[FILA.funcio] = membre(0) + K('Oe', pas.tex);
     g.afegeix(pas.text);
   }
 
-  /* 4. El domini (fila 3). */
+  /* 4. El domini (fila domini). */
   g.files[FILA.domini] = K('Dm', p.domini.tex);
-  g.afegeix(p.domini.text);
+  g.afegeix(p.domini.text, llum(p.domini.tex));
 
-  /* 5. La derivada (fila 4) i els candidats (fila 5). */
+  /* 5. La derivada (fila derivada) i els candidats (fila calcul). */
   // La condició aïllada, ara, és soroll: s'esborra, i es recupera al pas 7 per calcular w.
   const aillada = p.condicio[p.condicio.length - 1].aillada;
   const filaCondicio = K('Lw', w) + R('Lq', '=') + K('Lr', aillada);
@@ -356,7 +486,7 @@ function passos(valors) {
   });
   let clauCandidat = 'Ws';
   if (eq.polinomi) {
-    // Sense passos a mà, l'equació polinòmica es queda a la fila 5; si n'hi ha, ja es resol a la de treball.
+    // Sense passos a mà, l'equació polinòmica es queda a la fila calcul; si n'hi ha, ja es resol a la de treball.
     const solucions = F.resolEquacio(g, manual.length
       ? {fila: FILA.resposta, P: 'u', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v}
       : {fila: FILA.calcul, treball: FILA.resposta, P: 'e', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v});
@@ -372,7 +502,7 @@ function passos(valors) {
   g.files[FILA.calcul] = '';
   const rx = K('Rx', `${v} = ${eq.candidat}`);
   g.files[FILA.resposta] = rx;
-  g.afegeix(`L'únic candidat dins del domini és $${v} = ${textual(eq.candidat)}$.`, {reanomena: {Rx: clauCandidat}});
+  g.afegeix(`L'únic candidat dins del domini és $${v} = ${textual(eq.candidat)}$.`, Object.assign({reanomena: {Rx: clauCandidat}}, llum(v)));
 
   /* 6. La segona derivada decideix si és un màxim o un mínim. */
   g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.tex);
@@ -381,7 +511,7 @@ function passos(valors) {
   g.afegeix(`Com que $${textual(p.segona.valor.split(' = ')[0])} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${textual(eq.candidat)}$ hi ha un `
     + (p.maxim ? 'màxim (la gràfica té forma de ∩).' : 'mínim (la gràfica té forma de ∪).'), {cursor: {clic: 'Rx'}});
 
-  /* 7. La resposta: l'altra variable (amb la condició, que torna a la fila 2) i el valor òptim (fila 6). */
+  /* 7. La resposta: l'altra variable (amb la condició, que torna a la fila condicio) i el valor òptim (fila resposta). */
   g.files[FILA.condicio] = filaCondicio;
   g.afegeix(`Per calcular $${w}$, recupera la condició aïllada: ${textAillada}.`);
   g.files[FILA.calcul] = K('We', p.altra.calcul);
@@ -389,13 +519,14 @@ function passos(valors) {
   g.files[FILA.calcul] = '';
   const rw = K('Rw', p.altra.resposta);
   g.files[FILA.resposta] = rx + ',\\ ' + rw;
-  g.afegeix('Porta-ho a la resposta.', {fusiona: {Rw: ['We']}, cursor: {arrossega: 'We', fins: 'Rw'}});
+  g.afegeix('Porta-ho a la resposta.', Object.assign({fusiona: {Rw: ['We']}, cursor: {arrossega: 'We', fins: 'Rw'}}, llum(w)));
   g.files[FILA.calcul] = K('Fe', p.optim.calcul);
   g.afegeix(p.optim.text);
   g.files[FILA.calcul] = '';
   g.files[FILA.resposta] = rx + ',\\ ' + rw + ',\\ ' + K('Rf', p.optim.resposta);
   g.afegeix('Porta-ho a la resposta.', {fusiona: {Rf: ['Fe']}, cursor: {arrossega: 'Fe', fins: 'Rf'}});
   g.classes[FILA.resposta] = 'final';
+  if (p.figura) g.files[FILA.esquema] = esquema(p, true);     // l'esquema, a escala, amb les mides òptimes
   g.afegeix(`Resposta: ${p.resposta}`);
   return g.passos;
 }
@@ -406,7 +537,7 @@ function passos(valors) {
 arrel.Optimitzacio = Object.freeze({
   titol: 'Optimització',
   categoria: 'analisi',
-  files: 7,
+  files: 8,
   perDefecte: FIXOS.perDefecte,
   exemples: FIXOS.exemples,
   titolEditor: 'Tria un problema',
@@ -416,7 +547,7 @@ arrel.Optimitzacio = Object.freeze({
   FILA,
   valida: FIXOS.valida, llegeixAdreca: FIXOS.llegeixAdreca, escriuAdreca: FIXOS.escriuAdreca,
   enunciat: FIXOS.enunciat, resum: FIXOS.resum, nomExemple: FIXOS.nomExemple,
-  passos,
+  passos, esquema,
 });
 
 })(globalThis);
