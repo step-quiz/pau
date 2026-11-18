@@ -1159,7 +1159,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   let linies = 0;
 
   const FILA = Optimitzacio.FILA;
-  const TITOLS = {[FILA.titol1]: '1. La funció', [FILA.titol2]: '2. Els punts crítics', [FILA.titol3]: '3. Màxim o mínim', [FILA.titol4]: '4. La resposta'};
+  const TITOLS = Optimitzacio.titols({maxim: model.maxim});
   /** Les solucions marcades d'un tros de fila: en lila, només l'òptim; tatxades, altres solucions de f'(v) = 0 (fora del domini). */
   function marquesSolucions(tros, on) {
     const {net, tatxades} = separaTatxades(tros);
@@ -1201,11 +1201,11 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       return;
     }
     if (tex.startsWith('<svg')) {                                    // l'esquema: a part (comprovaEsquemes)
-      comprova(fila === FILA.esquema || (fila === FILA.condicio && !passos[i - 1].files[FILA.condicio]), () => `${on}: l'esquema no és al seu lloc`);
+      comprova(fila === FILA.esquema || (fila === FILA.titol1b && !passos[i - 1].files[FILA.titol1b]), () => `${on}: l'esquema no és al seu lloc`);
       return;
     }
     if (tex.startsWith('§')) {
-      if (TITOLS[fila] && pas.classes[fila] === 'apartat') {         // el títol d'un bloc
+      if (TITOLS[fila] && pas.classes[fila] === 'apartat neutre') {  // el títol d'un bloc
         comprova(tex === '§' + TITOLS[fila], () => `${on}: el títol del bloc ha de ser «${TITOLS[fila]}»`);
         return;
       }
@@ -1222,7 +1222,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       pla = textPla(separaTatxades(tex).net);                       // (les solucions tatxades es comproven a part)
       linies++;
       let m;
-      if (fila === FILA.funcio || (fila === FILA.condicio && pla.startsWith(f + '('))) {
+      if (fila === FILA.funcio || fila === FILA.funcio1) {
         if ((m = new RegExp(`^${f}=(.*)$`).exec(pla))) {                        // amb dues variables
           const parelles = model.mostres.map((x, k) => [x, fr(k + 2, 3)]);
           comprova(parelles.every(([x, y]) => valor(m[1], x, y).igual(model.O(x, y, pi))), () => `${on}: «${pla}» no és la funció`);
@@ -1241,6 +1241,8 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       } else if (fila === FILA.derivada || fila === FILA.segona) {
         comprova(pla.startsWith(f + (fila === FILA.derivada ? "'(" : "''(")), () => `${on}: aquí hi va ${f}${fila === FILA.derivada ? "'" : "''"}(${v})`);
         comprova(model.mostres.every(x => totsIguals(pla.split('=').map(part => valor(part, x)))), () => `${on}: «${pla}» no és certa`);
+      } else if (fila === FILA.equacio0) {
+        comprova(pla === `${f}'(${v})=0`, () => `${on}: aquí hi va ${f}'(${v}) = 0`);
       } else if (fila === FILA.equacio) {
         // L'equació f'(v) = 0, i al final «… ⇒ solucions»: el treball s'ha esborrat i les solucions hi han pujat.
         const [equ, ...sol] = tex.split(' \\;\\Rightarrow\\; ');
@@ -1300,7 +1302,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   }
   const final = textPla(passos[passos.length - 1].files.find(t => t.includes('{k=Rx')) || '').split(',').map(t => t.split('=')[0]);
   // L'equació dels candidats, primer tal com es planteja (David), i l'òptim en lila a la fila de treball.
-  comprova(passos.some(q => q.files[FILA.equacio] && textPla(q.files[FILA.equacio]) === `${f}'(${v})=0`), () => `${nom}: falta l'equació ${f}'(${v}) = 0 abans de substituir`);
+  comprova(passos.some(q => q.files[FILA.equacio0] && !q.files[FILA.equacio]), () => `${nom}: falta l'equació ${f}'(${v}) = 0 abans de substituir`);
   comprova(passos.some(q => q.files[FILA.equacio].includes('marca=solucio')), () => `${nom}: el punt crític no surt en lila al costat de l'equació`);
   // Els quatre blocs, amb els seus títols, i cap forat: les files es van escrivint de dalt a baix (la pissarra creix).
   for (const [k, t] of Object.entries(TITOLS)) comprova(passos.some(q => q.files[k] === '§' + t), () => `${nom}: falta el títol «${t}»`);
@@ -1312,7 +1314,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   });
   // V'(x) no s'esborra quan surt V''(x), ni la funció de dues variables quan surt la d'una (David): es queden fins a l'últim pas.
   const penultim = passos[passos.length - 2];
-  comprova([FILA.funcio, FILA.condicio, FILA.derivada, FILA.equacio, FILA.segona].every(k => penultim.files[k]), () => `${nom}: la resolució ha de quedar escrita fins al final`);
+  comprova([FILA.funcio, FILA.condicio, FILA.funcio1, FILA.derivada, FILA.equacio0, FILA.equacio, FILA.segona].every(k => penultim.files[k]), () => `${nom}: la resolució ha de quedar escrita fins al final`);
   comprova(textPla(penultim.files[FILA.condicioCostat]).startsWith(w + '='), () => `${nom}: la condició aïllada ha de ser a dalt a la dreta`);
   // La lectura: al final, l'enunciat té frases marcades de les dues categories, i cap més marca.
   const enunciat = passos[passos.length - 1].files[FILA.enunciat];
@@ -1371,7 +1373,7 @@ function comprovaEsquemes(problema, model, llista) {
   // On surt: gran a la condició al pas de la funció, després al costat de l'enunciat, i el final a l'últim pas.
   const darrer = llista[llista.length - 1];
   comprova(darrer.files[FILA.titol1] === final && !darrer.files[FILA.esquema], () => `${nom}: a l'últim pas, l'esquema final ha de ser gran, sota l'enunciat`);
-  comprova(amb[0].files[FILA.condicio] === inicial && amb[0].files[FILA.funcio], () => `${nom}: l'esquema ha de sortir gran amb la funció objectiu`);
+  comprova(amb[0].files[FILA.titol1b] === inicial && amb[0].files[FILA.funcio], () => `${nom}: l'esquema ha de sortir gran amb la funció objectiu`);
   comprova(llista.every(q => q.classes[FILA.esquema] === 'esquema-costat' && q.classes[FILA.enunciat] === 'amb-esquema'), () => `${nom}: classes de l'esquema i de l'enunciat`);
   comprova(llista.some(q => (q.llum || []).length), () => `${nom}: cap pas il·lumina les lletres de l'esquema`);
 }

@@ -133,6 +133,7 @@ button{font:inherit; color:inherit}
 /* Títol d'un apartat (p. ex. «1. Domini i possibles asímptotes verticals» a la gràfica d'una funció): una fila de text */
 /* Una fila ampla (taula de signes) que a pantalla petita es desplaça de costat, sense fer petita la lletra de tota la pissarra (motor.js, ajusta) */
 .fila.desplacable{overflow-x:auto; overflow-y:hidden}
+.fila.text.apartat.neutre{color:var(--txt)}   /* els títols dels blocs de l'optimització, sense el color de la categoria (David) */
 .fila.text.apartat{font-weight:700; color:var(--cat); max-width:none; border-radius:0; margin-top:.7em; padding-top:.55em;
   box-shadow:inset 0 1px 0 var(--border)}
 .frase{border-radius:4px; transition:background-color .45s, box-shadow .45s}
@@ -143,11 +144,16 @@ button{font:inherit; color:inherit}
 /* Esquemes dels problemes d'optimització (optimitzacio.js): gran el primer cop, a la seva fila; després, petit (260 px),
    flotant a la dreta de l'enunciat, que li deixa lloc des del primer pas. Amplada en em: el fantasma que vola d'un lloc
    a l'altre canvia de mida amb la lletra (motor.js). Groc: el que s'optimitza; verd: el que entra a la condició. */
-.fila.figura svg.esquema{width:14em; height:9.154em; max-width:none; font-size:26px}
-.fila.esquema-costat{position:absolute; top:18px; right:22px; min-height:0; margin:0; padding:0}   /* top/right: el padding de .pissarra (igual a les dues capes) */
+/* Gran només si hi cap (David, 18/11/2026): la mida depèn de l'alçada de la finestra; si és molt baixa, ja surt de la mida petita. */
+.fila.figura svg.esquema{width:14em; height:9.154em; max-width:none; font-size:clamp(18.6px, calc((100vh - 460px) / 9.154), 26px)}
+.fila.esquema-costat{position:absolute; top:calc(18px + var(--despl, 0px)); right:22px; min-height:0; margin:0; padding:0; z-index:3;
+  background:var(--surface); border-radius:8px}   /* top/right: el padding de .pissarra (igual a les dues capes); --despl: no es mou en desplaçar la pissarra (motor.js) */
 .fila.esquema-costat svg.esquema{font-size:18.6px}
-.fila.text.amb-esquema{max-width:min(72ch, calc(100% - 280px))}
-.fila.condicio-costat{position:absolute; top:196px; right:22px; min-height:0; margin:0; padding:0; font-size:.9em}   /* la condició aïllada, sota l'esquema petit (170 px + 18 + 8) */
+/* L'enunciat, sempre a la vista (David, 18/11/2026): fix a dalt de la pissarra; la franja de fons arriba fins a la dreta (sota l'esquema petit). */
+.fila.text.amb-esquema{max-width:min(72ch, calc(100% - 280px)); position:sticky; top:0; z-index:2; background:var(--surface);
+  box-shadow:0 0 0 100vmax var(--surface); clip-path:inset(0 -100vmax)}
+.fila.condicio-costat{position:absolute; top:calc(196px + var(--despl, 0px)); right:22px; min-height:0; margin:0; padding:0 .3em; font-size:.9em;
+  z-index:3; background:var(--surface); border-radius:6px}   /* la condició aïllada, sota l'esquema petit (170 px + 18 + 8) */
 .esquema{color:var(--txt)}
 .fila.text.resposta-text{margin-top:.4em; font-weight:700; color:var(--cat); max-width:none}   /* la resposta en català (optimitzacio.js) */
 .esquema .ob{fill:rgba(234,179,8,.30)}
@@ -170,7 +176,7 @@ button{font:inherit; color:inherit}
   .fila.esquema-costat{position:static; justify-content:center}
   .fila.condicio-costat{position:static; justify-content:center}
   .fila.esquema-costat svg.esquema{font-size:16px}
-  .fila.text.amb-esquema{max-width:72ch}
+  .fila.text.amb-esquema{max-width:72ch; position:static; box-shadow:none; clip-path:none}
 }
 /* Esquemes (SVG) a la pissarra: mida limitada, colors de la pàgina */
 .fila.figura{display:flex; justify-content:center}
@@ -412,3 +418,9 @@ button{font:inherit; color:inherit}
 .enunciat{border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; background:var(--surface)}   /* l'enunciat, també en una caixa */
 .enunciat-volant{font-family:var(--lletra); font-size:16px; line-height:1.55; color:var(--txt); pointer-events:none}
 .enunciat-volant .katex{font-size:1.05em}
+
+/* Finestra baixa (David, 18/11/2026): sense la capçalera i amb l'enunciat una mica més petit; la lletra de la pissarra, a motor.js (MIDA.baixa). */
+@media (max-height:750px) and (min-width:521px){
+  .capcalera{display:none}
+  .fila.text{font-size:16px}
+}
