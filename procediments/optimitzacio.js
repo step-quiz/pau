@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    optimitzacio.js — Procediment: problemes d'optimització
    ───────────────────────────────────────────────────────────────────
-   Vuit problemes fixos (sense editor), versions simplificades de
+   Deu problemes fixos (sense editor), versions simplificades de
    problemes de PAU, tots resolts amb la mateixa tècnica:
      0. llegir l'enunciat i marcar-hi què s'ha d'optimitzar (funció
         objectiu, en groc) i quina condició lliga les variables (en verd);
@@ -16,7 +16,7 @@
         domini, tatxades;
      6. la segona derivada diu si és un màxim o un mínim;
      7. la resposta: totes les mides i el valor òptim.
-   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, cartell, finca, parabola)
+   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, cartell, finca, parabola, cantonada, canonada)
 
    La pissarra té vuit files (FILA):
      fila 0  l'esquema petit (a dalt a la dreta de l'enunciat)
@@ -130,7 +130,7 @@ const PROBLEMES = Object.freeze([
     derivada: {tex: '12x^{2} - 96x + 144', text: 'Deriva la funció.'},
     equacio: {
       polinomi: {termes: [{n: 2, c: 12}, {n: 1, c: -96}, {n: 0, c: 144}], text: 'Substitueix $V\'(x)$ per la seva expressió.'},
-      candidat: '2', descarta: ' Però $x = 6$ no és del domini: la capsa no tindria base.',
+      candidat: '2', descarta: ' Pel context del problema, $x = 6$ no serveix: no és del domini (la capsa no tindria base).',
     },
     segona: {tex: '24x - 96', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(2) = 24 \\cdot 2 - 96 = -48'},
     altra: {calcul: 'b = 12 - 2 \\cdot 2 = 8', resposta: 'b = 8', text: 'Calcula el costat de la base: $b = 12 - 2x$.'},
@@ -163,7 +163,7 @@ const PROBLEMES = Object.freeze([
         {tex: '27\\pi - 3\\pi r^{2} = 0', text: 'Multiplica els dos membres per $2$.'},
       ],
       polinomi: {termes: [{n: 2, c: -3}, {n: 0, c: 27}], text: 'Divideix els dos membres per $\\pi$.'},
-      candidat: '3', descarta: ' Però $r = -3$ no és del domini: un radi no pot ser negatiu.',
+      candidat: '3', descarta: ' Pel context del problema, $r = -3$ no serveix: un radi no pot ser negatiu.',
     },
     segona: {tex: '-3\\pi r', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(3) = -3\\pi \\cdot 3 = -9\\pi'},
     altra: {calcul: 'h = \\dfrac{27 - 3^{2}}{2 \\cdot 3} = 3', resposta: 'h = 3', text: 'Calcula l\'altura: $h = \\frac{27 - r^2}{2r}$.'},
@@ -187,21 +187,26 @@ const PROBLEMES = Object.freeze([
       {aillada: '\\dfrac{8}{x^{2}}', text: 'Aïlla $h$.'},
     ],
     substitucio: {tex: '20x^{2} + 40x \\cdot \\dfrac{8}{x^{2}}', text: 'Substitueix $h$ a la funció: ara el cost només depèn de $x$.'},
-    simplifica: [{tex: '20x^{2} + \\dfrac{320}{x}', text: 'Simplifica una $x$.'}],
+    simplifica: [
+      {tex: '20x^{2} + \\dfrac{320}{x}', text: 'Simplifica una $x$.'},
+      {tex: '\\dfrac{20x^{3} + 320}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
+    ],
     domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altura també ho és).'},
-    derivada: {tex: '40x - \\dfrac{320}{x^{2}}', text: 'Deriva la funció. Per derivar $\\frac{320}{x}$, escriu-la com una potència: $320x^{-1}$. La seva derivada és $-320x^{-2} = -\\frac{320}{x^2}$.'},
+    derivada: {quocient: '\\dfrac{60x^{2} \\cdot x - (20x^{3} + 320) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 20x^3 + 320$ i $v = x$.',
+      tex: '\\dfrac{40x^{3} - 320}{x^{2}}', simplifica: 'Simplifica el numerador: $60x^3 - 20x^3 - 320 = 40x^3 - 320$.'},
     equacio: {
       manual: [
-        {tex: '40x - \\dfrac{320}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
-        {tex: '40x^{3} - 320 = 0', text: 'Multiplica els dos membres per $x^2$, que no és $0$.'},
+        {tex: '\\dfrac{40x^{3} - 320}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
+        {tex: '40x^{3} - 320 = 0', text: 'Una fracció val $0$ quan el numerador és $0$ (el denominador, $x^2$, no és $0$).'},
         {tex: 'x^{3} = 8', text: 'Passa el $-320$ a l\'altre costat i divideix per $40$.'},
         {tex: 'x = \\sqrt[3]{8}', text: 'Fes l\'arrel cúbica.'},
         {tex: 'x = 2', text: '$\\sqrt[3]{8} = 2$, perquè $2^3 = 8$.'},
       ],
       candidat: '2',
     },
-    segona: {tex: '40 + \\dfrac{640}{x^{3}}', text: 'Per saber si és un mínim, calcula la segona derivada: $-320x^{-2}$ es deriva com $640x^{-3}$.',
-      valor: 'C\'\'(2) = 40 + \\dfrac{640}{2^{3}} = 120'},
+    segona: {quocient: '\\dfrac{120x^{2} \\cdot x^{2} - (40x^{3} - 320) \\cdot 2x}{x^{4}}', text: 'Per saber si és un mínim, calcula la segona derivada, també amb la regla del quocient.',
+      tex: '\\dfrac{40x^{3} + 640}{x^{3}}', simplifica: 'Simplifica: el numerador és $40x^4 + 640x$; divideix-lo, i també el denominador, per $x$.',
+      valor: 'C\'\'(2) = \\dfrac{40 \\cdot 2^{3} + 640}{2^{3}} = 120'},
     altra: {calcul: 'h = \\dfrac{8}{2^{2}} = 2', resposta: 'h = 2', text: 'Calcula l\'altura: $h = \\frac{8}{x^2}$.'},
     optim: {calcul: 'C(2) = 20 \\cdot 2^{2} + \\dfrac{320}{2} = 240', resposta: 'C = 240', text: 'Calcula el cost mínim.'},
     resposta: 'El dipòsit ha de fer $2 \\times 2$ m de base i $2$ m d\'altura, i el cost mínim és $240$ €.',
@@ -261,21 +266,23 @@ const PROBLEMES = Object.freeze([
     simplifica: [
       {tex: '96 + 6x + \\dfrac{384}{x} + 24', text: 'Fes el producte: cada terme del primer parèntesi per cada terme del segon.'},
       {tex: '6x + 120 + \\dfrac{384}{x}', text: 'Suma els nombres: $96 + 24 = 120$.'},
+      {tex: '\\dfrac{6x^{2} + 120x + 384}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
     ],
     domini: {tex: 'x > 0', text: 'El domini: l\'amplada del text ha de ser positiva, $x > 0$ (i llavors l\'altura també ho és).'},
-    derivada: {tex: '6 - \\dfrac{384}{x^{2}}', text: 'Deriva la funció. El $120$ és una constant: la seva derivada és $0$. '
-      + 'Per derivar $\\frac{384}{x}$, escriu-la com una potència: $384x^{-1}$. La seva derivada és $-384x^{-2} = -\\frac{384}{x^2}$.'},
+    derivada: {quocient: '\\dfrac{(12x + 120) \\cdot x - (6x^{2} + 120x + 384) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 6x^2 + 120x + 384$ i $v = x$.',
+      tex: '\\dfrac{6x^{2} - 384}{x^{2}}', simplifica: 'Simplifica el numerador: $12x^2 + 120x - 6x^2 - 120x - 384 = 6x^2 - 384$.'},
     equacio: {
       manual: [
-        {tex: '6 - \\dfrac{384}{x^{2}} = 0', text: 'Substitueix $A\'(x)$ per la seva expressió.'},
-        {tex: '6x^{2} - 384 = 0', text: 'Multiplica els dos membres per $x^2$, que no és $0$.'},
+        {tex: '\\dfrac{6x^{2} - 384}{x^{2}} = 0', text: 'Substitueix $A\'(x)$ per la seva expressió.'},
+        {tex: '6x^{2} - 384 = 0', text: 'Una fracció val $0$ quan el numerador és $0$ (el denominador, $x^2$, no és $0$).'},
         {tex: 'x^{2} = 64', text: 'Passa el $-384$ a l\'altre costat i divideix per $6$.'},
         {tex: 'x = \\pm 8', text: 'Fes l\'arrel quadrada: hi ha dues solucions.'},
-        {tex: 'x = 8', text: 'Però $x = -8$ no és del domini: l\'amplada ha de ser positiva.'},
+        {tex: 'x = 8', text: 'Pel context del problema, $x = -8$ no serveix: l\'amplada ha de ser positiva.'},
       ],
       candidat: '8',
     },
-    segona: {tex: '\\dfrac{768}{x^{3}}', text: 'Per saber si és un mínim, calcula la segona derivada: $-384x^{-2}$ es deriva com $768x^{-3}$.',
+    segona: {quocient: '\\dfrac{12x \\cdot x^{2} - (6x^{2} - 384) \\cdot 2x}{x^{4}}', text: 'Per saber si és un mínim, calcula la segona derivada, també amb la regla del quocient.',
+      tex: '\\dfrac{768}{x^{3}}', simplifica: 'Simplifica: el numerador és $12x^3 - 12x^3 + 768x = 768x$; divideix-lo, i també el denominador, per $x$.',
       valor: 'A\'\'(8) = \\dfrac{768}{8^{3}} = \\dfrac{3}{2}'},
     altra: {calcul: 'y = \\dfrac{96}{8} = 12', resposta: 'y = 12', text: 'Calcula l\'altura del text: $y = \\frac{96}{x}$.'},
     optim: {calcul: 'A(8) = 6 \\cdot 8 + 120 + \\dfrac{384}{8} = 216', resposta: 'A = 216', text: 'Calcula el paper mínim.'},
@@ -298,21 +305,25 @@ const PROBLEMES = Object.freeze([
       {aillada: '\\dfrac{800}{x}', text: 'Aïlla $y$.'},
     ],
     substitucio: {tex: '20x + 40 \\cdot \\dfrac{800}{x}', text: 'Substitueix $y$ a la funció: ara el cost només depèn de $x$.'},
-    simplifica: [{tex: '20x + \\dfrac{32000}{x}', text: 'Fes el producte: $40 \\cdot 800 = 32000$.'}],
+    simplifica: [
+      {tex: '20x + \\dfrac{32000}{x}', text: 'Fes el producte: $40 \\cdot 800 = 32000$.'},
+      {tex: '\\dfrac{20x^{2} + 32000}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
+    ],
     domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altre costat també ho és).'},
-    derivada: {tex: '20 - \\dfrac{32000}{x^{2}}', text: 'Deriva la funció. Per derivar $\\frac{32000}{x}$, escriu-la com una potència: $32000x^{-1}$. '
-      + 'La seva derivada és $-32000x^{-2} = -\\frac{32000}{x^2}$.'},
+    derivada: {quocient: '\\dfrac{40x \\cdot x - (20x^{2} + 32000) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 20x^2 + 32000$ i $v = x$.',
+      tex: '\\dfrac{20x^{2} - 32000}{x^{2}}', simplifica: 'Simplifica el numerador: $40x^2 - 20x^2 - 32000 = 20x^2 - 32000$.'},
     equacio: {
       manual: [
-        {tex: '20 - \\dfrac{32000}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
-        {tex: '20x^{2} - 32000 = 0', text: 'Multiplica els dos membres per $x^2$, que no és $0$.'},
+        {tex: '\\dfrac{20x^{2} - 32000}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
+        {tex: '20x^{2} - 32000 = 0', text: 'Una fracció val $0$ quan el numerador és $0$ (el denominador, $x^2$, no és $0$).'},
         {tex: 'x^{2} = 1600', text: 'Passa el $-32000$ a l\'altre costat i divideix per $20$.'},
         {tex: 'x = \\pm 40', text: 'Fes l\'arrel quadrada: hi ha dues solucions.'},
-        {tex: 'x = 40', text: 'Però $x = -40$ no és del domini: un costat no pot ser negatiu.'},
+        {tex: 'x = 40', text: 'Pel context del problema, $x = -40$ no serveix: un costat no pot ser negatiu.'},
       ],
       candidat: '40',
     },
-    segona: {tex: '\\dfrac{64000}{x^{3}}', text: 'Per saber si és un mínim, calcula la segona derivada: $-32000x^{-2}$ es deriva com $64000x^{-3}$.',
+    segona: {quocient: '\\dfrac{40x \\cdot x^{2} - (20x^{2} - 32000) \\cdot 2x}{x^{4}}', text: 'Per saber si és un mínim, calcula la segona derivada, també amb la regla del quocient.',
+      tex: '\\dfrac{64000}{x^{3}}', simplifica: 'Simplifica: el numerador és $40x^3 - 40x^3 + 64000x = 64000x$; divideix-lo, i també el denominador, per $x$.',
       valor: 'C\'\'(40) = \\dfrac{64000}{40^{3}} = 1'},
     altra: {calcul: 'y = \\dfrac{800}{40} = 20', resposta: 'y = 20', text: 'Calcula l\'altre costat: $y = \\frac{800}{x}$.'},
     optim: {calcul: 'C(40) = 20 \\cdot 40 + \\dfrac{32000}{40} = 1600', resposta: 'C = 1600', text: 'Calcula el cost mínim.'},
@@ -339,12 +350,98 @@ const PROBLEMES = Object.freeze([
     derivada: {tex: '-6x^{2} + 24', text: 'Deriva la funció (ordena els termes de més a menys grau).'},
     equacio: {
       polinomi: {termes: [{n: 2, c: -6}, {n: 0, c: 24}], text: 'Substitueix $A\'(x)$ per la seva expressió.'},
-      candidat: '2', descarta: ' Però $x = -2$ no és del domini: $x$ ha de ser positiu.',
+      candidat: '2', descarta: ' Pel context del problema, $x = -2$ no serveix: $x$ ha de ser positiu.',
     },
     segona: {tex: '-12x', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'A\'\'(2) = -12 \\cdot 2 = -24'},
     altra: {calcul: 'y = 12 - 2^{2} = 8', resposta: 'y = 8', text: 'Calcula l\'altura: $y = 12 - x^2$.'},
     optim: {calcul: 'A(2) = 24 \\cdot 2 - 2 \\cdot 2^{3} = 32', resposta: 'A = 32', text: 'Calcula l\'àrea màxima.'},
     resposta: 'Els vèrtexs de dalt són a $x = \\pm 2$: el rectangle fa $4$ de base i $8$ d\'altura, i l\'àrea màxima és $32$.',
+  },
+  {
+    id: 'cantonada', nom: 'Tancat en una cantonada',
+    figura: {dibuix: 'cantonada', lletres: {x: 3.6, y: 2.2}, final: {x: 2 * Math.SQRT2, y: 2 * Math.SQRT2}, textos: {x: '≈ 2,83', y: '≈ 2,83'}, valor: 'C ≈ 28,28 €'},
+    lectura: {
+      text: 'Volem fer [c*:un tancat rectangular de $8$ m²] [o:en una cantonada del jardí: les dues parets fan dos costats, i només cal tanca als altres dos]. '
+        + '[o:La tanca costa $5$ €/m]. Quines mides fan [o*:que el cost de la tanca sigui mínim]? Quant costarà?',
+      objectiu: 'Què volem optimitzar? «Que el cost de la tanca sigui mínim»: la funció objectiu és el cost. Per escriure-la cal saber quins costats porten tanca, i el preu.',
+      condicio: 'Què lliga les mides? L\'àrea: el tancat ha de fer $8$ m². Aquesta és la condició.',
+    },
+    v: 'x', w: 'y', f: 'C', maxim: false,
+    funcio: {tex: '5 \\cdot (x + y)', text: 'Escriu la funció objectiu amb dues variables: els dos costats que no toquen les parets, $x$ i $y$. '
+      + 'Només aquests porten tanca, a $5$ €/m: $C = 5 \\cdot (x + y)$.'},
+    condicio: [
+      {tex: 'x \\cdot y = 8', text: 'Escriu la condició com una igualtat: l\'àrea, $x \\cdot y$, és $8$ m².'},
+      {aillada: '\\dfrac{8}{x}', text: 'Aïlla $y$.'},
+    ],
+    substitucio: {tex: '5 \\cdot \\left(x + \\dfrac{8}{x}\\right)', text: 'Substitueix $y$ a la funció: ara el cost només depèn de $x$.'},
+    simplifica: [
+      {tex: '5x + \\dfrac{40}{x}', text: 'Treu el parèntesi.'},
+      {tex: '\\dfrac{5x^{2} + 40}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
+    ],
+    domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altre costat també ho és).'},
+    derivada: {quocient: '\\dfrac{10x \\cdot x - (5x^{2} + 40) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 5x^2 + 40$ i $v = x$.',
+      tex: '\\dfrac{5x^{2} - 40}{x^{2}}', simplifica: 'Simplifica el numerador: $10x^2 - 5x^2 - 40 = 5x^2 - 40$.'},
+    equacio: {
+      manual: [
+        {tex: '\\dfrac{5x^{2} - 40}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
+        {tex: '5x^{2} - 40 = 0', text: 'Una fracció val $0$ quan el numerador és $0$ (el denominador, $x^2$, no és $0$).'},
+        {tex: 'x^{2} = 8', text: 'Passa el $-40$ a l\'altre costat i divideix per $5$.'},
+        {tex: 'x = \\pm\\sqrt{8}', text: 'Fes l\'arrel quadrada: hi ha dues solucions, i no són exactes.'},
+        {tex: 'x = \\pm 2\\sqrt{2}', text: 'Simplifica el radical: $\\sqrt{8} = \\sqrt{4 \\cdot 2} = 2\\sqrt{2}$.'},
+        {tex: 'x = 2\\sqrt{2}', text: 'Pel context del problema, $x = -2\\sqrt{2}$ no serveix: un costat no pot ser negatiu. (Aproximadament, $2\\sqrt{2} \\approx 2{,}83$.)'},
+      ],
+      candidat: '2\\sqrt{2}',
+    },
+    segona: {quocient: '\\dfrac{10x \\cdot x^{2} - (5x^{2} - 40) \\cdot 2x}{x^{4}}', text: 'Per saber si és un mínim, calcula la segona derivada, també amb la regla del quocient.',
+      tex: '\\dfrac{80}{x^{3}}', simplifica: 'Simplifica: el numerador és $10x^3 - 10x^3 + 80x = 80x$; divideix-lo, i també el denominador, per $x$.',
+      valor: 'C\'\'(2\\sqrt{2}) = \\dfrac{80}{(2\\sqrt{2})^{3}} = \\dfrac{80}{16\\sqrt{2}} = \\dfrac{5\\sqrt{2}}{2}'},
+    altra: {calcul: 'y = \\dfrac{8}{2\\sqrt{2}} = 2\\sqrt{2}', resposta: 'y = 2\\sqrt{2}',
+      text: 'Calcula l\'altre costat: $y = \\frac{8}{x}$. Racionalitza: $\\frac{8}{2\\sqrt{2}} = \\frac{8\\sqrt{2}}{2 \\cdot 2} = 2\\sqrt{2}$.'},
+    optim: {calcul: 'C(2\\sqrt{2}) = 5 \\cdot 2\\sqrt{2} + \\dfrac{40}{2\\sqrt{2}} = 20\\sqrt{2}', resposta: 'C = 20\\sqrt{2}',
+      text: 'Calcula el cost mínim: $10\\sqrt{2} + \\frac{40}{2\\sqrt{2}} = 10\\sqrt{2} + 10\\sqrt{2} = 20\\sqrt{2}$.'},
+    resposta: 'El tancat ha de ser un quadrat de $2\\sqrt{2} \\approx 2{,}83$ m de costat, i el cost mínim de la tanca és $20\\sqrt{2} \\approx 28{,}28$ €.',
+  },
+  {
+    id: 'canonada', nom: 'Canonada fins a un abeurador',
+    figura: {dibuix: 'canonada', lletres: {x: 9.5}, final: {x: 6}, textos: {x: '6', d: '10'}, valor: 'P = 92 €'},
+    lectura: {
+      text: 'Un abeurador $B$ és [c*:a $8$ m d\'una tanca recta]. [c:El punt $O$ de la tanca més proper a $B$] és [o:a $20$ m de l\'aixeta $A$], que també és a la tanca. '
+        + '[o:La canonada va arran de la tanca, a $3$ €/m, fins a un punt $M$, i d\'allà en línia recta fins a $B$, a $5$ €/m]. '
+        + 'On ha de ser $M$ [o*:perquè la canonada costi tan poc com sigui possible]? Quant costarà?',
+      objectiu: 'Què volem optimitzar? «Que la canonada costi tan poc com sigui possible»: la funció objectiu és el cost. Per escriure-la calen els dos trams, els preus i els $20$ m.',
+      condicio: 'Què lliga les mides? $OB = 8$ m és perpendicular a la tanca: el tram pel camp, $MB$, és la hipotenusa d\'un triangle rectangle. Aquesta és la condició (teorema de Pitàgores).',
+    },
+    v: 'x', w: 'd', f: 'P', maxim: false,
+    funcio: {tex: '3 \\cdot (20 - x) + 5d', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ la distància $OM$ i $d$ el tram pel camp, $MB$. '
+      + 'Arran de la tanca hi ha $20 - x$ m, a $3$ €/m, i pel camp, $d$ m, a $5$ €/m: $P = 3 \\cdot (20 - x) + 5d$.'},
+    condicio: [
+      {tex: 'd^{2} = 64 + x^{2}', text: 'Escriu la condició: pel teorema de Pitàgores al triangle $OMB$, $d^2 = 8^2 + x^2 = 64 + x^2$.'},
+      {aillada: '\\sqrt{64 + x^{2}}', text: 'Aïlla $d$: és una longitud, i n\'agafem l\'arrel positiva.'},
+    ],
+    substitucio: {tex: '3 \\cdot (20 - x) + 5\\sqrt{64 + x^{2}}', text: 'Substitueix $d$ a la funció: ara el cost només depèn de $x$.'},
+    simplifica: [{tex: '60 - 3x + 5\\sqrt{64 + x^{2}}', text: 'Treu el parèntesi.'}],
+    domini: {tex: '0 < x < 20', text: 'El domini: $M$ és entre $O$ i l\'aixeta, és a dir, $0 < x < 20$.'},
+    derivada: {tex: '-3 + \\dfrac{5x}{\\sqrt{64 + x^{2}}}', text: 'Deriva la funció. Per la regla de la cadena, la derivada de $\\sqrt{64 + x^2}$ és '
+      + '$\\frac{2x}{2\\sqrt{64 + x^2}} = \\frac{x}{\\sqrt{64 + x^2}}$.'},
+    equacio: {
+      manual: [
+        {tex: '-3 + \\dfrac{5x}{\\sqrt{64 + x^{2}}} = 0', text: 'Substitueix $P\'(x)$ per la seva expressió.'},
+        {tex: '5x = 3\\sqrt{64 + x^{2}}', text: 'Passa el $-3$ a l\'altre costat i multiplica els dos membres per $\\sqrt{64 + x^2}$, que no és $0$.'},
+        {tex: '25x^{2} = 9 \\cdot (64 + x^{2})', text: 'Eleva els dos membres al quadrat. Com que el membre de la dreta és positiu, $x$ també ho ha de ser; amb aquesta condició, l\'equació nova és equivalent a la de dalt.'},
+        {tex: '16x^{2} = 576', text: 'Treu el parèntesi ($9 \\cdot 64 = 576$) i passa el $9x^2$ a l\'esquerra: $25x^2 - 9x^2 = 16x^2$.'},
+        {tex: 'x^{2} = 36', text: 'Divideix per $16$.'},
+        {tex: 'x = 6', text: 'Pel context del problema, $x = -6$ no serveix: no és del domini (i $5x$ ha de ser positiu). Queda $x = 6$.'},
+      ],
+      candidat: '6',
+    },
+    segona: {quocient: '\\dfrac{5\\sqrt{64 + x^{2}} - 5x \\cdot \\frac{x}{\\sqrt{64 + x^{2}}}}{64 + x^{2}}',
+      text: 'Per saber si és un mínim, calcula la segona derivada: el $-3$ desapareix, i $\\frac{5x}{\\sqrt{64 + x^2}}$ es deriva amb la regla del quocient.',
+      tex: '\\dfrac{320}{(64 + x^{2}) \\sqrt{64 + x^{2}}}',
+      simplifica: 'Simplifica: multiplica el numerador i el denominador per $\\sqrt{64 + x^2}$. El numerador queda $5(64 + x^2) - 5x^2 = 320$.',
+      valor: 'P\'\'(6) = \\dfrac{320}{(64 + 6^{2}) \\sqrt{64 + 6^{2}}} = \\dfrac{320}{100 \\cdot 10} = \\dfrac{8}{25}'},
+    altra: {calcul: 'd = \\sqrt{64 + 6^{2}} = 10', resposta: 'd = 10', text: 'Calcula el tram pel camp: $d = \\sqrt{64 + x^2}$.'},
+    optim: {calcul: 'P(6) = 60 - 3 \\cdot 6 + 5\\sqrt{64 + 6^{2}} = 92', resposta: 'P = 92', text: 'Calcula el cost mínim: $60 - 18 + 5 \\cdot 10 = 92$.'},
+    resposta: '$M$ ha de ser a $6$ m de $O$, és a dir, a $14$ m de l\'aixeta: la canonada fa $14$ m arran de la tanca i $10$ m pel camp, i el cost mínim és $92$ €.',
   },
 ]);
 
@@ -480,6 +577,32 @@ const ESQUEMES = {
     if (et.final) t += paraula(et.valor, X(-m.x / 2), Y(y / 2) + 5);
     return t;
   },
+  cantonada(m, et) {
+    const s = Math.min(150 / m.x, 100 / m.y), w = m.x * s, h = m.y * s, X0 = 70, Y0 = 34;
+    let t = lin([X0 - 1, Y0 - 1], [X0 + w + 30, Y0 - 1], 'pa') + lin([X0 - 1, Y0 - 1], [X0 - 1, Y0 + h + 22], 'pa');
+    for (let x = X0; x < X0 + w + 28; x += 10) t += lin([x, Y0 - 2], [x + 8, Y0 - 12], 'ra');
+    for (let y = Y0 + 8; y < Y0 + h + 22; y += 10) t += lin([X0 - 2, y], [X0 - 12, y - 8], 'ra');
+    t += paraula('paret', X0 + w + 30, Y0 - 16, 'end') + paraula('paret', X0 - 16, Y0 + h + 34, 'middle');
+    t += `<rect class="cof" x="${X0}" y="${Y0}" width="${nombre(w)}" height="${nombre(h)}"/>`;
+    t += pol([[X0, Y0 + h], [X0 + w, Y0 + h], [X0 + w, Y0]], 'obl', false);
+    t += mida(et, 'x', X0 + w / 2, Y0 + h + 19) + mida(et, 'y', X0 + w + 8, Y0 + h / 2 + 5, 'start');
+    if (et.final) t += paraula(et.valor, X0 + w / 2, Y0 + h / 2 + 5);     // dins del tancat: a sota hi ha la mida
+    return t;
+  },
+  canonada(m, et) {
+    const s = 10, X = u => 30 + u * s, Yt = 120, B = [X(0), Yt - 8 * s], M = [X(m.x), Yt];
+    let t = lin([16, Yt], [246, Yt], 'tr') + paraula('tanca', 244, Yt - 6, 'end');
+    t += lin([X(0), Yt], B, 'co') + `<path class="tr" d="M${X(0) + 8} ${Yt} V${Yt - 8} H${X(0)}"/>`;
+    t += lin([X(20), Yt], M, 'obl') + lin(M, B, 'obl');
+    for (const [q, nom, dx, dy] of [[B, 'B', -10, 4], [[X(0), Yt], 'O', -4, 16], [M, 'M', 0, 16], [[X(20), Yt], 'A', 0, 16]]) {
+      t += `<circle cx="${nombre(q[0])}" cy="${nombre(q[1])}" r="2.5" fill="currentColor"/>` + paraula(nom, q[0] + dx, q[1] + dy, 'middle');
+    }
+    t += paraula('8', X(0) - 9, Yt - 36, 'end');
+    t += mida(et, 'x', X(m.x / 2), Yt + 16) + mida(et, 'd', (M[0] + B[0]) / 2 + 9, (M[1] + B[1]) / 2 - 2, 'start');
+    t += `<path class="td" d="M${X(0)} ${Yt + 26} H${X(20)}"/>` + paraula('20', X(10), Yt + 40);
+    if (et.final) t += paraula(et.valor, 196, 40);
+    return t;
+  },
 };
 
 /** L'esquema d'un problema: amb les lletres, o (final) a escala amb les mides i el valor òptims. */
@@ -538,7 +661,7 @@ function passos(valors) {
   g.files[FILA.enunciat] = frases.tex;
   g.afegeix(p.lectura.objectiu + ' (Ho marquem en groc.)', {cursor: {clic: frases.objectiu}});
   g.files[FILA.enunciat] = lectura(p, ['o', 'c']).tex;
-  g.afegeix(p.lectura.condicio + ' (Ho marquem en verd.)', {cursor: {clic: frases.condicio}});
+  g.afegeix(p.lectura.condicio + ' (Ho marquem en verd. A les pautes de la PAU, la condició també es diu «lligadura».)', {cursor: {clic: frases.condicio}});
 
   /* 1. La funció objectiu, amb dues variables (fila funcio). */
   g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + K('Oe', p.funcio.tex);
@@ -577,13 +700,18 @@ function passos(valors) {
   const aillada = p.condicio[p.condicio.length - 1].aillada;
   const filaCondicio = K('Lw', w) + R('Lq', '=') + K('Lr', aillada);
   g.files[FILA.condicio] = '';
-  g.files[FILA.derivada] = membre(1) + K('Pe', p.derivada.tex);
+  // Amb la regla del quocient (David, 18/11/2026: «com a les PAU»), primer la derivada tal com surt i després simplificada.
+  g.files[FILA.derivada] = membre(1) + K('Pe', p.derivada.quocient || p.derivada.tex);
   const textAillada = `$${w} = ${aillada.replace(/\\dfrac/g, '\\frac')}$`;
   g.afegeix(`${p.derivada.text} (Esborrem ${textAillada}: ara no ens cal. La recuperarem al final per calcular $${w}$.)`);
+  if (p.derivada.quocient) {
+    g.files[FILA.derivada] = membre(1) + K('Pe', p.derivada.tex);
+    g.afegeix(p.derivada.simplifica);
+  }
   const eq = p.equacio;
   // Primer, l'equació tal com es planteja: A'(x) = 0 (el «=» i el «0», claus eq i ez, es queden). Els càlculs, a la fila de treball.
   g.files[FILA.calcul] = F.membreEsquerre('e', f, v, 1) + K('ez', '0');
-  g.afegeix(`Els candidats són les solucions de l'equació $${f}'(${v}) = 0$.`);
+  g.afegeix(`Els candidats (els punts singulars o crítics, com en diuen les pautes de la PAU) són les solucions de l'equació $${f}'(${v}) = 0$.`);
   const manual = eq.manual || [];
   manual.forEach((pas, i) => {
     if (i === 0) {
@@ -618,13 +746,19 @@ function passos(valors) {
   g.afegeix(`L'únic candidat dins del domini és $${v} = ${textual(eq.candidat)}$.`, Object.assign({reanomena: {Rx: clauCandidat}}, llum(v)));
 
   /* 6. La segona derivada decideix si és un màxim o un mínim. */
-  g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.tex);
+  g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.quocient || p.segona.tex);
   g.afegeix(p.segona.text);
+  if (p.segona.quocient) {
+    g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.tex);
+    g.afegeix(p.segona.simplifica);
+  }
   g.files[FILA.calcul] = K('Se', p.segona.valor) + R('Sw', p.maxim ? '<' : '>') + K('Sz', '0');
   // La conclusió, també a la pissarra (David, 18/11/2026): «En x = k hi ha un màxim (mínim) relatiu».
-  g.files[FILA.extrem] = F.filaText(`En $${v} = ${textual(eq.candidat)}$ hi ha un ${p.maxim ? 'màxim' : 'mínim'} relatiu.`);
+  // I, com que és l'únic candidat del domini, és l'extrem absolut (David, 18/11/2026: a la pissarra i a l'explicació).
+  const absolut = `Com que és l'únic candidat del domini, és el ${p.maxim ? 'màxim' : 'mínim'} absolut.`;
+  g.files[FILA.extrem] = F.filaText(`En $${v} = ${textual(eq.candidat)}$ hi ha un ${p.maxim ? 'màxim' : 'mínim'} relatiu. ${absolut}`);
   g.afegeix(`Com que $${textual(p.segona.valor.split(' = ')[0])} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${textual(eq.candidat)}$ hi ha un `
-    + (p.maxim ? 'màxim (la gràfica té forma de ∩).' : 'mínim (la gràfica té forma de ∪).'), {cursor: {clic: 'Rx'}});
+    + (p.maxim ? 'màxim relatiu (la gràfica té forma de ∩). ' : 'mínim relatiu (la gràfica té forma de ∪). ') + absolut, {cursor: {clic: 'Rx'}});
 
   /* 7. La resposta: l'altra variable (amb la condició, que torna a la fila condicio) i el valor òptim (fila resposta). */
   g.files[FILA.condicio] = filaCondicio;

@@ -258,6 +258,37 @@ function exacte(n, entorn) {
   throw new Error(`Node no previst per la prova: ${n.tipus}`);
 }
 
+/** Com exacte, però amb radicals (M.Radical): √ d'un racional que no és un quadrat dona a + b·√r. Per a l'optimització. */
+function exacteR(n, entorn) {
+  const ev = m => exacteR(m, entorn), R = x => M.Radical.de(x);
+  switch (n.tipus) {
+    case 'nombre':   return R(n.valor);
+    case 'variable': return R(entorn.variables[n.nom]);
+    case 'oposat':   return ev(n.a).oposada();
+    case 'suma':     return ev(n.a).suma(ev(n.b));
+    case 'resta':    return ev(n.a).resta(ev(n.b));
+    case 'producte': return ev(n.a).producte(ev(n.b));
+    case 'quocient': return ev(n.a).quocient(ev(n.b));
+    case 'potencia': {
+      const e = ev(n.exponent);
+      if (e.b.esZero() && e.a.esEnter() && e.a.num >= 0) return ev(n.base).potencia(e.a.num);
+      throw new Error('Potència no prevista per la prova');
+    }
+    case 'constant': {
+      if (n.nom === 'pi' && entorn.variables.pi) return R(entorn.variables.pi);
+      throw new Error(`Constant no prevista per la prova: ${n.nom}`);
+    }
+    case 'crida': {
+      if (n.nom !== 'sqrt') return R(entorn.funcions[n.nom](ev(n.arg)));
+      const v = ev(n.arg);
+      if (!v.b.esZero()) throw new Error('Arrel d\'un radical: no prevista per la prova');
+      if (v.signe() < 0) throw new SenseValorReal();
+      return M.Radical.arrel(v.a);
+    }
+  }
+  throw new Error(`Node no previst per la prova: ${n.tipus}`);
+}
+
 /** L'arrel quadrada d'un nombre negatiu: no hi ha valor real. */
 class SenseValorReal extends Error {}
 
@@ -1067,6 +1098,10 @@ seccio('guions i veritat de creixement', () => {
  *   mostres     valors de v dins del domini, diferents de l'òptim
  *   pis         valors de π amb què es prova (π fa d'indeterminada)
  */
+/** Per als models amb radicals: n del mateix tipus que x, x com a Radical, i √(64 + x²) (la canonada). */
+const k = (x, n) => x.producte(0).suma(n);
+const Radical_ = x => M.Radical.de(x);
+const OPT_W8 = x => M.Radical.arrel(Radical_(x).producte(x).suma(64).a);
 const OPT = (() => {
   const q = (a, b = 1) => fr(a, b);
   const sense = [q(1)];
@@ -1095,6 +1130,14 @@ const OPT = (() => {
     parabola: {v: 'x', w: 'y', f: 'A', maxim: true, domini: '0<x<sqrt(12)', mostres: [q(1, 2), q(1), q(3), q(7, 2)], pis: sense,
       O: (x, y) => x.producte(y).producte(2), W: x => q(12).resta(x.producte(x)),
       d1: x => q(24).resta(x.producte(x).producte(6)), d2: x => x.producte(-12), optim: () => q(2)},
+    // Amb radicals (radicals: true): es calcula amb M.Radical (a + b·√r), i les funcions s'escriuen perquè valguin per a
+    // fraccions i per a radicals (k(x, n): la constant n del mateix tipus que x).
+    cantonada: {v: 'x', w: 'y', f: 'C', maxim: false, domini: 'x>0', mostres: [q(1, 2), q(1), q(3, 2), q(2)], pis: sense, radicals: true,
+      O: (x, y) => x.suma(y).producte(5), W: x => k(x, 8).quocient(x),
+      d1: x => x.producte(x).producte(5).resta(40).quocient(x.producte(x)), d2: x => k(x, 80).quocient(x.potencia(3)), optim: () => new M.Radical(0, 2, 2)},
+    canonada: {v: 'x', w: 'd', f: 'P', maxim: false, domini: '0<x<20', mostres: [q(1, 2), q(3), q(8), q(15)], pis: sense, radicals: true,
+      O: (x, d) => Radical_(d).producte(5).suma(k(x, 20).resta(x).producte(3)), W: x => OPT_W8(x),
+      d1: x => Radical_(x).producte(5).quocient(OPT_W8(x)).resta(3), d2: x => Radical_(320).quocient(OPT_W8(x).potencia(3)), optim: () => q(6)},
   };
 })();
 
@@ -1105,7 +1148,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   const W = x => model.W(x, pi);
   const funcio = x => model.O(x, W(x), pi);
   const funcions = {[f]: funcio, [f + "'"]: x => model.d1(x, pi), [f + "''"]: x => model.d2(x, pi)};
-  const valor = (text, x = fr(0), y = fr(0)) => exacte(M.llegeix(text, lectura), {variables: {[v]: x, [w]: y, pi}, funcions});
+  const valor = (text, x = fr(0), y = fr(0)) => (model.radicals ? exacteR : exacte)(M.llegeix(text, lectura), {variables: {[v]: x, [w]: y, pi}, funcions});
   const optim = model.optim(pi);
   const totsIguals = vs => vs.every(a => a.igual(vs[0]));
   let linies = 0;
@@ -1114,9 +1157,10 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
     if (!tex || fila === FILA.enunciat) return;                      // l'enunciat no és una igualtat
     if (fila === FILA.extrem) {                                      // «En v = k hi ha un màxim (mínim) relatiu.»
-      const m = /^§En \$(.+)\$ hi ha un (màxim|mínim) relatiu\.$/.exec(tex);
+      // «… relatiu. Com que és l'únic candidat del domini, és el màxim (mínim) absolut.» (l'únic candidat: el de la lila, vegeu més avall)
+      const m = /^§En \$(.+)\$ hi ha un (màxim|mínim) relatiu\. Com que és l'únic candidat del domini, és el (màxim|mínim) absolut\.$/.exec(tex);
       const [esq, dre] = m ? textPla(m[1]).split('=') : [];
-      comprova(m && esq === v && valor(dre).igual(optim) && (m[2] === 'màxim') === model.maxim && model.d2(optim, pi).signe() === (model.maxim ? -1 : 1),
+      comprova(m && esq === v && valor(dre).igual(optim) && (m[2] === 'màxim') === model.maxim && m[3] === m[2] && model.d2(optim, pi).signe() === (model.maxim ? -1 : 1),
         () => `${nom}, pas ${i + 1}: la conclusió «${tex}» no és certa`);
       comprova(pas.files[FILA.calcul].includes('{k=Se}') || passos.slice(0, i).some(q => q.files[FILA.calcul].includes('{k=Se}')), () => `${nom}, pas ${i + 1}: la conclusió surt abans de la segona derivada`);
       return;
@@ -1285,8 +1329,9 @@ seccio('optimització', () => {
     for (const pi of model.pis) {
       const F0 = x => model.O(x, model.W(x, pi), pi), F1 = x => model.d1(x, pi), F2 = x => model.d2(x, pi);
       // Diferència central amb extrapolació de Richardson: error de l'ordre de h⁴.
-      const central = (g, x, k) => g(x.suma(k)).resta(g(x.resta(k))).quocient(k.producte(2));
-      const aprox = (g, x) => central(g, x, h.quocient(2)).producte(4).resta(central(g, x, h)).quocient(3).valor();
+      // En coma flotant: els valors exactes a x ± h poden tenir radicals diferents, que no es poden restar exactament.
+      const central = (g, x, k) => (g(x.suma(k)).valor() - g(x.resta(k)).valor()) / (2 * k.valor());
+      const aprox = (g, x) => (4 * central(g, x, h.quocient(2)) - central(g, x, h)) / 3;
       const prop = (a, b) => Math.abs(a - b) < 1e-3 * Math.max(1, Math.abs(b));
       let fetes = 0;
       for (const x of model.mostres) {
