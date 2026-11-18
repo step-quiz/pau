@@ -103,6 +103,9 @@ button{font:inherit; color:inherit}
   background-size:22px 22px; background-position:11px 11px;
   border:1px solid var(--border); border-radius:12px;
 }
+/* L'espai de la barra de la pissarra, sempre reservat (no al mòbil, on les barres no ocupen lloc): si no, quan apareix la barra l'amplada
+   canvia i el text es torna a partir (David, 18/11/2026: «el text es mou i balla», amb barres clàssiques de Windows i ChromeOS). */
+@media (min-width:521px){ .escenari{scrollbar-gutter:stable} }
 .pissarra{position:relative; padding:18px 22px 14px; font-size:var(--mida, 24px)}
 .capa{width:100%}
 .capa.nova{position:absolute; left:0; top:0; padding:inherit; visibility:hidden}  /* la capa del pas següent, mentre es prepara */
