@@ -707,10 +707,10 @@ const titols = p => ({
   [FILA.titol1]: `🟨 1a. La funció que volem ${p.maxim ? 'maximitzar' : 'minimitzar'}`, [FILA.titol1b]: '🟩 1b. Les dades',
   [FILA.titol1c]: 'La funció amb una sola variable', [FILA.titol2]: '2. Els punts crítics',
   [FILA.titol3]: '3. Trobem si és un màxim o un mínim', [FILA.titol4]: '4. La resposta'});
-// Groc, el que s'optimitza; verd, la condició (i les dades que el David hi vol); lila, les preguntes que demanen els valors de les
-// variables; rosa, la que demana el valor òptim (David, 18/11/2026). Les respostes porten el color de la seva pregunta.
+// Groc, el que s'optimitza; verd, la condició (i les dades que el David hi vol); lila blavós, les preguntes que demanen els valors de les
+// variables; lila rosat, la que demana el valor òptim (David, 18/11/2026: dos tons de lila). Les respostes porten el color de la seva pregunta.
 const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio', p: 'pregunta', q: 'valor'});
-/** La resposta en català: [p:…] (lila) i [q:…] (rosa) marquen què contesta cada pregunta. A la pissarra, amb colors; al text, sense. */
+/** La resposta en català: [p:…] (lila blavós) i [q:…] (lila rosat) marquen què contesta cada pregunta. A la pissarra, amb colors; al text, sense. */
 const respostaPissarra = t => t.replace(/\[(p|q):([^\]]*)\]/g, (_, k, x) => F.frase('', x, MARQUES[k]));
 const respostaText = t => t.replace(/\[(p|q):([^\]]*)\]/g, '$2');
 
@@ -754,7 +754,7 @@ function passos(valors) {
   g.files[FILA.enunciat] = lectura(p, ['o', 'c']).tex;
   g.afegeix(p.lectura.condicio + ' (Ho marquem en verd. A les pautes de la PAU, la condició també es diu «lligadura».)', {cursor: {clic: frases.condicio}});
   g.files[FILA.enunciat] = lectura(p, ['o', 'c', 'p', 'q']).tex;
-  g.afegeix(`Quantes preguntes ens fan? En lila, les que demanen els valors de les variables (les mides); en rosa, la que demana el valor ${p.maxim ? 'màxim' : 'mínim'}. `
+  g.afegeix(`Quantes preguntes ens fan? En lila blavós, les que demanen els valors de les variables (les mides); en lila rosat, la que demana el valor ${p.maxim ? 'màxim' : 'mínim'}. `
     + 'La resposta final les ha de contestar totes, i ho farem amb els mateixos colors.', {cursor: {clic: frases.pregunta}});
 
   /* 1. La funció: amb dues variables, la condició, i amb una sola variable. */
@@ -796,6 +796,8 @@ function passos(valors) {
   // 1c. La funció d'una sola variable: primer la substitució, i després «= …» simplificada.
   const membre = L => F.membreEsquerre(L, f, v, 0);
   titol(FILA.titol1c);
+  // Ja tenim la funció i la condició: l'enunciat perd el groc i el verd, i no els recupera (David); les preguntes, sí, en lila.
+  g.files[FILA.enunciat] = lectura(p, ['p', 'q']).tex;
   g.files[FILA.funcio1] = membre('G') + K('Gs', p.substitucio.tex);
   g.afegeix(p.substitucio.text, Object.assign({cursor: {arrossega: 'Lr', fins: 'Gs'}}, llum(p.substitucio.tex)));
   for (const pas of p.simplifica) {
@@ -874,10 +876,10 @@ function passos(valors) {
   g.files[FILA.optim] = K('Fe', p.optim.calcul);
   g.afegeix(p.optim.text);
   const amb = (k, tex, marca) => K(k, tex).replace(`{k=${k}}`, `{k=${k},marca=${marca}}`);
-  g.files[FILA.resposta] = amb('Rx', `${v} = ${eq.candidat}`, 'solucio') + ',\\ ' + amb('Rw', p.altra.resposta, 'solucio') + ',\\ '
+  g.files[FILA.resposta] = amb('Rx', `${v} = ${eq.candidat}`, 'pregunta') + ',\\ ' + amb('Rw', p.altra.resposta, 'pregunta') + ',\\ '
     + amb('Rf', p.optim.resposta, 'valor');
   g.classes[FILA.resposta] = 'final';
-  g.afegeix(`Porta-ho a la resposta: en lila, les mides (la primera pregunta); en rosa, el valor ${p.maxim ? 'màxim' : 'mínim'} (l'última).`);
+  g.afegeix(`Porta-ho a la resposta: en lila blavós, les mides (la primera pregunta); en lila rosat, el valor ${p.maxim ? 'màxim' : 'mínim'} (l'última).`);
 
   /* L'últim pas (David): a la pissarra només queden l'enunciat, l'esquema final (gran, a escala i amb les mides òptimes), la fila
      de la solució i la resposta en català, amb els colors de les preguntes. La resta s'esborra, i la solució puja sota l'esquema. */
