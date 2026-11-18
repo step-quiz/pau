@@ -103,7 +103,7 @@ function textAmbFormules(text) {
  * els símbols (data-k) i es poden marcar (classe «marca-…»).
  */
 function textAmbFrases(text) {
-  return text.split(/(\{\{[^}]*\}\})/).map(tros => {
+  return text.split(/(\{\{[^|{}]*\|[^|{}]*\|.*?\}\})/).map(tros => {   // el contingut pot tenir claus (\frac{…}{…}): fins al primer «}}»
     const m = /^\{\{([^|]*)\|([^|]*)\|(.*)\}\}$/.exec(tros);
     if (!m) return textAmbFormules(tros);
     const [, k, marca, contingut] = m;

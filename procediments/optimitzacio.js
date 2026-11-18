@@ -18,15 +18,11 @@
      7. la resposta: totes les mides i el valor òptim.
    Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, cartell, finca, parabola, cantonada, canonada)
 
-   La pissarra té nou files (FILA):
-     fila 0  l'esquema petit (a dalt a la dreta de l'enunciat)
-     fila 1  l'enunciat, amb les frases marcades
-     fila 2  la funció          fila 3  la condició (al pas de la funció, l'esquema gran)
-     fila 4  la derivada (i la segona)
-     fila 5  el càlcul del moment (l'equació A'(x) = 0, mentre es resol)
-     fila 6  la conclusió de la segona derivada: «En x = k hi ha un màxim (mínim) relatiu.»
-     fila 7  la fila de treball de l'equació; després, la resposta, que es va omplint
-     fila 8  a l'últim pas, la resposta en català (el text «resposta» del problema)
+   La pissarra (FILA) té quatre blocs amb títol, que creixen cap avall com en un full: 1. la funció (amb dues variables;
+   la condició, que després va a dalt a la dreta, sota l'esquema petit; amb una variable), 2. els punts crítics (f', f' = 0 i
+   les solucions, que pugen al costat de l'equació quan s'esborra el treball), 3. màxim o mínim (f'', el seu signe i la
+   conclusió) i 4. la resposta (l'altra variable, el valor òptim i la fila de la solució). A l'últim pas només queden
+   l'enunciat, l'esquema final gran, la solució i la resposta en català.
    El domini no és a la pissarra: només a l'explicació (el David no hi vol inequacions).
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js,
    que té el seu propi model de cada problema.
@@ -87,8 +83,8 @@ const PROBLEMES = Object.freeze([
     id: 'hort', nom: 'Hort adossat a una paret',
     figura: {dibuix: 'hort', lletres: {x: 7, y: 26}, final: {x: 10, y: 20}, textos: {x: '10', y: '20'}, valor: 'A = 200 m²'},
     lectura: {
-      text: '[c*:Tenim $40$ m de tanca] per fer un hort rectangular [c:adossat a una paret: la paret fa de quart costat]. '
-        + 'Quines mides ha de tenir l\'hort [o*:perquè l\'àrea sigui màxima]? Quina és aquesta àrea?',
+      text: 'Tenim [c*:$40$ m de tanca] per fer un hort rectangular adossat a una paret: la paret fa de quart costat. '
+        + '[p*:Quines mides ha de tenir l\'hort] perquè [o*:l\'àrea sigui màxima]? [q*:Quina és aquesta àrea?]',
       objectiu: 'Què volem optimitzar? «Perquè l\'àrea sigui màxima»: la funció objectiu és l\'àrea de l\'hort, i en busquem el màxim.',
       condicio: 'Què lliga les mides? Els $40$ m de tanca, que només tanquen tres costats perquè la paret fa de quart costat. Aquesta és la condició.',
     },
@@ -106,14 +102,14 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '-4', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'A\'\'(10) = -4'},
     altra: {calcul: 'y = 40 - 2 \\cdot 10 = 20', resposta: 'y = 20', text: 'Calcula l\'altra mida: $y = 40 - 2x$.'},
     optim: {calcul: 'A(10) = 40 \\cdot 10 - 2 \\cdot 10^{2} = 200', resposta: 'A = 200', text: 'Calcula l\'àrea màxima.'},
-    resposta: 'L\'hort ha de fer $10$ m (els costats perpendiculars a la paret) per $20$ m (el costat paral·lel), i l\'àrea màxima és $200$ m².',
+    resposta: 'L\'hort ha de fer [p:$10$ m (els costats perpendiculars a la paret) per $20$ m (el costat paral·lel)], i l\'àrea màxima és [q:$200$ m²].',
   },
   {
     id: 'capsa', nom: 'Capsa de cartró',
     figura: {dibuix: 'capsa', lletres: {x: 2.5, b: 7}, final: {x: 2, b: 8}, textos: {x: '2', b: '8'}, valor: 'V = 128 cm³'},
     lectura: {
-      text: 'D\'un [c*:cartró quadrat de $12$ cm de costat] en [c:retallem un quadrat de costat $x$ a cada cantó], i pleguem les vores '
-        + 'per fer una capsa sense tapa. Quant ha de valer $x$ [o*:perquè el volum sigui màxim]? Quines mides té la capsa, i quin volum?',
+      text: 'D\'un cartró quadrat de [c*:$12$ cm de costat] en retallem un quadrat de costat $x$ a cada cantó, i pleguem les vores '
+        + 'per fer una capsa sense tapa. [p*:Quant ha de valer $x$] perquè [o*:el volum sigui màxim]? [p:Quines mides té la capsa], i [q*:quin volum]?',
       objectiu: 'Què volem optimitzar? «Perquè el volum sigui màxim»: la funció objectiu és el volum de la capsa.',
       condicio: 'Què lliga les mides? El cartró fa $12$ cm de costat, i hi retallem $x$ a cada banda: d\'aquí surt el costat de la base.',
     },
@@ -137,14 +133,14 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '24x - 96', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(2) = 24 \\cdot 2 - 96 = -48'},
     altra: {calcul: 'b = 12 - 2 \\cdot 2 = 8', resposta: 'b = 8', text: 'Calcula el costat de la base: $b = 12 - 2x$.'},
     optim: {calcul: 'V(2) = 4 \\cdot 2^{3} - 48 \\cdot 2^{2} + 144 \\cdot 2 = 128', resposta: 'V = 128', text: 'Calcula el volum màxim.'},
-    resposta: 'Cal retallar quadrats de $2$ cm. La capsa fa $8 \\times 8$ cm de base i $2$ cm d\'altura, i el volum màxim és $128$ cm³.',
+    resposta: 'Cal retallar quadrats de [p:$2$ cm]. La capsa fa [p:$8 \\times 8$ cm de base i $2$ cm d\'altura], i el volum màxim és [q:$128$ cm³].',
   },
   {
     id: 'llauna', nom: 'Llauna oberta',
     figura: {dibuix: 'llauna', lletres: {r: 3, h: 4.6}, final: {r: 3, h: 3}, textos: {r: '3', h: '3'}, valor: 'V = 27π cm³'},
     lectura: {
-      text: 'Volem fer una llauna cilíndrica [c:oberta (sense tapa)] [c*:amb $27\\pi$ cm² de planxa]. '
-        + 'Quin radi i quina altura ha de tenir [o*:perquè hi càpiga el màxim volum]? Quin és aquest volum?',
+      text: 'Volem fer una llauna cilíndrica oberta (sense tapa) amb [c*:$27\\pi$ cm² de planxa]. '
+        + '[p*:Quin radi i quina altura ha de tenir] perquè hi càpiga [o*:el màxim volum]? [q*:Quin és aquest volum?]',
       objectiu: 'Què volem optimitzar? «Que hi càpiga el màxim volum»: la funció objectiu és el volum del cilindre.',
       condicio: 'Què lliga el radi i l\'altura? La planxa: en total fa $27\\pi$ cm², i com que la llauna és oberta, només en té el fons i la paret.',
     },
@@ -173,14 +169,14 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '-3\\pi r', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(3) = -3\\pi \\cdot 3 = -9\\pi'},
     altra: {calcul: 'h = \\dfrac{27 - 3^{2}}{2 \\cdot 3} = 3', resposta: 'h = 3', text: 'Calcula l\'altura: $h = \\frac{27 - r^2}{2r}$.'},
     optim: {calcul: 'V(3) = \\dfrac{27\\pi \\cdot 3 - \\pi \\cdot 3^{3}}{2} = 27\\pi', resposta: 'V = 27\\pi', text: 'Calcula el volum màxim.'},
-    resposta: 'La llauna ha de tenir $3$ cm de radi i $3$ cm d\'altura, i el volum màxim és $27\\pi \\approx 84{,}8$ cm³.',
+    resposta: 'La llauna ha de tenir [p:$3$ cm de radi i $3$ cm d\'altura], i el volum màxim és [q:$27\\pi \\approx 84{,}8$ cm³].',
   },
   {
     id: 'diposit', nom: 'Dipòsit de cost mínim',
     figura: {dibuix: 'diposit', lletres: {x: 2.6, h: 1.3}, final: {x: 2, h: 2}, textos: {x: '2', h: '2'}, valor: 'C = 240 €'},
     lectura: {
-      text: 'Volem construir un dipòsit de base quadrada, [o:sense tapa], [c*:de $8$ m³]. [o:El material del fons costa $20$ €/m², '
-        + 'i el de les parets, $10$ €/m²]. Quines mides fan [o*:que el cost sigui mínim]? Quin és aquest cost?',
+      text: 'Volem construir un dipòsit de base quadrada, sense tapa, de [c*:$8$ m³]. El material del fons costa $20$ €/m², '
+        + 'i el de les parets, $10$ €/m². [p*:Quines mides] fan que [o*:el cost sigui mínim]? [q*:Quin és aquest cost?]',
       objectiu: 'Què volem optimitzar? «Que el cost sigui mínim»: la funció objectiu és el cost. Per escriure-la calen els preus, i saber que no hi ha tapa.',
       condicio: 'Què lliga les mides? El volum: el dipòsit ha de fer $8$ m³. Aquesta és la condició.',
     },
@@ -214,14 +210,14 @@ const PROBLEMES = Object.freeze([
       valor: 'C\'\'(2) = \\dfrac{40 \\cdot 2^{3} + 640}{2^{3}} = 120'},
     altra: {calcul: 'h = \\dfrac{8}{2^{2}} = 2', resposta: 'h = 2', text: 'Calcula l\'altura: $h = \\frac{8}{x^2}$.'},
     optim: {calcul: 'C(2) = 20 \\cdot 2^{2} + \\dfrac{320}{2} = 240', resposta: 'C = 240', text: 'Calcula el cost mínim.'},
-    resposta: 'El dipòsit ha de fer $2 \\times 2$ m de base i $2$ m d\'altura, i el cost mínim és $240$ €.',
+    resposta: 'El dipòsit ha de fer [p:$2 \\times 2$ m de base i $2$ m d\'altura], i el cost mínim és [q:$240$ €].',
   },
   {
     id: 'pista', nom: 'Pista d\'atletisme',
     figura: {dibuix: 'pista', lletres: {x: 100, r: 22}, final: {x: 100, r: 100 / Math.PI}, textos: {x: '100', r: '≈ 31,8', '2r': '≈ 63,7'}, valor: 'A ≈ 6366 m²'},
     lectura: {
       text: 'Una pista d\'atletisme té forma de rectangle amb un semicercle a cada extrem, i [c*:la corda interior fa $400$ m]. '
-        + 'Volem que [o*:el camp rectangular del mig tingui l\'àrea més gran possible]. Quines mides ha de tenir? Quina és aquesta àrea?',
+        + 'Volem que [o*:el camp rectangular del mig tingui l\'àrea més gran possible]. [p*:Quines mides ha de tenir?] [q*:Quina és aquesta àrea?]',
       objectiu: 'Què volem optimitzar? «Que el camp rectangular tingui l\'àrea més gran possible»: la funció objectiu és l\'àrea del rectangle (els semicercles no hi compten).',
       condicio: 'Què lliga les mides? La corda de $400$ m: la formen les dues rectes i els dos semicercles.',
     },
@@ -248,17 +244,17 @@ const PROBLEMES = Object.freeze([
     altra: {calcul: 'x = 200 - \\pi \\cdot \\dfrac{100}{\\pi} = 100', resposta: 'x = 100', text: 'Calcula la longitud de les rectes: $x = 200 - \\pi r$.'},
     optim: {calcul: 'A\\left(\\dfrac{100}{\\pi}\\right) = 2 \\cdot \\dfrac{100}{\\pi} \\cdot 100 = \\dfrac{20000}{\\pi}', resposta: 'A = \\dfrac{20000}{\\pi}',
       text: 'Calcula l\'àrea màxima: $A = 2r \\cdot x$.'},
-    resposta: 'Els semicercles han de tenir radi $\\frac{100}{\\pi} \\approx 31{,}8$ m, i les rectes, $100$ m. El camp fa $100$ m per $\\frac{200}{\\pi} \\approx 63{,}7$ m, '
-      + 'i l\'àrea màxima és $\\frac{20000}{\\pi} \\approx 6366$ m².',
+    resposta: 'Els semicercles han de tenir [p:radi $\\frac{100}{\\pi} \\approx 31{,}8$ m], i les rectes, [p:$100$ m]. El camp fa [p:$100$ m per $\\frac{200}{\\pi} \\approx 63{,}7$ m], '
+      + 'i l\'àrea màxima és [q:$\\frac{20000}{\\pi} \\approx 6366$ m²].',
   },
   {
     id: 'cartell', nom: 'Cartell amb marges',
     figura: {dibuix: 'cartell', lletres: {x: 7, y: 13.7}, final: {x: 8, y: 12}, textos: {x: '8', y: '12'}, valor: 'A = 216 cm²'},
     lectura: {
-      text: 'El [c*:text d\'un cartell ha d\'ocupar $96$ cm²]. [o:Els marges de dalt i de baix fan $3$ cm, i els dels costats, $2$ cm]. '
-        + 'Quines mides ha de tenir el cartell [o*:perquè es gasti tan poc paper com sigui possible]? Quant paper caldrà?',
+      text: 'El text d\'un cartell ha d\'ocupar [c*:$96$ cm²]. [c:Els marges de dalt i de baix fan $3$ cm, i els dels costats, $2$ cm]. '
+        + '[p*:Quines mides ha de tenir el cartell] perquè es gasti [o*:tan poc paper com sigui possible]? [q*:Quant paper caldrà?]',
       objectiu: 'Què volem optimitzar? «Que es gasti tan poc paper com sigui possible»: la funció objectiu és l\'àrea del cartell, i en busquem el mínim. Per escriure-la calen els marges.',
-      condicio: 'Què lliga les mides? L\'àrea del text, que ha de fer $96$ cm². Aquesta és la condició.',
+      condicio: 'Què lliga les mides? L\'àrea del text, que ha de fer $96$ cm². Aquesta és la condició. Marquem també els marges: són dades que caldran per escriure la funció.',
     },
     v: 'x', w: 'y', f: 'A', maxim: false,
     funcio: {tex: '(x + 4) \\cdot (y + 6)', text: 'Escriu la funció objectiu amb dues variables: el text fa $x$ d\'amplada i $y$ d\'altura. '
@@ -291,14 +287,14 @@ const PROBLEMES = Object.freeze([
       valor: 'A\'\'(8) = \\dfrac{768}{8^{3}} = \\dfrac{3}{2}'},
     altra: {calcul: 'y = \\dfrac{96}{8} = 12', resposta: 'y = 12', text: 'Calcula l\'altura del text: $y = \\frac{96}{x}$.'},
     optim: {calcul: 'A(8) = 6 \\cdot 8 + 120 + \\dfrac{384}{8} = 216', resposta: 'A = 216', text: 'Calcula el paper mínim.'},
-    resposta: 'El text fa $8 \\times 12$ cm, i el cartell, amb els marges, $12 \\times 18$ cm. Cal un mínim de $216$ cm² de paper.',
+    resposta: 'El text fa $8 \\times 12$ cm, i el cartell, amb els marges, [p:$12 \\times 18$ cm]. Cal un mínim de [q:$216$ cm²] de paper.',
   },
   {
     id: 'finca', nom: 'Finca al costat d\'un camí',
     figura: {dibuix: 'finca', lletres: {x: 26, y: 31}, final: {x: 40, y: 20}, textos: {x: '40', y: '20'}, valor: 'C = 1600 €'},
     lectura: {
       text: 'Volem tancar [c*:una finca rectangular de $800$ m²] que toca un camí. [o:La tanca del costat del camí costa $30$ €/m, '
-        + 'i la dels altres tres costats, $10$ €/m]. Quines mides fan [o*:que la tanca costi tan poc com sigui possible]? Quant costarà?',
+        + 'i la dels altres tres costats, $10$ €/m]. [p*:Quines mides] fan [o*:que la tanca costi tan poc com sigui possible]? [q*:Quant costarà?]',
       objectiu: 'Què volem optimitzar? «Que la tanca costi tan poc com sigui possible»: la funció objectiu és el cost de la tanca. Per escriure-la calen els dos preus.',
       condicio: 'Què lliga les mides? L\'àrea: la finca ha de fer $800$ m². Aquesta és la condició.',
     },
@@ -332,16 +328,16 @@ const PROBLEMES = Object.freeze([
       valor: 'C\'\'(40) = \\dfrac{64000}{40^{3}} = 1'},
     altra: {calcul: 'y = \\dfrac{800}{40} = 20', resposta: 'y = 20', text: 'Calcula l\'altre costat: $y = \\frac{800}{x}$.'},
     optim: {calcul: 'C(40) = 20 \\cdot 40 + \\dfrac{32000}{40} = 1600', resposta: 'C = 1600', text: 'Calcula el cost mínim.'},
-    resposta: 'La finca ha de fer $40$ m (els costats perpendiculars al camí) per $20$ m (el costat del camí), i la tanca costa $1600$ €.',
+    resposta: 'La finca ha de fer [p:$40$ m (els costats perpendiculars al camí) per $20$ m (el costat del camí)], i la tanca costa [q:$1600$ €].',
   },
   {
     id: 'parabola', nom: 'Rectangle sota una paràbola',
     figura: {dibuix: 'parabola', lletres: {x: 2.7}, final: {x: 2}, textos: {x: '2', y: '8'}, valor: 'A = 32'},
     lectura: {
-      text: 'Un rectangle té [c:la base sobre l\'eix $OX$] i [c*:els dos vèrtexs de dalt sobre la paràbola $y = 12 - x^2$]. '
-        + 'Quines mides fan [o*:que la seva àrea sigui màxima]? Quina és aquesta àrea?',
+      text: 'Un rectangle té [c:la base sobre l\'eix $OX$] i els dos vèrtexs de dalt [c*:sobre la paràbola $y = 12 - x^2$]. '
+        + '[p*:Quines mides] fan que [o*:la seva àrea sigui màxima]? [q*:Quina és aquesta àrea?]',
       objectiu: 'Què volem optimitzar? «Que la seva àrea sigui màxima»: la funció objectiu és l\'àrea del rectangle, i en busquem el màxim.',
-      condicio: 'Què lliga les mides? Els vèrtexs de dalt són sobre la paràbola: la seva altura és la $y$ de la paràbola. Aquesta és la condició.',
+      condicio: 'Què lliga les mides? Els vèrtexs de dalt són sobre la paràbola: la seva altura és la $y$ de la paràbola. Aquesta és la condició. La base és sobre l\'eix $OX$: per això l\'altura és $y$.',
     },
     v: 'x', w: 'y', f: 'A', maxim: true,
     funcio: {tex: '2x \\cdot y', text: 'Escriu la funció objectiu amb dues variables: els vèrtexs de dalt són $(x, y)$ i $(-x, y)$, amb $x > 0$. '
@@ -360,14 +356,14 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '-12x', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'A\'\'(2) = -12 \\cdot 2 = -24'},
     altra: {calcul: 'y = 12 - 2^{2} = 8', resposta: 'y = 8', text: 'Calcula l\'altura: $y = 12 - x^2$.'},
     optim: {calcul: 'A(2) = 24 \\cdot 2 - 2 \\cdot 2^{3} = 32', resposta: 'A = 32', text: 'Calcula l\'àrea màxima.'},
-    resposta: 'Els vèrtexs de dalt són a $x = \\pm 2$: el rectangle fa $4$ de base i $8$ d\'altura, i l\'àrea màxima és $32$.',
+    resposta: 'Els vèrtexs de dalt són a $x = \\pm 2$: el rectangle fa [p:$4$ de base i $8$ d\'altura], i l\'àrea màxima és [q:$32$].',
   },
   {
     id: 'cantonada', nom: 'Tancat en una cantonada',
     figura: {dibuix: 'cantonada', lletres: {x: 3.6, y: 2.2}, final: {x: 2 * Math.SQRT2, y: 2 * Math.SQRT2}, textos: {x: '≈ 2,83', y: '≈ 2,83'}, valor: 'C ≈ 28,28 €'},
     lectura: {
       text: 'Volem fer [c*:un tancat rectangular de $8$ m²] [o:en una cantonada del jardí: les dues parets fan dos costats, i només cal tanca als altres dos]. '
-        + '[o:La tanca costa $5$ €/m]. Quines mides fan [o*:que el cost de la tanca sigui mínim]? Quant costarà?',
+        + '[o:La tanca costa $5$ €/m]. [p*:Quines mides] fan [o*:que el cost de la tanca sigui mínim]? [q*:Quant costarà?]',
       objectiu: 'Què volem optimitzar? «Que el cost de la tanca sigui mínim»: la funció objectiu és el cost. Per escriure-la cal saber quins costats porten tanca, i el preu.',
       condicio: 'Què lliga les mides? L\'àrea: el tancat ha de fer $8$ m². Aquesta és la condició.',
     },
@@ -404,17 +400,17 @@ const PROBLEMES = Object.freeze([
       text: 'Calcula l\'altre costat: $y = \\frac{8}{x}$. Racionalitza: $\\frac{8}{2\\sqrt{2}} = \\frac{8\\sqrt{2}}{2 \\cdot 2} = 2\\sqrt{2}$.'},
     optim: {calcul: 'C(2\\sqrt{2}) = 5 \\cdot 2\\sqrt{2} + \\dfrac{40}{2\\sqrt{2}} = 20\\sqrt{2}', resposta: 'C = 20\\sqrt{2}',
       text: 'Calcula el cost mínim: $10\\sqrt{2} + \\frac{40}{2\\sqrt{2}} = 10\\sqrt{2} + 10\\sqrt{2} = 20\\sqrt{2}$.'},
-    resposta: 'El tancat ha de ser un quadrat de $2\\sqrt{2} \\approx 2{,}83$ m de costat, i el cost mínim de la tanca és $20\\sqrt{2} \\approx 28{,}28$ €.',
+    resposta: 'El tancat ha de ser un quadrat de [p:$2\\sqrt{2} \\approx 2{,}83$ m de costat], i el cost mínim de la tanca és [q:$20\\sqrt{2} \\approx 28{,}28$ €].',
   },
   {
     id: 'canonada', nom: 'Canonada fins a un abeurador',
     figura: {dibuix: 'canonada', lletres: {x: 9.5}, final: {x: 6}, textos: {x: '6', d: '10'}, valor: 'P = 92 €'},
     lectura: {
-      text: 'Un abeurador $B$ és [c*:a $8$ m d\'una tanca recta]. [c:El punt $O$ de la tanca més proper a $B$] és [o:a $20$ m de l\'aixeta $A$], que també és a la tanca. '
+      text: 'Un abeurador $B$ és [c*:a $8$ m d\'una tanca recta]. [c:El punt $O$ de la tanca més proper a $B$ és a $20$ m de l\'aixeta $A$], que també és a la tanca. '
         + 'La canonada va arran de la tanca, a $3$ €/m, fins a un punt $M$, i d\'allà en línia recta fins a $B$, a $5$ €/m. '
-        + 'On ha de ser $M$ [o*:perquè la canonada costi tan poc com sigui possible]? Quant costarà?',
+        + '[p*:On ha de ser $M$] perquè la canonada [o*:costi tan poc com sigui possible]? [q*:Quant costarà?]',
       objectiu: 'Què volem optimitzar? «Que la canonada costi tan poc com sigui possible»: la funció objectiu és el cost. Per escriure-la calen els dos trams, els preus i els $20$ m.',
-      condicio: 'Què lliga les mides? $OB = 8$ m és perpendicular a la tanca: el tram pel camp, $MB$, és la hipotenusa d\'un triangle rectangle. Aquesta és la condició (teorema de Pitàgores).',
+      condicio: 'Què lliga les mides? $OB = 8$ m és perpendicular a la tanca: el tram pel camp, $MB$, és la hipotenusa d\'un triangle rectangle. Aquesta és la condició (teorema de Pitàgores). Marquem també on és $O$: a $20$ m de l\'aixeta.',
     },
     v: 'x', w: 'd', f: 'P', maxim: false,
     funcio: {tex: '3 \\cdot (20 - x) + 5d', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ la distància $OM$ i $d$ el tram pel camp, $MB$. '
@@ -446,7 +442,7 @@ const PROBLEMES = Object.freeze([
       valor: 'P\'\'(6) = \\dfrac{320}{(64 + 6^{2}) \\sqrt{64 + 6^{2}}} = \\dfrac{320}{100 \\cdot 10} = \\dfrac{8}{25}'},
     altra: {calcul: 'd = \\sqrt{64 + 6^{2}} = 10', resposta: 'd = 10', text: 'Calcula el tram pel camp: $d = \\sqrt{64 + x^2}$.'},
     optim: {calcul: 'P(6) = 60 - 3 \\cdot 6 + 5\\sqrt{64 + 6^{2}} = 92', resposta: 'P = 92', text: 'Calcula el cost mínim: $60 - 18 + 5 \\cdot 10 = 92$.'},
-    resposta: '$M$ ha de ser a $6$ m de $O$, és a dir, a $14$ m de l\'aixeta: la canonada fa $14$ m arran de la tanca i $10$ m pel camp, i el cost mínim és $92$ €.',
+    resposta: '$M$ ha de ser [p:a $6$ m de $O$], és a dir, a $14$ m de l\'aixeta: la canonada fa $14$ m arran de la tanca i $10$ m pel camp, i el cost mínim és [q:$92$ €].',
   },
 ]);
 
@@ -628,8 +624,20 @@ function lletresDe(p, tex) {
 /* ── 2. FILES I LECTURA DE L'ENUNCIAT ──────────────────────────────── */
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({esquema: 0, enunciat: 1, funcio: 2, condicio: 3, derivada: 4, calcul: 5, extrem: 6, resposta: 7, frase: 8});
-const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio'});
+// Quatre blocs, de dalt a baix, com un professor (David, 18/11/2026); la pissarra creix cap avall (pissarraCreix) i no hi ha forats.
+// La fila de treball de l'equació (treball) és la mateixa que el títol del bloc 3: quan s'hi escriu el títol, ja és buida.
+const FILA = Object.freeze({esquema: 0, condicioCostat: 1, enunciat: 2,
+  titol1: 3, funcio: 4, condicio: 5,
+  titol2: 6, derivada: 7, equacio: 8, treball: 9,
+  titol3: 9, segona: 10, valorSegona: 11, extrem: 12,
+  titol4: 13, altra: 14, optim: 15, resposta: 16});
+const FILES = 17;
+// Groc, el que s'optimitza; verd, la condició (i les dades que el David hi vol); lila, les preguntes que demanen els valors de les
+// variables; rosa, la que demana el valor òptim (David, 18/11/2026). Les respostes porten el color de la seva pregunta.
+const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio', p: 'pregunta', q: 'valor'});
+/** La resposta en català: [p:…] (lila) i [q:…] (rosa) marquen què contesta cada pregunta. A la pissarra, amb colors; al text, sense. */
+const respostaPissarra = t => t.replace(/\[(p|q):([^\]]*)\]/g, (_, k, x) => F.frase('', x, MARQUES[k]));
+const respostaText = t => t.replace(/\[(p|q):([^\]]*)\]/g, '$2');
 
 /**
  * L'enunciat com a fila de text. Les frases [o:…] (funció objectiu) i [c:…]
@@ -639,7 +647,7 @@ const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio'});
  */
 function lectura(p, marcades) {
   const {tex, principal} = F.enunciatMarcat(p.lectura.text, id => (marcades.includes(id) ? MARQUES[id] : ''));
-  return {tex, objectiu: principal.o, condicio: principal.c};
+  return {tex, objectiu: principal.o, condicio: principal.c, pregunta: principal.p, valor: principal.q};
 }
 
 
@@ -651,33 +659,36 @@ const textual = tex => tex.replace(/\\dfrac/g, '\\frac');
 function passos(valors) {
   const p = perId(valors.p);
   const {v, w, f} = p;
-  const g = F.guio(9);
-  // L'esquema (si n'hi ha): la fila esquema flota a la dreta, i l'enunciat li deixa lloc des del primer pas (així no
-  // canvia de línies quan hi arriba l'esquema, i el motor el deixa quiet).
+  const g = F.guio(FILES);
   const llum = tex => ({llum: lletresDe(p, tex)});
+  // L'esquema petit i la condició aïllada són a dalt a la dreta (estil.css); l'enunciat els deixa lloc des del primer pas
+  // (així no canvia de línies quan hi arriben, i el motor el deixa quiet).
   if (p.figura) { g.classes[FILA.esquema] = 'esquema-costat'; g.classes[FILA.enunciat] = 'amb-esquema'; }
-  const membre = primes => F.membreEsquerre(primes ? 'P' : 'O', f, v, primes);
+  g.classes[FILA.condicioCostat] = 'condicio-costat';
+  const titol = (fila, text) => { g.files[fila] = F.filaText(text); g.classes[fila] = 'apartat'; };
 
-  /* 0. La lectura de l'enunciat: què s'optimitza i quina condició lliga les variables (fila enunciat). */
+  /* 0. La lectura de l'enunciat: què s'optimitza, quina condició lliga les variables i quantes preguntes hi ha. */
   g.files[FILA.enunciat] = lectura(p, []).tex;
-  g.afegeix('Llegeix l\'enunciat. Abans de calcular res, cal trobar-hi dues coses: què volem fer màxim o mínim '
-    + '(la funció objectiu) i quina condició lliga les variables.');
+  g.afegeix('Llegeix l\'enunciat. Abans de calcular res, cal trobar-hi tres coses: què volem fer màxim o mínim '
+    + '(la funció objectiu), quina condició lliga les variables, i quantes preguntes ens fan.');
   const frases = lectura(p, ['o']);
   g.files[FILA.enunciat] = frases.tex;
   g.afegeix(p.lectura.objectiu + ' (Ho marquem en groc.)', {cursor: {clic: frases.objectiu}});
   g.files[FILA.enunciat] = lectura(p, ['o', 'c']).tex;
   g.afegeix(p.lectura.condicio + ' (Ho marquem en verd. A les pautes de la PAU, la condició també es diu «lligadura».)', {cursor: {clic: frases.condicio}});
+  g.files[FILA.enunciat] = lectura(p, ['o', 'c', 'p', 'q']).tex;
+  g.afegeix(`Quantes preguntes ens fan? En lila, les que demanen els valors de les variables (les mides); en rosa, la que demana el valor ${p.maxim ? 'màxim' : 'mínim'}. `
+    + 'La resposta final les ha de contestar totes, i ho farem amb els mateixos colors.', {cursor: {clic: frases.pregunta}});
 
-  /* 1. La funció objectiu, amb dues variables (fila funcio). */
+  /* 1. La funció: amb dues variables, la condició, i amb una sola variable. */
+  titol(FILA.titol1, '1. La funció');
   g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + K('Oe', p.funcio.tex);
   if (p.figura) g.files[FILA.condicio] = esquema(p);     // l'esquema, gran, a la fila de la condició (encara buida)
   g.afegeix(p.funcio.text, Object.assign({cursor: {arrossega: frases.objectiu, fins: 'Oe'}}, llum(p.funcio.tex)));
-
-  /* 2. La condició, i s'aïlla w (fila condicio). */
   p.condicio.forEach((pas, i) => {
     const cursor = Object.assign(i === 0 ? {cursor: {arrossega: frases.condicio, fins: pas.aillada ? 'Lr' : 'Ll'}} : {},
       i === 0 ? llum(pas.tex || `${w} = ${pas.aillada}`) : {});
-    if (i === 0 && p.figura) { g.files[FILA.esquema] = esquema(p); g.files[FILA.condicio] = ''; }   // l'esquema vola al costat de l'enunciat
+    if (i === 0 && p.figura) { g.files[FILA.esquema] = esquema(p); g.files[FILA.condicio] = ''; }   // l'esquema vola, petit, a dalt a la dreta
     if (pas.aillada) {
       const abans = Boolean(g.files[FILA.condicio]);    // si ja hi havia la condició, es transforma en w = …
       g.files[FILA.condicio] = K('Lw', w) + R('Lq', '=') + K('Lr', pas.aillada);
@@ -687,110 +698,112 @@ function passos(valors) {
       g.afegeix(pas.text, cursor);
     }
   });
-
-  /* 3. Se substitueix w: la funció d'una sola variable (fila funcio). */
-  g.files[FILA.funcio] = membre(0) + K('Oe', p.substitucio.tex);
-  g.afegeix(p.substitucio.text, Object.assign({cursor: {arrossega: 'Lr', fins: 'Oe'}}, llum(p.substitucio.tex)));
+  // La condició aïllada se'n va a dalt a la dreta, sota l'esquema (David): la tornarem a fer servir al final.
+  const aillada = p.condicio[p.condicio.length - 1].aillada;
+  const textAillada = `$${w} = ${textual(aillada)}$`;
+  g.files[FILA.condicioCostat] = g.files[FILA.condicio];
+  g.files[FILA.condicio] = '';
+  g.afegeix(`Deixa la condició aïllada, ${textAillada}, a dalt a la dreta, sota l'esquema: la tornaràs a fer servir al final.`);
+  // La funció d'una sola variable, a sota de la de dues: primer la substitució, i després «= …» simplificada.
+  const membre = L => F.membreEsquerre(L, f, v, 0);
+  g.files[FILA.condicio] = membre('G') + K('Gs', p.substitucio.tex);
+  g.afegeix(p.substitucio.text, Object.assign({cursor: {arrossega: 'Lr', fins: 'Gs'}}, llum(p.substitucio.tex)));
   for (const pas of p.simplifica) {
-    g.files[FILA.funcio] = membre(0) + K('Oe', pas.tex);
+    g.files[FILA.condicio] = membre('G') + K('Gs', p.substitucio.tex) + R('Gr', '=') + K('Ge', pas.tex);
     g.afegeix(pas.text);
   }
-
-  /* 4. El domini: només a l'explicació, no a la pissarra (David, 18/11/2026: les inequacions com 12 − 2x > 0 i 0 < x < 6,
-     només a la finestra dels passos). Sense canvis a la pissarra no hi ha pas nou: s'afegeix al text de l'últim. */
+  // El domini: només a l'explicació, no a la pissarra (David). Sense canvis a la pissarra no hi ha pas nou: s'afegeix al text de l'últim.
   const textDomini = p.domini.text.includes(`$${p.domini.tex}$`) ? p.domini.text : `${p.domini.text} Per tant, $${p.domini.tex}$.`;
   g.completa(` ${textDomini}`);
 
-  /* 5. La derivada (fila derivada) i els candidats (fila calcul). */
-  // La condició aïllada, ara, és soroll: s'esborra, i es recupera al pas 7 per calcular w.
-  const aillada = p.condicio[p.condicio.length - 1].aillada;
-  const filaCondicio = K('Lw', w) + R('Lq', '=') + K('Lr', aillada);
-  g.files[FILA.condicio] = '';
-  // Amb la regla del quocient (David, 18/11/2026: «com a les PAU»), primer la derivada tal com surt i després simplificada.
-  g.files[FILA.derivada] = membre(1) + K('Pe', p.derivada.quocient || p.derivada.tex);
-  const textAillada = `$${w} = ${aillada.replace(/\\dfrac/g, '\\frac')}$`;
-  g.afegeix(`${p.derivada.text} (Esborrem ${textAillada}: ara no ens cal. La recuperarem al final per calcular $${w}$.)`);
+  /* 2. Els punts crítics: la derivada, l'equació f'(v) = 0 i les seves solucions. */
+  titol(FILA.titol2, '2. Els punts crítics');
+  // Amb la regla del quocient (David: «com a les PAU»), primer la derivada tal com surt i després simplificada.
+  g.files[FILA.derivada] = F.membreEsquerre('P', f, v, 1) + K('Pe', p.derivada.quocient || p.derivada.tex);
+  g.afegeix(p.derivada.text);
   if (p.derivada.quocient) {
-    g.files[FILA.derivada] = membre(1) + K('Pe', p.derivada.tex);
+    g.files[FILA.derivada] = F.membreEsquerre('P', f, v, 1) + K('Pe', p.derivada.tex);
     g.afegeix(p.derivada.simplifica);
   }
   const eq = p.equacio;
-  // Primer, l'equació tal com es planteja: A'(x) = 0 (el «=» i el «0», claus eq i ez, es queden). Els càlculs, a la fila de treball.
-  g.files[FILA.calcul] = F.membreEsquerre('e', f, v, 1) + K('ez', '0');
-  g.afegeix(`Els candidats (els punts singulars o crítics, com en diuen les pautes de la PAU) són les solucions de l'equació $${f}'(${v}) = 0$.`);
+  g.files[FILA.equacio] = F.membreEsquerre('e', f, v, 1) + K('ez', '0');
+  g.afegeix(`Els punts crítics (o singulars, o candidats, com en diuen les pautes de la PAU) són les solucions de l'equació $${f}'(${v}) = 0$.`);
   const manual = eq.manual || [];
   manual.forEach((pas, i) => {
     if (i === 0) {
-      const esquerre = pas.tex.replace(/ = 0$/, '');
-      g.files[FILA.calcul] = K('Ee', esquerre) + R('eq', '=') + K('ez', '0');
+      g.files[FILA.equacio] = K('Ee', pas.tex.replace(/ = 0$/, '')) + R('eq', '=') + K('ez', '0');
     } else if (i === manual.length - 1 && !eq.polinomi) {
       const [, valor] = new RegExp(`^${v} = (.+)$`).exec(pas.tex);
-      g.files[FILA.resposta] = K('Wv', v) + R('Wq', '=') + K('Ws', valor);
+      g.files[FILA.treball] = K('Wv', v) + R('Wq', '=') + K('Ws', valor);
     } else {
-      g.files[FILA.resposta] = K('Ew', pas.tex);
+      g.files[FILA.treball] = K('Ew', pas.tex);
     }
     g.afegeix(pas.text);
   });
   let clauCandidat = 'Ws';
   if (eq.polinomi) {
-    // Sense passos a mà, l'equació polinòmica es queda a la fila calcul; si n'hi ha, ja es resol a la de treball.
     const solucions = F.resolEquacio(g, manual.length
-      ? {fila: FILA.resposta, P: 'u', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v, simplifica: false}
-      : {fila: FILA.calcul, treball: FILA.resposta, P: 'e', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v, simplifica: false});
+      ? {fila: FILA.treball, P: 'u', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v, simplifica: false}
+      : {fila: FILA.equacio, treball: FILA.treball, P: 'e', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v, simplifica: false});
     clauCandidat = solucions.find(s => M.texNombre(s.valor) === eq.candidat).clau;
     // Les solucions en lila; les que no són del domini, tatxades.
     const fila = solucions[0].fila;
     for (const s of solucions) (M.texNombre(s.valor) === eq.candidat ? F.marcaSolucio : F.tatxaSolucio)(g, fila, s.clau);
     g.afegeix(F.textSolucions(solucions.map(s => s.valor), v) + (eq.descarta ? `${eq.descarta} La tatxem.` : ''));
   } else {
-    F.marcaSolucio(g, FILA.resposta, 'Ws');
+    F.marcaSolucio(g, FILA.treball, 'Ws');
     g.afegeix(`La solució és $${v} = ${textual(eq.candidat)}$.`);
   }
-  g.files[FILA.calcul] = '';
-  const rx = K('Rx', `${v} = ${eq.candidat}`);
-  g.files[FILA.resposta] = rx;
-  g.afegeix(`L'únic candidat dins del domini és $${v} = ${textual(eq.candidat)}$.`, Object.assign({reanomena: {Rx: clauCandidat}}, llum(v)));
+  // El treball de l'equació s'esborra: les solucions pugen al costat de l'equació (David: com un professor).
+  if (g.files[FILA.treball]) {
+    g.files[FILA.equacio] += ' \\;\\Rightarrow\\; ' + g.files[FILA.treball];
+    g.files[FILA.treball] = '';
+  }
+  g.afegeix(`L'únic punt crític dins del domini és $${v} = ${textual(eq.candidat)}$. El deixem escrit al costat de l'equació, i esborrem els càlculs.`, llum(v));
 
-  /* 6. La segona derivada decideix si és un màxim o un mínim. */
-  g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.quocient || p.segona.tex);
+  /* 3. Màxim o mínim: la segona derivada. */
+  titol(FILA.titol3, '3. Màxim o mínim');
+  g.files[FILA.segona] = F.membreEsquerre('H', f, v, 2) + K('He', p.segona.quocient || p.segona.tex);
   g.afegeix(p.segona.text);
   if (p.segona.quocient) {
-    g.files[FILA.derivada] = membre(2) + K('Pe', p.segona.tex);
+    g.files[FILA.segona] = F.membreEsquerre('H', f, v, 2) + K('He', p.segona.tex);
     g.afegeix(p.segona.simplifica);
   }
-  g.files[FILA.calcul] = K('Se', p.segona.valor) + R('Sw', p.maxim ? '<' : '>') + K('Sz', '0');
-  // La conclusió, també a la pissarra (David, 18/11/2026): «En x = k hi ha un màxim (mínim) relatiu».
-  // I, com que és l'únic candidat del domini, és l'extrem absolut (David, 18/11/2026: a la pissarra i a l'explicació).
+  g.files[FILA.valorSegona] = K('Se', p.segona.valor) + R('Sw', p.maxim ? '<' : '>') + K('Sz', '0');
+  // La conclusió, també a la pissarra (David): «En x = k hi ha un màxim (mínim) relatiu», i, com que és l'únic candidat del domini,
+  // és l'extrem absolut.
   const absolut = `Com que és l'únic candidat del domini, és el ${p.maxim ? 'màxim' : 'mínim'} absolut.`;
   g.files[FILA.extrem] = F.filaText(`En $${v} = ${textual(eq.candidat)}$ hi ha un ${p.maxim ? 'màxim' : 'mínim'} relatiu. ${absolut}`);
   g.afegeix(`Com que $${textual(p.segona.valor.split(' = ')[0])} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${textual(eq.candidat)}$ hi ha un `
-    + (p.maxim ? 'màxim relatiu (la gràfica té forma de ∩). ' : 'mínim relatiu (la gràfica té forma de ∪). ') + absolut, {cursor: {clic: 'Rx'}});
+    + (p.maxim ? 'màxim relatiu (la gràfica té forma de ∩). ' : 'mínim relatiu (la gràfica té forma de ∪). ') + absolut, {cursor: {clic: clauCandidat}});
 
-  /* 7. La resposta: l'altra variable (amb la condició, que torna a la fila condicio) i el valor òptim (fila resposta). */
-  g.files[FILA.condicio] = filaCondicio;
-  g.afegeix(`Per calcular $${w}$, recupera la condició aïllada: ${textAillada}.`);
-  g.files[FILA.calcul] = K('We', p.altra.calcul);
-  g.afegeix(p.altra.text);
-  g.files[FILA.calcul] = '';
-  const rw = K('Rw', p.altra.resposta);
-  g.files[FILA.resposta] = rx + ',\\ ' + rw;
-  g.afegeix('Porta-ho a la resposta.', Object.assign({fusiona: {Rw: ['We']}, cursor: {arrossega: 'We', fins: 'Rw'}}, llum(w)));
-  g.files[FILA.calcul] = K('Fe', p.optim.calcul);
+  /* 4. La resposta: l'altra variable (amb la condició aïllada de dalt a la dreta), el valor òptim i la resposta, amb els colors de les preguntes. */
+  titol(FILA.titol4, '4. La resposta');
+  g.files[FILA.altra] = K('We', p.altra.calcul);
+  g.afegeix(`${p.altra.text} (És la condició aïllada de dalt a la dreta, ${textAillada}.)`, Object.assign({cursor: {arrossega: 'Lr', fins: 'We'}}, llum(w)));
+  g.files[FILA.optim] = K('Fe', p.optim.calcul);
   g.afegeix(p.optim.text);
-  g.files[FILA.calcul] = '';
-  g.files[FILA.resposta] = rx + ',\\ ' + rw + ',\\ ' + K('Rf', p.optim.resposta);
-  g.afegeix('Porta-ho a la resposta.', {fusiona: {Rf: ['Fe']}, cursor: {arrossega: 'Fe', fins: 'Rf'}});
-  // L'últim pas (David, 18/11/2026): a la pissarra només queden l'enunciat, l'esquema final (gran, a escala i amb les mides
-  // òptimes), la fila de la solució i la resposta en català. La resta s'esborra, i la solució puja sota l'esquema.
+  const amb = (k, tex, marca) => K(k, tex).replace(`{k=${k}}`, `{k=${k},marca=${marca}}`);
+  g.files[FILA.resposta] = amb('Rx', `${v} = ${eq.candidat}`, 'solucio') + ',\\ ' + amb('Rw', p.altra.resposta, 'solucio') + ',\\ '
+    + amb('Rf', p.optim.resposta, 'valor');
+  g.classes[FILA.resposta] = 'final';
+  g.afegeix(`Porta-ho a la resposta: en lila, les mides (la primera pregunta); en rosa, el valor ${p.maxim ? 'màxim' : 'mínim'} (l'última).`);
+
+  /* L'últim pas (David): a la pissarra només queden l'enunciat, l'esquema final (gran, a escala i amb les mides òptimes), la fila
+     de la solució i la resposta en català, amb els colors de les preguntes. La resta s'esborra, i la solució puja sota l'esquema. */
   const solucio = g.files[FILA.resposta];
-  for (let i = 0; i < g.files.length; i++) if (i !== FILA.enunciat) { g.files[i] = ''; g.classes[i] = i === FILA.esquema ? g.classes[i] : ''; }
-  const [filaEsquema, filaSolucio, filaFrase] = p.figura ? [FILA.funcio, FILA.condicio, FILA.derivada] : [null, FILA.funcio, FILA.condicio];
+  for (let i = 0; i < g.files.length; i++) {
+    if (i === FILA.enunciat) continue;
+    g.files[i] = '';
+    if (![FILA.esquema, FILA.condicioCostat].includes(i)) g.classes[i] = '';
+  }
+  const [filaEsquema, filaSolucio, filaFrase] = p.figura ? [FILA.titol1, FILA.funcio, FILA.condicio] : [null, FILA.titol1, FILA.funcio];
   if (p.figura) g.files[filaEsquema] = esquema(p, true);
   g.files[filaSolucio] = solucio;
   g.classes[filaSolucio] = 'final';
-  g.files[filaFrase] = F.filaText(p.resposta);       // la resposta en català, també a la pissarra
+  g.files[filaFrase] = F.filaText(respostaPissarra(p.resposta));
   g.classes[filaFrase] = 'resposta-text';
-  g.afegeix(`Resposta: ${p.resposta}`);
+  g.afegeix(`Resposta: ${respostaText(p.resposta)}`);
   return g.passos;
 }
 
@@ -800,7 +813,8 @@ function passos(valors) {
 arrel.Optimitzacio = Object.freeze({
   titol: 'Optimització',
   categoria: 'analisi',
-  files: 9,
+  files: FILES,
+  pissarraCreix: true,
   perDefecte: FIXOS.perDefecte,
   exemples: FIXOS.exemples,
   titolEditor: 'Tria un problema',
