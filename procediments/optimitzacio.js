@@ -685,12 +685,19 @@ function lletresDe(p, tex) {
 /** Files de la pissarra. */
 // Quatre blocs, de dalt a baix, com un professor (David, 18/11/2026); la pissarra creix cap avall (pissarraCreix) i no hi ha forats.
 // La fila de treball de l'equació (treball) és la mateixa que el títol del bloc 3: quan s'hi escriu el títol, ja és buida.
+// Bloc 1 en tres parts (David, 18/11/2026): 1a la funció que s'optimitza, 1b les dades (la condició), 1c la funció d'una variable.
+// Al bloc 2, «f'(v) = 0» es queda a la seva fila, i l'equació amb l'expressió de f'(v) va a la de sota.
 const FILA = Object.freeze({esquema: 0, condicioCostat: 1, enunciat: 2,
-  titol1: 3, funcio: 4, condicio: 5,
-  titol2: 6, derivada: 7, equacio: 8, treball: 9,
-  titol3: 9, segona: 10, valorSegona: 11, extrem: 12,
-  titol4: 13, altra: 14, optim: 15, resposta: 16});
-const FILES = 17;
+  titol1: 3, funcio: 4, titol1b: 5, condicio: 6, titol1c: 7, funcio1: 8,
+  titol2: 9, derivada: 10, equacio0: 11, equacio: 12, treball: 13,
+  titol3: 13, segona: 14, valorSegona: 15, extrem: 16,
+  titol4: 17, altra: 18, optim: 19, resposta: 20});
+const FILES = 21;
+/** Els títols dels blocs (sense el color de la categoria: classe «neutre»). */
+const titols = p => ({
+  [FILA.titol1]: `🟨 1a. La funció que volem ${p.maxim ? 'maximitzar' : 'minimitzar'}`, [FILA.titol1b]: '🟩 1b. Les dades',
+  [FILA.titol1c]: '🟨 1c. La funció amb una sola variable', [FILA.titol2]: '2. Els punts crítics',
+  [FILA.titol3]: '3. Trobem si és un màxim o un mínim', [FILA.titol4]: '4. La resposta'});
 // Groc, el que s'optimitza; verd, la condició (i les dades que el David hi vol); lila, les preguntes que demanen els valors de les
 // variables; rosa, la que demana el valor òptim (David, 18/11/2026). Les respostes porten el color de la seva pregunta.
 const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio', p: 'pregunta', q: 'valor'});
@@ -724,7 +731,8 @@ function passos(valors) {
   // (així no canvia de línies quan hi arriben, i el motor el deixa quiet).
   if (p.figura) { g.classes[FILA.esquema] = 'esquema-costat'; g.classes[FILA.enunciat] = 'amb-esquema'; }
   g.classes[FILA.condicioCostat] = 'condicio-costat';
-  const titol = (fila, text) => { g.files[fila] = F.filaText(text); g.classes[fila] = 'apartat'; };
+  const TITOLS = titols(p);
+  const titol = fila => { g.files[fila] = F.filaText(TITOLS[fila]); g.classes[fila] = 'apartat neutre'; };
 
   /* 0. La lectura de l'enunciat: què s'optimitza, quina condició lliga les variables i quantes preguntes hi ha. */
   g.files[FILA.enunciat] = lectura(p, []).tex;
@@ -740,14 +748,17 @@ function passos(valors) {
     + 'La resposta final les ha de contestar totes, i ho farem amb els mateixos colors.', {cursor: {clic: frases.pregunta}});
 
   /* 1. La funció: amb dues variables, la condició, i amb una sola variable. */
-  titol(FILA.titol1, '1. La funció');
+  titol(FILA.titol1);
   g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + K('Oe', p.funcio.tex);
-  if (p.figura) g.files[FILA.condicio] = esquema(p);     // l'esquema, gran, a la fila de la condició (encara buida)
+  if (p.figura) g.files[FILA.titol1b] = esquema(p);     // l'esquema, gran, a la fila de sota (encara buida)
   g.afegeix(p.funcio.text, Object.assign({cursor: {arrossega: frases.objectiu, fins: 'Oe'}}, llum(p.funcio.tex)));
   p.condicio.forEach((pas, i) => {
     const cursor = Object.assign(i === 0 ? {cursor: {arrossega: frases.condicio, fins: pas.aillada ? 'Lr' : 'Ll'}} : {},
       i === 0 ? llum(pas.tex || `${w} = ${pas.aillada}`) : {});
-    if (i === 0 && p.figura) { g.files[FILA.esquema] = esquema(p); g.files[FILA.condicio] = ''; }   // l'esquema vola, petit, a dalt a la dreta
+    if (i === 0) {
+      if (p.figura) g.files[FILA.esquema] = esquema(p);   // l'esquema vola, petit, a dalt a la dreta
+      titol(FILA.titol1b);
+    }
     if (pas.aillada) {
       const abans = Boolean(g.files[FILA.condicio]);    // si ja hi havia la condició, es transforma en w = …
       g.files[FILA.condicio] = K('Lw', w) + R('Lq', '=') + K('Lr', pas.aillada);
@@ -757,18 +768,18 @@ function passos(valors) {
       g.afegeix(pas.text, cursor);
     }
   });
-  // La condició aïllada se'n va a dalt a la dreta, sota l'esquema (David): la tornarem a fer servir al final.
+  // La condició aïllada es queda a 1b, i se'n fa una còpia a dalt a la dreta, sota l'esquema (David): la tornarem a fer servir al final.
   const aillada = p.condicio[p.condicio.length - 1].aillada;
   const textAillada = `$${w} = ${textual(aillada)}$`;
-  g.files[FILA.condicioCostat] = g.files[FILA.condicio];
-  g.files[FILA.condicio] = '';
-  g.afegeix(`Deixa la condició aïllada, ${textAillada}, a dalt a la dreta, sota l'esquema: la tornaràs a fer servir al final.`);
-  // La funció d'una sola variable, a sota de la de dues: primer la substitució, i després «= …» simplificada.
+  g.files[FILA.condicioCostat] = K('Cw', w) + R('Cq', '=') + K('Cr', aillada);
+  g.afegeix(`Copia la condició aïllada, ${textAillada}, a dalt a la dreta, sota l'esquema: així la tindràs a la vista fins al final.`);
+  // 1c. La funció d'una sola variable: primer la substitució, i després «= …» simplificada.
   const membre = L => F.membreEsquerre(L, f, v, 0);
-  g.files[FILA.condicio] = membre('G') + K('Gs', p.substitucio.tex);
+  titol(FILA.titol1c);
+  g.files[FILA.funcio1] = membre('G') + K('Gs', p.substitucio.tex);
   g.afegeix(p.substitucio.text, Object.assign({cursor: {arrossega: 'Lr', fins: 'Gs'}}, llum(p.substitucio.tex)));
   for (const pas of p.simplifica) {
-    g.files[FILA.condicio] = membre('G') + K('Gs', p.substitucio.tex) + R('Gr', '=') + K('Ge', pas.tex);
+    g.files[FILA.funcio1] = membre('G') + K('Gs', p.substitucio.tex) + R('Gr', '=') + K('Ge', pas.tex);
     g.afegeix(pas.text);
   }
   // El domini: només a l'explicació, no a la pissarra (David). Sense canvis a la pissarra no hi ha pas nou: s'afegeix al text de l'últim.
@@ -776,7 +787,7 @@ function passos(valors) {
   g.completa(` ${textDomini}`);
 
   /* 2. Els punts crítics: la derivada, l'equació f'(v) = 0 i les seves solucions. */
-  titol(FILA.titol2, '2. Els punts crítics');
+  titol(FILA.titol2);
   // Amb la regla del quocient (David: «com a les PAU»), primer la derivada tal com surt i després simplificada.
   g.files[FILA.derivada] = F.membreEsquerre('P', f, v, 1) + K('Pe', p.derivada.quocient || p.derivada.tex);
   g.afegeix(p.derivada.text);
@@ -785,7 +796,7 @@ function passos(valors) {
     g.afegeix(p.derivada.simplifica);
   }
   const eq = p.equacio;
-  g.files[FILA.equacio] = F.membreEsquerre('e', f, v, 1) + K('ez', '0');
+  g.files[FILA.equacio0] = F.membreEsquerre('Z', f, v, 1) + K('Zz', '0');   // es queda escrita (David)
   g.afegeix(`Els punts crítics (o singulars, o candidats, com en diuen les pautes de la PAU) són les solucions de l'equació $${f}'(${v}) = 0$.`);
   const manual = eq.manual || [];
   manual.forEach((pas, i) => {
@@ -821,7 +832,7 @@ function passos(valors) {
   g.afegeix(`L'únic punt crític dins del domini és $${v} = ${textual(eq.candidat)}$. El deixem escrit al costat de l'equació, i esborrem els càlculs.`, llum(v));
 
   /* 3. Màxim o mínim: la segona derivada. */
-  titol(FILA.titol3, '3. Màxim o mínim');
+  titol(FILA.titol3);
   g.files[FILA.segona] = F.membreEsquerre('H', f, v, 2) + K('He', p.segona.quocient || p.segona.tex);
   g.afegeix(p.segona.text);
   if (p.segona.quocient) {
@@ -837,9 +848,9 @@ function passos(valors) {
     + (p.maxim ? 'màxim relatiu (la gràfica té forma de ∩). ' : 'mínim relatiu (la gràfica té forma de ∪). ') + absolut, {cursor: {clic: clauCandidat}});
 
   /* 4. La resposta: l'altra variable (amb la condició aïllada de dalt a la dreta), el valor òptim i la resposta, amb els colors de les preguntes. */
-  titol(FILA.titol4, '4. La resposta');
+  titol(FILA.titol4);
   g.files[FILA.altra] = K('We', p.altra.calcul);
-  g.afegeix(`${p.altra.text} (És la condició aïllada de dalt a la dreta, ${textAillada}.)`, Object.assign({cursor: {arrossega: 'Lr', fins: 'We'}}, llum(w)));
+  g.afegeix(`${p.altra.text} (És la condició aïllada de dalt a la dreta, ${textAillada}.)`, Object.assign({cursor: {arrossega: 'Cr', fins: 'We'}}, llum(w)));
   g.files[FILA.optim] = K('Fe', p.optim.calcul);
   g.afegeix(p.optim.text);
   const amb = (k, tex, marca) => K(k, tex).replace(`{k=${k}}`, `{k=${k},marca=${marca}}`);
@@ -856,7 +867,7 @@ function passos(valors) {
     g.files[i] = '';
     if (![FILA.esquema, FILA.condicioCostat].includes(i)) g.classes[i] = '';
   }
-  const [filaEsquema, filaSolucio, filaFrase] = p.figura ? [FILA.titol1, FILA.funcio, FILA.condicio] : [null, FILA.titol1, FILA.funcio];
+  const [filaEsquema, filaSolucio, filaFrase] = p.figura ? [FILA.titol1, FILA.funcio, FILA.titol1b] : [null, FILA.titol1, FILA.funcio];
   if (p.figura) g.files[filaEsquema] = esquema(p, true);
   g.files[filaSolucio] = solucio;
   g.classes[filaSolucio] = 'final';
@@ -883,7 +894,7 @@ arrel.Optimitzacio = Object.freeze({
   FILA,
   valida: FIXOS.valida, llegeixAdreca: FIXOS.llegeixAdreca, escriuAdreca: FIXOS.escriuAdreca,
   enunciat: FIXOS.enunciat, resum: FIXOS.resum, nomExemple: FIXOS.nomExemple,
-  passos, esquema,
+  passos, esquema, titols,
 });
 
 })(globalThis);

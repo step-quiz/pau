@@ -42,6 +42,10 @@ const estat = p => p.evaluate(() => ({
   const nav = await chromium.launch();
   {
     const {p, context, consola} = await obre(nav, 'perpendicular-comuna.html');
+    // Finestra baixa (David, 18/11/2026): sense capçalera. La capçalera es prova amb una finestra alta.
+    ok(await p.$eval('.capcalera', h => getComputedStyle(h).display) === 'none', 'low window (650 px): no header');
+    await p.setViewportSize({width: 1366, height: 900});
+    await p.waitForTimeout(400);
     // La capçalera: el botó a l'esquerra del títol, fons gris fosc, més baixa.
     const cap = await p.evaluate(() => {
       const h = document.querySelector('.capcalera'), t = document.querySelector('.torna'), h1 = document.querySelector('h1');
@@ -52,6 +56,8 @@ const estat = p => p.evaluate(() => ({
     await p.hover('.torna');
     await p.waitForTimeout(250);
     ok(await p.$eval('.torna', t => getComputedStyle(t).backgroundColor) === 'rgb(0, 0, 0)', 'back button turns black on hover');
+    await p.setViewportSize({width: 1366, height: 650});
+    await p.waitForTimeout(400);
     // Pas 0.
     const total = await p.evaluate(() => procediment.total);
     let e = await estat(p);

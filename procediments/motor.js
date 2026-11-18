@@ -55,6 +55,8 @@ const CORBA = 'cubic-bezier(.45,.05,.25,1)';
  */
 const MIDA = Object.freeze({fixa: 24, petita: 22, minima: 12, pantallaPetita: '(max-width: 520px)',
   duesColumnes: '(min-width: 1000px)',   // portàtils (Chromebook): la pissarra a l'esquerra, amb tota l'alçada (estil.css)
+  // Finestra baixa (David, 18/11/2026: portàtils amb poca alçada): lletra una mica més petita a totes les DEMO, i sense la capçalera (estil.css).
+  finestraBaixa: '(max-height: 750px)', baixa: 20,
   alcadaMinima: 260});   // la pissarra, com a mínim, té aquesta alçada abans de fer servir la seva barra de desplaçament
 
 /** Categories del web (index.html): clau → nom. */
@@ -383,8 +385,11 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     ultimaVisible = ultima;
     const o = e.getBoundingClientRect(), q = files[ultima].getBoundingClientRect();
     const dalt = q.top - o.top + e.scrollTop, baix = q.bottom - o.top + e.scrollTop;
-    if (baix > e.scrollTop + e.clientHeight) e.scrollTop = Math.min(dalt, baix - e.clientHeight + 12);
-    else if (dalt < e.scrollTop) e.scrollTop = Math.max(0, dalt - 12);
+    // Una fila fixa a dalt (l'enunciat de l'optimització, position: sticky) tapa el començament de la pissarra: no hi porta res a sota.
+    const fixa = files.find(f => !f.hidden && f.innerHTML && getComputedStyle(f).position === 'sticky' && f !== files[ultima]);
+    const tapa = fixa ? fixa.getBoundingClientRect().height : 0;
+    if (baix > e.scrollTop + e.clientHeight) e.scrollTop = Math.min(dalt - tapa, baix - e.clientHeight + 12);
+    else if (dalt < e.scrollTop + tapa) e.scrollTop = Math.max(0, dalt - tapa - 12);
   }
 
   function mostra(pas) {
@@ -412,7 +417,7 @@ function creaPissarra(r, nFiles, cursor, temps, creix = false) {
     const petita = matchMedia(MIDA.pantallaPetita).matches;
     const dues = !petita && matchMedia(MIDA.duesColumnes).matches;
     const posaMida = px => r.pissarra.style.setProperty('--mida', px + 'px');
-    posaMida(petita ? MIDA.petita : MIDA.fixa);
+    posaMida(petita ? MIDA.petita : matchMedia(MIDA.finestraBaixa).matches ? MIDA.baixa : MIDA.fixa);
     const estil = getComputedStyle(r.pissarra);
     const disponible = r.pissarra.clientWidth - parseFloat(estil.paddingLeft) - parseFloat(estil.paddingRight) - 12;
     const prova = element('div', {class: 'fila prova'});
@@ -1135,12 +1140,16 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
       reproductor.redibuixa();
     }, 200);
   }
-  let amplada = innerWidth;
+  let amplada = innerWidth, alcada = innerHeight;
   addEventListener('resize', () => {
-    if (innerWidth === amplada) return;   // al mòbil, la barra d'adreces només canvia l'alçada
+    // Al mòbil, la barra d'adreces només canvia l'alçada: no cal refer res. A l'ordinador, l'alçada també compta (MIDA.finestraBaixa).
+    if (innerWidth === amplada && (matchMedia(MIDA.pantallaPetita).matches || innerHeight === alcada)) return;
     amplada = innerWidth;
+    alcada = innerHeight;
     reajusta();
   });
+  // Les files posades a dalt a la dreta (position: absolute; l'esquema petit de l'optimització) no es mouen quan es desplaça la pissarra.
+  r.escenari.addEventListener('scroll', () => r.pissarra.style.setProperty('--despl', r.escenari.scrollTop + 'px'));
 
   /* Valors inicials: els de l'adreça, si n'hi ha i són vàlids. */
   let inicials = proc.perDefecte;
