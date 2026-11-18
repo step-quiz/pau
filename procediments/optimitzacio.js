@@ -181,8 +181,10 @@ const PROBLEMES = Object.freeze([
       condicio: 'Què lliga les mides? El volum: el dipòsit ha de fer $8$ m³. Aquesta és la condició.',
     },
     v: 'x', w: 'h', f: 'C', maxim: false,
-    funcio: {tex: '20x^{2} + 40xh', text: 'Escriu la funció objectiu amb dues variables: el costat de la base, $x$, i l\'altura, $h$. '
-      + 'El fons ($x^2$ m²) costa $20x^2$ €, i les quatre parets ($4xh$ m²), $10 \\cdot 4xh = 40xh$ €. No hi ha tapa.'},
+    funcio: {abans: {etiqueta: 'Àrea', tex: 'A = x^{2} + 4 \\cdot x \\cdot h',
+        text: 'Anomena $x$ el costat de la base i $h$ l\'altura. Primer, l\'àrea del material: el fons, $x^2$, i les quatre parets, $4 \\cdot x \\cdot h$. No hi ha tapa.'},
+      cadena: '20 \\cdot x^{2} + 10 \\cdot (4 \\cdot x \\cdot h)', tex: '20x^{2} + 40xh',
+      text: 'Escriu la funció objectiu, el cost: el fons costa $20$ €/m² i les parets, $10$ €/m².', textCadena: 'Fes els productes.'},
     condicio: [
       {tex: 'x^{2} h = 8', text: 'Escriu la condició com una igualtat: el volum, $x^2 h$, és $8$ m³.'},
       {aillada: '\\dfrac{8}{x^{2}}', text: 'Aïlla $h$.'},
@@ -225,7 +227,9 @@ const PROBLEMES = Object.freeze([
     funcio: {tex: '2r \\cdot x', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ la longitud de cada recta i $r$ el radi dels semicercles. '
       + 'El rectangle fa $x$ per $2r$, i $A = 2r \\cdot x$.'},
     condicio: [
-      {tex: '2x + 2\\pi r = 400', text: 'Escriu la condició com una igualtat: les dues rectes ($2x$) i els dos semicercles, que junts fan una circumferència ($2\\pi r$), sumen $400$ m.'},
+      {tex: '(x + x) + 2 \\cdot \\left(\\dfrac{1}{2} \\cdot 2\\pi r\\right) = 400', text: 'Escriu la condició com una igualtat: la corda són les dues rectes, $x + x$, '
+        + 'i dos semicercles, cadascun la meitat d\'una circumferència, $\\frac{1}{2} \\cdot 2\\pi r$. Fa $400$ m.'},
+      {tex: '2x + 2\\pi r = 400', text: 'Simplifica: $x + x = 2x$, i $2 \\cdot \\frac{1}{2} \\cdot 2\\pi r = 2\\pi r$.'},
       {aillada: '200 - \\pi r', text: 'Aïlla $x$: divideix per $2$ i passa $\\pi r$ a l\'altre costat.'},
     ],
     substitucio: {tex: '2r \\cdot (200 - \\pi r)', text: 'Substitueix $x$ a la funció: ara l\'àrea només depèn de $r$.'},
@@ -332,7 +336,7 @@ const PROBLEMES = Object.freeze([
   },
   {
     id: 'parabola', nom: 'Rectangle sota una paràbola',
-    figura: {dibuix: 'parabola', lletres: {x: 2.7}, final: {x: 2}, textos: {x: '2', y: '8'}, valor: 'A = 32'},
+    figura: {dibuix: 'parabola', lletres: {x: 2.7}, final: {x: 2}, textos: {'2x': '4', y: '8'}, valor: 'A = 32'},
     lectura: {
       text: 'Un rectangle té [c:la base sobre l\'eix $OX$] i els dos vèrtexs de dalt [c*:sobre la paràbola $y = 12 - x^2$]. '
         + '[p*:Quines mides] fan que [o*:la seva àrea sigui màxima]? [q*:Quina és aquesta àrea?]',
@@ -598,7 +602,11 @@ const ESQUEMES = {
     t += `<rect class="co" x="${nombre(tx)}" y="${nombre(ty)}" width="${nombre(tw)}" height="${nombre(th)}"/>`;
     t += paraula('3', 130, Y0 + 1.5 * s + 4) + paraula('2', X0 + s, ty + th / 2 + 4);
     t += mida(et, 'x', 130, ty + 17) + mida(et, 'y', tx + tw - 6, ty + th / 2 + 5, 'end');   // el rectangle verd és el text
-    if (et.final) t += paraula(et.valor, 130, 166);
+    // Les mides del cartell (David): 2 + x + 2 a sota i 3 + y + 3 a la dreta.
+    const suma = (a, l, b) => `<tspan>${a} + </tspan><tspan class="${et.final ? '' : 'et'}">${et.final ? et.textos[l] : l}</tspan><tspan> + ${b}</tspan>`;
+    t += `<text class="en" x="130" y="${nombre(Y0 + h + 15)}" text-anchor="middle">${suma(2, 'x', 2)}</text>`;
+    t += `<text class="en" x="${nombre(X0 + w + 6)}" y="${nombre(Y0 + h / 2 + 4)}" text-anchor="start">${suma(3, 'y', 3)}</text>`;
+    if (et.final) t += paraula(et.valor, 215, 160);
     return t;
   },
   finca(m, et) {
@@ -612,14 +620,14 @@ const ESQUEMES = {
   },
   parabola(m, et) {
     const ox = 130, oy = 142, sx = 27, sy = 10, y = 12 - m.x * m.x, X = u => ox + u * sx, Y = v => oy - v * sy;
-    let t = lin([18, oy], [242, oy], 'ei') + lin([ox, oy + 10], [ox, 12], 'ei') + paraula('O', ox - 6, oy + 14, 'end');
+    let t = lin([18, oy], [242, oy], 'ei') + lin([ox, oy + 10], [ox, 12], 'ei');
     t += `<rect class="ob" x="${nombre(X(-m.x))}" y="${nombre(Y(y))}" width="${nombre(2 * m.x * sx)}" height="${nombre(y * sy)}"/>`;
     t += pol([[X(-m.x), oy], [X(-m.x), Y(y)], [X(m.x), Y(y)], [X(m.x), oy]], 'tr', false);
     const punts = [];
     for (let u = -3.6; u <= 3.601; u += 0.1) punts.push([X(u), Y(12 - u * u)]);
     t += pol(punts, 'co', false);
     for (const u of [-m.x, m.x]) t += `<circle class="vertex" cx="${nombre(X(u))}" cy="${nombre(Y(y))}" r="3"/>`;
-    t += mida(et, 'x', X(m.x / 2), oy + 16) + mida(et, 'y', X(m.x) - 6, Y(y / 2) + 5, 'end');
+    t += mida(et, 'x', ox + 14, oy + 17, 'middle', 2) + mida(et, 'y', X(m.x) - 6, Y(y / 2) + 5, 'end');   // la base sencera, 2x (David)
     if (et.final) t += paraula(et.valor, X(-m.x / 2), Y(y / 2) + 5);
     return t;
   },
@@ -687,12 +695,13 @@ function lletresDe(p, tex) {
 // La fila de treball de l'equació (treball) és la mateixa que el títol del bloc 3: quan s'hi escriu el títol, ja és buida.
 // Bloc 1 en tres parts (David, 18/11/2026): 1a la funció que s'optimitza, 1b les dades (la condició), 1c la funció d'una variable.
 // Al bloc 2, «f'(v) = 0» es queda a la seva fila, i l'equació amb l'expressió de f'(v) va a la de sota.
+// funcioAux: una fila d'abans de la funció (l'àrea del dipòsit); si és buida, no ocupa lloc (classe «plega», estil.css).
 const FILA = Object.freeze({esquema: 0, condicioCostat: 1, enunciat: 2,
-  titol1: 3, funcio: 4, titol1b: 5, condicio: 6, titol1c: 7, funcio1: 8,
-  titol2: 9, derivada: 10, equacio0: 11, equacio: 12, treball: 13,
-  titol3: 13, segona: 14, valorSegona: 15, extrem: 16,
-  titol4: 17, altra: 18, optim: 19, resposta: 20});
-const FILES = 21;
+  titol1: 3, funcioAux: 4, funcio: 5, titol1b: 6, condicio: 7, titol1c: 8, funcio1: 9,
+  titol2: 10, derivada: 11, equacio0: 12, equacio: 13, treball: 14,
+  titol3: 14, segona: 15, valorSegona: 16, extrem: 17,
+  titol4: 18, altra: 19, optim: 20, resposta: 21});
+const FILES = 22;
 /** Els títols dels blocs (sense el color de la categoria: classe «neutre»). */
 const titols = p => ({
   [FILA.titol1]: `🟨 1a. La funció que volem ${p.maxim ? 'maximitzar' : 'minimitzar'}`, [FILA.titol1b]: '🟩 1b. Les dades',
@@ -731,6 +740,7 @@ function passos(valors) {
   // (així no canvia de línies quan hi arriben, i el motor el deixa quiet).
   if (p.figura) { g.classes[FILA.esquema] = 'esquema-costat'; g.classes[FILA.enunciat] = 'amb-esquema'; }
   g.classes[FILA.condicioCostat] = 'condicio-costat';
+  g.classes[FILA.funcioAux] = 'plega';
   const TITOLS = titols(p);
   const titol = fila => { g.files[fila] = F.filaText(TITOLS[fila]); g.classes[fila] = 'apartat neutre'; };
 
@@ -749,9 +759,19 @@ function passos(valors) {
 
   /* 1. La funció: amb dues variables, la condició, i amb una sola variable. */
   titol(FILA.titol1);
-  g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + K('Oe', p.funcio.tex);
+  // Amb més detall (David, 18/11/2026): una fila d'abans (funcio.abans: l'àrea del dipòsit), i la funció tal com surt (funcio.cadena)
+  // abans de fer els productes: «C = 20 · x² + 10 · (4 · x · h) = 20x² + 40xh».
+  if (p.funcio.abans) {
+    g.files[FILA.funcioAux] = F.filaText(`${p.funcio.abans.etiqueta}: $${p.funcio.abans.tex}$`);
+    g.afegeix(p.funcio.abans.text);
+  }
+  g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + (p.funcio.cadena ? K('Oc', p.funcio.cadena) : K('Oe', p.funcio.tex));
   if (p.figura) g.files[FILA.titol1b] = esquema(p);     // l'esquema, gran, a la fila de sota (encara buida)
-  g.afegeix(p.funcio.text, Object.assign({cursor: {arrossega: frases.objectiu, fins: 'Oe'}}, llum(p.funcio.tex)));
+  g.afegeix(p.funcio.text, Object.assign({cursor: {arrossega: frases.objectiu, fins: p.funcio.cadena ? 'Oc' : 'Oe'}}, llum(p.funcio.tex)));
+  if (p.funcio.cadena) {
+    g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + K('Oc', p.funcio.cadena) + R('Or', '=') + K('Oe', p.funcio.tex);
+    g.afegeix(p.funcio.textCadena);
+  }
   p.condicio.forEach((pas, i) => {
     const cursor = Object.assign(i === 0 ? {cursor: {arrossega: frases.condicio, fins: pas.aillada ? 'Lr' : 'Ll'}} : {},
       i === 0 ? llum(pas.tex || `${w} = ${pas.aillada}`) : {});

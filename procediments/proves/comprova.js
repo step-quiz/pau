@@ -1119,6 +1119,7 @@ const OPT = (() => {
       d1: (r, pi) => pi.producte(27).resta(pi.producte(3).producte(r).producte(r)).quocient(2), d2: (r, pi) => pi.producte(-3).producte(r), optim: () => q(3)},
     diposit: {v: 'x', w: 'h', f: 'C', maxim: false, domini: 'x>0', mostres: [q(1, 2), q(1), q(3), q(5)], pis: sense,
       O: (x, h) => x.producte(x).producte(20).suma(x.producte(h).producte(40)), W: x => q(8).quocient(x.producte(x)),
+      area: (x, h) => x.producte(x).suma(x.producte(h).producte(4)),
       d1: x => x.producte(40).resta(q(320).quocient(x.producte(x))), d2: x => q(40).suma(q(640).quocient(x.potencia(3))), optim: () => q(2)},
     pista: {v: 'r', w: 'x', f: 'A', maxim: true, domini: '0<r<((200)/((pi)))', mostres: [q(10), q(20), q(40), q(50)], pis: [q(3), q(22, 7)],
       O: (r, x) => r.producte(x).producte(2), W: (r, pi) => q(200).resta(pi.producte(r)),
@@ -1201,10 +1202,15 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       return;
     }
     if (tex.startsWith('<svg')) {                                    // l'esquema: a part (comprovaEsquemes)
-      comprova(fila === FILA.esquema || (fila === FILA.titol1b && !passos[i - 1].files[FILA.titol1b]), () => `${on}: l'esquema no és al seu lloc`);
+      comprova(fila === FILA.esquema || (fila === FILA.titol1b && (!passos[i - 1].files[FILA.titol1b] || passos[i - 1].files[FILA.titol1b] === tex)), () => `${on}: l'esquema no és al seu lloc`);
       return;
     }
     if (tex.startsWith('§')) {
+      if (fila === FILA.funcioAux) {                                 // «Àrea: $A = …$» (el dipòsit), amb el model
+        const m = /^§Àrea: \$A = (.+)\$$/.exec(tex);
+        comprova(m && model.area && model.mostres.every((x, k) => valor(textPla(m[1]), x, fr(k + 2, 3)).igual(model.area(x, fr(k + 2, 3)))), () => `${on}: «${tex}» no és l'àrea`);
+        return;
+      }
       if (TITOLS[fila] && pas.classes[fila] === 'apartat neutre') {  // el títol d'un bloc
         comprova(tex === '§' + TITOLS[fila], () => `${on}: el títol del bloc ha de ser «${TITOLS[fila]}»`);
         return;
@@ -1223,9 +1229,9 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       linies++;
       let m;
       if (fila === FILA.funcio || fila === FILA.funcio1) {
-        if ((m = new RegExp(`^${f}=(.*)$`).exec(pla))) {                        // amb dues variables
+        if ((m = new RegExp(`^${f}=(.*)$`).exec(pla))) {                        // amb dues variables (f = … = …)
           const parelles = model.mostres.map((x, k) => [x, fr(k + 2, 3)]);
-          comprova(parelles.every(([x, y]) => valor(m[1], x, y).igual(model.O(x, y, pi))), () => `${on}: «${pla}» no és la funció`);
+          comprova(parelles.every(([x, y]) => m[1].split('=').every(part => valor(part, x, y).igual(model.O(x, y, pi)))), () => `${on}: «${pla}» no és la funció`);
         } else {                                                                  // amb una variable: f(v) = … = …
           comprova(model.mostres.every(x => totsIguals(pla.split('=').map(part => valor(part, x)).concat([funcio(x)]))), () => `${on}: «${pla}» no és certa`);
         }
@@ -1308,7 +1314,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   for (const [k, t] of Object.entries(TITOLS)) comprova(passos.some(q => q.files[k] === '§' + t), () => `${nom}: falta el títol «${t}»`);
   comprova(Optimitzacio.pissarraCreix === true, () => `${nom}: la pissarra ha de créixer cap avall`);
   passos.forEach((q, i) => {
-    const escrites = q.files.map((t, j) => (j > FILA.enunciat && t ? j : -1)).filter(j => j >= 0);
+    const escrites = q.files.map((t, j) => (j > FILA.enunciat && (t || (j === FILA.funcioAux && q.files[FILA.funcio])) ? j : -1)).filter(j => j >= 0);   // funcioAux buida no ocupa lloc
     const ultima = Math.max(-1, ...escrites);
     comprova(escrites.length === 0 || escrites.length === ultima - FILA.enunciat, () => `${nom}, pas ${i + 1}: hi ha un forat a la pissarra (files ${escrites.map(j => j + 1)})`);
   });

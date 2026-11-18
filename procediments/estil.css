@@ -133,7 +133,8 @@ button{font:inherit; color:inherit}
 /* Títol d'un apartat (p. ex. «1. Domini i possibles asímptotes verticals» a la gràfica d'una funció): una fila de text */
 /* Una fila ampla (taula de signes) que a pantalla petita es desplaça de costat, sense fer petita la lletra de tota la pissarra (motor.js, ajusta) */
 .fila.desplacable{overflow-x:auto; overflow-y:hidden}
-.fila.text.apartat.neutre{color:var(--txt)}   /* els títols dels blocs de l'optimització, sense el color de la categoria (David) */
+.fila.text.apartat.neutre{color:var(--txt)}
+.fila.plega:empty{display:none}   /* una fila opcional (l'àrea del dipòsit): si és buida, no ocupa lloc */   /* els títols dels blocs de l'optimització, sense el color de la categoria (David) */
 .fila.text.apartat{font-weight:700; color:var(--cat); max-width:none; border-radius:0; margin-top:.7em; padding-top:.55em;
   box-shadow:inset 0 1px 0 var(--border)}
 .frase{border-radius:4px; transition:background-color .45s, box-shadow .45s}
