@@ -696,7 +696,7 @@ const FILES = 21;
 /** Els títols dels blocs (sense el color de la categoria: classe «neutre»). */
 const titols = p => ({
   [FILA.titol1]: `🟨 1a. La funció que volem ${p.maxim ? 'maximitzar' : 'minimitzar'}`, [FILA.titol1b]: '🟩 1b. Les dades',
-  [FILA.titol1c]: '🟨 1c. La funció amb una sola variable', [FILA.titol2]: '2. Els punts crítics',
+  [FILA.titol1c]: 'La funció amb una sola variable', [FILA.titol2]: '2. Els punts crítics',
   [FILA.titol3]: '3. Trobem si és un màxim o un mínim', [FILA.titol4]: '4. La resposta'});
 // Groc, el que s'optimitza; verd, la condició (i les dades que el David hi vol); lila, les preguntes que demanen els valors de les
 // variables; rosa, la que demana el valor òptim (David, 18/11/2026). Les respostes porten el color de la seva pregunta.
