@@ -293,8 +293,8 @@ const PROBLEMES = Object.freeze([
     id: 'finca', nom: 'Finca al costat d\'un camí',
     figura: {dibuix: 'finca', lletres: {x: 26, y: 31}, final: {x: 40, y: 20}, textos: {x: '40', y: '20'}, valor: 'C = 1600 €'},
     lectura: {
-      text: 'Volem tancar [c*:una finca rectangular de $800$ m²] que toca un camí. [o:La tanca del costat del camí costa $30$ €/m, '
-        + 'i la dels altres tres costats, $10$ €/m]. [p*:Quines mides] fan [o*:que la tanca costi tan poc com sigui possible]? [q*:Quant costarà?]',
+      text: 'Volem tancar una finca rectangular de [c*:$800$ m²] que toca un camí. La tanca del costat del camí costa $30$ €/m, '
+        + 'i la dels altres tres costats, $10$ €/m. [p*:Quines mides] fan que la tanca [o*:costi tan poc com sigui possible]? [q*:Quant costarà?]',
       objectiu: 'Què volem optimitzar? «Que la tanca costi tan poc com sigui possible»: la funció objectiu és el cost de la tanca. Per escriure-la calen els dos preus.',
       condicio: 'Què lliga les mides? L\'àrea: la finca ha de fer $800$ m². Aquesta és la condició.',
     },
@@ -362,8 +362,8 @@ const PROBLEMES = Object.freeze([
     id: 'cantonada', nom: 'Tancat en una cantonada',
     figura: {dibuix: 'cantonada', lletres: {x: 3.6, y: 2.2}, final: {x: 2 * Math.SQRT2, y: 2 * Math.SQRT2}, textos: {x: '≈ 2,83', y: '≈ 2,83'}, valor: 'C ≈ 28,28 €'},
     lectura: {
-      text: 'Volem fer [c*:un tancat rectangular de $8$ m²] [o:en una cantonada del jardí: les dues parets fan dos costats, i només cal tanca als altres dos]. '
-        + '[o:La tanca costa $5$ €/m]. [p*:Quines mides] fan [o*:que el cost de la tanca sigui mínim]? [q*:Quant costarà?]',
+      text: 'Volem fer un tancat rectangular de [c*:$8$ m²] en una cantonada del jardí: les dues parets fan dos costats, i només cal tanca als altres dos. '
+        + 'La tanca costa $5$ €/m. [p*:Quines mides] fan que [o*:el cost de la tanca sigui mínim]? [q*:Quant costarà?]',
       objectiu: 'Què volem optimitzar? «Que el cost de la tanca sigui mínim»: la funció objectiu és el cost. Per escriure-la cal saber quins costats porten tanca, i el preu.',
       condicio: 'Què lliga les mides? L\'àrea: el tancat ha de fer $8$ m². Aquesta és la condició.',
     },
