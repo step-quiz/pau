@@ -1156,6 +1156,20 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   const FILA = Optimitzacio.FILA;
   passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
     if (!tex || fila === FILA.enunciat) return;                      // l'enunciat no és una igualtat
+    if (i === passos.length - 1) {
+      // L'últim pas (David): només l'enunciat, l'esquema final (comprovaEsquemes), la solució (destacada) i la resposta en català.
+      const on = `${nom}, últim pas, fila ${fila + 1}`;
+      if (tex.startsWith('<svg')) return;
+      if (tex.startsWith('§')) { comprova(pas.classes[fila] === 'resposta-text' && tex.includes('$'), () => `${on}: la resposta en català`); return; }
+      comprova(tex.includes('{k=Rx}') && pas.classes[fila] === 'final', () => `${on}: a l'últim pas només hi ha d'haver l'enunciat, l'esquema i la resposta`);
+      for (const part of textPla(tex).split(',')) {
+        const [nomPart, text] = part.split('=');
+        const esperat = nomPart === v ? optim : nomPart === w ? W(optim) : nomPart === f ? funcio(optim) : null;
+        comprova(esperat && valor(text).igual(esperat), () => `${on}: «${part}» no és la solució`);
+      }
+      linies++;
+      return;
+    }
     if (fila === FILA.extrem) {                                      // «En v = k hi ha un màxim (mínim) relatiu.»
       // «… relatiu. Com que és l'únic candidat del domini, és el màxim (mínim) absolut.» (l'únic candidat: el de la lila, vegeu més avall)
       const m = /^§En \$(.+)\$ hi ha un (màxim|mínim) relatiu\. Com que és l'únic candidat del domini, és el (màxim|mínim) absolut\.$/.exec(tex);
@@ -1163,10 +1177,6 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       comprova(m && esq === v && valor(dre).igual(optim) && (m[2] === 'màxim') === model.maxim && m[3] === m[2] && model.d2(optim, pi).signe() === (model.maxim ? -1 : 1),
         () => `${nom}, pas ${i + 1}: la conclusió «${tex}» no és certa`);
       comprova(pas.files[FILA.calcul].includes('{k=Se}') || passos.slice(0, i).some(q => q.files[FILA.calcul].includes('{k=Se}')), () => `${nom}, pas ${i + 1}: la conclusió surt abans de la segona derivada`);
-      return;
-    }
-    if (fila === FILA.frase) {                                       // la resposta en català, al final
-      comprova(i === passos.length - 1 && tex.startsWith('§') && tex.includes('$'), () => `${nom}, pas ${i + 1}: la resposta en català no és al seu lloc`);
       return;
     }
     if (tex.startsWith('<svg')) {                                    // l'esquema: a part (comprovaEsquemes)
@@ -1194,8 +1204,6 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
           const zero = (x, y) => valor(esq, x, y).resta(valor(dre, x, y));
           comprova(model.mostres.every(x => zero(x, W(x)).esZero() && !zero(x, W(x).suma(1)).esZero()), () => `${on}: «${pla}» no és equivalent a la condició`);
         }
-      } else if (fila === FILA.domini) {
-        comprova(pla === model.domini, () => `${on}: domini «${pla}» en lloc de «${model.domini}»`);
       } else if (fila === FILA.derivada) {
         comprova(model.mostres.every(x => totsIguals(pla.split('=').map(part => valor(part, x)))), () => `${on}: «${pla}» no és certa`);
       } else if (fila === FILA.resposta && !tex.includes('{k=R')) {
@@ -1261,7 +1269,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       }
     }
   }
-  const final = textPla(passos[passos.length - 1].files[FILA.resposta]).split(',').map(t => t.split('=')[0]);
+  const final = textPla(passos[passos.length - 1].files.find(t => t.includes('{k=Rx}')) || '').split(',').map(t => t.split('=')[0]);
   // L'equació dels candidats, primer tal com es planteja (David), i l'òptim en lila a la fila de treball.
   comprova(passos.some(q => q.files[FILA.calcul] && textPla(q.files[FILA.calcul]) === `${f}'(${v})=0`), () => `${nom}: falta l'equació ${f}'(${v}) = 0 abans de substituir`);
   comprova(passos.some(q => (q.files[FILA.resposta] || '').includes('marca=solucio')), () => `${nom}: el candidat no surt en lila`);
@@ -1271,8 +1279,15 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   comprova(enunciat.startsWith('§') && marques.includes('objectiu') && marques.includes('condicio') && marques.every(m => m === 'objectiu' || m === 'condicio'),
     () => `${nom}: l'enunciat no té les frases marcades (objectiu i condició)`);
   comprova(final.join() === [v, w, f].join(), () => `${nom}: la resposta final no té ${v}, ${w} i ${f}`);
+  // El domini, només a l'explicació (David): cap fila de la pissarra és una inequació del domini, i algun text l'escriu sencer.
+  const llegible = t => { try { return textPla(t); } catch (e) { return ''; } };   // algunes fórmules del text (la regla del quocient) no cal llegir-les
+  const formulesText = passos.flatMap(q => [...q.text.matchAll(/\$([^$]+)\$/g)].map(m => llegible(m[1])));
+  comprova(formulesText.includes(model.domini), () => `${nom}: cap explicació no diu el domini «${model.domini}»`);
+  comprova(passos.every(q => q.files.every(t => !t || t.startsWith('§') || t.startsWith('<svg') || !/^(0<)?\w(<|>)/.test(llegible(separaTatxades(t).net)))), () => `${nom}: el domini (una inequació) no ha de ser a la pissarra`);
+  // Les equacions es resolen directament, sense simplificar-les (David, 18/11/2026): mai «divideix per un factor comú».
+  comprova(!passos.some(q => /més senzilla/.test(q.text)), () => `${nom}: una equació simplificada (mai: David)`);
   comprova(passos.some(q => q.files[FILA.extrem]), () => `${nom}: falta la conclusió «hi ha un ${model.maxim ? 'màxim' : 'mínim'} relatiu» a la pissarra`);
-  comprova((passos[passos.length - 1].files[FILA.frase] || '').startsWith('§'), () => `${nom}: falta la resposta en català a la pissarra`);
+  comprova(passos[passos.length - 1].files.some((t, j) => j !== FILA.enunciat && t.startsWith('§')), () => `${nom}: falta la resposta en català a la pissarra`);
   comprova(model.d2(optim, pi).signe() === (model.maxim ? -1 : 1), () => `${nom}: el model no té un ${model.maxim ? 'màxim' : 'mínim'}`);
   comprova(funcions[f + "'"](optim).esZero(), () => `${nom}: el model no té f' = 0 a l'òptim`);
   return linies;
@@ -1312,7 +1327,7 @@ function comprovaEsquemes(problema, model, llista) {
   comprova(final.includes(problema.figura.valor), () => `${nom}: l'esquema final no escriu el valor òptim`);
   // On surt: gran a la condició al pas de la funció, després al costat de l'enunciat, i el final a l'últim pas.
   const darrer = llista[llista.length - 1];
-  comprova(darrer.files[FILA.esquema] === final, () => `${nom}: a l'últim pas no hi ha l'esquema final`);
+  comprova(darrer.files[FILA.funcio] === final && !darrer.files[FILA.esquema], () => `${nom}: a l'últim pas, l'esquema final ha de ser gran, sota l'enunciat`);
   comprova(amb[0].files[FILA.condicio] === inicial && amb[0].files[FILA.funcio], () => `${nom}: l'esquema ha de sortir gran amb la funció objectiu`);
   comprova(llista.every(q => q.classes[FILA.esquema] === 'esquema-costat' && q.classes[FILA.enunciat] === 'amb-esquema'), () => `${nom}: classes de l'esquema i de l'enunciat`);
   comprova(llista.some(q => (q.llum || []).length), () => `${nom}: cap pas il·lumina les lletres de l'esquema`);

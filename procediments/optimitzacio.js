@@ -8,7 +8,7 @@
      1. la funció que s'ha d'optimitzar, amb dues variables;
      2. la condició que les lliga; s'aïlla una variable;
      3. se substitueix: la funció passa a dependre d'una sola variable;
-     4. el domini d'aquesta variable;
+     4. el domini d'aquesta variable (només a l'explicació);
      5. la derivada i els candidats: primer l'equació tal com es planteja,
         «A'(x) = 0»; després, amb l'expressió de A'(x). L'equació es queda a
         la fila calcul i els càlculs baixen a la resposta, la de treball (que després
@@ -18,21 +18,22 @@
      7. la resposta: totes les mides i el valor òptim.
    Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, cartell, finca, parabola, cantonada, canonada)
 
-   La pissarra té vuit files (FILA):
+   La pissarra té nou files (FILA):
      fila 0  l'esquema petit (a dalt a la dreta de l'enunciat)
      fila 1  l'enunciat, amb les frases marcades
      fila 2  la funció          fila 3  la condició (al pas de la funció, l'esquema gran)
-     fila 4  el domini          fila 5  la derivada (i la segona)
-     fila 6  el càlcul del moment (l'equació A'(x) = 0, mentre es resol)
-     fila 7  la conclusió de la segona derivada: «En x = k hi ha un màxim (mínim) relatiu.»
-     fila 8  la fila de treball de l'equació; després, la resposta, que es va omplint
-     fila 9  a l'últim pas, la resposta en català (el text «resposta» del problema)
+     fila 4  la derivada (i la segona)
+     fila 5  el càlcul del moment (l'equació A'(x) = 0, mentre es resol)
+     fila 6  la conclusió de la segona derivada: «En x = k hi ha un màxim (mínim) relatiu.»
+     fila 7  la fila de treball de l'equació; després, la resposta, que es va omplint
+     fila 8  a l'últim pas, la resposta en català (el text «resposta» del problema)
+   El domini no és a la pissarra: només a l'explicació (el David no hi vol inequacions).
    Totes les línies que es veuen són certes: ho comprova proves/comprova.js,
    que té el seu propi model de cada problema.
 
    Cada problema és una llista de dades TeX (vegeu PROBLEMES). El guió el
    munta la funció passos(), igual per a tots.
-   Claus: Eo1…, Ec1… frases de l'enunciat, O… funció, L… condició, Dm domini, P… derivada, e… equació
+   Claus: Eo1…, Ec1… frases de l'enunciat, O… funció, L… condició, P… derivada, e… equació
    (eF, eP, ea, eX, eb el membre A'(x); eq, ez «= 0»; Y… la còpia que es queda), Ee equació escrita a mà,
    Ew els passos escrits a mà de la fila de treball, u… l'equació polinòmica de la fila de treball,
    Wv, Wq, Ws «v = candidat» escrit a mà, Se/Sw/Sz segona derivada, We i Fe càlculs, Rx, Rw, Rf la resposta.
@@ -130,7 +131,8 @@ const PROBLEMES = Object.freeze([
     derivada: {tex: '12x^{2} - 96x + 144', text: 'Deriva la funció.'},
     equacio: {
       polinomi: {termes: [{n: 2, c: 12}, {n: 1, c: -96}, {n: 0, c: 144}], text: 'Substitueix $V\'(x)$ per la seva expressió.'},
-      candidat: '2', descarta: ' Pel context del problema, $x = 6$ no serveix: no és del domini (la capsa no tindria base).',
+      candidat: '2', descarta: ' Pel context del problema, $x = 6$ no serveix: la base faria $b = 12 - 2 \\cdot 6 = 0$ cm, i la capsa tindria volum $0$. '
+        + 'De fet, en $x = 6$ hi ha un mínim, no un màxim: $V\'\'(6) = 24 \\cdot 6 - 96 = 48 > 0$.',
     },
     segona: {tex: '24x - 96', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(2) = 24 \\cdot 2 - 96 = -48'},
     altra: {calcul: 'b = 12 - 2 \\cdot 2 = 8', resposta: 'b = 8', text: 'Calcula el costat de la base: $b = 12 - 2x$.'},
@@ -160,10 +162,13 @@ const PROBLEMES = Object.freeze([
     equacio: {
       manual: [
         {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2} = 0', text: 'Substitueix $V\'(r)$ per la seva expressió.'},
-        {tex: '27\\pi - 3\\pi r^{2} = 0', text: 'Multiplica els dos membres per $2$.'},
+        {tex: '27\\pi - 3\\pi r^{2} = 0', text: 'Una fracció val $0$ quan el numerador és $0$.'},
+        {tex: '3\\pi r^{2} = 27\\pi', text: 'Passa el $-3\\pi r^2$ a l\'altre costat.'},
+        {tex: 'r^{2} = 9', text: 'Divideix els dos membres per $3\\pi$ per aïllar $r^2$.'},
+        {tex: 'r = \\pm 3', text: 'Fes l\'arrel quadrada: hi ha dues solucions.'},
+        {tex: 'r = 3', text: 'Pel context del problema, $r = -3$ no serveix: un radi no pot ser negatiu.'},
       ],
-      polinomi: {termes: [{n: 2, c: -3}, {n: 0, c: 27}], text: 'Divideix els dos membres per $\\pi$.'},
-      candidat: '3', descarta: ' Pel context del problema, $r = -3$ no serveix: un radi no pot ser negatiu.',
+      candidat: '3',
     },
     segona: {tex: '-3\\pi r', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(3) = -3\\pi \\cdot 3 = -9\\pi'},
     altra: {calcul: 'h = \\dfrac{27 - 3^{2}}{2 \\cdot 3} = 3', resposta: 'h = 3', text: 'Calcula l\'altura: $h = \\frac{27 - r^2}{2r}$.'},
@@ -406,7 +411,7 @@ const PROBLEMES = Object.freeze([
     figura: {dibuix: 'canonada', lletres: {x: 9.5}, final: {x: 6}, textos: {x: '6', d: '10'}, valor: 'P = 92 €'},
     lectura: {
       text: 'Un abeurador $B$ és [c*:a $8$ m d\'una tanca recta]. [c:El punt $O$ de la tanca més proper a $B$] és [o:a $20$ m de l\'aixeta $A$], que també és a la tanca. '
-        + '[o:La canonada va arran de la tanca, a $3$ €/m, fins a un punt $M$, i d\'allà en línia recta fins a $B$, a $5$ €/m]. '
+        + 'La canonada va arran de la tanca, a $3$ €/m, fins a un punt $M$, i d\'allà en línia recta fins a $B$, a $5$ €/m. '
         + 'On ha de ser $M$ [o*:perquè la canonada costi tan poc com sigui possible]? Quant costarà?',
       objectiu: 'Què volem optimitzar? «Que la canonada costi tan poc com sigui possible»: la funció objectiu és el cost. Per escriure-la calen els dos trams, els preus i els $20$ m.',
       condicio: 'Què lliga les mides? $OB = 8$ m és perpendicular a la tanca: el tram pel camp, $MB$, és la hipotenusa d\'un triangle rectangle. Aquesta és la condició (teorema de Pitàgores).',
@@ -623,7 +628,7 @@ function lletresDe(p, tex) {
 /* ── 2. FILES I LECTURA DE L'ENUNCIAT ──────────────────────────────── */
 
 /** Files de la pissarra. */
-const FILA = Object.freeze({esquema: 0, enunciat: 1, funcio: 2, condicio: 3, domini: 4, derivada: 5, calcul: 6, extrem: 7, resposta: 8, frase: 9});
+const FILA = Object.freeze({esquema: 0, enunciat: 1, funcio: 2, condicio: 3, derivada: 4, calcul: 5, extrem: 6, resposta: 7, frase: 8});
 const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio'});
 
 /**
@@ -646,7 +651,7 @@ const textual = tex => tex.replace(/\\dfrac/g, '\\frac');
 function passos(valors) {
   const p = perId(valors.p);
   const {v, w, f} = p;
-  const g = F.guio(10);
+  const g = F.guio(9);
   // L'esquema (si n'hi ha): la fila esquema flota a la dreta, i l'enunciat li deixa lloc des del primer pas (així no
   // canvia de línies quan hi arriba l'esquema, i el motor el deixa quiet).
   const llum = tex => ({llum: lletresDe(p, tex)});
@@ -691,9 +696,10 @@ function passos(valors) {
     g.afegeix(pas.text);
   }
 
-  /* 4. El domini (fila domini). */
-  g.files[FILA.domini] = K('Dm', p.domini.tex);
-  g.afegeix(p.domini.text, llum(p.domini.tex));
+  /* 4. El domini: només a l'explicació, no a la pissarra (David, 18/11/2026: les inequacions com 12 − 2x > 0 i 0 < x < 6,
+     només a la finestra dels passos). Sense canvis a la pissarra no hi ha pas nou: s'afegeix al text de l'últim. */
+  const textDomini = p.domini.text.includes(`$${p.domini.tex}$`) ? p.domini.text : `${p.domini.text} Per tant, $${p.domini.tex}$.`;
+  g.completa(` ${textDomini}`);
 
   /* 5. La derivada (fila derivada) i els candidats (fila calcul). */
   // La condició aïllada, ara, és soroll: s'esborra, i es recupera al pas 7 per calcular w.
@@ -729,8 +735,8 @@ function passos(valors) {
   if (eq.polinomi) {
     // Sense passos a mà, l'equació polinòmica es queda a la fila calcul; si n'hi ha, ja es resol a la de treball.
     const solucions = F.resolEquacio(g, manual.length
-      ? {fila: FILA.resposta, P: 'u', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v}
-      : {fila: FILA.calcul, treball: FILA.resposta, P: 'e', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v});
+      ? {fila: FILA.resposta, P: 'u', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v, simplifica: false}
+      : {fila: FILA.calcul, treball: FILA.resposta, P: 'e', termes: eq.polinomi.termes, text: eq.polinomi.text, X: v, simplifica: false});
     clauCandidat = solucions.find(s => M.texNombre(s.valor) === eq.candidat).clau;
     // Les solucions en lila; les que no són del domini, tatxades.
     const fila = solucions[0].fila;
@@ -774,11 +780,16 @@ function passos(valors) {
   g.files[FILA.calcul] = '';
   g.files[FILA.resposta] = rx + ',\\ ' + rw + ',\\ ' + K('Rf', p.optim.resposta);
   g.afegeix('Porta-ho a la resposta.', {fusiona: {Rf: ['Fe']}, cursor: {arrossega: 'Fe', fins: 'Rf'}});
-  g.classes[FILA.resposta] = 'final';
-  // La resposta en català, també a la pissarra (David, 18/11/2026): la frase que respon totes les preguntes.
-  g.files[FILA.frase] = F.filaText(p.resposta);
-  g.classes[FILA.frase] = 'resposta-text';
-  if (p.figura) g.files[FILA.esquema] = esquema(p, true);     // l'esquema, a escala, amb les mides òptimes
+  // L'últim pas (David, 18/11/2026): a la pissarra només queden l'enunciat, l'esquema final (gran, a escala i amb les mides
+  // òptimes), la fila de la solució i la resposta en català. La resta s'esborra, i la solució puja sota l'esquema.
+  const solucio = g.files[FILA.resposta];
+  for (let i = 0; i < g.files.length; i++) if (i !== FILA.enunciat) { g.files[i] = ''; g.classes[i] = i === FILA.esquema ? g.classes[i] : ''; }
+  const [filaEsquema, filaSolucio, filaFrase] = p.figura ? [FILA.funcio, FILA.condicio, FILA.derivada] : [null, FILA.funcio, FILA.condicio];
+  if (p.figura) g.files[filaEsquema] = esquema(p, true);
+  g.files[filaSolucio] = solucio;
+  g.classes[filaSolucio] = 'final';
+  g.files[filaFrase] = F.filaText(p.resposta);       // la resposta en català, també a la pissarra
+  g.classes[filaFrase] = 'resposta-text';
   g.afegeix(`Resposta: ${p.resposta}`);
   return g.passos;
 }
@@ -789,7 +800,7 @@ function passos(valors) {
 arrel.Optimitzacio = Object.freeze({
   titol: 'Optimització',
   categoria: 'analisi',
-  files: 10,
+  files: 9,
   perDefecte: FIXOS.perDefecte,
   exemples: FIXOS.exemples,
   titolEditor: 'Tria un problema',

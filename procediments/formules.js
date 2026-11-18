@@ -387,7 +387,7 @@ const O_DISJUNCIO = '\\quad\\text{o}\\quad ';
  * Amb {irracionals: true}, «A·x² + C = 0» pot tenir solucions irracionals: x = ±√k (simplificada, √12 = 2√3),
  * i els valors són Mates.Radical. Sense l'opció, el polinomi ha de tenir solucions racionals.
  */
-function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x', {irracionals = false, algebra = false} = {}) {
+function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x', {irracionals = false, algebra = false, simplifica = true} = {}) {
   let t = normalitza(llista);
   const posa = (tex, text, opcions) => { g.files[fila] = tex; g.afegeix(text, opcions); };
   const x = n => clau(P + 'v' + n, X);
@@ -402,8 +402,9 @@ function resolPolinomi(g, fila, P, llista, textInici, opcionsInici = {}, X = 'x'
     return [];
   }
 
-  // Divideix per un factor comú, i perquè el primer coeficient sigui positiu.
-  if (t.every(u => u.c.esEnter())) {
+  // Divideix per un factor comú, i perquè el primer coeficient sigui positiu (simplifica: false, a l'optimització: el David
+  // no vol que se simplifiquin les equacions, sinó que es resolguin directament).
+  if (simplifica && t.every(u => u.c.esEnter())) {
     const k = t.reduce((m, u) => mcd(m, u.c.num), 0) * t[0].c.signe();
     if (k !== 1) {
       t = t.map(u => ({n: u.n, c: u.c.quocient(k)}));
@@ -563,7 +564,7 @@ const esEquacio = (tex, P) => tex.includes(`{k=${P}z}`) && !tex.includes(`{k=${P
  *            no es marquen en lila, sinó que es tatxen en vermell.
  * Torna [{valor, clau, fila}]: la clau i la fila de cada solució a la pissarra (també les tatxades).
  */
-function resolEquacio(g, {fila, treball, P, termes, text, X = 'x', davant = '', opcions = {}, lila = false, final = null, serveix = null, irracionals = false, algebra = false}) {
+function resolEquacio(g, {fila, treball, P, termes, text, X = 'x', davant = '', opcions = {}, lila = false, final = null, serveix = null, irracionals = false, algebra = false, simplifica = true}) {
   let baixat = false, equacio = '';
   const files = new Proxy(g.files, {
     get(t, k) { return k === String(fila) && baixat ? t[treball] : t[k]; },
@@ -576,7 +577,7 @@ function resolEquacio(g, {fila, treball, P, termes, text, X = 'x', davant = '', 
     },
   });
   const intermediari = {files, classes: g.classes, afegeix: g.afegeix, completa: g.completa, passos: g.passos};
-  const sol = resolPolinomi(intermediari, fila, P, termes, text, opcions, X, {irracionals, algebra})
+  const sol = resolPolinomi(intermediari, fila, P, termes, text, opcions, X, {irracionals, algebra, simplifica})
     .map(s => ({valor: s.valor, clau: s.clau, fila: baixat ? treball : fila}));
   if (lila && sol.length) {
     sol.forEach(s => (!serveix || serveix(s.valor) ? marcaSolucio : tatxaSolucio)(g, s.fila, s.clau));
