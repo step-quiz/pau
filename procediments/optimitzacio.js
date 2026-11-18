@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    optimitzacio.js — Procediment: problemes d'optimització
    ───────────────────────────────────────────────────────────────────
-   Deu problemes fixos (sense editor), versions simplificades de
+   Onze problemes fixos (sense editor), versions simplificades de
    problemes de PAU, tots resolts amb la mateixa tècnica:
      0. llegir l'enunciat i marcar-hi què s'ha d'optimitzar (funció
         objectiu, en groc) i quina condició lliga les variables (en verd);
@@ -16,7 +16,7 @@
         domini, tatxades;
      6. la segona derivada diu si és un màxim o un mínim;
      7. la resposta: totes les mides i el valor òptim.
-   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, cartell, finca, parabola, cantonada, canonada)
+   Adreça: optimitzacio.html?p=hort (hort, capsa, llauna, diposit, pista, cartell, finca, parabola, cantonada, canonada, nedador)
 
    La pissarra (FILA) té quatre blocs amb títol, que creixen cap avall com en un full: 1. la funció (amb dues variables;
    la condició, que després va a dalt a la dreta, sota l'esquema petit; amb una variable), 2. els punts crítics (f', f' = 0 i
@@ -444,6 +444,51 @@ const PROBLEMES = Object.freeze([
     optim: {calcul: 'P(6) = 60 - 3 \\cdot 6 + 5\\sqrt{64 + 6^{2}} = 92', resposta: 'P = 92', text: 'Calcula el cost mínim: $60 - 18 + 5 \\cdot 10 = 92$.'},
     resposta: '$M$ ha de ser [p:a $6$ m de $O$], és a dir, a $14$ m de l\'aixeta: la canonada fa $14$ m arran de la tanca i $10$ m pel camp, i el cost mínim és [q:$92$ €].',
   },
+  {
+    id: 'nedador', nom: 'Nedador fins a la platja',
+    figura: {dibuix: 'nedador', lletres: {x: 3.6}, final: {x: 2.25}, textos: {x: '2,25', y: '3,75'}, valor: 't = 2 h'},
+    lectura: {
+      text: 'Un nedador és al mar en un punt $N$, [c*:a $3$ km d\'una platja recta], just al davant d\'un punt $S$ de la platja. '
+        + 'Vol anar a un punt $A$ de la platja, [c:a $6$ km de $S$]: el triangle $NSA$ és rectangle en $S$. Neda a $3$ km/h fins a un punt $P$ '
+        + 'de la platja, entre $S$ i $A$, i d\'allà camina fins a $A$ a $5$ km/h. [p*:On ha de ser $P$] perquè [o*:el temps sigui mínim]? '
+        + '[q*:Quin és aquest temps mínim?]',
+      objectiu: 'Què volem optimitzar? «Que el temps sigui mínim»: la funció objectiu és el temps. Per escriure-la calen les dues velocitats i els $6$ km.',
+      condicio: 'Què lliga les mides? $NS = 3$ km és perpendicular a la platja: el tram nedant, $NP$, és la hipotenusa d\'un triangle rectangle. '
+        + 'Aquesta és la condició (teorema de Pitàgores). Marquem també on és $A$: a $6$ km de $S$.',
+    },
+    v: 'x', w: 'y', f: 't', maxim: false,
+    funcio: {tex: '\\dfrac{y}{3} + \\dfrac{6 - x}{5}', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ la distància $SP$ i $y$ el tram nedant, $NP$. '
+      + 'El temps és la distància entre la velocitat: nedant, $\\frac{y}{3}$ h, i caminant de $P$ a $A$, $\\frac{6 - x}{5}$ h. Per tant, $t = \\frac{y}{3} + \\frac{6 - x}{5}$.'},
+    condicio: [
+      {tex: 'y^{2} = 9 + x^{2}', text: 'Escriu la condició: pel teorema de Pitàgores al triangle $NSP$, $y^2 = 3^2 + x^2 = 9 + x^2$.'},
+      {aillada: '\\sqrt{x^{2} + 9}', text: 'Aïlla $y$: és una longitud, i n\'agafem l\'arrel positiva.'},
+    ],
+    substitucio: {tex: '\\dfrac{\\sqrt{x^{2} + 9}}{3} + \\dfrac{6 - x}{5}', text: 'Substitueix $y$ a la funció: ara el temps només depèn de $x$. És l\'expressió de l\'apartat a) de la PAU.'},
+    simplifica: [],
+    domini: {tex: '0 < x < 6', text: 'El domini: $P$ és entre $S$ i $A$, és a dir, $0 < x < 6$.'},
+    derivada: {tex: '\\dfrac{x}{3\\sqrt{x^{2} + 9}} - \\dfrac{1}{5}', text: 'Deriva la funció. Per la regla de la cadena, la derivada de $\\sqrt{x^2 + 9}$ és '
+      + '$\\frac{2x}{2\\sqrt{x^2 + 9}} = \\frac{x}{\\sqrt{x^2 + 9}}$; i la de $\\frac{6 - x}{5}$ és $-\\frac{1}{5}$.'},
+    equacio: {
+      manual: [
+        {tex: '\\dfrac{x}{3\\sqrt{x^{2} + 9}} - \\dfrac{1}{5} = 0', text: 'Substitueix $t\'(x)$ per la seva expressió.'},
+        {tex: '5x = 3\\sqrt{x^{2} + 9}', text: 'Passa el $-\\frac{1}{5}$ a l\'altre costat, $\\frac{x}{3\\sqrt{x^2 + 9}} = \\frac{1}{5}$, i multiplica en creu.'},
+        {tex: '25x^{2} = 9 \\cdot (x^{2} + 9)', text: 'Eleva els dos membres al quadrat. Com que el membre de la dreta és positiu, $x$ també ho ha de ser; amb aquesta condició, l\'equació nova és equivalent a la de dalt.'},
+        {tex: '16x^{2} = 81', text: 'Treu el parèntesi ($9 \\cdot 9 = 81$) i passa el $9x^2$ a l\'esquerra: $25x^2 - 9x^2 = 16x^2$.'},
+        {tex: 'x^{2} = \\dfrac{81}{16}', text: 'Divideix per $16$.'},
+        {tex: 'x = \\dfrac{9}{4}', text: 'Pel context del problema, $x = -\\frac{9}{4}$ no serveix: no és del domini (i $5x$ ha de ser positiu). Queda $x = \\frac{9}{4} = 2{,}25$.'},
+      ],
+      candidat: '\\dfrac{9}{4}',
+    },
+    segona: {quocient: '\\dfrac{3\\sqrt{x^{2} + 9} - x \\cdot \\frac{3x}{\\sqrt{x^{2} + 9}}}{9 \\cdot (x^{2} + 9)}',
+      text: 'Per saber si és un mínim, calcula la segona derivada: el $-\\frac{1}{5}$ desapareix, i $\\frac{x}{3\\sqrt{x^2 + 9}}$ es deriva amb la regla del quocient.',
+      tex: '\\dfrac{3}{(x^{2} + 9)\\sqrt{x^{2} + 9}}',
+      simplifica: 'Simplifica: multiplica el numerador i el denominador per $\\sqrt{x^2 + 9}$. El numerador queda $3(x^2 + 9) - 3x^2 = 27$, i $\\frac{27}{9} = 3$.',
+      valor: 't\'\'\\left(\\dfrac{9}{4}\\right) = \\dfrac{3}{\\left(\\frac{81}{16} + 9\\right)\\sqrt{\\frac{81}{16} + 9}} = \\dfrac{3}{\\frac{225}{16} \\cdot \\frac{15}{4}} = \\dfrac{64}{1125}'},
+    altra: {calcul: 'y = \\sqrt{\\left(\\dfrac{9}{4}\\right)^{2} + 9} = \\dfrac{15}{4}', resposta: 'y = \\dfrac{15}{4}', text: 'Calcula el tram nedant: $y = \\sqrt{x^2 + 9}$.'},
+    optim: {calcul: 't\\left(\\dfrac{9}{4}\\right) = \\dfrac{5}{4} + \\dfrac{3}{4} = 2', resposta: 't = 2',
+      text: 'Calcula el temps mínim: nedant, $\\frac{15}{4} : 3 = \\frac{5}{4}$ h; caminant, $\\left(6 - \\frac{9}{4}\\right) : 5 = \\frac{3}{4}$ h.'},
+    resposta: 'El nedador ha de sortir de l\'aigua [p:a $x = \\frac{9}{4} = 2{,}25$ km de $S$] (neda $\\frac{15}{4} = 3{,}75$ km), i el temps mínim és de [q:$2$ hores].',
+  },
 ]);
 
 /* Adreça, exemples i textos comuns (l'enunciat és a la pissarra, fila enunciat, per poder-hi marcar frases). */
@@ -602,6 +647,20 @@ const ESQUEMES = {
     t += mida(et, 'x', X(m.x / 2), Yt + 16) + mida(et, 'd', (M[0] + B[0]) / 2 + 9, (M[1] + B[1]) / 2 - 2, 'start');
     t += `<path class="td" d="M${X(0)} ${Yt + 26} H${X(20)}"/>` + paraula('20', X(10), Yt + 40);
     if (et.final) t += paraula(et.valor, 196, 40);
+    return t;
+  },
+  nedador(m, et) {
+    const s = 33, X = u => 30 + u * s, Yp = 34, S = [X(0), Yp], A = [X(6), Yp], P = [X(m.x), Yp], N = [X(0), Yp + 3 * s];
+    let t = lin([16, Yp], [246, Yp], 'tr') + paraula('platja', 244, Yp + 14, 'end');
+    t += lin(S, N, 'co') + `<path class="tr" d="M${X(0) + 8} ${Yp} V${Yp + 8} H${X(0)}"/>`;
+    t += lin(N, P, 'obl') + lin(P, A, 'obl');
+    for (const [q, nom, dx, dy] of [[S, 'S', -8, -6], [P, 'P', 0, -8], [A, 'A', 0, -8], [N, 'N', -10, 4]]) {
+      t += `<circle cx="${nombre(q[0])}" cy="${nombre(q[1])}" r="2.5" fill="currentColor"/>` + paraula(nom, q[0] + dx, q[1] + dy, 'middle');
+    }
+    t += paraula('3', X(0) - 9, Yp + 54, 'end');
+    t += mida(et, 'x', X(m.x / 2), Yp + 16) + mida(et, 'y', (N[0] + P[0]) / 2 + 9, (N[1] + P[1]) / 2 + 8, 'start');
+    t += `<path class="td" d="M${X(0)} ${Yp - 20} H${X(6)}"/>` + paraula('6', X(3), Yp - 24);
+    if (et.final) t += paraula(et.valor, 196, 120);
     return t;
   },
 };

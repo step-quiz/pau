@@ -1103,6 +1103,7 @@ seccio('guions i veritat de creixement', () => {
 const k = (x, n) => x.producte(0).suma(n);
 const Radical_ = x => M.Radical.de(x);
 const OPT_W8 = x => M.Radical.arrel(Radical_(x).producte(x).suma(64).a);
+const OPT_W9 = x => M.Radical.arrel(Radical_(x).producte(x).suma(9).a);     // √(x² + 9): el nedador
 const OPT = (() => {
   const q = (a, b = 1) => fr(a, b);
   const sense = [q(1)];
@@ -1139,6 +1140,9 @@ const OPT = (() => {
     canonada: {v: 'x', w: 'd', f: 'P', maxim: false, domini: '0<x<20', mostres: [q(1, 2), q(3), q(8), q(15)], pis: sense, radicals: true,
       O: (x, d) => Radical_(d).producte(5).suma(k(x, 20).resta(x).producte(3)), W: x => OPT_W8(x),
       d1: x => Radical_(x).producte(5).quocient(OPT_W8(x)).resta(3), d2: x => Radical_(320).quocient(OPT_W8(x).potencia(3)), optim: () => q(6)},
+    nedador: {v: 'x', w: 'y', f: 't', maxim: false, domini: '0<x<6', mostres: [q(1, 2), q(1), q(4), q(5)], pis: sense, radicals: true,
+      O: (x, y) => Radical_(y).quocient(3).suma(k(x, 6).resta(x).quocient(5)), W: x => OPT_W9(x),
+      d1: x => Radical_(x).quocient(OPT_W9(x).producte(3)).resta(q(1, 5)), d2: x => Radical_(3).quocient(OPT_W9(x).potencia(3)), optim: () => q(9, 4)},
   };
 })();
 
@@ -1360,7 +1364,7 @@ function comprovaEsquemes(problema, model, llista) {
   const quadra = (t, esperat) => { const q = llegeix(t); return Boolean(q) && Math.abs(q.n - esperat) <= (q.aprox ? 0.5 * 10 ** -q.dec + 1e-4 : 1e-6 * Math.max(1, Math.abs(esperat))); };
   for (const m of mides(final)) comprova(m.classe === 'en' && quadra(m.text, m.f * valorDe[m.l]), () => `${nom}: a l'esquema final, ${m.f === 1 ? '' : m.f}${m.l} = «${m.text}» no és ${m.f * valorDe[m.l]}`);
   comprova(new Set(mides(final).map(m => m.l)).size === 2, () => `${nom}: a l'esquema final hi falten mides`);
-  const valor = /^(\w) ([=≈]) (.+?)(?: (m²|cm²|cm³|€))?$/.exec(problema.figura.valor);
+  const valor = /^(\w) ([=≈]) (.+?)(?: (m²|cm²|cm³|€|h))?$/.exec(problema.figura.valor);
   comprova(valor && valor[1] === model.f && quadra((valor[2] === '≈' ? '≈ ' : '') + valor[3], model.O(optim, model.W(optim, pi), pi).valor()),
     () => `${nom}: el valor òptim de l'esquema («${problema.figura.valor}») no és el del model`);
   comprova(final.includes(problema.figura.valor), () => `${nom}: l'esquema final no escriu el valor òptim`);
@@ -7722,7 +7726,9 @@ seccio('regles generals de totes les pàgines', () => {
             const net = pla.replace(/\(pi\)/g, 'π').replace(/\(\([^()]*\)\/\([^()]*\)\)/g, 'F').replace(/[∪;|,»]\(/g, '#').replace(/_[\w\dλμ]\(/g, '#').replace(/\^\([+-]\)/g, '#');   // P_0(…), D_1(…): un nom de punt; x → 1⁻: el costat d'un límit lateral
             // també una incògnita sola davant d'un parèntesi: «x(x − 2)» (les funcions, f(x), F(x), P(…), d(…), no)
             const net2 = net.replace(/sqrt\(|det\(|lim/g, '#').replace(/[λμt]\([^()]*,[^()]*\)/g, '#');   // λ(1, 1, 0): un vector, notació habitual
-            comprova(!/(\d|\))\(/.test(net) && !/(^|[^a-zA-Z_'])[xyzkmtλμ]\(/.test(net2), () => `${on}, fila ${f + 1}: un producte sense punt davant d'un parèntesi: «${pla.slice(0, 90)}»`);
+            // A l'optimització, t(x) és el nom d'una funció (el temps del nedador, com a la PAU), no un paràmetre t.
+            const incognites = pag === 'optimitzacio' ? /(^|[^a-zA-Z_'])[xyzkmλμ]\(/ : /(^|[^a-zA-Z_'])[xyzkmtλμ]\(/;
+            comprova(!/(\d|\))\(/.test(net) && !incognites.test(net2), () => `${on}, fila ${f + 1}: un producte sense punt davant d'un parèntesi: «${pla.slice(0, 90)}»`);
           }
         });
       });
