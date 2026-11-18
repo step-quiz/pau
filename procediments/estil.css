@@ -140,8 +140,8 @@ button{font:inherit; color:inherit}
 .frase{border-radius:4px; transition:background-color .45s, box-shadow .45s}
 .marca-objectiu, .marca-avis{background:rgba(234,179,8,.30); box-shadow:0 0 0 2px rgba(234,179,8,.30)}
 .marca-condicio, .marca-doble{background:rgba(16,185,129,.24); box-shadow:0 0 0 2px rgba(16,185,129,.24)}
-.marca-pregunta{background:rgba(124,92,191,.22); box-shadow:0 0 0 2px rgba(124,92,191,.22)}    /* lila: una pregunta que demana els valors (optimitzacio.js) */
-.marca-valor{background:rgba(219,39,119,.18); box-shadow:0 0 0 2px rgba(219,39,119,.18)}       /* rosa: la pregunta del valor òptim */
+.marca-pregunta{background:rgba(99,102,241,.22); box-shadow:0 0 0 2px rgba(99,102,241,.22)}    /* lila blavós: una pregunta que demana els valors (optimitzacio.js) */
+.marca-valor{background:rgba(192,38,211,.18); box-shadow:0 0 0 2px rgba(192,38,211,.18)}       /* lila rosat: la pregunta del valor òptim (David: dos tons de lila) */
 /* Esquemes dels problemes d'optimització (optimitzacio.js): gran el primer cop, a la seva fila; després, petit (260 px),
    flotant a la dreta de l'enunciat, que li deixa lloc des del primer pas. Amplada en em: el fantasma que vola d'un lloc
    a l'altre canvia de mida amb la lletra (motor.js). Groc: el que s'optimitza; verd: el que entra a la condició. */
@@ -171,6 +171,7 @@ button{font:inherit; color:inherit}
 .esquema .ra{stroke:currentColor; stroke-width:1}
 .esquema .ta{fill:currentColor; opacity:.16}
 .esquema text.et, .fila.figura .esquema text.et{font:italic 16px KaTeX_Math, 'Times New Roman', serif; fill:currentColor}   /* més específic que .fila.figura text */
+.esquema tspan.et{font-family:KaTeX_Math, 'Times New Roman', serif; font-style:italic}   /* una lletra dins d'una mida (2 + x + 2) */
 .esquema text.en, .fila.figura .esquema text.en{font:normal 13px var(--lletra); fill:currentColor}
 @media (max-width:520px){
   .fila.figura svg.esquema{font-size:20px}
@@ -220,7 +221,8 @@ button{font:inherit; color:inherit}
 /* Un color per camí d'un arbre (arbres.js): el producte del camí i el seu terme a la suma */
 .katex [data-marca="cami0"]{background:rgba(59,130,246,.22); box-shadow:0 0 0 3px rgba(59,130,246,.22); border-radius:2px}
 .katex [data-marca="cami1"]{background:rgba(219,39,119,.18); box-shadow:0 0 0 3px rgba(219,39,119,.18); border-radius:2px}
-.katex [data-marca="valor"]{background:rgba(219,39,119,.18); box-shadow:0 0 0 3px rgba(219,39,119,.18); border-radius:2px}   /* rosa: el valor òptim (optimitzacio.js) */
+.katex [data-marca="pregunta"]{background:rgba(99,102,241,.22); box-shadow:0 0 0 3px rgba(99,102,241,.22); border-radius:2px}   /* lila blavós: els valors de la resposta (optimitzacio.js) */
+.katex [data-marca="valor"]{background:rgba(192,38,211,.18); box-shadow:0 0 0 3px rgba(192,38,211,.18); border-radius:2px}   /* lila rosat: el valor òptim (optimitzacio.js) */
 .katex [data-marca="solucio"]{background:rgba(124,92,191,.22); box-shadow:0 0 0 3px rgba(124,92,191,.22); border-radius:2px}   /* lila: les solucions trobades */
 .katex [data-marca="actual"]{background:rgba(124,92,191,.22); box-shadow:0 0 0 3px rgba(124,92,191,.22); border-radius:2px}   /* lila: el que es calcula ara */
 .katex [data-marca="cami2"]{background:rgba(6,182,212,.24); box-shadow:0 0 0 3px rgba(6,182,212,.24); border-radius:2px}

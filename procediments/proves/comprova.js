@@ -1184,7 +1184,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       const esperat = nomPart === v ? optim : nomPart === w ? W(optim) : nomPart === f ? funcio(optim) : null;
       comprova(esperat && valor(text).igual(esperat), () => `${on}: «${part}» no és la solució`);
     }
-    comprova(['Rx,marca=solucio', 'Rw,marca=solucio', 'Rf,marca=valor'].every(k => tex.includes(`{k=${k}}`)), () => `${on}: la solució ha de tenir els colors de les preguntes`);
+    comprova(['Rx,marca=pregunta', 'Rw,marca=pregunta', 'Rf,marca=valor'].every(k => tex.includes(`{k=${k}}`)), () => `${on}: la solució ha de tenir els colors de les preguntes`);
   }
   passos.forEach((pas, i) => pas.files.forEach((tex, fila) => {
     if (!tex || fila === FILA.enunciat) return;                      // l'enunciat no és una igualtat
@@ -1325,9 +1325,15 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   // La lectura: al final, l'enunciat té frases marcades de les dues categories, i cap més marca.
   const enunciat = passos[passos.length - 1].files[FILA.enunciat];
   const marques = [...enunciat.matchAll(/\{\{[^|]*\|([^|]*)\|/g)].map(m => m[1]);
-  comprova(enunciat.startsWith('§') && ['objectiu', 'condicio', 'pregunta', 'valor'].every(k => marques.includes(k))
-    && marques.every(m => ['objectiu', 'condicio', 'pregunta', 'valor'].includes(m)),
-    () => `${nom}: l'enunciat no té les frases marcades (objectiu, condició i les preguntes en lila i rosa)`);
+  // Al final, l'enunciat només té les preguntes marcades (el groc i el verd es treuen a la funció d'una variable: David); abans hi ha
+  // hagut l'objectiu i la condició.
+  const marquesDe = t => [...t.matchAll(/\{\{[^|]*\|([^|]*)\|/g)].map(m => m[1]);
+  const totes = new Set(passos.flatMap(q => marquesDe(q.files[FILA.enunciat] || '')));
+  comprova(enunciat.startsWith('§') && ['pregunta', 'valor'].every(k => marques.includes(k)) && marques.filter(Boolean).every(m => ['pregunta', 'valor'].includes(m))
+    && ['objectiu', 'condicio'].every(k => totes.has(k)),
+    () => `${nom}: l'enunciat ha de marcar l'objectiu i la condició, i al final només les preguntes (dos tons de lila)`);
+  const sense = passos.findIndex(q => q.files[FILA.funcio1]);
+  comprova(sense > 0 && passos.slice(sense).every(q => !/\|(objectiu|condicio)\|/.test(q.files[FILA.enunciat])), () => `${nom}: des de la funció d'una variable, l'enunciat sense groc ni verd`);
   comprova(final.join() === [v, w, f].join(), () => `${nom}: la resposta final no té ${v}, ${w} i ${f}`);
   // El domini, només a l'explicació (David): cap fila de la pissarra és una inequació del domini, i algun text l'escriu sencer.
   const llegible = t => { try { return textPla(t); } catch (e) { return ''; } };   // algunes fórmules del text (la regla del quocient) no cal llegir-les
