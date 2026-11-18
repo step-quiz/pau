@@ -69,6 +69,7 @@ const {clau: K, rel: R} = F;
      segona {tex, text, valor}  f''(v) i el càlcul «f''(candidat) = …»
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
+     preguntes                 [valors, valor]: les dues preguntes de l'enunciat, dites senzillament (pas de lectura)
      resposta                  [valors, valor]: les dues frases de la resposta, amb les unitats
      figura                    l'esquema: dibuix (la funció de
                                ESQUEMES), lletres (mides per dibuixar-lo amb les lletres, sense
@@ -88,6 +89,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Perquè l\'àrea sigui màxima»: la funció objectiu és l\'àrea de l\'hort, i en busquem el màxim.',
       condicio: 'Què lliga les mides? Els $40$ m de tanca, que només tanquen tres costats perquè la paret fa de quart costat. Aquesta és la condició.',
     },
+    preguntes: ['Quines són les mides de l\'hort', 'Quina és l\'àrea màxima'],
     v: 'x', w: 'y', f: 'A', maxim: true,
     funcio: {tex: 'x \\cdot y', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ els dos costats perpendiculars a la paret i $y$ el costat paral·lel. L\'àrea és $A = x \\cdot y$.'},
     condicio: [
@@ -114,6 +116,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Perquè el volum sigui màxim»: la funció objectiu és el volum de la capsa.',
       condicio: 'Què lliga les mides? El cartró fa $12$ cm de costat, i hi retallem $x$ a cada banda: d\'aquí surt el costat de la base.',
     },
+    preguntes: ['Quant ha de valer $x$, i quines mides té la capsa', 'Quin és el volum màxim'],
     v: 'x', w: 'b', f: 'V', maxim: true,
     funcio: {tex: 'b^{2} \\cdot x', text: 'Escriu la funció objectiu amb dues variables: la base és un quadrat de costat $b$, i l\'altura és $x$, el costat retallat. El volum és $V = b^2 \\cdot x$.'},
     condicio: [
@@ -146,6 +149,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que hi càpiga el màxim volum»: la funció objectiu és el volum del cilindre.',
       condicio: 'Què lliga el radi i l\'altura? La planxa: en total fa $27\\pi$ cm², i com que la llauna és oberta, només en té el fons i la paret.',
     },
+    preguntes: ['Quin radi i quina altura ha de tenir la llauna', 'Quin és el volum màxim'],
     v: 'r', w: 'h', f: 'V', maxim: true,
     funcio: {tex: '\\pi r^{2} h', text: 'Escriu la funció objectiu amb dues variables, el radi $r$ i l\'altura $h$: $V = \\pi r^2 h$. El nombre $\\pi$ és un nombre com qualsevol altre.'},
     condicio: [
@@ -183,6 +187,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que el cost sigui mínim»: la funció objectiu és el cost. Per escriure-la calen els preus, i saber que no hi ha tapa.',
       condicio: 'Què lliga les mides? El volum: el dipòsit ha de fer $8$ m³. Aquesta és la condició.',
     },
+    preguntes: ['Quines són les mides del dipòsit', 'Quin és el cost mínim'],
     v: 'x', w: 'h', f: 'C', maxim: false,
     funcio: {abans: {etiqueta: 'Àrea', tex: 'A = x^{2} + 4 \\cdot x \\cdot h',
         text: 'Anomena $x$ el costat de la base i $h$ l\'altura. Primer, l\'àrea del material: el fons, $x^2$, i les quatre parets, $4 \\cdot x \\cdot h$. No hi ha tapa.'},
@@ -227,6 +232,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que el camp rectangular tingui l\'àrea més gran possible»: la funció objectiu és l\'àrea del rectangle (els semicercles no hi compten).',
       condicio: 'Què lliga les mides? La corda de $400$ m: la formen les dues rectes i els dos semicercles.',
     },
+    preguntes: ['Quines són les mides de la pista', 'Quina és l\'àrea màxima del camp'],
     v: 'r', w: 'x', f: 'A', maxim: true,
     funcio: {tex: '2r \\cdot x', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ la longitud de cada recta i $r$ el radi dels semicercles. '
       + 'El rectangle fa $x$ per $2r$, i $A = 2r \\cdot x$.'},
@@ -264,6 +270,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que es gasti tan poc paper com sigui possible»: la funció objectiu és l\'àrea del cartell, i en busquem el mínim. Per escriure-la calen els marges.',
       condicio: 'Què lliga les mides? L\'àrea del text, que ha de fer $96$ cm². Aquesta és la condició. Marquem també els marges: són dades que caldran per escriure la funció.',
     },
+    preguntes: ['Quines són les mides del cartell', 'Quant paper cal, com a mínim'],
     v: 'x', w: 'y', f: 'A', maxim: false,
     funcio: {tex: '(x + 4) \\cdot (y + 6)', text: 'Escriu la funció objectiu amb dues variables: el text fa $x$ d\'amplada i $y$ d\'altura. '
       + 'El cartell fa $2$ cm més a cada costat, $x + 4$, i $3$ cm més a dalt i a baix, $y + 6$. El paper és $A = (x + 4) \\cdot (y + 6)$.'},
@@ -307,6 +314,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que la tanca costi tan poc com sigui possible»: la funció objectiu és el cost de la tanca. Per escriure-la calen els dos preus.',
       condicio: 'Què lliga les mides? L\'àrea: la finca ha de fer $800$ m². Aquesta és la condició.',
     },
+    preguntes: ['Quines són les mides òptimes', 'Quin és el cost mínim de la tanca'],
     v: 'x', w: 'y', f: 'C', maxim: false,
     funcio: {tex: '20x + 40y', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ els dos costats perpendiculars al camí i $y$ els dos paral·lels. '
       + 'El costat del camí costa $30y$ €, l\'altre costat paral·lel, $10y$ €, i els dos costats $x$, $10 \\cdot 2x = 20x$ €. En total, $C = 20x + 40y$.'},
@@ -349,6 +357,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que la seva àrea sigui màxima»: la funció objectiu és l\'àrea del rectangle, i en busquem el màxim.',
       condicio: 'Què lliga les mides? Els vèrtexs de dalt són sobre la paràbola: la seva altura és la $y$ de la paràbola. Aquesta és la condició. La base és sobre l\'eix $OX$: per això l\'altura és $y$.',
     },
+    preguntes: ['Quines són les mides del rectangle', 'Quina és l\'àrea màxima'],
     v: 'x', w: 'y', f: 'A', maxim: true,
     funcio: {tex: '2x \\cdot y', text: 'Escriu la funció objectiu amb dues variables: els vèrtexs de dalt són $(x, y)$ i $(-x, y)$, amb $x > 0$. '
       + 'La base fa $2x$ i l\'altura, $y$: $A = 2x \\cdot y$.'},
@@ -378,6 +387,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que el cost de la tanca sigui mínim»: la funció objectiu és el cost. Per escriure-la cal saber quins costats porten tanca, i el preu.',
       condicio: 'Què lliga les mides? L\'àrea: el tancat ha de fer $8$ m². Aquesta és la condició.',
     },
+    preguntes: ['Quines són les mides del tancat', 'Quin és el cost mínim de la tanca'],
     v: 'x', w: 'y', f: 'C', maxim: false,
     funcio: {tex: '5 \\cdot (x + y)', text: 'Escriu la funció objectiu amb dues variables: els dos costats que no toquen les parets, $x$ i $y$. '
       + 'Només aquests porten tanca, a $5$ €/m: $C = 5 \\cdot (x + y)$.'},
@@ -424,6 +434,7 @@ const PROBLEMES = Object.freeze([
       objectiu: 'Què volem optimitzar? «Que la canonada costi tan poc com sigui possible»: la funció objectiu és el cost. Per escriure-la calen els dos trams, els preus i els $20$ m.',
       condicio: 'Què lliga les mides? $OB = 8$ m és perpendicular a la tanca: el tram pel camp, $MB$, és la hipotenusa d\'un triangle rectangle. Aquesta és la condició (teorema de Pitàgores). Marquem també on és $O$: a $20$ m de l\'aixeta.',
     },
+    preguntes: ['On ha de ser el punt $M$', 'Quin és el cost mínim de la canonada'],
     v: 'x', w: 'd', f: 'P', maxim: false,
     funcio: {tex: '3 \\cdot (20 - x) + 5d', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ la distància $OM$ i $d$ el tram pel camp, $MB$. '
       + 'Arran de la tanca hi ha $20 - x$ m, a $3$ €/m, i pel camp, $d$ m, a $5$ €/m: $P = 3 \\cdot (20 - x) + 5d$.'},
@@ -469,6 +480,7 @@ const PROBLEMES = Object.freeze([
       condicio: 'Què lliga les mides? $NS = 3$ km és perpendicular a la platja: el tram nedant, $NP$, és la hipotenusa d\'un triangle rectangle. '
         + 'Aquesta és la condició (teorema de Pitàgores). Marquem també on és $A$: a $6$ km de $S$.',
     },
+    preguntes: ['On ha de ser el punt $P$', 'Quin és el temps mínim'],
     v: 'x', w: 'y', f: 't', maxim: false,
     funcio: {tex: '\\dfrac{y}{3} + \\dfrac{6 - x}{5}', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ la distància $SP$ i $y$ el tram nedant, $NP$. '
       + 'El temps és la distància entre la velocitat: nedant, $\\frac{y}{3}$ h, i caminant de $P$ a $A$, $\\frac{6 - x}{5}$ h. Per tant, $t = \\frac{y}{3} + \\frac{6 - x}{5}$.'},
@@ -765,8 +777,8 @@ function passos(valors) {
   g.files[FILA.enunciat] = lectura(p, ['o', 'c']).tex;
   g.afegeix(p.lectura.condicio + ' (Ho marquem en verd. A les pautes de la PAU, la condició també es diu «lligadura».)', {cursor: {clic: frases.condicio}});
   g.files[FILA.enunciat] = lectura(p, ['o', 'c', 'p', 'q']).tex;
-  g.afegeix(`Quantes preguntes ens fan? En lila blavós, les que demanen els valors de les variables (les mides); en lila rosat, la que demana el valor ${p.maxim ? 'màxim' : 'mínim'}. `
-    + 'La resposta final les ha de contestar totes, i ho farem amb els mateixos colors.', {cursor: {clic: frases.pregunta}});
+  // Senzill (David, 18/11/2026): «Ens fan dues preguntes.», i les dues preguntes, una per línia.
+  g.afegeix(`Ens fan dues preguntes.\n${p.preguntes[0]}.\n${p.preguntes[1]}.`, {cursor: {clic: frases.pregunta}});
 
   /* 1. La funció: amb dues variables, la condició, i amb una sola variable. */
   titol(FILA.titol1);
