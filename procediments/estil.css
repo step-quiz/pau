@@ -156,7 +156,10 @@ button{font:inherit; color:inherit}
 .fila.condicio-costat{position:absolute; top:calc(196px + var(--despl, 0px)); right:22px; min-height:0; margin:0; padding:0 .3em; font-size:.9em;
   z-index:3; background:var(--surface); border-radius:6px}   /* la condició aïllada, sota l'esquema petit (170 px + 18 + 8) */
 .esquema{color:var(--txt)}
-.fila.text.resposta-text{margin-top:.4em; font-weight:700; color:var(--cat); max-width:none}   /* la resposta en català (optimitzacio.js) */
+.fila.text.resposta-text{margin-top:.4em; max-width:none}   /* la resposta en català (optimitzacio.js): dues frases, sense negreta */
+.marca-quadre-pregunta, .marca-quadre-valor{display:inline-block; width:.75em; height:.75em; margin-right:.45em; border-radius:2px; vertical-align:-.05em}
+.marca-quadre-pregunta{background:rgba(118,98,214,.55)}   /* el quadradet de la primera frase: lila blavós */
+.marca-quadre-valor{background:rgba(150,90,200,.55)}      /* el de la segona: lila rosat */
 .esquema .ob{fill:rgba(234,179,8,.30)}
 .esquema .ob.fons{fill:rgba(234,179,8,.55)}
 .esquema .cof{fill:rgba(16,161,113,.16)}                                       /* una àrea que és la condició (la finca) */

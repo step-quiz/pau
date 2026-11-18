@@ -1193,7 +1193,10 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
       // L'últim pas (David): només l'enunciat, l'esquema final (comprovaEsquemes), la solució (destacada) i la resposta en català.
       if (tex.startsWith('<svg')) return;
       if (tex.startsWith('§')) {
-        comprova(pas.classes[fila] === 'resposta-text' && /\|pregunta\|/.test(tex) && /\|valor\|/.test(tex), () => `${on}: la resposta en català, amb els colors de les preguntes`);
+        // Dues frases, una per línia, cadascuna amb el seu quadradet (lila blavós, lila rosat) i acabada en punt (David).
+        const linies = tex.slice(1).split('\n');
+        comprova(pas.classes[fila] === 'resposta-text' && linies.length === 2 && /^\{\{\|quadre-pregunta\|/.test(linies[0]) && /^\{\{\|quadre-valor\|/.test(linies[1])
+          && linies.every(l => /\.$/.test(l)), () => `${on}: la resposta en català: dues frases, una per línia, amb els quadradets`);
         return;
       }
       comprova(tex.includes('{k=Rx') && pas.classes[fila] === 'final', () => `${on}: a l'últim pas només hi ha d'haver l'enunciat, l'esquema i la resposta`);

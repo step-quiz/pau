@@ -69,7 +69,7 @@ const {clau: K, rel: R} = F;
      segona {tex, text, valor}  f''(v) i el càlcul «f''(candidat) = …»
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
-     resposta                  el text final, amb les unitats
+     resposta                  [valors, valor]: les dues frases de la resposta, amb les unitats
      figura                    l'esquema: dibuix (la funció de
                                ESQUEMES), lletres (mides per dibuixar-lo amb les lletres, sense
                                proporcions reals), final (les mides òptimes, a escala), textos
@@ -102,7 +102,8 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '-4', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'A\'\'(10) = -4'},
     altra: {calcul: 'y = 40 - 2 \\cdot 10 = 20', resposta: 'y = 20', text: 'Calcula l\'altra mida: $y = 40 - 2x$.'},
     optim: {calcul: 'A(10) = 40 \\cdot 10 - 2 \\cdot 10^{2} = 200', resposta: 'A = 200', text: 'Calcula l\'àrea màxima.'},
-    resposta: 'L\'hort ha de fer [p:$10$ m (els costats perpendiculars a la paret) per $20$ m (el costat paral·lel)], i l\'àrea màxima és [q:$200$ m²].',
+    resposta: ['L\'hort ha de fer $10$ m (els costats perpendiculars a la paret) per $20$ m (el costat paral·lel).',
+      'L\'àrea màxima és $200$ m².'],
   },
   {
     id: 'capsa', nom: 'Capsa de cartró',
@@ -133,7 +134,8 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '24x - 96', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(2) = 24 \\cdot 2 - 96 = -48'},
     altra: {calcul: 'b = 12 - 2 \\cdot 2 = 8', resposta: 'b = 8', text: 'Calcula el costat de la base: $b = 12 - 2x$.'},
     optim: {calcul: 'V(2) = 4 \\cdot 2^{3} - 48 \\cdot 2^{2} + 144 \\cdot 2 = 128', resposta: 'V = 128', text: 'Calcula el volum màxim.'},
-    resposta: 'Cal retallar quadrats de [p:$2$ cm]. La capsa fa [p:$8 \\times 8$ cm de base i $2$ cm d\'altura], i el volum màxim és [q:$128$ cm³].',
+    resposta: ['Cal retallar quadrats de $2$ cm. La capsa fa $8 \\times 8$ cm de base i $2$ cm d\'altura.',
+      'El volum màxim és $128$ cm³.'],
   },
   {
     id: 'llauna', nom: 'Llauna oberta',
@@ -169,7 +171,8 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '-3\\pi r', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'V\'\'(3) = -3\\pi \\cdot 3 = -9\\pi'},
     altra: {calcul: 'h = \\dfrac{27 - 3^{2}}{2 \\cdot 3} = 3', resposta: 'h = 3', text: 'Calcula l\'altura: $h = \\frac{27 - r^2}{2r}$.'},
     optim: {calcul: 'V(3) = \\dfrac{27\\pi \\cdot 3 - \\pi \\cdot 3^{3}}{2} = 27\\pi', resposta: 'V = 27\\pi', text: 'Calcula el volum màxim.'},
-    resposta: 'La llauna ha de tenir [p:$3$ cm de radi i $3$ cm d\'altura], i el volum màxim és [q:$27\\pi \\approx 84{,}8$ cm³].',
+    resposta: ['La llauna ha de tenir $3$ cm de radi i $3$ cm d\'altura.',
+      'El volum màxim és $27\\pi \\approx 84{,}8$ cm³.'],
   },
   {
     id: 'diposit', nom: 'Dipòsit de cost mínim',
@@ -212,7 +215,8 @@ const PROBLEMES = Object.freeze([
       valor: 'C\'\'(2) = \\dfrac{40 \\cdot 2^{3} + 640}{2^{3}} = 120'},
     altra: {calcul: 'h = \\dfrac{8}{2^{2}} = 2', resposta: 'h = 2', text: 'Calcula l\'altura: $h = \\frac{8}{x^2}$.'},
     optim: {calcul: 'C(2) = 20 \\cdot 2^{2} + \\dfrac{320}{2} = 240', resposta: 'C = 240', text: 'Calcula el cost mínim.'},
-    resposta: 'El dipòsit ha de fer [p:$2 \\times 2$ m de base i $2$ m d\'altura], i el cost mínim és [q:$240$ €].',
+    resposta: ['El dipòsit ha de fer $2 \\times 2$ m de base i $2$ m d\'altura.',
+      'El cost mínim és $240$ €.'],
   },
   {
     id: 'pista', nom: 'Pista d\'atletisme',
@@ -248,8 +252,8 @@ const PROBLEMES = Object.freeze([
     altra: {calcul: 'x = 200 - \\pi \\cdot \\dfrac{100}{\\pi} = 100', resposta: 'x = 100', text: 'Calcula la longitud de les rectes: $x = 200 - \\pi r$.'},
     optim: {calcul: 'A\\left(\\dfrac{100}{\\pi}\\right) = 2 \\cdot \\dfrac{100}{\\pi} \\cdot 100 = \\dfrac{20000}{\\pi}', resposta: 'A = \\dfrac{20000}{\\pi}',
       text: 'Calcula l\'àrea màxima: $A = 2r \\cdot x$.'},
-    resposta: 'Els semicercles han de tenir [p:radi $\\frac{100}{\\pi} \\approx 31{,}8$ m], i les rectes, [p:$100$ m]. El camp fa [p:$100$ m per $\\frac{200}{\\pi} \\approx 63{,}7$ m], '
-      + 'i l\'àrea màxima és [q:$\\frac{20000}{\\pi} \\approx 6366$ m²].',
+    resposta: ['Els semicercles han de tenir radi $\\frac{100}{\\pi} \\approx 31{,}8$ m, i les rectes, $100$ m. El camp fa $100$ m per $\\frac{200}{\\pi} \\approx 63{,}7$ m.',
+      'L\'àrea màxima és $\\frac{20000}{\\pi} \\approx 6366$ m².'],
   },
   {
     id: 'cartell', nom: 'Cartell amb marges',
@@ -291,7 +295,8 @@ const PROBLEMES = Object.freeze([
       valor: 'A\'\'(8) = \\dfrac{768}{8^{3}} = \\dfrac{3}{2}'},
     altra: {calcul: 'y = \\dfrac{96}{8} = 12', resposta: 'y = 12', text: 'Calcula l\'altura del text: $y = \\frac{96}{x}$.'},
     optim: {calcul: 'A(8) = 6 \\cdot 8 + 120 + \\dfrac{384}{8} = 216', resposta: 'A = 216', text: 'Calcula el paper mínim.'},
-    resposta: 'El text fa $8 \\times 12$ cm, i el cartell, amb els marges, [p:$12 \\times 18$ cm]. Cal un mínim de [q:$216$ cm²] de paper.',
+    resposta: ['El cartell ha de fer $12 \\times 18$ cm (el text, $8 \\times 12$ cm).',
+      'Cal un mínim de $216$ cm² de paper.'],
   },
   {
     id: 'finca', nom: 'Finca al costat d\'un camí',
@@ -332,7 +337,8 @@ const PROBLEMES = Object.freeze([
       valor: 'C\'\'(40) = \\dfrac{64000}{40^{3}} = 1'},
     altra: {calcul: 'y = \\dfrac{800}{40} = 20', resposta: 'y = 20', text: 'Calcula l\'altre costat: $y = \\frac{800}{x}$.'},
     optim: {calcul: 'C(40) = 20 \\cdot 40 + \\dfrac{32000}{40} = 1600', resposta: 'C = 1600', text: 'Calcula el cost mínim.'},
-    resposta: 'La finca ha de fer [p:$40$ m (els costats perpendiculars al camí) per $20$ m (el costat del camí)], i la tanca costa [q:$1600$ €].',
+    resposta: ['La finca ha de fer $40$ m (els costats perpendiculars al camí) per $20$ m (el costat del camí).',
+      'El cost mínim de la tanca és $1600$ €.'],
   },
   {
     id: 'parabola', nom: 'Rectangle sota una paràbola',
@@ -360,7 +366,8 @@ const PROBLEMES = Object.freeze([
     segona: {tex: '-12x', text: 'Per saber si és un màxim, calcula la segona derivada.', valor: 'A\'\'(2) = -12 \\cdot 2 = -24'},
     altra: {calcul: 'y = 12 - 2^{2} = 8', resposta: 'y = 8', text: 'Calcula l\'altura: $y = 12 - x^2$.'},
     optim: {calcul: 'A(2) = 24 \\cdot 2 - 2 \\cdot 2^{3} = 32', resposta: 'A = 32', text: 'Calcula l\'àrea màxima.'},
-    resposta: 'Els vèrtexs de dalt són a $x = \\pm 2$: el rectangle fa [p:$4$ de base i $8$ d\'altura], i l\'àrea màxima és [q:$32$].',
+    resposta: ['El rectangle fa $4$ de base i $8$ d\'altura (els vèrtexs de dalt són a $x = \\pm 2$).',
+      'L\'àrea màxima és $32$.'],
   },
   {
     id: 'cantonada', nom: 'Tancat en una cantonada',
@@ -404,7 +411,8 @@ const PROBLEMES = Object.freeze([
       text: 'Calcula l\'altre costat: $y = \\frac{8}{x}$. Racionalitza: $\\frac{8}{2\\sqrt{2}} = \\frac{8\\sqrt{2}}{2 \\cdot 2} = 2\\sqrt{2}$.'},
     optim: {calcul: 'C(2\\sqrt{2}) = 5 \\cdot 2\\sqrt{2} + \\dfrac{40}{2\\sqrt{2}} = 20\\sqrt{2}', resposta: 'C = 20\\sqrt{2}',
       text: 'Calcula el cost mínim: $10\\sqrt{2} + \\frac{40}{2\\sqrt{2}} = 10\\sqrt{2} + 10\\sqrt{2} = 20\\sqrt{2}$.'},
-    resposta: 'El tancat ha de ser un quadrat de [p:$2\\sqrt{2} \\approx 2{,}83$ m de costat], i el cost mínim de la tanca és [q:$20\\sqrt{2} \\approx 28{,}28$ €].',
+    resposta: ['El tancat ha de ser un quadrat de $2\\sqrt{2} \\approx 2{,}83$ m de costat.',
+      'El cost mínim de la tanca és $20\\sqrt{2} \\approx 28{,}28$ €.'],
   },
   {
     id: 'canonada', nom: 'Canonada fins a un abeurador',
@@ -446,7 +454,8 @@ const PROBLEMES = Object.freeze([
       valor: 'P\'\'(6) = \\dfrac{320}{(64 + 6^{2}) \\sqrt{64 + 6^{2}}} = \\dfrac{320}{100 \\cdot 10} = \\dfrac{8}{25}'},
     altra: {calcul: 'd = \\sqrt{64 + 6^{2}} = 10', resposta: 'd = 10', text: 'Calcula el tram pel camp: $d = \\sqrt{64 + x^2}$.'},
     optim: {calcul: 'P(6) = 60 - 3 \\cdot 6 + 5\\sqrt{64 + 6^{2}} = 92', resposta: 'P = 92', text: 'Calcula el cost mínim: $60 - 18 + 5 \\cdot 10 = 92$.'},
-    resposta: '$M$ ha de ser [p:a $6$ m de $O$], és a dir, a $14$ m de l\'aixeta: la canonada fa $14$ m arran de la tanca i $10$ m pel camp, i el cost mínim és [q:$92$ €].',
+    resposta: ['$M$ ha de ser a $6$ m de $O$, és a dir, a $14$ m de l\'aixeta: la canonada fa $14$ m arran de la tanca i $10$ m pel camp.',
+      'El cost mínim és $92$ €.'],
   },
   {
     id: 'nedador', nom: 'Nedador fins a la platja',
@@ -491,7 +500,8 @@ const PROBLEMES = Object.freeze([
     altra: {calcul: 'y = \\sqrt{\\left(\\dfrac{9}{4}\\right)^{2} + 9} = \\dfrac{15}{4}', resposta: 'y = \\dfrac{15}{4}', text: 'Calcula el tram nedant: $y = \\sqrt{x^2 + 9}$.'},
     optim: {calcul: 't\\left(\\dfrac{9}{4}\\right) = \\dfrac{5}{4} + \\dfrac{3}{4} = 2', resposta: 't = 2',
       text: 'Calcula el temps mínim: nedant, $\\frac{15}{4} : 3 = \\frac{5}{4}$ h; caminant, $\\left(6 - \\frac{9}{4}\\right) : 5 = \\frac{3}{4}$ h.'},
-    resposta: 'El nedador ha de sortir de l\'aigua [p:a $x = \\frac{9}{4} = 2{,}25$ km de $S$] (neda $\\frac{15}{4} = 3{,}75$ km), i el temps mínim és de [q:$2$ hores].',
+    resposta: ['El nedador ha de sortir de l\'aigua a $x = \\frac{9}{4} = 2{,}25$ km de $S$ (neda $\\frac{15}{4} = 3{,}75$ km).',
+      'El temps mínim és de $2$ hores.'],
   },
 ]);
 
@@ -710,9 +720,10 @@ const titols = p => ({
 // Groc, el que s'optimitza; verd, la condició (i les dades que el David hi vol); lila blavós, les preguntes que demanen els valors de les
 // variables; lila rosat, la que demana el valor òptim (David, 18/11/2026: dos tons de lila). Les respostes porten el color de la seva pregunta.
 const MARQUES = Object.freeze({o: 'objectiu', c: 'condicio', p: 'pregunta', q: 'valor'});
-/** La resposta en català: [p:…] (lila blavós) i [q:…] (lila rosat) marquen què contesta cada pregunta. A la pissarra, amb colors; al text, sense. */
-const respostaPissarra = t => t.replace(/\[(p|q):([^\]]*)\]/g, (_, k, x) => F.frase('', x, MARQUES[k]));
-const respostaText = t => t.replace(/\[(p|q):([^\]]*)\]/g, '$2');
+/** La resposta en català (David, 18/11/2026): dues frases, una per pregunta, cadascuna en una línia i amb un quadradet davant,
+    del color de la seva pregunta (lila blavós, els valors; lila rosat, el valor òptim). Al text del pas, seguides. */
+const respostaPissarra = r => `${F.frase('', '\u00a0', 'quadre-pregunta')}${r[0]}\n${F.frase('', '\u00a0', 'quadre-valor')}${r[1]}`;
+const respostaText = r => r.join(' ');
 
 /**
  * L'enunciat com a fila de text. Les frases [o:…] (funció objectiu) i [c:…]
