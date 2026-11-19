@@ -407,15 +407,15 @@ const PROBLEMES = Object.freeze([
     },
     preguntes: ['Quines són les mides del tancat', 'Quin és el cost mínim de la tanca'],
     v: 'x', w: 'y', f: 'C', maxim: false,
-    funcio: {tex: '5 \\cdot (x + y)', text: 'Escriu la funció objectiu amb dues variables: els dos costats que no toquen les parets, $x$ i $y$. '
-      + 'Només aquests porten tanca, a $5$ €/m: $C = 5 \\cdot (x + y)$.'},
+    funcio: {tex: '5 \\cdot x + 5 \\cdot y', text: 'Escriu la funció objectiu amb dues variables: els dos costats que no toquen les parets, $x$ i $y$. '
+      + 'Només aquests porten tanca, a $5$ €/m: el costat $x$ costa $5 \\cdot x$ € i el costat $y$, $5 \\cdot y$ €. En total, $C = 5 \\cdot x + 5 \\cdot y$.'},
     condicio: [
       {tex: 'x \\cdot y = 8', text: 'Escriu la condició com una igualtat: l\'àrea, $x \\cdot y$, és $8$ m².'},
       {aillada: '\\dfrac{8}{x}', text: 'Aïlla $y$.'},
     ],
-    substitucio: {tex: '5 \\cdot \\left(x + \\dfrac{8}{x}\\right)', text: 'Substitueix $y$ a la funció: ara el cost només depèn de $x$.'},
+    substitucio: {tex: '5 \\cdot x + 5 \\cdot \\dfrac{8}{x}', text: 'Substitueix $y$ a la funció: ara el cost només depèn de $x$.'},
     simplifica: [
-      {tex: '5x + \\dfrac{40}{x}', text: 'Treu el parèntesi.'},
+      {tex: '5x + \\dfrac{40}{x}', text: 'Fes el producte: $5 \\cdot 8 = 40$.'},
       {tex: '\\dfrac{5x^{2} + 40}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
     ],
     domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altre costat també ho és).'},
