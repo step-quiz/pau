@@ -88,7 +88,6 @@ const PROBLEMES = Object.freeze([
       1: 'Llegeix l\'enunciat i localitza:\n- Quina funció volem maximitzar o minimitzar\n- Quina condició o equació relaciona les variables\n- Quantes preguntes ens fan.',
       2: 'La funció objectiu és l\'àrea de l\'hort, i en busquem el màxim.',
       3: 'Sabem que els $40$ m de tanca només tanquen tres costats, perquè la paret fa de quart costat. A partir d\'aquí obtindrem una equació.',
-      8: 'Copia l\'equació on has aïllat $y = 40 - 2x$, perquè la necessitaràs posteriorment.',
       10: 'Desenvolupa l\'expressió, perquè anirà bé quan vulguis derivar.',
       11: 'Troba la funció derivada $A\'(x)$.',
       12: 'Resol l\'equació $A\'(x) = 0$, per trobar els punts crítics.',
@@ -98,7 +97,6 @@ const PROBLEMES = Object.freeze([
       18: 'Calcula la segona derivada $A\'\'(x)$. Per comprovar si realment $x = 10$ és un màxim, hauràs de comprovar que $A\'\'(10) < 0$.',
       20: 'Substitueix el valor trobat de $x$ a l\'equació que ja tenies: $y = 40 - 2x$.',
       19: 'Com que $A\'\'(10) < 0$, sabem que en $x = 10$ hi ha un màxim relatiu. Com que és l\'únic candidat del domini, també és el màxim absolut.',
-      22: 'Hem obtingut tres resultats, que són els valors de $x$, $y$ i $A$. Ara cal redactar la resposta.',
     },
     figura: {dibuix: 'hort', lletres: {x: 7, y: 26}, final: {x: 10, y: 20}, textos: {x: '10', y: '20'}, valor: 'A = 200 m²'},
     lectura: {
@@ -169,7 +167,7 @@ const PROBLEMES = Object.freeze([
     },
     preguntes: ['Quin radi i quina altura ha de tenir la llauna', 'Quin és el volum màxim'],
     v: 'r', w: 'h', f: 'V', maxim: true,
-    funcio: {tex: '\\pi r^{2} h', text: 'Escriu la funció objectiu amb dues variables, el radi $r$ i l\'altura $h$: $V = \\pi r^2 h$. El nombre $\\pi$ és un nombre com qualsevol altre.'},
+    funcio: {tex: '\\pi r^{2} h', text: 'Escriu la funció objectiu: anomena $r$ el radi i $h$ l\'altura. El nombre $\\pi$ és un nombre com qualsevol altre.'},
     condicio: [
       {tex: '\\pi r^{2} + 2\\pi r h = 27\\pi', text: 'Escriu la condició com una igualtat: el fons ($\\pi r^2$) més la paret ($2\\pi r h$) fan $27\\pi$ cm².'},
       {tex: '2\\pi r h = 27\\pi - \\pi r^{2}', text: 'Per aïllar $h$, passa $\\pi r^2$ a l\'altre costat.'},
@@ -378,7 +376,7 @@ const PROBLEMES = Object.freeze([
     preguntes: ['Quines són les mides del rectangle', 'Quina és l\'àrea màxima'],
     v: 'x', w: 'y', f: 'A', maxim: true,
     funcio: {tex: '2x \\cdot y', text: 'Escriu la funció objectiu amb dues variables: els vèrtexs de dalt són $(x, y)$ i $(-x, y)$, amb $x > 0$. '
-      + 'La base fa $2x$ i l\'altura, $y$: $A = 2x \\cdot y$.'},
+      + 'La base fa $2x$ i l\'altura, $y$.'},
     condicio: [
       {aillada: '12 - x^{2}', text: 'Escriu la condició: el vèrtex $(x, y)$ és sobre la paràbola, és a dir, $y = 12 - x^2$.'},
     ],
@@ -797,7 +795,7 @@ function passos(valors) {
   g.afegeix(curt(p.lectura.condicio), {cursor: {clic: frases.condicio}});
   g.files[FILA.enunciat] = lectura(p, ['o', 'c', 'p', 'q']).tex;
   // Senzill (David, 18/11/2026): «Ens fan dues preguntes.», i les dues preguntes, una per línia.
-  g.afegeix(`Ens fan dues preguntes.\n${p.preguntes[0]}.\n${p.preguntes[1]}.`, {cursor: {clic: frases.pregunta}});
+  g.afegeix(`Ens demanen trobar dues coses.\n- ${p.preguntes[0]}.\n- ${p.preguntes[1]}.`, {cursor: {clic: frases.pregunta}});
 
   /* 1. La funció: amb dues variables, la condició, i amb una sola variable. */
   titol(FILA.titol1);
@@ -809,7 +807,10 @@ function passos(valors) {
   }
   g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + (p.funcio.cadena ? K('Oc', p.funcio.cadena) : K('Oe', p.funcio.tex));
   if (p.figura) g.files[FILA.titol1b] = esquema(p);     // l'esquema, gran, a la fila de sota (encara buida)
-  g.afegeix(p.funcio.text, Object.assign({cursor: {arrossega: frases.objectiu, fins: p.funcio.cadena ? 'Oc' : 'Oe'}}, llum(p.funcio.tex)));
+  // Criteri del David (respostes del problema 1, 19/11/2026): segona persona, «equació» en lloc de «condició», i la funció al final.
+  const textFuncio = p.funcio.text.replace(' amb dues variables:', ':').replace(/\s*(Per tant, |En total, )?(L'àrea|El volum|El paper|El cost)?[^.]*\$[A-Za-z] = [^$]*\$\.$/, '')
+    + `\nPer tant, la funció és aquesta $${f}(${v}, ${w}) = ${textual(p.funcio.cadena || p.funcio.tex)}$.`;
+  g.afegeix(textFuncio, Object.assign({cursor: {arrossega: frases.objectiu, fins: p.funcio.cadena ? 'Oc' : 'Oe'}}, llum(p.funcio.tex)));
   if (p.funcio.cadena) {
     g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + K('Oc', p.funcio.cadena) + R('Or', '=') + K('Oe', p.funcio.tex);
     g.afegeix(p.funcio.textCadena);
@@ -821,20 +822,23 @@ function passos(valors) {
       if (p.figura) g.files[FILA.esquema] = esquema(p);   // l'esquema vola, petit, a dalt a la dreta
       titol(FILA.titol1b);
     }
+    const m = /^Escriu la condició com una igualtat: (.*)\.$/.exec(pas.text);
+    const text = m ? `Aprofita la informació «${m[1]}» i escriu una equació.`
+      : /^Aïlla \$\w\$( de la condició)?\.$/.test(pas.text) ? `Aïlla $${w}$ de l'equació.` : pas.text.replace(/la condició/g, 'l\'equació');
     if (pas.aillada) {
       const abans = Boolean(g.files[FILA.condicio]);    // si ja hi havia la condició, es transforma en w = …
       g.files[FILA.condicio] = K('Lw', w) + R('Lq', '=') + K('Lr', pas.aillada);
-      g.afegeix(pas.text, Object.assign({fusiona: abans ? {Lr: ['Ll']} : {}}, cursor));
+      g.afegeix(text, Object.assign({fusiona: abans ? {Lr: ['Ll']} : {}}, cursor));
     } else {
       g.files[FILA.condicio] = K('Ll', pas.tex);
-      g.afegeix(pas.text, cursor);
+      g.afegeix(text, cursor);
     }
   });
   // La condició aïllada es queda a 1b, i se'n fa una còpia a dalt a la dreta, sota l'esquema (David): la tornarem a fer servir al final.
   const aillada = p.condicio[p.condicio.length - 1].aillada;
   const textAillada = `$${w} = ${textual(aillada)}$`;
   g.files[FILA.condicioCostat] = K('Cw', w) + R('Cq', '=') + K('Cr', aillada);
-  g.afegeix(`Copia l'equació on has aïllat ${textAillada}, perquè la necessitaràs posteriorment.`);
+  g.afegeix(`Desa aquest resultat: ${textAillada}, perquè ho necessitaràs posteriorment.`);
   // 1c. La funció d'una sola variable: primer la substitució, i després «= …» simplificada.
   const membre = L => F.membreEsquerre(L, f, v, 0);
   titol(FILA.titol1c);
@@ -922,7 +926,7 @@ function passos(valors) {
   g.files[FILA.resposta] = amb('Rx', `${v} = ${eq.candidat}`, 'pregunta') + ',\\ ' + amb('Rw', p.altra.resposta, 'pregunta') + ',\\ '
     + amb('Rf', p.optim.resposta, 'valor');
   g.classes[FILA.resposta] = 'final';
-  g.afegeix(`Hem obtingut tres resultats, que són els valors de $${v}$, $${w}$ i $${f}$. Ara cal redactar la resposta.`);
+  g.afegeix(`Has obtingut tres resultats, que són els valors de $${v}$, $${w}$ i $${f}$.\nAra cal redactar la resposta.`);
 
   /* L'últim pas (David): a la pissarra només queden l'enunciat, l'esquema final (gran, a escala i amb les mides òptimes), la fila
      de la solució i la resposta en català, amb els colors de les preguntes. La resta s'esborra, i la solució puja sota l'esquema. */
@@ -938,7 +942,7 @@ function passos(valors) {
   g.classes[filaSolucio] = 'final';
   g.files[filaFrase] = F.filaText(respostaPissarra(p.resposta));
   g.classes[filaFrase] = 'resposta-text';
-  g.afegeix(`Resposta: ${respostaText(p.resposta)}`);
+  g.afegeix('En la teva resposta, t\'assegures que respons totes les preguntes i que fas servir les unitats correctament.');
   // Textos propis d'un problema (frases: número del pas → text), si el David n'ha reescrit.
   if (!p.frases) return g.passos;
   return g.passos.map((pas, i) => (p.frases[i + 1] ? Object.freeze(Object.assign({}, pas, {text: p.frases[i + 1]})) : pas));
