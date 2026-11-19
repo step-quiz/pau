@@ -216,7 +216,7 @@ const PROBLEMES = Object.freeze([
     substitucio: {tex: '20x^{2} + 40x \\cdot \\dfrac{8}{x^{2}}', text: 'Substitueix $h$ a la funció: ara el cost només depèn de $x$.'},
     simplifica: [
       {tex: '20x^{2} + \\dfrac{320}{x}', text: 'Simplifica una $x$.'},
-      {tex: '\\dfrac{20x^{3} + 320}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
+      {tex: '\\dfrac{20x^{3} + 320}{x}', text: 'Fes denominador comú: així posteriorment la derivaràs com un quocient.'},
     ],
     domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altura també ho és).'},
     derivada: {quocient: '\\dfrac{60x^{2} \\cdot x - (20x^{3} + 320) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 20x^3 + 320$ i $v = x$.',
@@ -298,7 +298,7 @@ const PROBLEMES = Object.freeze([
     simplifica: [
       {tex: '96 + 6x + \\dfrac{384}{x} + 24', text: 'Fes el producte: cada terme del primer parèntesi per cada terme del segon.'},
       {tex: '6x + 120 + \\dfrac{384}{x}', text: 'Suma els nombres: $96 + 24 = 120$.'},
-      {tex: '\\dfrac{6x^{2} + 120x + 384}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
+      {tex: '\\dfrac{6x^{2} + 120x + 384}{x}', text: 'Fes denominador comú: així posteriorment la derivaràs com un quocient.'},
     ],
     domini: {tex: 'x > 0', text: 'El domini: l\'amplada del text ha de ser positiva, $x > 0$ (i llavors l\'altura també ho és).'},
     derivada: {quocient: '\\dfrac{(12x + 120) \\cdot x - (6x^{2} + 120x + 384) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 6x^2 + 120x + 384$ i $v = x$.',
@@ -341,7 +341,7 @@ const PROBLEMES = Object.freeze([
     substitucio: {tex: '20x + 40 \\cdot \\dfrac{800}{x}', text: 'Substitueix $y$ a la funció: ara el cost només depèn de $x$.'},
     simplifica: [
       {tex: '20x + \\dfrac{32000}{x}', text: 'Fes el producte: $40 \\cdot 800 = 32000$.'},
-      {tex: '\\dfrac{20x^{2} + 32000}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
+      {tex: '\\dfrac{20x^{2} + 32000}{x}', text: 'Fes denominador comú: així posteriorment la derivaràs com un quocient.'},
     ],
     domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altre costat també ho és).'},
     derivada: {quocient: '\\dfrac{40x \\cdot x - (20x^{2} + 32000) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 20x^2 + 32000$ i $v = x$.',
