@@ -627,8 +627,11 @@ const ESQUEMES = {
     t += lin([X0, Y0], [X0, cy + R], 'td') + lin([X0 + w, Y0], [X0 + w, cy + R], 'td');
     const fi = [X0 + w + R * 0.707, cy - R * 0.707];
     t += lin([X0 + w, cy], fi, 'tr') + `<circle cx="${nombre(X0 + w)}" cy="${cy}" r="2" fill="currentColor"/>`;
-    t += mida(et, 'r', fi[0] + 4, fi[1] - 12, 'middle');
-    t += mida(et, 'x', 130, Y0 - 8) + mida(et, 'r', 130, cy + 5, 'middle', 2);
+    // «r»: just a sota del radi, dins del semicercle (al mig del radi, desplaçada cap avall).
+    const mr = [X0 + w + R * 0.354, cy - R * 0.354];
+    t += mida(et, 'r', mr[0] + 5, mr[1] + 14, 'middle');
+    // «2r»: al costat del costat vertical esquerre del rectangle (a dins, enganxat a la línia discontínua).
+    t += mida(et, 'x', 130, Y0 - 8) + mida(et, 'r', X0 + 6, cy + 5, 'start', 2);
     if (et.final) t += paraula(et.valor, 130, cy + R + 22);
     return t;
   },
