@@ -1137,7 +1137,8 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
      no es compta si comença a les vores de la pantalla (allà els navegadors posen el gest de «enrere»), sobre un
      camp de dades, amb la pantalla ampliada amb dos dits, ni si el dit arrossega una fila ampla que encara es pot
      desplaçar cap aquell costat (taula de signes, pissarra ampla): llavors el gest és per desplaçar-la. */
-  const SWIPE = {minim: 50, proporcio: 1.5, duradaMax: 900, vora: 24};
+  // Llindars tolerants per a un dit de veritat (no funcionava al mòbil del David, 19/11/2026).
+  const SWIPE = {minim: 40, proporcio: 1, duradaMax: 1000, vora: 12};
   let tacte = null;
   /** Quins desplaçaments horitzontals admet l'element (o un dels seus pares) que hi ha sota el dit. */
   function desplacaments(el) {
@@ -1156,20 +1157,30 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
     if (e.touches.length !== 1 || zoom > 1.01 || t.closest('input, select, textarea, [role="spinbutton"]')) { tacte = null; return; }
     const d = e.touches[0];
     if (d.clientX < SWIPE.vora || d.clientX > innerWidth - SWIPE.vora) { tacte = null; return; }
-    tacte = {x: d.clientX, y: d.clientY, quan: e.timeStamp, ...desplacaments(t)};
-  }, {passive: true});
-  document.addEventListener('touchmove', e => { if (e.touches.length > 1) tacte = null; }, {passive: true});
-  document.addEventListener('touchcancel', () => { tacte = null; }, {passive: true});
-  document.addEventListener('touchend', e => {
+    tacte = {x: d.clientX, y: d.clientY, ux: d.clientX, uy: d.clientY, quan: e.timeStamp, ...desplacaments(t)};
+  }, {passive: true, capture: true});
+  // L'última posició del dit: si el navegador es queda el gest (touchcancel en lloc de touchend), es decideix amb aquesta.
+  document.addEventListener('touchmove', e => {
+    if (!tacte) return;
+    if (e.touches.length > 1) { tacte = null; return; }
+    tacte.ux = e.touches[0].clientX;
+    tacte.uy = e.touches[0].clientY;
+  }, {passive: true, capture: true});
+  function decideix(x, y, quan) {
     const g = tacte;
     tacte = null;
-    if (!g || e.touches.length || e.changedTouches.length !== 1) return;
-    const d = e.changedTouches[0];
-    const dx = d.clientX - g.x, dy = d.clientY - g.y;
-    if (Math.abs(dx) < SWIPE.minim || Math.abs(dx) < SWIPE.proporcio * Math.abs(dy) || e.timeStamp - g.quan > SWIPE.duradaMax) return;
+    if (!g) return;
+    const dx = x - g.x, dy = y - g.y;
+    if (Math.abs(dx) < SWIPE.minim || Math.abs(dx) < SWIPE.proporcio * Math.abs(dy) || quan - g.quan > SWIPE.duradaMax) return;
     if (dx < 0) { if (!g.dreta) vesAlSeguent(); }      // de dreta a esquerra: pas següent
     else if (!g.esquerra) vesALAnterior();             // d'esquerra a dreta: pas anterior
-  }, {passive: true});
+  }
+  document.addEventListener('touchcancel', e => { if (tacte) decideix(tacte.ux, tacte.uy, e.timeStamp); }, {passive: true, capture: true});
+  document.addEventListener('touchend', e => {
+    if (!tacte || e.touches.length || e.changedTouches.length !== 1) { tacte = null; return; }
+    const d = e.changedTouches[0];
+    decideix(d.clientX, d.clientY, e.timeStamp);
+  }, {passive: true, capture: true});
 
   /* Si canvia l'amplada, o quan acaben de carregar les lletres, es torna a ajustar la pissarra. */
   let rellotgeMida = null;
