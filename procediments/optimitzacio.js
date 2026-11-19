@@ -787,13 +787,14 @@ function passos(valors) {
 
   /* 0. La lectura de l'enunciat: què s'optimitza, quina condició lliga les variables i quantes preguntes hi ha. */
   g.files[FILA.enunciat] = lectura(p, []).tex;
-  g.afegeix('Llegeix l\'enunciat. Abans de calcular res, cal trobar-hi tres coses: què volem fer màxim o mínim '
-    + '(la funció objectiu), quina condició lliga les variables, i quantes preguntes ens fan.');
+  // Textos curts, amb el criteri del David per a l'hort (19/11/2026).
+  g.afegeix('Llegeix l\'enunciat i localitza:\n- Quina funció volem maximitzar o minimitzar\n- Quina condició o equació relaciona les variables\n- Quantes preguntes ens fan.');
+  const curt = t => { t = t.replace(/^Què (volem optimitzar|lliga les mides|lliga els dos nombres)\? («[^»]*»: )?/, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
   const frases = lectura(p, ['o']);
   g.files[FILA.enunciat] = frases.tex;
-  g.afegeix(p.lectura.objectiu + ' (Ho marquem en groc.)', {cursor: {clic: frases.objectiu}});
+  g.afegeix(curt(p.lectura.objectiu), {cursor: {clic: frases.objectiu}});
   g.files[FILA.enunciat] = lectura(p, ['o', 'c']).tex;
-  g.afegeix(p.lectura.condicio + ' (Ho marquem en verd. A les pautes de la PAU, la condició també es diu «lligadura».)', {cursor: {clic: frases.condicio}});
+  g.afegeix(curt(p.lectura.condicio), {cursor: {clic: frases.condicio}});
   g.files[FILA.enunciat] = lectura(p, ['o', 'c', 'p', 'q']).tex;
   // Senzill (David, 18/11/2026): «Ens fan dues preguntes.», i les dues preguntes, una per línia.
   g.afegeix(`Ens fan dues preguntes.\n${p.preguntes[0]}.\n${p.preguntes[1]}.`, {cursor: {clic: frases.pregunta}});
@@ -833,7 +834,7 @@ function passos(valors) {
   const aillada = p.condicio[p.condicio.length - 1].aillada;
   const textAillada = `$${w} = ${textual(aillada)}$`;
   g.files[FILA.condicioCostat] = K('Cw', w) + R('Cq', '=') + K('Cr', aillada);
-  g.afegeix(`Copia la condició aïllada, ${textAillada}, a dalt a la dreta, sota l'esquema: així la tindràs a la vista fins al final.`);
+  g.afegeix(`Copia l'equació on has aïllat ${textAillada}, perquè la necessitaràs posteriorment.`);
   // 1c. La funció d'una sola variable: primer la substitució, i després «= …» simplificada.
   const membre = L => F.membreEsquerre(L, f, v, 0);
   titol(FILA.titol1c);
@@ -846,8 +847,7 @@ function passos(valors) {
     g.afegeix(pas.text);
   }
   // El domini: només a l'explicació, no a la pissarra (David). Sense canvis a la pissarra no hi ha pas nou: s'afegeix al text de l'últim.
-  const textDomini = p.domini.text.includes(`$${p.domini.tex}$`) ? p.domini.text : `${p.domini.text} Per tant, $${p.domini.tex}$.`;
-  g.completa(` ${textDomini}`);
+  // El domini ja no és als textos (David, 19/11/2026).
 
   /* 2. Els punts crítics: la derivada, l'equació f'(v) = 0 i les seves solucions. */
   titol(FILA.titol2);
@@ -860,7 +860,7 @@ function passos(valors) {
   }
   const eq = p.equacio;
   g.files[FILA.equacio0] = F.membreEsquerre('Z', f, v, 1) + K('Zz', '0');   // es queda escrita (David)
-  g.afegeix(`Els punts crítics (o singulars, o candidats, com en diuen les pautes de la PAU) són les solucions de l'equació $${f}'(${v}) = 0$.`);
+  g.afegeix(`Resol l'equació $${f}'(${v}) = 0$, per trobar els punts crítics.`);
   const manual = eq.manual || [];
   manual.forEach((pas, i) => {
     if (i === 0) {
@@ -892,12 +892,14 @@ function passos(valors) {
     g.files[FILA.equacio] += ' \\;\\Rightarrow\\; ' + g.files[FILA.treball];
     g.files[FILA.treball] = '';
   }
-  g.afegeix(`L'únic punt crític dins del domini és $${v} = ${textual(eq.candidat)}$. El deixem escrit al costat de l'equació, i esborrem els càlculs.`, llum(v));
+  g.afegeix(`L'únic punt crític és $${v} = ${textual(eq.candidat)}$.`, llum(v));
 
   /* 3. Màxim o mínim: la segona derivada. */
   titol(FILA.titol3);
   g.files[FILA.segona] = F.membreEsquerre('H', f, v, 2) + K('He', p.segona.quocient || p.segona.tex);
-  g.afegeix(p.segona.text);
+  const k = textual(eq.candidat), extrem = p.maxim ? 'màxim' : 'mínim';
+  g.afegeix(`Calcula la segona derivada $${f}''(${v})$${p.segona.quocient ? ', amb la regla del quocient' : ''}. Per comprovar si realment $${v} = ${k}$ és un ${extrem}, `
+    + `hauràs de comprovar que $${f}''(${k}) ${p.maxim ? '<' : '>'} 0$.`);
   if (p.segona.quocient) {
     g.files[FILA.segona] = F.membreEsquerre('H', f, v, 2) + K('He', p.segona.tex);
     g.afegeix(p.segona.simplifica);
@@ -907,20 +909,20 @@ function passos(valors) {
   // és l'extrem absolut.
   const absolut = `Com que és l'únic candidat del domini, és el ${p.maxim ? 'màxim' : 'mínim'} absolut.`;
   g.files[FILA.extrem] = F.filaText(`En $${v} = ${textual(eq.candidat)}$ hi ha un ${p.maxim ? 'màxim' : 'mínim'} relatiu. ${absolut}`);
-  g.afegeix(`Com que $${textual(p.segona.valor.split(' = ')[0])} ${p.maxim ? '<' : '>'} 0$, en $${v} = ${textual(eq.candidat)}$ hi ha un `
-    + (p.maxim ? 'màxim relatiu (la gràfica té forma de ∩). ' : 'mínim relatiu (la gràfica té forma de ∪). ') + absolut, {cursor: {clic: clauCandidat}});
+  g.afegeix(`Com que $${textual(p.segona.valor.split(' = ')[0])} ${p.maxim ? '<' : '>'} 0$, sabem que en $${v} = ${k}$ hi ha un ${extrem} relatiu. `
+    + `Com que és l'únic candidat del domini, també és el ${extrem} absolut.`, {cursor: {clic: clauCandidat}});
 
   /* 4. La resposta: l'altra variable (amb la condició aïllada de dalt a la dreta), el valor òptim i la resposta, amb els colors de les preguntes. */
   titol(FILA.titol4);
   g.files[FILA.altra] = K('We', p.altra.calcul);
-  g.afegeix(`${p.altra.text} (És la condició aïllada de dalt a la dreta, ${textAillada}.)`, Object.assign({cursor: {arrossega: 'Cr', fins: 'We'}}, llum(w)));
+  g.afegeix(`Substitueix el valor trobat de $${v}$ a l'equació que ja tenies: ${textAillada}.`, Object.assign({cursor: {arrossega: 'Cr', fins: 'We'}}, llum(w)));
   g.files[FILA.optim] = K('Fe', p.optim.calcul);
   g.afegeix(p.optim.text);
   const amb = (k, tex, marca) => K(k, tex).replace(`{k=${k}}`, `{k=${k},marca=${marca}}`);
   g.files[FILA.resposta] = amb('Rx', `${v} = ${eq.candidat}`, 'pregunta') + ',\\ ' + amb('Rw', p.altra.resposta, 'pregunta') + ',\\ '
     + amb('Rf', p.optim.resposta, 'valor');
   g.classes[FILA.resposta] = 'final';
-  g.afegeix(`Porta-ho a la resposta: en lila blavós, les mides (la primera pregunta); en lila rosat, el valor ${p.maxim ? 'màxim' : 'mínim'} (l'última).`);
+  g.afegeix(`Hem obtingut tres resultats, que són els valors de $${v}$, $${w}$ i $${f}$. Ara cal redactar la resposta.`);
 
   /* L'últim pas (David): a la pissarra només queden l'enunciat, l'esquema final (gran, a escala i amb les mides òptimes), la fila
      de la solució i la resposta en català, amb els colors de les preguntes. La resta s'esborra, i la solució puja sota l'esquema. */
