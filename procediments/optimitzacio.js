@@ -176,7 +176,7 @@ const PROBLEMES = Object.freeze([
     substitucio: {tex: '\\pi r^{2} \\cdot \\dfrac{27 - r^{2}}{2r}', text: 'Substitueix $h$ a la funció: ara el volum només depèn de $r$.'},
     simplifica: [{tex: '\\dfrac{27\\pi r - \\pi r^{3}}{2}', text: 'Simplifica una $r$ i fes el producte.'}],
     domini: {tex: '0 < r < \\sqrt{27}', text: 'El domini: $r > 0$, i l\'altura també ha de ser positiva: $27 - r^2 > 0$, és a dir, $r < \\sqrt{27}$.'},
-    derivada: {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2}', text: 'Deriva la funció: el $\\frac{1}{2}$ i el $\\pi$ es mantenen.'},
+    derivada: {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2}', text: 'Deriva la funció: recorda que $\\frac{1}{2}$ i $\\pi$ són constants numèriques.'},
     equacio: {
       manual: [
         {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2} = 0', text: 'Substitueix $V\'(r)$ per la seva expressió.'},
