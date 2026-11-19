@@ -67,6 +67,9 @@ const {clau: K, rel: R} = F;
                      substituir f'(v)); candidat: el valor (TeX) del domini; descarta: per què les
                      altres solucions no serveixen (es tatxen)
      segona {tex, text, valor}  f''(v) i el càlcul «f''(candidat) = …»
+             amb la regla del quocient: {quocient, tex, simplifica, text, valor} (es simplifica i després se substitueix), o bé
+             {quocient, substitueix, text, valor}: sense «tex» ni «simplifica», no es manipula l'expressió; se substitueix
+             directament el candidat a f''(v) (substitueix és el text d'aquest pas), perquè només cal el signe de f''(candidat)
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
      frases                    (opcional) textos propis dels passos: número del pas → text (el David els ha reescrit)
@@ -478,9 +481,9 @@ const PROBLEMES = Object.freeze([
     },
     segona: {quocient: '\\dfrac{5\\sqrt{64 + x^{2}} - 5x \\cdot \\frac{x}{\\sqrt{64 + x^{2}}}}{64 + x^{2}}',
       text: 'Per saber si és un mínim, calcula la segona derivada: el $-3$ desapareix, i $\\frac{5x}{\\sqrt{64 + x^2}}$ es deriva amb la regla del quocient.',
-      tex: '\\dfrac{320}{(64 + x^{2}) \\sqrt{64 + x^{2}}}',
-      simplifica: 'Simplifica: multiplica el numerador i el denominador per $\\sqrt{64 + x^2}$. El numerador queda $5(64 + x^2) - 5x^2 = 320$.',
-      valor: 'P\'\'(6) = \\dfrac{320}{(64 + 6^{2}) \\sqrt{64 + 6^{2}}} = \\dfrac{320}{100 \\cdot 10} = \\dfrac{8}{25}'},
+      substitueix: 'Substitueix $x = 6$ a la segona derivada, sense simplificar-la: $\\sqrt{64 + 6^2} = \\sqrt{100} = 10$. '
+        + 'El numerador és $5 \\cdot 10 - 5 \\cdot 6 \\cdot \\frac{6}{10} = 50 - 18 = 32$ i el denominador, $64 + 6^2 = 100$. Surt $\\frac{32}{100} = \\frac{8}{25}$.',
+      valor: 'P\'\'(6) = \\dfrac{5\\sqrt{64 + 6^{2}} - 5 \\cdot 6 \\cdot \\frac{6}{\\sqrt{64 + 6^{2}}}}{64 + 6^{2}} = \\dfrac{50 - 18}{100} = \\dfrac{8}{25}'},
     altra: {calcul: 'd = \\sqrt{64 + 6^{2}} = 10', resposta: 'd = 10', text: 'Calcula el tram pel camp: $d = \\sqrt{64 + x^2}$.'},
     optim: {calcul: 'P(6) = 60 - 3 \\cdot 6 + 5\\sqrt{64 + 6^{2}} = 92', resposta: 'P = 92', text: 'Calcula el cost mínim: $60 - 18 + 5 \\cdot 10 = 92$.'},
     resposta: ['$M$ ha de ser a $6$ m de $O$, és a dir, a $14$ m de l\'aixeta: la canonada fa $14$ m arran de la tanca i $10$ m pel camp.',
@@ -524,9 +527,10 @@ const PROBLEMES = Object.freeze([
     },
     segona: {quocient: '\\dfrac{3\\sqrt{x^{2} + 9} - x \\cdot \\frac{3x}{\\sqrt{x^{2} + 9}}}{9 \\cdot (x^{2} + 9)}',
       text: 'Per saber si és un mínim, calcula la segona derivada: el $-\\frac{1}{5}$ desapareix, i $\\frac{x}{3\\sqrt{x^2 + 9}}$ es deriva amb la regla del quocient.',
-      tex: '\\dfrac{3}{(x^{2} + 9)\\sqrt{x^{2} + 9}}',
-      simplifica: 'Simplifica: multiplica el numerador i el denominador per $\\sqrt{x^2 + 9}$. El numerador queda $3(x^2 + 9) - 3x^2 = 27$, i $\\frac{27}{9} = 3$.',
-      valor: 't\'\'\\left(\\dfrac{9}{4}\\right) = \\dfrac{3}{\\left(\\frac{81}{16} + 9\\right)\\sqrt{\\frac{81}{16} + 9}} = \\dfrac{3}{\\frac{225}{16} \\cdot \\frac{15}{4}} = \\dfrac{64}{1125}'},
+      substitueix: 'Substitueix $x = \\frac{9}{4}$ a la segona derivada, sense simplificar-la: $x^2 + 9 = \\frac{81}{16} + 9 = \\frac{225}{16}$ i $\\sqrt{x^2 + 9} = \\frac{15}{4}$. '
+        + 'El numerador és $3 \\cdot \\frac{15}{4} - \\frac{9}{4} \\cdot \\frac{3 \\cdot \\frac{9}{4}}{\\frac{15}{4}} = \\frac{45}{4} - \\frac{81}{20} = \\frac{36}{5}$ i el denominador, $9 \\cdot \\frac{225}{16} = \\frac{2025}{16}$. '
+        + 'Surt $\\frac{36}{5} : \\frac{2025}{16} = \\frac{64}{1125}$.',
+      valor: 't\'\'\\left(\\dfrac{9}{4}\\right) = \\dfrac{3 \\cdot \\frac{15}{4} - \\frac{9}{4} \\cdot \\frac{3 \\cdot \\frac{9}{4}}{\\frac{15}{4}}}{9 \\cdot \\frac{225}{16}} = \\dfrac{\\frac{36}{5}}{\\frac{2025}{16}} = \\dfrac{64}{1125}'},
     altra: {calcul: 'y = \\sqrt{\\left(\\dfrac{9}{4}\\right)^{2} + 9} = \\dfrac{15}{4}', resposta: 'y = \\dfrac{15}{4}', text: 'Calcula el tram nedant: $y = \\sqrt{x^2 + 9}$.'},
     optim: {calcul: 't\\left(\\dfrac{9}{4}\\right) = \\dfrac{5}{4} + \\dfrac{3}{4} = 2', resposta: 't = 2',
       text: 'Calcula el temps mínim: nedant, $\\frac{15}{4} : 3 = \\frac{5}{4}$ h; caminant, $\\left(6 - \\frac{9}{4}\\right) : 5 = \\frac{3}{4}$ h.'},
@@ -915,13 +919,17 @@ function passos(valors) {
   titol(FILA.titol3);
   g.files[FILA.segona] = F.membreEsquerre('H', f, v, 2) + K('He', p.segona.quocient || p.segona.tex);
   const k = textual(eq.candidat), extrem = p.maxim ? 'màxim' : 'mínim';
+  // Si la segona derivada té arrels (quocient sense «simplifica»), no es manipula: només cal el signe de f''(k), i es troba substituint.
+  const senseSimplificar = p.segona.quocient && !p.segona.simplifica;
   g.afegeix(`Calcula la segona derivada $${f}''(${v})$${p.segona.quocient ? ', amb la regla del quocient' : ''}. Per comprovar si realment $${v} = ${k}$ és un ${extrem}, `
-    + `hauràs de comprovar que $${f}''(${k}) ${p.maxim ? '<' : '>'} 0$.`);
-  if (p.segona.quocient) {
+    + `hauràs de comprovar que $${f}''(${k}) ${p.maxim ? '<' : '>'} 0$.`
+    + (senseSimplificar ? ` No cal que la simplifiquis: només cal saber el signe de $${f}''(${k})$, i el trobaràs substituint directament.` : ''));
+  if (p.segona.quocient && !senseSimplificar) {
     g.files[FILA.segona] = F.membreEsquerre('H', f, v, 2) + K('He', p.segona.tex);
     g.afegeix(p.segona.simplifica);
   }
   g.files[FILA.valorSegona] = K('Se', p.segona.valor) + R('Sw', p.maxim ? '<' : '>') + K('Sz', '0');
+  if (senseSimplificar) g.afegeix(p.segona.substitueix);
   // La conclusió, també a la pissarra (David): «En x = k hi ha un màxim (mínim) relatiu», i, com que és l'únic candidat del domini,
   // és l'extrem absolut.
   const absolut = `Com que és l'únic candidat del domini, és el ${p.maxim ? 'màxim' : 'mínim'} absolut.`;
