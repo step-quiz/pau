@@ -881,8 +881,8 @@ function creaReproductor(r, pissarra, cursor, temps) {
     vesAInici();
   }
 
-  /** Un pas enrere (del pas 1, al pas 0). */
-  const anterior = () => (!inici && idx === 0 ? vesAInici() : salta(idx - 1));
+  /** Un pas enrere (del pas 1, al pas 0). Al pas 0 no hi ha res abans: no fa res (amb salta(-1) saltava al pas 1). */
+  const anterior = () => (inici ? undefined : idx === 0 ? vesAInici() : salta(idx - 1));
 
   /** Torna a dibuixar el pas actual (p. ex. si canvia la mida de la lletra). */
   function redibuixa() {
@@ -1111,6 +1111,9 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
 
   r.velocitat.addEventListener('change', () => { velocitat = parseFloat(r.velocitat.value) || 1; });
 
+  const vesAlSeguent = () => { reproductor.atura(); reproductor.seguent(); };
+  const vesALAnterior = () => reproductor.anterior();
+
   /* Teclat: espai = reprodueix o atura; fletxes ← → = pas anterior o següent. */
   document.addEventListener('keydown', e => {
     if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
@@ -1122,13 +1125,51 @@ function inicia(proc, contenidor = document.getElementById('procediment')) {
       reproductor.reprodueix();
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
-      reproductor.atura();
-      reproductor.seguent();
+      vesAlSeguent();
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      reproductor.anterior();
+      vesALAnterior();
     }
   });
+
+  /* Pantalla tàctil: un «swipe» amb un dit de dreta a esquerra = pas següent; d'esquerra a dreta = pas anterior
+     (com les fletxes → i ← del teclat). Només es compta un gest clarament horitzontal, prou llarg i ràpid;
+     no es compta si comença a les vores de la pantalla (allà els navegadors posen el gest de «enrere»), sobre un
+     camp de dades, amb la pantalla ampliada amb dos dits, ni si el dit arrossega una fila ampla que encara es pot
+     desplaçar cap aquell costat (taula de signes, pissarra ampla): llavors el gest és per desplaçar-la. */
+  const SWIPE = {minim: 50, proporcio: 1.5, duradaMax: 900, vora: 24};
+  let tacte = null;
+  /** Quins desplaçaments horitzontals admet l'element (o un dels seus pares) que hi ha sota el dit. */
+  function desplacaments(el) {
+    const r = {dreta: false, esquerra: false};       // dreta: el contingut encara pot anar cap a l'esquerra (dit de dreta a esquerra)
+    for (let e = el; e && e !== document.documentElement; e = e.parentElement) {
+      if (e.scrollWidth <= e.clientWidth + 1) continue;
+      if (!/^(auto|scroll)$/.test(getComputedStyle(e).overflowX)) continue;
+      if (e.scrollLeft + e.clientWidth < e.scrollWidth - 1) r.dreta = true;
+      if (e.scrollLeft > 0) r.esquerra = true;
+    }
+    return r;
+  }
+  document.addEventListener('touchstart', e => {
+    const t = e.target instanceof Element ? e.target : document.body;
+    const zoom = window.visualViewport ? window.visualViewport.scale : 1;
+    if (e.touches.length !== 1 || zoom > 1.01 || t.closest('input, select, textarea, [role="spinbutton"]')) { tacte = null; return; }
+    const d = e.touches[0];
+    if (d.clientX < SWIPE.vora || d.clientX > innerWidth - SWIPE.vora) { tacte = null; return; }
+    tacte = {x: d.clientX, y: d.clientY, quan: e.timeStamp, ...desplacaments(t)};
+  }, {passive: true});
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1) tacte = null; }, {passive: true});
+  document.addEventListener('touchcancel', () => { tacte = null; }, {passive: true});
+  document.addEventListener('touchend', e => {
+    const g = tacte;
+    tacte = null;
+    if (!g || e.touches.length || e.changedTouches.length !== 1) return;
+    const d = e.changedTouches[0];
+    const dx = d.clientX - g.x, dy = d.clientY - g.y;
+    if (Math.abs(dx) < SWIPE.minim || Math.abs(dx) < SWIPE.proporcio * Math.abs(dy) || e.timeStamp - g.quan > SWIPE.duradaMax) return;
+    if (dx < 0) { if (!g.dreta) vesAlSeguent(); }      // de dreta a esquerra: pas següent
+    else if (!g.esquerra) vesALAnterior();             // d'esquerra a dreta: pas anterior
+  }, {passive: true});
 
   /* Si canvia l'amplada, o quan acaben de carregar les lletres, es torna a ajustar la pissarra. */
   let rellotgeMida = null;
