@@ -983,7 +983,7 @@ arrel.Optimitzacio = Object.freeze({
   perDefecte: FIXOS.perDefecte,
   exemples: FIXOS.exemples,
   titolEditor: 'Tria un problema',
-  notaEditor: 'Tots es resolen amb la mateixa tècnica: llegir l\'enunciat (què s\'optimitza i quina condició hi ha), funció, condició, una sola variable, domini, derivada, segona derivada i resposta.',
+  notaEditor: 'Tots es resolen amb la mateixa tècnica.',
   editor: [],
   problemes: PROBLEMES,
   FILA,
