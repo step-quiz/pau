@@ -712,7 +712,7 @@ const ESQUEMES = {
   },
   nedador(m, et) {
     const s = 33, X = u => 30 + u * s, Yp = 34, S = [X(0), Yp], A = [X(6), Yp], P = [X(m.x), Yp], N = [X(0), Yp + 3 * s];
-    let t = lin([16, Yp], [246, Yp], 'tr') + paraula('platja', 244, Yp + 14, 'end');
+    let t = lin([16, Yp], [246, Yp], 'tr');
     t += lin(S, N, 'co') + `<path class="tr" d="M${X(0) + 8} ${Yp} V${Yp + 8} H${X(0)}"/>`;
     t += lin(N, P, 'obl') + lin(P, A, 'obl');
     for (const [q, nom, dx, dy] of [[S, 'S', -8, -6], [P, 'P', 0, -8], [A, 'A', 0, -8], [N, 'N', -10, 4]]) {
@@ -721,6 +721,9 @@ const ESQUEMES = {
     t += paraula('3', X(0) - 9, Yp + 54, 'end');
     t += mida(et, 'x', X(m.x / 2), Yp + 16) + mida(et, 'y', (N[0] + P[0]) / 2 + 9, (N[1] + P[1]) / 2 + 8, 'start');
     t += `<path class="td" d="M${X(0)} ${Yp - 20} H${X(6)}"/>` + paraula('6', X(3), Yp - 24);
+    // El tram PA (el taronja horitzontal): «6 − x», centrat sota el segment (com la «x» de SP); a l'esquema final, el valor (3,75).
+    t += `<text class=\"en\" x=\"${nombre((P[0] + A[0]) / 2)}\" y=\"${Yp + 16}\" text-anchor=\"middle\">`
+      + (et.final ? String(6 - m.x).replace('.', ',') : `<tspan>6 − </tspan><tspan class=\"et\" data-l=\"x\">x</tspan>`) + '</text>';
     if (et.final) t += paraula(et.valor, 196, 120);
     return t;
   },
