@@ -692,7 +692,7 @@ const ESQUEMES = {
   },
   canonada(m, et) {
     const s = 10, X = u => 30 + u * s, Yt = 120, B = [X(0), Yt - 8 * s], M = [X(m.x), Yt];
-    let t = lin([16, Yt], [246, Yt], 'tr') + paraula('tanca', 244, Yt - 6, 'end');
+    let t = lin([16, Yt], [246, Yt], 'tr');
     t += lin([X(0), Yt], B, 'co') + `<path class="tr" d="M${X(0) + 8} ${Yt} V${Yt - 8} H${X(0)}"/>`;
     t += lin([X(20), Yt], M, 'obl') + lin(M, B, 'obl');
     for (const [q, nom, dx, dy] of [[B, 'B', -10, 4], [[X(0), Yt], 'O', -4, 16], [M, 'M', 0, 16], [[X(20), Yt], 'A', 0, 16]]) {
@@ -700,6 +700,8 @@ const ESQUEMES = {
     }
     t += paraula('8', X(0) - 9, Yt - 36, 'end');
     t += mida(et, 'x', X(m.x / 2), Yt + 16) + mida(et, 'd', (M[0] + B[0]) / 2 + 9, (M[1] + B[1]) / 2 - 2, 'start');
+    t += `<text class="en" x="${nombre((M[0] + X(20)) / 2)}" y="${Yt - 8}" text-anchor="middle">`
+      + (et.final ? nombre(20 - m.x) : `<tspan>20 − </tspan><tspan class="et" data-l="x">x</tspan>`) + '</text>';
     t += `<path class="td" d="M${X(0)} ${Yt + 26} H${X(20)}"/>` + paraula('20', X(10), Yt + 40);
     if (et.final) t += paraula(et.valor, 196, 40);
     return t;
