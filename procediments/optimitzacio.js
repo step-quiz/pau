@@ -180,7 +180,7 @@ const PROBLEMES = Object.freeze([
     equacio: {
       manual: [
         {tex: '\\dfrac{27\\pi - 3\\pi r^{2}}{2} = 0', text: 'Substitueix $V\'(r)$ per la seva expressió.'},
-        {tex: '27\\pi - 3\\pi r^{2} = 0', text: 'Una fracció val $0$ quan el numerador és $0$.'},
+        {tex: '27\\pi - 3\\pi r^{2} = 0', text: 'Una fracció val $0$ només si el numerador és $0$.'},
         {tex: '3\\pi r^{2} = 27\\pi', text: 'Passa el $-3\\pi r^2$ a l\'altre costat.'},
         {tex: 'r^{2} = 9', text: 'Divideix els dos membres per $3\\pi$ per aïllar $r^2$.'},
         {tex: 'r = \\pm 3', text: 'Fes l\'arrel quadrada: hi ha dues solucions.'},
@@ -224,7 +224,7 @@ const PROBLEMES = Object.freeze([
     equacio: {
       manual: [
         {tex: '\\dfrac{40x^{3} - 320}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
-        {tex: '40x^{3} - 320 = 0', text: 'Una fracció val $0$ quan el numerador és $0$ (el denominador, $x^2$, no és $0$).'},
+        {tex: '40x^{3} - 320 = 0', text: 'Una fracció val $0$ només si el numerador és $0$.'},
         {tex: 'x^{3} = 8', text: 'Passa el $-320$ a l\'altre costat i divideix per $40$.'},
         {tex: 'x = \\sqrt[3]{8}', text: 'Fes l\'arrel cúbica.'},
         {tex: 'x = 2', text: '$\\sqrt[3]{8} = 2$, perquè $2^3 = 8$.'},
@@ -349,7 +349,7 @@ const PROBLEMES = Object.freeze([
     equacio: {
       manual: [
         {tex: '\\dfrac{20x^{2} - 32000}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
-        {tex: '20x^{2} - 32000 = 0', text: 'Una fracció val $0$ quan el numerador és $0$ (el denominador, $x^2$, no és $0$).'},
+        {tex: '20x^{2} - 32000 = 0', text: 'Una fracció val $0$ només si el numerador és $0$.'},
         {tex: 'x^{2} = 1600', text: 'Passa el $-32000$ a l\'altre costat i divideix per $20$.'},
         {tex: 'x = \\pm 40', text: 'Fes l\'arrel quadrada: hi ha dues solucions.'},
         {tex: 'x = 40', text: 'Pel context del problema, $x = -40$ no serveix: un costat no pot ser negatiu.'},
@@ -422,7 +422,7 @@ const PROBLEMES = Object.freeze([
     equacio: {
       manual: [
         {tex: '\\dfrac{5x^{2} - 40}{x^{2}} = 0', text: 'Substitueix $C\'(x)$ per la seva expressió.'},
-        {tex: '5x^{2} - 40 = 0', text: 'Una fracció val $0$ quan el numerador és $0$ (el denominador, $x^2$, no és $0$).'},
+        {tex: '5x^{2} - 40 = 0', text: 'Una fracció val $0$ només si el numerador és $0$.'},
         {tex: 'x^{2} = 8', text: 'Passa el $-40$ a l\'altre costat i divideix per $5$.'},
         {tex: 'x = \\pm\\sqrt{8}', text: 'Fes l\'arrel quadrada: hi ha dues solucions, i no són exactes.'},
         {tex: 'x = \\pm 2\\sqrt{2}', text: 'Simplifica el radical: $\\sqrt{8} = \\sqrt{4 \\cdot 2} = 2\\sqrt{2}$.'},
