@@ -1139,10 +1139,10 @@ const OPT = (() => {
     cantonada: {v: 'x', w: 'y', f: 'C', maxim: false, domini: 'x>0', mostres: [q(1, 2), q(1), q(3, 2), q(2)], pis: sense, radicals: true,
       O: (x, y) => x.suma(y).producte(5), W: x => k(x, 8).quocient(x),
       d1: x => x.producte(x).producte(5).resta(40).quocient(x.producte(x)), d2: x => k(x, 80).quocient(x.potencia(3)), optim: () => new M.Radical(0, 2, 2)},
-    canonada: {v: 'x', w: 'd', f: 'P', maxim: false, domini: '0<x<20', mostres: [q(1, 2), q(3), q(8), q(15)], pis: sense, radicals: true,
+    canonada: {quadrat: true, v: 'x', w: 'd', f: 'P', maxim: false, domini: '0<x<20', mostres: [q(1, 2), q(3), q(8), q(15)], pis: sense, radicals: true,
       O: (x, d) => Radical_(d).producte(5).suma(k(x, 20).resta(x).producte(3)), W: x => OPT_W8(x),
       d1: x => Radical_(x).producte(5).quocient(OPT_W8(x)).resta(3), d2: x => Radical_(320).quocient(OPT_W8(x).potencia(3)), optim: () => q(6)},
-    nedador: {v: 'x', w: 'y', f: 't', maxim: false, domini: '0<x<6', mostres: [q(1, 2), q(1), q(4), q(5)], pis: sense, radicals: true,
+    nedador: {quadrat: true, v: 'x', w: 'y', f: 't', maxim: false, domini: '0<x<6', mostres: [q(1, 2), q(1), q(4), q(5)], pis: sense, radicals: true,
       O: (x, y) => Radical_(y).quocient(3).suma(k(x, 6).resta(x).quocient(5)), W: x => OPT_W9(x),
       d1: x => Radical_(x).quocient(OPT_W9(x).producte(3)).resta(q(1, 5)), d2: x => Radical_(3).quocient(OPT_W9(x).potencia(3)), optim: () => q(9, 4)},
   };
@@ -1169,7 +1169,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
     const lila = [...net.matchAll(/\\htmlData\{k=(\w+),marca=solucio\}\{/g)].map(q => valor(textPla(grupsT[q[1]].tex)));
     comprova(lila.every(a => a.igual(optim)), () => `${on}: en lila hi ha d'haver només l'òptim`);
     const ratllats = tatxades.map(t => valor(textPla(t).split('=')[1]));
-    ratllats.forEach(a => comprova(!a.igual(optim) && funcions[f + "'"](a).esZero(), () => `${on}: ${a.num}/${a.den} no s'havia de tatxar`));
+    ratllats.forEach(a => comprova(!a.igual(optim) && (model.quadrat || funcions[f + "'"](a).esZero()), () => `${on}: una solució tatxada que no toca`));   // quadrat: arrel falsa d'elevar al quadrat
     if (lila.length) {
       // Cada solució escrita és l'òptim (en lila) o una de tatxada.
       const parts = textPla(net).split('|').map(q => q.split('='));
@@ -1298,7 +1298,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
               if (!p) throw new Error(`«${esq}=${dre}» no és polinòmica`);
               return arrelsDe(p);
             });
-            comprova(valors.some(a => a.igual(optim)) && valors.every(a => funcions[f + "'"](a).esZero()),
+            comprova(valors.some(a => a.igual(optim)) && valors.every(a => model.quadrat || funcions[f + "'"](a).esZero()),
               () => `${on}: «${pla}»: les solucions no són les de ${f}'(${v}) = 0`);
           } else {
             const [esq, dre] = pla.split('=');

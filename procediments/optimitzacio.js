@@ -872,6 +872,8 @@ function passos(valors) {
     } else if (i === manual.length - 1 && !eq.polinomi) {
       const [, valor] = new RegExp(`^${v} = (.+)$`).exec(pas.tex);
       g.files[FILA.treball] = K('Wv', v) + R('Wq', '=') + K('Ws', valor);
+      // La solució descartada, a la pissarra i tatxada (David, 19/11/2026): «x = 40 o x = −40».
+      if (/no serveix/.test(pas.text)) g.files[FILA.treball] += ' \\quad\\text{o}\\quad ' + F.tatxa(`${v} = -${eq.candidat}`);
     } else {
       g.files[FILA.treball] = K('Ew', pas.tex);
     }
