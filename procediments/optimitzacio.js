@@ -332,8 +332,10 @@ const PROBLEMES = Object.freeze([
     },
     preguntes: ['Quines són les mides òptimes', 'Quin és el cost mínim de la tanca'],
     v: 'x', w: 'y', f: 'C', maxim: false,
-    funcio: {tex: '20x + 40y', text: 'Escriu la funció objectiu amb dues variables: anomena $x$ els dos costats perpendiculars al camí i $y$ els dos paral·lels. '
-      + 'El costat del camí costa $30y$ €, l\'altre costat paral·lel, $10y$ €, i els dos costats $x$, $10 \\cdot 2x = 20x$ €. En total, $C = 20x + 40y$.'},
+    funcio: {cadena: '10x + 10x + 10y + 30y', tex: '20x + 40y',
+      text: 'Escriu la funció objectiu amb dues variables: anomena $x$ els dos costats perpendiculars al camí i $y$ els dos paral·lels. '
+        + 'Cada costat $x$ costa $10x$ €; el costat paral·lel llunyà, $10y$ €, i el del camí, $30y$ €.',
+      textCadena: 'Suma els termes semblants: $10x + 10x = 20x$ i $10y + 30y = 40y$.'},
     condicio: [
       {tex: 'x \\cdot y = 800', text: 'Escriu la condició com una igualtat: l\'àrea, $x \\cdot y$, és $800$ m².'},
       {aillada: '\\dfrac{800}{x}', text: 'Aïlla $y$.'},
