@@ -69,6 +69,7 @@ const {clau: K, rel: R} = F;
      segona {tex, text, valor}  f''(v) i el càlcul «f''(candidat) = …»
      altra {calcul, resposta, text}   el valor de w
      optim {calcul, resposta, text}   el valor de la funció
+     frases                    (opcional) textos propis dels passos: número del pas → text (el David els ha reescrit)
      preguntes                 [valors, valor]: les dues preguntes de l'enunciat, dites senzillament (pas de lectura)
      resposta                  [valors, valor]: les dues frases de la resposta, amb les unitats
      figura                    l'esquema: dibuix (la funció de
@@ -82,6 +83,23 @@ const {clau: K, rel: R} = F;
 const PROBLEMES = Object.freeze([
   {
     id: 'hort', nom: 'Hort adossat a una paret',
+    // Els textos dels passos que el David ha reescrit (full «respostes problema optimització», 19/11/2026): número del pas → text.
+    frases: {
+      1: 'Llegeix l\'enunciat i localitza:\n- Quina funció volem maximitzar o minimitzar\n- Quina condició o equació relaciona les variables\n- Quantes preguntes ens fan.',
+      2: 'La funció objectiu és l\'àrea de l\'hort, i en busquem el màxim.',
+      3: 'Sabem que els $40$ m de tanca només tanquen tres costats, perquè la paret fa de quart costat. A partir d\'aquí obtindrem una equació.',
+      8: 'Copia l\'equació on has aïllat $y = 40 - 2x$, perquè la necessitaràs posteriorment.',
+      10: 'Desenvolupa l\'expressió, perquè anirà bé quan vulguis derivar.',
+      11: 'Troba la funció derivada $A\'(x)$.',
+      12: 'Resol l\'equació $A\'(x) = 0$, per trobar els punts crítics.',
+      14: 'Resol l\'equació.',
+      15: 'Resol l\'equació.',
+      17: 'L\'únic punt crític és $x = 10$.',
+      18: 'Calcula la segona derivada $A\'\'(x)$. Per comprovar si realment $x = 10$ és un màxim, hauràs de comprovar que $A\'\'(10) < 0$.',
+      20: 'Substitueix el valor trobat de $x$ a l\'equació que ja tenies: $y = 40 - 2x$.',
+      19: 'Com que $A\'\'(10) < 0$, sabem que en $x = 10$ hi ha un màxim relatiu. Com que és l\'únic candidat del domini, també és el màxim absolut.',
+      22: 'Hem obtingut tres resultats, que són els valors de $x$, $y$ i $A$. Ara cal redactar la resposta.',
+    },
     figura: {dibuix: 'hort', lletres: {x: 7, y: 26}, final: {x: 10, y: 20}, textos: {x: '10', y: '20'}, valor: 'A = 200 m²'},
     lectura: {
       text: 'Tenim [c*:$40$ m de tanca] per fer un hort rectangular adossat a una paret: la paret fa de quart costat. '
@@ -919,7 +937,9 @@ function passos(valors) {
   g.files[filaFrase] = F.filaText(respostaPissarra(p.resposta));
   g.classes[filaFrase] = 'resposta-text';
   g.afegeix(`Resposta: ${respostaText(p.resposta)}`);
-  return g.passos;
+  // Textos propis d'un problema (frases: número del pas → text), si el David n'ha reescrit.
+  if (!p.frases) return g.passos;
+  return g.passos.map((pas, i) => (p.frases[i + 1] ? Object.freeze(Object.assign({}, pas, {text: p.frases[i + 1]})) : pas));
 }
 
 

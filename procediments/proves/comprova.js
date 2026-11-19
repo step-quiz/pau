@@ -1108,7 +1108,8 @@ const OPT = (() => {
   const q = (a, b = 1) => fr(a, b);
   const sense = [q(1)];
   return {
-    hort: {v: 'x', w: 'y', f: 'A', maxim: true, domini: '0<x<20', mostres: [q(1), q(5), q(13, 2), q(19)], pis: sense,
+    // hort: el David n'ha tret el domini dels textos (dominiAlText: false).
+    hort: {v: 'x', w: 'y', f: 'A', maxim: true, domini: '0<x<20', dominiAlText: false, mostres: [q(1), q(5), q(13, 2), q(19)], pis: sense,
       O: (x, y) => x.producte(y), W: x => q(40).resta(x.producte(2)),
       d1: x => q(40).resta(x.producte(4)), d2: () => q(-4), optim: () => q(10)},
     capsa: {v: 'x', w: 'b', f: 'V', maxim: true, domini: '0<x<6', mostres: [q(1, 2), q(1), q(3), q(5)], pis: sense,
@@ -1341,7 +1342,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   // El domini, només a l'explicació (David): cap fila de la pissarra és una inequació del domini, i algun text l'escriu sencer.
   const llegible = t => { try { return textPla(t); } catch (e) { return ''; } };   // algunes fórmules del text (la regla del quocient) no cal llegir-les
   const formulesText = passos.flatMap(q => [...q.text.matchAll(/\$([^$]+)\$/g)].map(m => llegible(m[1])));
-  comprova(formulesText.includes(model.domini), () => `${nom}: cap explicació no diu el domini «${model.domini}»`);
+  comprova(model.dominiAlText === false || formulesText.includes(model.domini), () => `${nom}: cap explicació no diu el domini «${model.domini}»`);
   comprova(passos.every(q => q.files.every(t => !t || t.startsWith('§') || t.startsWith('<svg') || !/^(0<)?\w(<|>)/.test(llegible(separaTatxades(t).net)))), () => `${nom}: el domini (una inequació) no ha de ser a la pissarra`);
   // Les equacions es resolen directament, sense simplificar-les (David, 18/11/2026): mai «divideix per un factor comú».
   comprova(!passos.some(q => /més senzilla/.test(q.text)), () => `${nom}: una equació simplificada (mai: David)`);
@@ -7693,7 +7694,7 @@ seccio('regles generals de totes les pàgines', () => {
     SistemaSCI: 'sistema-sci', Esglaonar: 'esglaonar', Pla: 'pla', RectaPlans: 'recta-plans', RectaPla: 'recta-pla', DuesRectes: 'dues-rectes',
     Distancies: 'distancies', Projeccions: 'projeccions', AreaVolum: 'area-volum', PerpendicularComuna: 'perpendicular-comuna', GraficaFuncio: 'grafica-funcio', TecnicaDerivacio: 'tecnica-derivacio', OperacionsMatrius: 'operacions-matrius', IntegralsImmediates: 'integrals-immediates', EquacionsRecta: 'equacions-recta'};
   // Comprovacions que formen part del mètode (no són opcionals): les hipòtesis de Bolzano, f'' dels extrems que demana l'enunciat.
-  const AMB_COMPROVACIO = new Set(['bolzano', 'polinomi-condicions']);
+  const AMB_COMPROVACIO = new Set(['bolzano', 'polinomi-condicions', 'optimitzacio']);   // optimització: «comprovar que A''(10) < 0» és el mètode, no una comprovació de més (David, 19/11/2026)
   const sense = t => t.replace(/\\htmlData\{[^}]*\}/g, '');
   let pagines = 0, passos = 0;
   for (const [global, pag] of Object.entries(PAGINES)) {
