@@ -75,7 +75,7 @@ const {clau: K, rel: R} = F;
      frases                    (opcional) textos propis dels passos: número del pas → text (el David els ha reescrit)
      preguntes                 [valors, valor]: les dues preguntes de l'enunciat, dites senzillament (pas de lectura)
      resposta                  [valors, valor]: les dues frases de la resposta, amb les unitats
-     figura                    l'esquema: dibuix (la funció de
+     figura                    l'esquema (opcional «previ»: cert si hi ha un esquema E_0, sense mides, del pas 1 al 4): dibuix (la funció de
                                ESQUEMES), lletres (mides per dibuixar-lo amb les lletres, sense
                                proporcions reals), final (les mides òptimes, a escala), textos
                                (com s'escriuen les mides òptimes; '2r' és el doble de r) i valor
@@ -491,7 +491,7 @@ const PROBLEMES = Object.freeze([
   },
   {
     id: 'nedador', nom: 'Nedador fins a la platja',
-    figura: {dibuix: 'nedador', lletres: {x: 3.6}, final: {x: 2.25}, textos: {x: '2,25', y: '3,75'}, valor: 't = 2 h'},
+    figura: {dibuix: 'nedador', previ: true, lletres: {x: 3.6}, final: {x: 2.25}, textos: {x: '2,25', y: '3,75'}, valor: 't = 2 h'},
     lectura: {
       text: 'Un nedador és al mar en un punt $N$, [c*:a $3$ km d\'una platja recta], just al davant d\'un punt $S$ de la platja. '
         + 'Vol anar a un punt $A$ de la platja, [c:a $6$ km de $S$]: el triangle $NSA$ és rectangle en $S$. Neda a $3$ km/h fins a un punt $P$ '
@@ -718,11 +718,14 @@ const ESQUEMES = {
     for (const [q, nom, dx, dy] of [[S, 'S', -8, -6], [P, 'P', 0, -8], [A, 'A', 0, -8], [N, 'N', -10, 4]]) {
       t += `<circle cx="${nombre(q[0])}" cy="${nombre(q[1])}" r="2.5" fill="currentColor"/>` + paraula(nom, q[0] + dx, q[1] + dy, 'middle');
     }
-    t += paraula('3', X(0) - 9, Yp + 54, 'end');
-    t += mida(et, 'x', X(m.x / 2), Yp + 16) + mida(et, 'y', (N[0] + P[0]) / 2 + 9, (N[1] + P[1]) / 2 + 8, 'start');
-    t += `<path class="td" d="M${X(0)} ${Yp - 20} H${X(6)}"/>` + paraula('6', X(3), Yp - 24);
+    // Esquema previ E_0 (et.previ, pas 1 a 4): només el triangle, PA, les lletres S, N, P, A i l'angle recte; sense mides (3, x, y, 6, 6 − x).
+    if (!et.previ) {
+      t += paraula('3', X(0) - 9, Yp + 54, 'end');
+      t += mida(et, 'x', X(m.x / 2), Yp + 16) + mida(et, 'y', (N[0] + P[0]) / 2 + 9, (N[1] + P[1]) / 2 + 8, 'start');
+      t += `<path class="td" d="M${X(0)} ${Yp - 20} H${X(6)}"/>` + paraula('6', X(3), Yp - 24);
+    }
     // El tram PA (el taronja horitzontal): «6 − x», centrat sota el segment (com la «x» de SP); a l'esquema final, el valor (3,75).
-    t += `<text class=\"en\" x=\"${nombre((P[0] + A[0]) / 2)}\" y=\"${Yp + 16}\" text-anchor=\"middle\">`
+    if (!et.previ) t += `<text class=\"en\" x=\"${nombre((P[0] + A[0]) / 2)}\" y=\"${Yp + 16}\" text-anchor=\"middle\">`
       + (et.final ? String(6 - m.x).replace('.', ',') : `<tspan>6 − </tspan><tspan class=\"et\" data-l=\"x\">x</tspan>`) + '</text>';
     if (et.final) t += paraula(et.valor, 196, 120);
     return t;
@@ -730,9 +733,9 @@ const ESQUEMES = {
 };
 
 /** L'esquema d'un problema: amb les lletres, o (final) a escala amb les mides i el valor òptims. */
-function esquema(p, final = false) {
+function esquema(p, final = false, previ = false) {
   const fig = p.figura;
-  const et = final ? {final: true, textos: fig.textos, valor: fig.valor} : {final: false};
+  const et = final ? {final: true, textos: fig.textos, valor: fig.valor} : {final: false, previ};
   return `<svg data-k="Sq" class="esquema" viewBox="0 0 260 170" width="14em" height="9.154em" role="img" aria-label="Esquema: ${p.nom}">`
     + ESQUEMES[fig.dibuix](final ? fig.final : fig.lletres, et) + '</svg>';
 }
@@ -803,6 +806,8 @@ function passos(valors) {
 
   /* 0. La lectura de l'enunciat: què s'optimitza, quina condició lliga les variables i quantes preguntes hi ha. */
   g.files[FILA.enunciat] = lectura(p, []).tex;
+  // Esquema previ E_0 (figura.previ): des del pas 1 fins al 4, sense mides; al pas 5 es retira i surt l'esquema E_1, gran.
+  if (p.figura && p.figura.previ) g.files[FILA.esquema] = esquema(p, false, true);
   // Textos curts, amb el criteri del David per a l'hort (19/11/2026).
   g.afegeix('Llegeix l\'enunciat i localitza:\n- Quina funció volem maximitzar o minimitzar\n- Quina condició o equació relaciona les variables\n- Quantes preguntes ens fan.');
   const curt = t => { t = t.replace(/^Què (volem optimitzar|lliga les mides|lliga els dos nombres)\? («[^»]*»: )?/, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
@@ -824,6 +829,7 @@ function passos(valors) {
     g.afegeix(p.funcio.abans.text);
   }
   g.files[FILA.funcio] = K('OF', f) + R('Oq', '=') + (p.funcio.cadena ? K('Oc', p.funcio.cadena) : K('Oe', p.funcio.tex));
+  if (p.figura && p.figura.previ) g.files[FILA.esquema] = '';     // E_0 es retira (pas 5)
   if (p.figura) g.files[FILA.titol1b] = esquema(p);     // l'esquema, gran, a la fila de sota (encara buida)
   // Criteri del David (respostes del problema 1, 19/11/2026): segona persona, «equació» en lloc de «condició», i la funció al final.
   const textFuncio = p.funcio.text.replace(' amb dues variables:', ':').replace(/\s*(Per tant, |En total, )?(L'àrea|El volum|El paper|El cost)?[^.]*\$[A-Za-z] = [^$]*\$\.$/, '')
@@ -983,7 +989,7 @@ arrel.Optimitzacio = Object.freeze({
   perDefecte: FIXOS.perDefecte,
   exemples: FIXOS.exemples,
   titolEditor: 'Tria un problema',
-  notaEditor: 'Tots es resolen amb la mateixa tècnica.',
+  notaEditor: 'Tots es resolen amb la mateixa tècnica: llegir l\'enunciat (què s\'optimitza i quina condició hi ha), funció, condició, una sola variable, domini, derivada, segona derivada i resposta.',
   editor: [],
   problemes: PROBLEMES,
   FILA,
