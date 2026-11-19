@@ -416,7 +416,7 @@ const PROBLEMES = Object.freeze([
     substitucio: {tex: '5 \\cdot x + 5 \\cdot \\dfrac{8}{x}', text: 'Substitueix $y$ a la funció: ara el cost només depèn de $x$.'},
     simplifica: [
       {tex: '5x + \\dfrac{40}{x}', text: 'Fes el producte: $5 \\cdot 8 = 40$.'},
-      {tex: '\\dfrac{5x^{2} + 40}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient, com a les PAU.'},
+      {tex: '\\dfrac{5x^{2} + 40}{x}', text: 'Fes denominador comú: així la derivaràs com un quocient.'},
     ],
     domini: {tex: 'x > 0', text: 'El domini: el costat ha de ser positiu, $x > 0$ (i llavors l\'altre costat també ho és).'},
     derivada: {quocient: '\\dfrac{10x \\cdot x - (5x^{2} + 40) \\cdot 1}{x^{2}}', text: 'Deriva-la amb la regla del quocient, $\\left(\\frac{u}{v}\\right)\' = \\frac{u\'v - uv\'}{v^2}$, amb $u = 5x^2 + 40$ i $v = x$.',
