@@ -898,7 +898,7 @@ function passos(valors) {
     g.files[FILA.equacio] += ' \\;\\Rightarrow\\; ' + g.files[FILA.treball];
     g.files[FILA.treball] = '';
   }
-  g.afegeix(`L'únic punt crític és $${v} = ${textual(eq.candidat)}$.`, llum(v));
+  g.afegeix(`Finalment, el valor candidat és aquest: $${v} = ${textual(eq.candidat)}$.`, llum(v));
 
   /* 3. Màxim o mínim: la segona derivada. */
   titol(FILA.titol3);
