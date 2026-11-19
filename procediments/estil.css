@@ -382,7 +382,7 @@ button{font:inherit; color:inherit}
     column-gap:22px; align-items:start; padding-block:12px 12px;
   }
   .contingut > .escenari{grid-column:2; grid-row:1; order:0; position:sticky; top:12px}
-  .lateral{display:flex; flex-direction:column; gap:26px; grid-column:1; grid-row:1; min-width:0}
+  .lateral{display:flex; flex-direction:column; gap:26px; grid-column:1; grid-row:1; min-width:0; position:sticky; top:12px}   /* el pas i els botons, sempre a la vista (David, 19/11/2026) */
   .lateral > *{order:0}
   /* Els controls no fan caixa: el pas actual va a dalt de tot, i el reproductor sota l'enunciat */
   .controls{display:contents}
