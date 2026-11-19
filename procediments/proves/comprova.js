@@ -1342,7 +1342,7 @@ function comprovaOptimitzacio(passos, model, pi, nom) {
   // El domini, només a l'explicació (David): cap fila de la pissarra és una inequació del domini, i algun text l'escriu sencer.
   const llegible = t => { try { return textPla(t); } catch (e) { return ''; } };   // algunes fórmules del text (la regla del quocient) no cal llegir-les
   const formulesText = passos.flatMap(q => [...q.text.matchAll(/\$([^$]+)\$/g)].map(m => llegible(m[1])));
-  comprova(model.dominiAlText === false || formulesText.includes(model.domini), () => `${nom}: cap explicació no diu el domini «${model.domini}»`);
+  // El domini ja no ha de ser a cap text (David, 19/11/2026).
   comprova(passos.every(q => q.files.every(t => !t || t.startsWith('§') || t.startsWith('<svg') || !/^(0<)?\w(<|>)/.test(llegible(separaTatxades(t).net)))), () => `${nom}: el domini (una inequació) no ha de ser a la pissarra`);
   // Les equacions es resolen directament, sense simplificar-les (David, 18/11/2026): mai «divideix per un factor comú».
   comprova(!passos.some(q => /més senzilla/.test(q.text)), () => `${nom}: una equació simplificada (mai: David)`);
