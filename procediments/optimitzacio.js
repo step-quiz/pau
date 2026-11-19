@@ -140,7 +140,7 @@ const PROBLEMES = Object.freeze([
     ],
     substitucio: {tex: '(12 - 2x)^{2} \\cdot x', text: 'Substitueix $b$ a la funció: ara el volum només depèn de $x$.'},
     simplifica: [
-      {tex: '(144 - 48x + 4x^{2}) \\cdot x', text: 'Desenvolupa el quadrat: $(a - b)^2 = a^2 - 2ab + b^2$.'},
+      {tex: '(144 - 48x + 4x^{2}) \\cdot x', text: 'Pensa en la identitat notable: $(a - b)^2 = a^2 - 2ab + b^2$. En aquest cas: a=12, b=2x'},
       {tex: '4x^{3} - 48x^{2} + 144x', text: 'Multiplica per $x$.'},
     ],
     domini: {tex: '0 < x < 6', text: 'El domini: $x > 0$, i la base també ha de ser positiva: $12 - 2x > 0$, és a dir, $x < 6$.'},
@@ -167,7 +167,7 @@ const PROBLEMES = Object.freeze([
     },
     preguntes: ['Quin radi i quina altura ha de tenir la llauna', 'Quin és el volum màxim'],
     v: 'r', w: 'h', f: 'V', maxim: true,
-    funcio: {tex: '\\pi r^{2} h', text: 'Escriu la funció objectiu: anomena $r$ el radi i $h$ l\'altura. El nombre $\\pi$ és un nombre com qualsevol altre.'},
+    funcio: {tex: '\\pi r^{2} h', text: 'Anomena $r$ el radi i $h$ l\'altura. El volum és l\'àrea de la base multiplicat per l\'altura.'},
     condicio: [
       {tex: '\\pi r^{2} + 2\\pi r h = 27\\pi', text: 'Escriu la condició com una igualtat: el fons ($\\pi r^2$) més la paret ($2\\pi r h$) fan $27\\pi$ cm².'},
       {tex: '2\\pi r h = 27\\pi - \\pi r^{2}', text: 'Per aïllar $h$, passa $\\pi r^2$ a l\'altre costat.'},
