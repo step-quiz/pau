@@ -377,8 +377,8 @@ const PROBLEMES = Object.freeze([
     },
     preguntes: ['Quines són les mides del rectangle', 'Quina és l\'àrea màxima'],
     v: 'x', w: 'y', f: 'A', maxim: true,
-    funcio: {tex: '2x \\cdot y', text: 'Escriu la funció objectiu amb dues variables: els vèrtexs de dalt són $(x, y)$ i $(-x, y)$, amb $x > 0$. '
-      + 'La base fa $2x$ i l\'altura, $y$.'},
+    funcio: {tex: '2x \\cdot y', text: 'Escriu la funció objectiu amb dues variables: els punts de tall tenen coordenades $P_1 = (-x, y)$ i $P_2 = (x, y)$. '
+      + 'Per tant, la base del rectangle fa $2x$ i la seva altura fa $y$.'},
     condicio: [
       {aillada: '12 - x^{2}', text: 'Escriu la condició: el vèrtex $(x, y)$ és sobre la paràbola, és a dir, $y = 12 - x^2$.'},
     ],
@@ -662,7 +662,7 @@ const ESQUEMES = {
     return t;
   },
   parabola(m, et) {
-    const ox = 130, oy = 142, sx = 27, sy = 10, y = 12 - m.x * m.x, X = u => ox + u * sx, Y = v => oy - v * sy;
+    const ox = 130, oy = 142, sx = 22, sy = 10, y = 12 - m.x * m.x, X = u => ox + u * sx, Y = v => oy - v * sy;
     let t = lin([18, oy], [242, oy], 'ei') + lin([ox, oy + 10], [ox, 12], 'ei');
     t += `<rect class="ob" x="${nombre(X(-m.x))}" y="${nombre(Y(y))}" width="${nombre(2 * m.x * sx)}" height="${nombre(y * sy)}"/>`;
     t += pol([[X(-m.x), oy], [X(-m.x), Y(y)], [X(m.x), Y(y)], [X(m.x), oy]], 'tr', false);
@@ -670,7 +670,11 @@ const ESQUEMES = {
     for (let u = -3.6; u <= 3.601; u += 0.1) punts.push([X(u), Y(12 - u * u)]);
     t += pol(punts, 'co', false);
     for (const u of [-m.x, m.x]) t += `<circle class="vertex" cx="${nombre(X(u))}" cy="${nombre(Y(y))}" r="3"/>`;
-    t += mida(et, 'x', ox + 14, oy + 17, 'middle', 2) + mida(et, 'y', X(m.x) - 6, Y(y / 2) + 5, 'end');   // la base sencera, 2x (David)
+    t += mida(et, 'x', ox, oy + 17, 'middle', 2) + mida(et, 'y', X(m.x) - 6, Y(y / 2) + 5, 'end');   // la base sencera, 2x, centrada a l'eix de simetria (David)
+    // Els punts de tall: P₁ = (−x, y) i P₂ = (x, y) (David, 19/11/2026); amb les mides òptimes, els valors.
+    const xv = String(m.x).replace('.', ','), yv = et.final ? et.textos.y : 'y', lt = (l, v) => `<tspan class="${et.final ? '' : 'et'}">${et.final ? v : l}</tspan>`;
+    t += `<text class="en" x="${nombre(X(-m.x) - 5)}" y="${nombre(Y(y) - 8)}" text-anchor="end">P₁ = (−${lt('x', xv)}, ${lt('y', yv)})</text>`
+      + `<text class="en" x="${nombre(X(m.x) + 5)}" y="${nombre(Y(y) - 8)}" text-anchor="start">P₂ = (${lt('x', xv)}, ${lt('y', yv)})</text>`;
     if (et.final) t += paraula(et.valor, X(-m.x / 2), Y(y / 2) + 5);
     return t;
   },
