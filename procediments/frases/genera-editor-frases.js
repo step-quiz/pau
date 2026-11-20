@@ -9,7 +9,7 @@
 // Tot es publica junt amb l'eina Artifact (file_path = index.html, files = {"frases.json": …}).
 // Abans d'escriure res, comprova que KaTeX pot dibuixar totes les fórmules (si no, s'atura).
 const fs = require('fs'), vm = require('vm'), path = require('path');
-const [KATEX, OUT] = process.argv.slice(2);
+const [KATEX, OUT, NOMES] = process.argv.slice(2);     // NOMES (opcional): ids de pàgina separats per comes → artifact reduït, dades incrustades
 if (!KATEX || !OUT) { console.error('Ús: node genera-editor-frases.js <katex/dist> <carpeta de sortida>'); process.exit(2); }
 const DIR = path.join(__dirname, '..');           // procediments/
 
@@ -22,8 +22,12 @@ const FITXERS = ['mates.js', 'formules.js', 'dades.js', 'matrius.js', 'recta-tan
 for (const f of FITXERS) vm.runInThisContext(fs.readFileSync(path.join(DIR, f), 'utf8'), {filename: f});
 
 // L'ordre del menú DEMO de l'index (categoria → [[fitxer, títol], …]).
-const index = fs.readFileSync(path.join(DIR, '..', 'index.html'), 'utf8');
-const demos = eval('(' + /const DEMOS = (\{[\s\S]*?\n\});/.exec(index)[1] + ')');
+const indexPath = path.join(DIR, '..', 'index.html');
+let demos;
+if (fs.existsSync(indexPath)) demos = eval('(' + /const DEMOS = (\{[\s\S]*?\n\});/.exec(fs.readFileSync(indexPath, 'utf8'))[1] + ')');
+else if (NOMES) {   // sense index.html (ZIP parcial): el títol de cada pàgina surt del seu <title>; categoria «Càlcul» per defecte
+  demos = {analisi: NOMES.split(',').map(id => [id, (/<title>([^<]*?)(?: — PAU Matem[^<]*)?<\/title>/.exec(fs.readFileSync(path.join(DIR, id + '.html'), 'utf8')) || [, id])[1]])};
+} else throw new Error('No trobo index.html: indiqueu les pàgines (tercer argument)');
 const GLOBALS = {'recta-tangent': 'RectaTangent', 'creixement': 'Creixement', 'extrems': 'Extrems', 'polinomi-condicions': 'PolinomiCondicions',
   'optimitzacio': 'Optimitzacio', 'asimptotes': 'Asimptotes', 'bolzano': 'Bolzano', 'primitiva': 'Primitiva', 'barrow': 'Barrow', 'area-eix': 'AreaEix',
   'area-corbes': 'AreaCorbes', 'area-parametre': 'AreaParametre', 'probabilitat-total': 'ProbabilitatTotal', 'bayes': 'Bayes', 'binomial': 'Binomial',
@@ -90,6 +94,7 @@ for (const [cat, llista] of Object.entries(demos)) {
         passos: passos.map(p => ({t: p.text, f: p.files.map(fila), c: p.classes.map(c => c || '')})),
       });
     }
+    if (NOMES && !NOMES.split(',').includes(id)) { passosTotals -= exemples.reduce((n, e) => n + e.passos.length, 0); continue; }
     pagines.push({id, titol, cat, categoria: CAT[cat], exemples});
   }
 }
@@ -122,8 +127,15 @@ if (!plantilla.includes('/*__KATEX_CSS__*/')) throw new Error('La plantilla no t
 
 fs.mkdirSync(OUT, {recursive: true});
 const generat = new Date().toISOString().slice(0, 10);
-fs.writeFileSync(path.join(OUT, 'frases.json'), JSON.stringify({generat, files: taula, pagines}));
-fs.writeFileSync(path.join(OUT, 'index.html'), plantilla.replace('/*__KATEX_CSS__*/', () => css));
+const dades = JSON.stringify({generat, files: taula, pagines});
+if (NOMES) {
+  // Un sol fitxer: les dades van dins d'un <script type="application/json"> (amb < escapat perquè no tanqui l'etiqueta)
+  const inc = `</style>\n<script type="application/json" id="dades-frases">${dades.replace(/</g, '\\u003c')}</script>`;
+  fs.writeFileSync(path.join(OUT, 'index.html'), plantilla.replace('/*__KATEX_CSS__*/</style>', () => css + inc));
+} else {
+  fs.writeFileSync(path.join(OUT, 'frases.json'), dades);
+  fs.writeFileSync(path.join(OUT, 'index.html'), plantilla.replace('/*__KATEX_CSS__*/', () => css));
+}
 const kb = f => Math.round(fs.statSync(path.join(OUT, f)).size / 1024) + ' kB';
 console.log(`${pagines.length} pàgines, ${passosTotals} passos, ${taula.length} files de pissarra diferents, ${formules} fórmules comprovades`);
-console.log(`→ ${path.join(OUT, 'index.html')} (${kb('index.html')}), frases.json (${kb('frases.json')})`);
+console.log(`→ ${path.join(OUT, 'index.html')} (${kb('index.html')})` + (NOMES ? ' amb les dades incrustades' : `, frases.json (${kb('frases.json')})`));

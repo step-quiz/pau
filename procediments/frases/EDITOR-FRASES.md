@@ -12,7 +12,7 @@ each with its board, and writes how the caption («Opera el costat de la dreta.�
 - **Artifact:** https://claude.ai/artifact/5SZx72Lq398xzPYuV2FEmh (private: only the owner; the Claude conversation must belong
   to the same account).
 - **Capabilities:** `{db: {}}` (default rules: the owner reads and writes). Changes live in the collection **`canvis`**;
-  captions David marked as correct, in **`revisades`**.
+  (the old collection `revisades` is no longer used; see below).
 - Built from this folder: `genera-editor-frases.js` (data + page) and `plantilla-editor-frases.html` (the page).
 
 ## 2. How David uses it
@@ -25,18 +25,15 @@ Three tabs:
 2. **Totes les frases**: every distinct caption *template* once (captions with the same text once the formulas and numbers are
    removed: about 800), with how many times and on which pages it appears; search (text or LaTeX), «Les més repetides primer»,
    «Només les que tenen canvis». «Mostra on surt» jumps to the first occurrence.
-**«Correcta» and progress** (added 27/10/2026 at David's request). Every caption and statement card has a **Correcta** button (press
-again to undo). Review is **per template**: marking «Agrupa els termes del mateix grau.» correct marks it in every example and page
-where that template appears, so after the first example of a page only the new captions are left. A template also counts as
-reviewed when it has a change. Progress: «falten N de M» under each page in the list (✓ when done), «Revisades X de M frases
-d'aquesta pàgina» with a **Següent per revisar** button (next unreviewed card below; then the next example that has one), a ✓ on
-finished example chips, and in «Totes les frases» a filter Totes / Per revisar / Amb canvis and «en falten N de 802 per revisar».
+**No «Correcta» / progress** (removed 20/11/2026 at David's request). The «Correcta» button and everything built on it (per-page
+«falten N de M», «Següent per revisar», ✓ on example chips, the «Per revisar» filter) no longer exist: **a caption David does not
+touch is correct**; Claude infers that from the absence of a change. «Totes les frases» filters only Totes / Amb canvis.
 
 3. **Canvis**: the saved changes (pending / done / all), «Mostra-la a la pàgina», «Esborra» (with undo), and **Copia la llista**,
    a plain-text list to paste into the chat (fallback when the database is unavailable; then changes are kept only in that
    browser's localStorage and the page says so).
 
-Clicking a caption (or «Canvia») opens the editor: the caption source (monospace), a live KaTeX preview with LaTeX errors and
+Clicking a caption opens the editor (there is no «Canvia» button any more; only the page-comment card keeps an «Escriu» button): the caption source (monospace), a live KaTeX preview with LaTeX errors and
 unpaired `$`, the **scope** («A tot arreu on surt aquesta frase (N vegades)» — default — or «Només aquí»), a free **Comentari**
 (for board changes, order of steps, anything) and **Tanca** (also Esc or Ctrl+Enter).
 
@@ -66,12 +63,8 @@ One document per changed place. Id: `<page>~<example index>~<step number>` (step
 | `nota` | optional reply from Claude, shown under the change in green («Claude: …») |
 | `quan` | ISO time of David's last save |
 
-Collection **`revisades`**: one document per template marked correct. Id: `'p' + cyrb53(plantilla)` in base 36 (function `idRev`
-in the template; the same code in Node gives the same id), fields `{plantilla, text (the caption where it was marked), pagina, quan}`.
-When a caption is changed in the code its template changes, so it shows up as «per revisar» again (on purpose: David sees the new
-text). Documents of templates that no longer exist are harmless; delete them in the cleanup of procedure A.7 if there are many.
-If David writes a comment such as «nothing to say here» / «correcta» with no change, it means «reviewed»: create the `revisades`
-document for that template and delete the `canvis` one (pinned).
+Collection **`revisades`**: obsolete since 20/11/2026 (nothing reads or writes it). If a comment says «nothing to say here» / «correcta»
+with no change, just delete the `canvis` document (pinned).
 
 ## 4. Procedures (for Claude)
 
@@ -102,6 +95,13 @@ npm pack katex@0.16.9 && tar xzf katex-0.16.9.tgz          # → package/dist (a
 node procediments/frases/genera-editor-frases.js package/dist <out>
 # → «30 pàgines, 3148 passos, … fórmules comprovades» and <out>/index.html + <out>/frases.json
 ```
+**Single-page build** (one editor for one procedure, e.g. a conversation about `grafica-funcio` only): a third argument lists page ids,
+`node procediments/frases/genera-editor-frases.js package/dist <out> grafica-funcio`. The data are inlined in `<out>/index.html` as
+`<script type="application/json" id="dades-frases">` (no `frases.json`), so the page is one self-contained file: wrap it in
+`<!DOCTYPE html><html lang="ca"><head>…</html>` and publish it with `capabilities: {db: {}}` (a plain page cannot ship `frases.json`).
+It gets its **own** database, separate from the 30-page artifact. Without a root `index.html` (partial ZIP) the generator takes the
+menu title from each page's `<title>`.
+
 The generator stops if KaTeX cannot render any formula (the pages would show it in red). Publish with `Artifact`:
 `file_path: <out>/index.html`, `files: {"frases.json": {from: "<out>/frases.json", contentType: "application/json"}}`,
 `url: https://claude.ai/artifact/5SZx72Lq398xzPYuV2FEmh` (from another conversation, after an `Artifact read` of it), and **no**

@@ -398,7 +398,7 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irraciona
     resta = q.slice(j);
     const factor = j === 1 ? X : `${X}^{${j}}`;
     g.files[equacio] = K('Ef', factor) + ' \\cdot ' + `(${K('Er', texP(resta, X))})` + R('Eq', '=') + K('Ez', '0');
-    g.afegeix(`No hi ha terme independent: treu factor comú $${factor}$.`);
+    g.afegeix(`Pots treure factor comú $${factor}$.`);
     r = ZERO;
   } else {
     /* Una arrel entera, entre els divisors del terme independent. */
@@ -456,7 +456,7 @@ function passosArrels(g, {p, X = 'x', files: filesDonades, inici, nom, irraciona
     const sol = F.resolEquacio(g, {fila: fila('segon'), treball: fila('treball'), P: prefix + 'Q', termes: M.termes(resta), X, irracionals, algebra, davant: davant + '\\quad\\text{o}\\quad ',
       text: algebra ? `L'equació era un producte que val $0$, i això és cert si algun factor val $0$. Per tant: $${X} = ${M.texNombre(r)}$, o bé $${texP(resta, X)} = 0$. `
         + (resta.length === 3 ? 'Resol l\'equació de segon grau.' : 'Resol aquesta equació.')
-        : `${parteix}, o bé $${texP(resta, X)} = 0$. Resol aquesta equació.`});
+        : `${parteix}, o bé $${texP(resta, X)} = 0$. ${resta.length === 3 ? 'Resol l\'equació de segon grau.' : 'Resol aquesta equació.'}`});
     sol.forEach(s => lila.push([s.fila, s.clau]));
     arrels = arrels.concat(sol.map(s => s.valor));
   } else {

@@ -230,7 +230,8 @@ function limitInfinit(N, D, cap) {
  * 0 (±∞: un límit finit, igual als dos costats). Si D = 1 (un polinomi), els termes de grau més alt de N.
  */
 function passosInfinit(N, D, cap) {
-  const L = LIM(cap > 0 ? '+\\infty' : cap < 0 ? '-\\infty' : '\\pm\\infty');
+  const TEND = cap > 0 ? '+\\infty' : cap < 0 ? '-\\infty' : '\\pm\\infty';
+  const L = LIM(TEND);
   const n0 = termes(N)[0], d0 = termes(D)[0];
   const k = n0.n - d0.n, c = fr(n0.c).quocient(d0.c);
   const l = limitInfinit(N, D, cap || 1);
@@ -238,11 +239,11 @@ function passosInfinit(N, D, cap) {
   const passos = [];
   const tx = n => (n === 1 ? 'x' : `x^{${n}}`);
   if (polinomi) {
-    if (termes(N).length > 1) passos.push([`${L} ${M.texPolinomi([n0])}`, 'Quan $x$ és molt gran, en un polinomi només compta el terme de grau més alt: els altres hi són petits al costat.']);
+    if (termes(N).length > 1) passos.push([`${L} ${M.texPolinomi([n0])}`, `Recorda que $${L} f(x) = ${L} ${M.texPolinomi([n0])}$.`]);
   } else {
     const dominant = `\\dfrac{${M.texPolinomi([n0])}}{${M.texPolinomi([d0])}}`;
     if (termes(N).length > 1 || termes(D).length > 1) {
-      passos.push([`${L} ${dominant}`, 'Quan $x$ és molt gran, en cada polinomi només compta el terme de grau més alt: els altres hi són petits al costat.']);
+      passos.push([`${L} ${dominant}`, `En un límit quan $x \\to ${TEND}$, d\'un polinomi només has de tenir en compte el terme de grau més alt.`]);
     }
     if (k > 0) passos.push([`${L} ${M.texPolinomi([{n: k, c}])}`, `Simplifica: $${dominant} = ${M.texPolinomi([{n: k, c}])}$.`]);
     else if (k < 0) {
@@ -353,8 +354,7 @@ function passosRacional(pr) {
   /* La funció. */
   const f0 = g.fila('f');
   g.files[f0] = F.membreEsquerre('F', 'f', 'x') + K('Fe', texF);
-  g.afegeix('Per fer l\'esbós, estudia la funció en set apartats, l\'un darrere l\'altre. Totes les conclusions es queden a la pissarra: '
-    + 'les necessitaràs per dibuixar la gràfica.');
+  g.afegeix('Has d\'estudiar set aspectes de la funció, i posteriorment fer l\'esbós de la seva gràfica.');
 
   /* ── 1. Domini i asímptotes verticals ── */
   g.apartat(1);
@@ -363,7 +363,7 @@ function passosRacional(pr) {
   const dom = g.fila('domini');
   if (pol) {
     g.files[dom] = DOMINI;
-    g.afegeix('1. Domini i possibles asímptotes verticals. $f$ és un polinomi: existeix per a qualsevol valor de $x$. El domini és tot $\\mathbb{R}$.');
+    g.afegeix('1. Domini i possibles asímptotes verticals.\n$f$ és una funció polinòmica. Per tant, el domini és: Dom($f$)= $\\mathbb{R}$.');
   } else {
     const eq = g.fila('equacio:Q'), treball = g.fila('equacio:Q');
     const sol = F.resolEquacio(g, {fila: eq, treball, P: 'aE', termes: termes(Q), irracionals: false, lila: true,
@@ -401,7 +401,7 @@ function passosRacional(pr) {
     : av.length === 1 ? `\\text{Asímptota vertical: } x = ${texNombre(av[0])}`
       : `\\text{Asímptotes verticals: } ${av.map(a => `x = ${texNombre(a)}`).join('\\ \\text{ i }\\ ')}`);
   g.classes[fav] = 'destacat';
-  g.afegeix(av.length === 0 ? (pol ? 'Un polinomi no es fa infinit en cap punt: no té asímptotes verticals.'
+  g.afegeix(av.length === 0 ? (pol ? 'Una funció polinòmica no té asímptotes verticals.'
     : 'Com que $f$ existeix a tot arreu, no hi ha asímptotes verticals.')
     : `Els límits laterals són infinits: ${av.length > 1 ? 'les rectes' : 'la recta'} ${llista(av)} ${av.length > 1 ? 'són asímptotes verticals' : 'és una asímptota vertical'}.`);
 
@@ -412,7 +412,7 @@ function passosRacional(pr) {
   const mes = passosInfinit(P, Q, 1), l = mes.limit;
   ls2.linies.push('');
   cadena(g, {fila: fl2, P: 'Ip', esquerra: `${LIM('+\\infty')} f(x)`, ls: ls2, parts: [
-    [`${LIM('+\\infty')} ${expr}`, '2. Límits en l\'infinit i possibles asímptotes horitzontals i obliqües. Com és $f(x)$ quan $x$ és molt gran? Comença per $x \\to +\\infty$.'],
+    [`${LIM('+\\infty')} ${expr}`, '2. Límits en l\'infinit. Comença per calcular: $\\lim_{x \\to +\\infty} f(x)$.'],
     ...mes.passos,
   ]});
   const limMenys = l.finit ? l : limitInfinit(P, Q, -1);
@@ -439,8 +439,7 @@ function passosRacional(pr) {
     g.afegeix('Si hi ha asímptota horitzontal, no n\'hi ha d\'obliqua: totes dues diuen com és $f$ quan $x$ és molt gran, i només pot ser d\'una manera.');
   } else {
     g.files[fah] = K('Ah', '\\text{No hi ha asímptotes horitzontals}');
-    g.afegeix(`Els límits són infinits: no hi ha asímptotes horitzontals. Però serveixen per a l'esbós: quan $x \\to +\\infty$, $f(x) \\to ${INF(l.infinit)}$, `
-      + `i quan $x \\to -\\infty$, $f(x) \\to ${INF(limMenys.infinit)}$.`);
+    g.afegeix('Com que has obtingut uns límits que no són nombres reals, vol dir que no hi ha asímptotes horitzontals. De totes maneres, et serviran per a fer l\'esbós.');
     // L'asímptota obliqua, y = mx + n: m = lim f(x)/x.
     const fo = g.fila('limits'), ls3 = {linies: [''], index: 0};
     const xQ = [ZERO].concat(Q);
@@ -452,7 +451,7 @@ function passosRacional(pr) {
       ...(k === 1 ? [[`${Lpm} \\dfrac{f(x)}{x}`, 'Potser hi ha una asímptota obliqua, $y = mx + n$. El pendent és $m = \\lim \\frac{f(x)}{x}$ '
         + '(per a una funció racional, és el mateix a $+\\infty$ i a $-\\infty$).']] : []),
       [`${Lpm} ${quocientX}`, k === 1 ? `Dividir $f(x)$ per $x$ és multiplicar el denominador per $x$: $x \\cdot ${factor(Q)} = ${tp(xQ)}$.`
-        : `Potser hi ha una asímptota obliqua, $y = mx + n$. El pendent seria el nombre $m = \\lim \\frac{f(x)}{x}$.`],
+        : `Si hi hagués una recta asímptota obliqua, el seu pendent seria aquest: $m = \\lim \\frac{f(x)}{x}$. Calcula aquest límit.`],
       ...pm.passos]});
     if (k === 1) {
       const m = pm.limit.finit;
@@ -479,8 +478,7 @@ function passosRacional(pr) {
       const fao = g.fila('asimptotes');
       g.files[fao] = K('Ao', '\\text{No hi ha asímptotes obliqües}');
       g.classes[fao] = 'destacat';
-      g.afegeix('El límit és infinit, i $m$ ha de ser un nombre: no hi ha asímptota obliqua (a $-\\infty$ passa el mateix). '
-        + 'La gràfica creix més de pressa que qualsevol recta: és una branca parabòlica.');
+      g.afegeix('Com que el límit és infinit, significa que no hi ha asímptota obliqua (observació: per $x \\to -\\infty$ passa el mateix).');
     }
   }
 
@@ -575,8 +573,8 @@ function seccioDerivada(g, {ordre, P, Q, pol, fora, texF, fRad, posaPunt, d1}) {
   const PX = primera ? '1' : '2';
   g.apartat(primera ? 4 : 5);
   const inici = primera
-    ? '4. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe diu on $f$ creix i on decreix.'
-    : '5. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$: el seu signe diu cap on es corba la gràfica.';
+    ? '4. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe indica on $f(x)$ creix i on decreix.'
+    : '5. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$.';
 
   /* La derivada: N/den, amb den = Q^(ordre + 1) (un polinomi: den = 1). */
   const fd = g.fila(primera ? 'derivada1' : 'derivada2');
@@ -587,7 +585,7 @@ function seccioDerivada(g, {ordre, P, Q, pol, fora, texF, fRad, posaPunt, d1}) {
     potDen = 0;
     // Primer la derivada indicada (amb el títol de l'apartat), després el resultat: si no, el text no hi cabria.
     cadena(g, {fila: fd, P: 'D' + PX, esquerra: nomD, parts: [[`(${tp(base)})'`, inici],
-      [tp(N), `Deriva terme a terme. ${Dd.reglesDerivada(termes(base))}`]]});
+      [tp(N), (primera ? 'Deriva la funció.' : 'Deriva.')]]});
   } else if (primera) {
     const dP = deriva(P), dQ = deriva(Q);
     const A = prod(dP, Q), B = prod(P, dQ);
@@ -702,13 +700,14 @@ function estudiSignes(g, {ordre, trossos, fora, arrels, prova, valorY, yDe, posa
   else {
     const quins = arrels.length && fora.length ? `Els ${primera ? 'punts crítics' : 'punts on $f\'\'(x) = 0$'} i els punts que no són del domini`
       : arrels.length ? `Els ${primera ? 'punts crítics' : 'punts on $f\'\'(x) = 0$'}` : 'Els punts que no són del domini';
-    g.afegeix(punts.length ? `Fes la taula de signes de $${nomCurt}$. ${quins} (${llista(punts.map(p => p.valor))}) separen la recta en intervals.`
+    g.afegeix(punts.length ? (primera ? `Fes la taula de signes de $${nomD}$. ${quins} (${llista(punts.map(p => p.valor))}) són la frontera dels intervals.`
+        : `Fes la taula de signes de $${nomCurt}$. ${quins}${fora.length ? ` (${llista(punts.map(p => p.valor))})` : ''} són frontera dels intervals.`)
       : `Fes la taula de signes de $${nomCurt}$. No hi ha cap punt que separi la recta: només hi ha l'interval $(-\\infty,\\ +\\infty)$.`);
   }
   if (punts.length) {
     punts.forEach((p, k) => { cel.dp[k] = p.fora ? '\\nexists' : '0'; });
     g.files[ft] = taula();
-    g.afegeix([arrels.length ? `Als punts on s'anul·la, $${nomCurt} = 0$.` : '', fora.length ? 'On $f$ no existeix, les seves derivades tampoc: hi poses $\\nexists$.' : ''].filter(Boolean).join(' '));
+    g.afegeix([arrels.length ? `Escriu els punts on s'anul·la $${nomD}$.` : '', fora.length ? 'On $f$ no existeix, les seves derivades tampoc: hi poses $\\nexists$.' : ''].filter(Boolean).join(' '));
   }
   // El signe a cada interval: un valor de prova.
   const proves = [];
@@ -721,15 +720,15 @@ function estudiSignes(g, {ordre, trossos, fora, arrels, prova, valorY, yDe, posa
     g.afegeix(`Interval $${texInterval(a, b)}$: tria'n un valor, per exemple $x = ${Tt}$, i calcula $f${prima}(${Tt})$.`, {cursor: {clic: `${T}Hi${j}`}});
     cel.di[j] = positiu ? '+' : '-';
     g.files[ft] = taula();
-    g.afegeix(`$f${prima}$ no canvia de signe dins de l'interval: és ${positiu ? 'positiva' : 'negativa'} a tot l'interval. Hi poses un $${positiu ? '+' : '-'}$.`,
+    g.afegeix(`$${nomD}$ no canvia de signe dins de l'interval. Per tant, serà ${positiu ? 'positiva' : 'negativa'} a tot aquest interval.`,
       {cursor: {arrossega: `S${PX}w${j}`, fins: `${T}di${j}`}});
   });
   // El comportament de f, i els punts especials.
   cel.fi = cel.di.map(s => (primera ? (s === '+' ? '\\nearrow' : '\\searrow') : (s === '+' ? '\\cup' : '\\cap')));
   punts.forEach((p, k) => { if (p.fora) cel.fp[k] = '\\nexists'; });
   g.files[ft] = taula();
-  g.afegeix(primera ? 'On $f\' > 0$, $f$ creix ($\\nearrow$); on $f\' < 0$, $f$ decreix ($\\searrow$).'
-    : 'On $f\'\' > 0$, la concavitat és positiva ($\\cup$); on $f\'\' < 0$, la concavitat és negativa ($\\cap$).');
+  g.afegeix(primera ? '· Si $f\'(a) > 0$, llavors $f(x)$ creix al voltant de $x=a$.\n· Si $f\'(a) < 0$, llavors $f(x)$ decreix al voltant de $x=a$.'
+    : '· Si $f\'\'(x) > 0$, la concavitat és positiva ($\\cup$)\n· Si $f\'\'(x) < 0$, la concavitat és negativa ($\\cap$).');
   const especials = [];                              // [{valor, tipus}]
   const sense = [];
   punts.forEach((p, k) => {
@@ -744,7 +743,7 @@ function estudiSignes(g, {ordre, trossos, fora, arrels, prova, valorY, yDe, posa
     const fi = sense.length ? ` En ${llista(sense)} no canvia: ${primera ? 'no hi ha ni màxim ni mínim' : 'no hi ha punt d\'inflexió'}.` : '';
     const abans = g.passos.length;
     g.files[ft] = taula();
-    g.afegeix((primera ? 'Als punts crítics: si $f$ passa de créixer a decréixer, hi ha un màxim relatiu; si passa de decréixer a créixer, un mínim relatiu.'
+    g.afegeix((primera ? 'Estudia els punts crítics: si $f(x)$ passa de créixer a decréixer, hi ha un màxim relatiu; si passa de decréixer a créixer, hi ha un mínim relatiu.'
       : 'Als punts on $f\'\'(x) = 0$: si la concavitat canvia, hi ha un punt d\'inflexió.') + fi);
     if (g.passos.length === abans) g.completa(fi);
   }
@@ -756,8 +755,9 @@ function estudiSignes(g, {ordre, trossos, fora, arrels, prova, valorY, yDe, posa
       ls.index = ls.linies.length;
       ls.linies.push('');
       cadena(g, {fila: fv, P: `U${PX}${i}`, esquerra: `f(${texNombre(e.valor)})`, ls, parts: valorY(e.valor,
-        i === 0 ? `Calcula la $y$ ${especials.length > 1 ? `de cada ${primera ? 'extrem' : 'punt d\'inflexió'}` : `${primera ? 'de l\'extrem' : 'del punt d\'inflexió'}`}: $f(${texNombre(e.valor)})$.`
-          : `I $f(${texNombre(e.valor)})$.`)});
+        i === 0 ? (especials.length > 1 ? `Calcula la segona coordenada $y$ de cada ${primera ? 'punt que sigui extrem relatiu' : 'punt d\'inflexió'}.`
+          : `Calcula la segona coordenada $y$ ${primera ? 'de l\'extrem' : 'del punt d\'inflexió'}: $f(${texNombre(e.valor)})$.`)
+          : `I calcula també $f(${texNombre(e.valor)})$.`)});
       e.y = yDe(e.valor);
       posaPunt(e.valor, e.y);
     });
@@ -814,7 +814,7 @@ function seccionsFinals(g, {extres, valorY, yDe, posaPunt, taula, hiHaPunts, ff,
     lsx.linies.push('');
     cadena(g, {fila: fx, P: 'Ux' + i, esquerra: `f(${texNombre(x)})`, ls: lsx, parts: valorY(x,
       i === 0 ? `6. Taula de valors. Ja tens els talls amb els eixos${hiHaPunts ? ', els extrems i els punts d\'inflexió' : ''}. Afegeix-hi dos punts més, perquè es vegi cap on va la gràfica: calcula $f(${texNombre(x)})$.`
-        : `I $f(${texNombre(x)})$.`)});
+        : `I calcula també $f(${texNombre(x)})$.`)});
     posaPunt(x, yDe(x));
   });
   const ord = taula.slice().sort((a, b) => a.x.valor() - b.x.valor());
@@ -822,14 +822,14 @@ function seccionsFinals(g, {extres, valorY, yDe, posaPunt, taula, hiHaPunts, ff,
   g.files[fT] = `\\begin{array}{c|${'c'.repeat(ord.length)}} ${K('HLx', '\\boldsymbol{x}')} & ${ord.map((p, j) => K('Hx' + j, texAprox(p.x))).join(' & ')} \\\\ \\hline `
     + `${K('HLy', '\\boldsymbol{f(x)}')} & ${ord.map((p, j) => K('Hy' + j, texAprox(p.y))).join(' & ')} \\end{array}`;
   g.classes[fT] = 'separat';
-  g.afegeix('Posa tots els punts en una taula, ordenats per la $x$. Els valors irracionals, també aproximats: els necessites per dibuixar-los.');
+  g.afegeix('La taula de valors conté tots els valors de la $x$ ordenats, així com les seves imatges respectivament.');
 
   g.apartat(7);
   const fG = g.fila('grafica');
   const punts = ord.map(p => ({x: p.x.valor(), y: p.y.valor()}));
   const dibuix = corba => Gr.esbos({f: ff, trams, x: finestra.x, y: finestra.y, asimptotes, punts, corba});
   g.files[fG] = dibuix(false);
-  g.afegeix(`7. Gràfica de la funció. Dibuixa els eixos${asimptotes.length ? (asimptotes.length > 1 ? ', les asímptotes (discontínues)' : ', l\'asímptota (discontínua)') : ''} i els punts de la taula.`);
+  g.afegeix(`7. Gràfica de la funció. Dibuixa els eixos${asimptotes.length ? (asimptotes.length > 1 ? ', les asímptotes (discontínues)' : ', l\'asímptota (discontínua)') : ''} i, a continuació, els punts de la taula de valors.`);
   g.files[fG] = dibuix(true);
   g.afegeix(`Uneix els punts seguint el que has estudiat: on creix i on decreix, la concavitat${asimptotes.length ? ` i com s'acosta ${asimptotes.length > 1 ? 'a les asímptotes' : 'a l\'asímptota'}` : ''}. Aquest és l'esbós de la gràfica.`);
 }
@@ -845,8 +845,8 @@ function seccionsFinals(g, {extres, valorY, yDe, posaPunt, taula, hiHaPunts, ff,
  */
 
 const DOMINI = K('Vt', '\\text{Dom}\\,') + K('Vf', 'f') + R('Vq', '=');
-const INICI4 = '4. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe diu on $f$ creix i on decreix.';
-const INICI5 = '5. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$: el seu signe diu cap on es corba la gràfica.';
+const INICI4 = '4. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe indica on $f(x)$ creix i on decreix.';
+const INICI5 = '5. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$.';
 const ARREL_DOMINI = '1. Domini i possibles asímptotes verticals. L\'arrel quadrada d\'un nombre negatiu no existeix: el que hi ha dins de l\'arrel no pot ser negatiu. Planteja la inequació.';
 const INICI2 = '2. Límits en l\'infinit i possibles asímptotes horitzontals i obliqües.';
 const INICI3 = '3. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: és el punt de la gràfica amb $x = 0$. Calcula $f(0)$.';
@@ -874,8 +874,7 @@ function passosRadical(pr) {
   const H = {posaPunt, valorY, yDe: dades.exacte};
   const f0 = g.fila('f');
   g.files[f0] = F.membreEsquerre('F', 'f', 'x') + K('Fe', pr.tex);
-  g.afegeix('Per fer l\'esbós, estudia la funció en set apartats, l\'un darrere l\'altre. Totes les conclusions es queden a la pissarra: '
-    + 'les necessitaràs per dibuixar la gràfica.');
+  g.afegeix('Has d\'estudiar set aspectes de la funció, i posteriorment fer l\'esbós de la seva gràfica.');
   const r = pr.guio(g, H);                       // apartats 1–5: {asimptotes, hiHaPunts}
   seccionsFinals(g, {extres: pr.extres, valorY, yDe: dades.exacte, posaPunt, taula, hiHaPunts: r.hiHaPunts, ff: pr.f, trams: pr.trams,
     asimptotes: r.asimptotes, finestra: pr.finestra});
@@ -916,7 +915,7 @@ function guioArrelCubica(g, H) {
   ]});
   destacat(g, 'asimptotes', K('Ah', '\\text{No hi ha asímptotes horitzontals}'), 'El límit és infinit: no hi ha asímptota horitzontal. Però serveix per a l\'esbós: quan $x \\to +\\infty$, $f(x) \\to +\\infty$.');
   cadena(g, {fila: g.fila('limits'), P: 'Om', esquerra: `${LIM('+\\infty')} \\dfrac{f(x)}{x}`, parts: [
-    [`${LIM('+\\infty')} \\dfrac{\\sqrt{1 + x^{3}}}{x}`, 'Potser hi ha una asímptota obliqua, $y = mx + n$. El pendent seria el nombre $m = \\lim \\frac{f(x)}{x}$.'],
+    [`${LIM('+\\infty')} \\dfrac{\\sqrt{1 + x^{3}}}{x}`, 'Si hi hagués una recta asímptota obliqua, el seu pendent seria aquest: $m = \\lim \\frac{f(x)}{x}$. Calcula aquest límit.'],
     [`${LIM('+\\infty')} \\sqrt{\\dfrac{1 + x^{3}}{x^{2}}}`, 'Com que $x > 0$, $x = \\sqrt{x^2}$: posa-ho tot dins de l\'arrel.'],
     [`${LIM('+\\infty')} \\sqrt{\\dfrac{1}{x^{2}} + x}`, 'Divideix cada terme per $x^2$.'],
     ['+\\infty', '$\\frac{1}{x^2}$ tendeix a $0$, però $x$ es fa tan gran com vulguis: el límit és $+\\infty$.'],
@@ -991,7 +990,7 @@ function guioProducteArrel(g, H) {
   ]});
   destacat(g, 'asimptotes', K('Ah', '\\text{No hi ha asímptotes horitzontals}'), 'El límit és infinit: no hi ha asímptota horitzontal. Però serveix per a l\'esbós: quan $x \\to +\\infty$, $f(x) \\to +\\infty$.');
   cadena(g, {fila: g.fila('limits'), P: 'Om', esquerra: `${LIM('+\\infty')} \\dfrac{f(x)}{x}`, parts: [
-    [`${LIM('+\\infty')} \\dfrac{x\\sqrt{x + 3}}{x}`, 'Potser hi ha una asímptota obliqua, $y = mx + n$. El pendent seria el nombre $m = \\lim \\frac{f(x)}{x}$.'],
+    [`${LIM('+\\infty')} \\dfrac{x\\sqrt{x + 3}}{x}`, 'Si hi hagués una recta asímptota obliqua, el seu pendent seria aquest: $m = \\lim \\frac{f(x)}{x}$. Calcula aquest límit.'],
     [`${LIM('+\\infty')} \\sqrt{x + 3}`, 'Simplifica la $x$: a dalt i a baix.'],
     ['+\\infty', 'L\'arrel d\'un nombre cada cop més gran es fa tan gran com vulguis.'],
   ]});

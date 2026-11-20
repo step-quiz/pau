@@ -114,14 +114,6 @@ main{padding:18px var(--gr) 140px 28px; min-width:0}
 .pas.te-canvi.fet{border-left-color:var(--ok)}
 .pas.te-general{border-left:4px solid var(--gen); padding-left:11px}
 .pas.flaix{box-shadow:0 0 0 3px var(--accent)}
-.pas.revisada{border-left:4px solid color-mix(in srgb, var(--ok) 55%, transparent); padding-left:11px}
-.btn.correcta[aria-pressed="true"]{background:var(--ok-fons); color:var(--ok); border-color:var(--ok); font-weight:600}
-.btn.correcta[aria-pressed="true"]:hover{border-color:var(--txt)}
-.nav-pag .progres{display:block; font-size:11.5px; color:var(--muted); font-weight:400; margin-top:1px}
-.nav-pag .progres.ok{color:var(--ok)}
-.progres-pag{display:flex; align-items:center; gap:8px 12px; flex-wrap:wrap; font-size:13.5px; color:var(--muted); margin:0 0 12px}
-.progres-pag .ok{color:var(--ok); font-weight:600}
-.chip .ok-ex{color:var(--ok); font-weight:700}
 .pas.tipus-pagina{padding-block:7px; background:transparent; border-style:dashed}
 .pas.tipus-pagina.te-canvi{background:var(--surface); border-style:solid}
 .pas-cap{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); min-height:28px}
@@ -286,7 +278,7 @@ code.tex-cru{font:13px var(--mono); background:var(--surface-2); padding:0 4px; 
 'use strict';
 
 // ── Utilitats ──────────────────────────────────────────────────────────────────────────────────
-const POS = 'frases-procediments:pos', LOCAL = 'frases-procediments:canvis', LOCAL_REV = 'frases-procediments:revisades';
+const POS = 'frases-procediments:pos', LOCAL = 'frases-procediments:canvis';
 const LS = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sense emmagatzematge: no passa res */ } },
@@ -296,14 +288,6 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', 
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 /** La «plantilla» d'una frase: sense fórmules ni nombres. Dues frases amb la mateixa plantilla surten (gairebé segur) de la mateixa línia de codi. */
 const plantilla = t => t.replace(/\$[^$]*\$/g, '$·$').replace(/\d+(?:[.,]\d+)?/g, '#');
-/** Id del document de «revisades» d'una plantilla (cyrb53: les plantilles tenen caràcters que un id no admet). */
-function idRev(pl) {
-  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
-  for (let i = 0; i < pl.length; i++) { const c = pl.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return 'p' + (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
-}
 
 const cacheTex = new Map();
 function tex(t) {
@@ -336,11 +320,6 @@ const PER_PL = new Map();              // plantilla → [ids]
 let PLANTILLES = [];                   // [{pl, ids, rep, pagines, cerca}]
 const canvis = new Map();              // id → document de la col·lecció «canvis»
 let PER_PL_CANVIS = new Map();         // plantilla → [{id, d}]
-const revisades = new Map();           // idRev(plantilla) → {plantilla, text, pagina, quan}: frases marcades «Correcta»
-let REV_PL = new Set();                // les plantilles revisades
-/** Una plantilla ja està mirada si és «Correcta» o té algun canvi. */
-const mirada = pl => REV_PL.has(pl) || PER_PL_CANVIS.has(pl);
-const falten = pls => { let n = 0; pls.forEach(pl => { if (!mirada(pl)) n++; }); return n; };
 let botiga = null;
 const est = Object.assign({vista: 'pagina', pag: null, ex: 0, pissarres: true, ordre: 'pagina', filtre: 'pendent'}, LS.get(POS, {}), {cerca: '', filtreFrases: 'totes'});
 const desaPos = () => LS.set(POS, {vista: est.vista, pag: est.pag, ex: est.ex, pissarres: est.pissarres, ordre: est.ordre, filtre: est.filtre});
@@ -370,7 +349,6 @@ function indexa() {
 const pagina = () => D.pagines.find(p => p.id === est.pag) || D.pagines[0];
 const pendent = d => d.estat !== 'fet';
 function indexaCanvis() {
-  REV_PL = new Set([...revisades.values()].map(d => d.plantilla));
   PER_PL_CANVIS = new Map();
   canvis.forEach((d, id) => {
     if (!d.plantilla) return;
@@ -402,14 +380,13 @@ async function iniciaBotiga() {
       s();
     };
     subscriu('canvis', canvis);
-    subscriu('revisades', revisades);
     botiga = {
       desa: (col, id, d) => ambReintent(() => db.collection(col).doc(id).set(d)),
       esborra: (col, id) => ambReintent(() => db.collection(col).doc(id).delete()),
     };
     return;
   }
-  const MAPES = {canvis: [canvis, LOCAL], revisades: [revisades, LOCAL_REV]};
+  const MAPES = {canvis: [canvis, LOCAL]};
   for (const [mapa, clau] of Object.values(MAPES)) for (const [id, d] of Object.entries(LS.get(clau, {}))) mapa.set(id, d);
   const desaLocal = col => { const [mapa, clau] = MAPES[col], o = {}; mapa.forEach((d, id) => { o[id] = d; }); LS.set(clau, o); };
   botiga = {
@@ -439,7 +416,7 @@ function refresca() {
   $('#compte').textContent = n ? String(n) : '';
   pintaNav();
   document.querySelectorAll('article.pas').forEach(pintaEstat);
-  if (est.vista === 'pagina') { pintaPunts(); pintaProgres(); }
+  if (est.vista === 'pagina') pintaPunts();
   if (est.vista === 'frases') pintaComptaFrases();
   if (est.vista === 'canvis') pintaCanvis();
 }
@@ -450,9 +427,8 @@ function pintaNav() {
   for (const p of D.pagines) {
     if (p.cat !== cat) { cat = p.cat; html += `<div class="nav-cat cat-${p.cat}">${esc(p.categoria)}</div>`; }
     const k = n.get(p.id) || 0;
-    const f = falten(p.pls);
     html += `<button class="nav-pag cat-${p.cat}" data-acc="pagina" data-p="${esc(p.id)}"${est.vista === 'pagina' && p.id === pagina().id ? ' aria-current="true"' : ''}>`
-      + `<span>${esc(p.titol)}<span class="progres${f ? '' : ' ok'}">${f ? `falten ${f} de ${p.pls.size}` : '✓ revisada'}</span></span>`
+      + `<span>${esc(p.titol)}</span>`
       + `${k ? `<span class="n">${k}</span>` : ''}</button>`;
   }
   nav.innerHTML = html;
@@ -469,8 +445,8 @@ function htmlTargeta(it, mode, t) {
   return `<article class="pas tipus-${it.tipus}${llista ? ' mode-plantilla' : ''}" data-id="${esc(it.id)}"${t ? ` data-pl="${esc(t.pl)}"` : ''}>`
     + `<div class="pas-cap"><span class="num">${cap}</span><span class="etiq"></span><span class="sp"></span>`
     + (llista ? '<button class="btn subtil" data-acc="context">Mostra on surt</button>' : '')
-    + (it.tipus !== 'pagina' ? '<button class="btn correcta" data-acc="correcta" aria-pressed="false">Correcta</button>' : '')
-    + `<button class="btn" data-acc="canvia">${it.tipus === 'pagina' ? 'Escriu' : 'Canvia'}</button></div>`
+    + (it.tipus === 'pagina' ? '<button class="btn" data-acc="canvia">Escriu</button>' : '')   // frases i enunciats: es clica la frase mateixa
+    + '</div>'
     + (it.tipus !== 'pagina' ? `<div class="frase${it.tipus === 'enunciat' ? ' enun' : ''}" data-acc="canvia">${ambFormules(it.original)}</div>` : '')
     + '<div class="estat"></div><div class="editor" hidden></div>'
     + (pissarra ? `<div class="pissarra" style="min-height:${alcadaPissarra(it)}px"></div>` : '')
@@ -516,33 +492,6 @@ function pintaEstat(card) {
   card.classList.toggle('te-general', !propi && altres.length > 0);
   card.querySelector('.etiq').innerHTML = propi ? etiqueta(propi) : altres.length ? '<span class="etiqueta gen">canvi general</span>' : '';
   card.querySelector('.estat').innerHTML = (propi ? htmlCanviPropi(propi) : '') + altres.map(htmlCanviAltre).join('');
-  // «Correcta»: per plantilla (marcar-la aquí la marca a tots els llocs on surt); amb un canvi ja no cal
-  const b = card.querySelector('[data-acc="correcta"]');
-  const rev = !!pl && REV_PL.has(pl), cobert = !!propi || altres.length > 0;
-  card.classList.toggle('revisada', rev && !cobert);
-  if (b) { b.hidden = cobert; b.setAttribute('aria-pressed', String(rev)); b.textContent = rev ? '✓ Correcta' : 'Correcta'; }
-}
-function commutaRevisada(card) {
-  const it = ITEMS.get(card.dataset.id), pl = card.dataset.pl || it.pl;
-  if (!pl) return;
-  const id = idRev(pl), d = revisades.has(id) ? null
-    : {plantilla: pl, text: it.original, pagina: D.pagines[it.pi].id, quan: new Date().toISOString()};
-  if (d) revisades.set(id, d); else revisades.delete(id);    // es veu de seguida; la base de dades ve darrere
-  refresca();
-  escriu(id, d, 'revisades');
-}
-/** Porta a la propera frase per revisar d'aquesta pàgina (i, si no n'hi ha més en aquest exemple, al següent que en tingui). */
-function seguentPerRevisar() {
-  const p = pagina();
-  const perRevisar = () => [...main.querySelectorAll('article.pas')].filter(c => { const it = ITEMS.get(c.dataset.id); return it && it.pl && !mirada(it.pl); });
-  const dalt = (getComputedStyle(top).position === 'sticky' ? top.offsetHeight : 0) + 40;
-  const seg = perRevisar().find(c => c.getBoundingClientRect().top > dalt);
-  if (seg) return destaca(seg, 'start');
-  for (let k = 1; k <= p.exemples.length; k++) {
-    const ei = (est.ex + k) % p.exemples.length;
-    if (falten(p.exemples[ei].pls)) { est.ex = ei; pinta(); const c = perRevisar()[0]; if (c) destaca(c, 'start'); return; }
-  }
-  toast('Aquesta pàgina ja està revisada');
 }
 function destaca(card, block) {
   card.scrollIntoView({block: block || 'center'});
@@ -597,27 +546,17 @@ function pintaPagina() {
   main.innerHTML = sel
     + `<div class="cap-pag"><div><div class="cat-chip">${esc(p.categoria)}</div><h2>${esc(p.titol)}</h2></div><span class="sp"></span>`
     + `<button class="btn" data-acc="pissarres">${est.pissarres ? 'Amaga les pissarres' : 'Mostra les pissarres'}</button></div>`
-    + '<div class="progres-pag" id="progres-pag"></div>'
     + `<div class="exemples" id="exemples">${p.exemples.map((e, i) => `<button class="chip${i === est.ex ? ' actiu' : ''}" data-acc="exemple" data-e="${i}">`
-      + `<span class="punt" hidden></span><span class="ok-ex" hidden>✓</span>${e.mode ? `<span class="mode">${esc(e.mode)}</span>` : ''}${e.tex ? tex(e.nom) : esc(e.nom)}</button>`).join('')}</div>`
+      + `<span class="punt" hidden></span>${e.mode ? `<span class="mode">${esc(e.mode)}</span>` : ''}${e.tex ? tex(e.nom) : esc(e.nom)}</button>`).join('')}</div>`
     + `<div class="llista">${items.map(it => htmlTargeta(it, 'pagina')).join('')}</div>`;
   preparaTargetes(main);
   pintaPunts();
-  pintaProgres();
-}
-function pintaProgres() {
-  const el = $('#progres-pag');
-  if (!el) return;
-  const p = pagina(), n = p.pls.size, f = falten(p.pls);
-  el.innerHTML = f ? `<span>Revisades ${n - f} de ${n} frases d'aquesta pàgina</span><button class="btn" data-acc="seguent">Següent per revisar</button>`
-    : `<span class="ok">✓ Totes les frases d'aquesta pàgina estan revisades</span>`;
 }
 function pintaPunts() {
   const p = pagina(), amb = new Set();
   canvis.forEach(d => { if (pendent(d) && d.pagina === p.id) amb.add(d.exemple); });
   document.querySelectorAll('#exemples .chip').forEach(c => {
     $('.punt', c).hidden = !amb.has(+c.dataset.e);
-    $('.ok-ex', c).hidden = !!falten(p.exemples[+c.dataset.e].pls);
   });
 }
 
@@ -628,7 +567,7 @@ function pintaFrases() {
   main.innerHTML = `<div class="cap-pag"><h2>Totes les frases</h2></div>`
     + `<div class="filtres"><input type="search" id="cerca" placeholder="Cerca (text o LaTeX)" autocomplete="off" aria-label="Cerca">`
     + `<select id="ordre" aria-label="Ordre"><option value="pagina">En l'ordre de les pàgines</option><option value="freq">Les més repetides primer</option></select>`
-    + `<select id="filtre-frases" aria-label="Quines"><option value="totes">Totes</option><option value="revisar">Per revisar</option><option value="canvis">Amb canvis</option></select>`
+    + `<select id="filtre-frases" aria-label="Quines"><option value="totes">Totes</option><option value="canvis">Amb canvis</option></select>`
     + `<span id="n-frases" class="muted"></span></div>`
     + `<div class="llista" id="llista-frases"></div><div class="sentinella" id="mes"></div>`;
   $('#cerca').value = est.cerca;
@@ -645,7 +584,7 @@ function reomple() {
   const q = norm(est.cerca.trim());
   const f = est.filtreFrases;
   llistaFrases = PLANTILLES.filter(t => (!q || t.cerca.includes(q))
-    && (f === 'totes' || (f === 'canvis' ? PER_PL_CANVIS.has(t.pl) : !mirada(t.pl))));
+    && (f === 'totes' || PER_PL_CANVIS.has(t.pl)));
   if (est.ordre === 'freq') llistaFrases = llistaFrases.slice().sort((a, b) => b.ids.length - a.ids.length);
   mostrades = 0;
   $('#llista-frases').innerHTML = '';
@@ -655,8 +594,7 @@ function reomple() {
 function pintaComptaFrases() {
   const el = $('#n-frases');
   if (!el) return;
-  const f = PLANTILLES.filter(t => !mirada(t.pl)).length;
-  el.textContent = (llistaFrases.length === 1 ? '1 frase' : `${llistaFrases.length} frases`) + ` · en falten ${f} de ${PLANTILLES.length} per revisar`;
+  el.textContent = (llistaFrases.length === 1 ? '1 frase' : `${llistaFrases.length} frases`);
 }
 function afegeixFrases() {
   const cont = $('#llista-frases');
@@ -834,7 +772,7 @@ function marcaDesat(id, text, error) {
 }
 const cua = new Map();                 // col/id → {enCurs, seguent: {d}}
 function escriu(id, d, col = 'canvis') {   // d === null: esborrar
-  const clau = col + '/' + id, mapa = col === 'canvis' ? canvis : revisades;
+  const clau = col + '/' + id, mapa = canvis;
   let c = cua.get(clau);
   if (!c) cua.set(clau, c = {enCurs: null, seguent: null});
   c.seguent = {d};
@@ -908,8 +846,6 @@ document.addEventListener('click', e => {
     case 'pissarres': est.pissarres = !est.pissarres; pinta(); break;
     case 'canvia': if (!(b.classList.contains('frase') && String(getSelection()).length)) obreEditor(card); break;
     case 'tanca': tancaEditor(card); break;
-    case 'correcta': commutaRevisada(card); break;
-    case 'seguent': seguentPerRevisar(); break;
     case 'esborra': {
       const id = (card || b.closest('[data-id]')).dataset.id;
       if (card) { clearTimeout(card._desat); card._desat = null; tancaEditor(card); }
@@ -950,9 +886,13 @@ posaTop();
 // ── Inici ──────────────────────────────────────────────────────────────────────────────────────
 (async () => {
   try {
-    const r = await fetch('frases.json');
-    if (!r.ok) throw new Error(r.status);
-    D = await r.json();
+    const inc = document.getElementById('dades-frases');   // versió d'una sola pàgina: dades incrustades
+    if (inc) D = JSON.parse(inc.textContent);
+    else {
+      const r = await fetch('frases.json');
+      if (!r.ok) throw new Error(r.status);
+      D = await r.json();
+    }
   } catch (e) {
     main.innerHTML = '<p class="buit">No s\'han pogut carregar les frases. Torna a obrir la pàgina.</p>';
     return;
