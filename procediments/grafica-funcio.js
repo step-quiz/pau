@@ -1161,6 +1161,128 @@ guioArrelObliques.dades = {
 };
 
 
+/* ── 7b. MENYS PASSOS (David, 21/11/2026) ──────────────────────────── */
+
+/*
+ * L'alumnat que fa servir aquesta DEMO ja sap fer moltes coses: els guions de dalt (i els constructors
+ * compartits que criden) tenen massa granularitat (67-95 passos). David va revisar les propostes a l'artifact
+ * «Simplificar passos — Gràfica d'una funció» i va aprovar aquests grups: els passos seguits d'un mateix grup
+ * es fan en un sol pas (la pissarra salta de l'estat d'abans del grup a l'estat del final del grup).
+ *   E  (E1 + E2) resoldre una equació de primer o de segon grau (no: treure factor comú, E3; no: fusionar
+ *      «Substitueix f(x)…», E4);
+ *   L1 límits d'un polinomi a ±∞; L3 límits racionals de graus iguals (no: límits laterals, L2);
+ *   V1 calcular f(a): un pas per valor;
+ *   S1 un pas per interval de la taula de signes; S2 la capçalera de la taula amb els zeros (no: recordatoris
+ *      de teoria, S3);
+ *   D2 treure factor comú (x − a) i simplificar-lo (no: simplificar el numerador de la derivada, D1);
+ *   I1 el pas inicial «Has d'estudiar set aspectes…» s'elimina.
+ * Es fa aquí, i no als constructors compartits, perquè només val per a aquesta pàgina.
+ * `inici`: frases que comencen un grup nou encara que l'anterior sigui del mateix grup.
+ */
+const GRUPS = [
+  {id: 'I1', elimina: true, re: [/^Has d'estudiar set aspectes/]},
+  {id: 'E', re: [/^Passa (el|l')/, /^Divideix (els dos membres|per)/, /^La solució és \$x = /, /^Resol cada equació/, /^Resol \$.*= 0\$: \$x =/,
+    /^Fes l'arrel cúbica/, /^L'únic nombre que elevat al cub/, /^Només el \$0\$ té quadrat/, /^Si \$x\^2 = 0\$/,
+    /^Aplica la fórmula/, /^Calcula el discriminant/, /^\$\\sqrt\{\d+\} = \d+\$\.$/, /^Troba les dues solucions/, /^L'equació de segon grau té/,
+    /^Fes l'arrel quadrada/, /^Separa les dues solucions/, /^Les solucions són/]},
+  {id: 'L', re: [/^Recorda que \$\\lim/, /^En un límit quan/, /^Quan \$x \\to [+-]\\infty\$, \$x(\^\{\d\})?\$ és/, /^Ara \$x \\to -\\infty\$: (també mana|manen)/,
+    /^Simplifica: \$\\dfrac\{/, /^Un nombre fix dividit per una quantitat/,
+    /^Substitueix \$f\(x\)\$\.$/, /^Divideix cada terme per/, /^Simplifica: a dalt i a baix hi ha el mateix grau/, /^A \$-\\infty\$ passa el mateix: els termes/],
+    inici: [/^Ara \$x \\to -\\infty\$/, /^En un límit quan/, /^A \$-\\infty\$ passa el mateix/, /^Substitueix \$f\(x\)\$\.$/]},
+  {id: 'V1', re: [/^Calcula cada terme/, /^Opera: el valor és/, /^Opera: \$f\(0\) =/, /^Calcula el numerador i el denominador/, /^Opera dins de l'arrel/,
+    /^Opera: \$-?\\sqrt/, /^Simplifica: \$-?\\frac\{\d*\\sqrt/, /^I calcula també \$f\(/, /^Calcula la segona coordenada/, /calcula \$f\([^)]*\)\$\.$/i],
+    inici: [/^I calcula també \$f\(/, /^Calcula la segona coordenada/, /calcula \$f\([^)]*\)\$\.$/i]},
+  {id: 'S1', re: [/^Interval \$/, /no canvia de signe dins de l'interval/], inici: [/^Interval \$/]},
+  {id: 'S2', re: [/^Fes la taula de signes/, /^Escriu els punts on s'anul·la/, /^On \$f\$ no existeix, les seves derivades tampoc/], inici: [/^Fes la taula de signes/]},
+  {id: 'D2', re: [/^Treu factor comú \$\(/, /^Simplifica \$\(/], inici: [/^Treu factor comú \$\(/]},
+];
+const grupDe = text => GRUPS.find(o => o.re.some(r => r.test(text))) || null;
+const clausDe = files => new Set(files.flatMap(t => [...String(t).matchAll(/\\htmlData\{k=([^,}]+)/g)].map(m => m[1])));
+
+/** Les claus de l'estat d'abans d'un grup d'on surt cada clau del final del grup (fusiona/reanomena encadenats). */
+function fusionsDelGrup(abans, grup) {
+  let origen = new Map([...clausDe(abans.files)].map(k => [k, [k]]));   // clau d'un estat → claus de l'estat inicial
+  for (const pas of grup) {
+    const nou = new Map(), fus = pas.fusiona || {}, ren = pas.reanomena || {};
+    for (const k of clausDe(pas.files)) {
+      const velles = fus[k] || (ren[k] ? [ren[k]] : origen.has(k) ? [k] : []);
+      nou.set(k, [...new Set(velles.flatMap(v => (v === k && !fus[k] && !ren[k] ? origen.get(k) || [] : origen.get(v) || [])))]);
+    }
+    origen = nou;
+  }
+  const fusiona = {}, reanomena = {};
+  const inicials = clausDe(abans.files);
+  for (const [k, vs] of origen) {
+    if (vs.length > 1) fusiona[k] = vs;
+    else if (vs.length === 1 && vs[0] !== k) (inicials.has(k) ? fusiona[k] = vs : reanomena[k] = vs[0]);
+  }
+  return {fusiona, reanomena};
+}
+
+const sensePunt = t => t.replace(/\.\s*$/, '');
+/** La frase del pas que fa tot un grup. */
+function fraseDelGrup(id, textos) {
+  const [primer] = textos, ultim = textos[textos.length - 1];
+  if (textos.length === 1 && id !== 'E') return primer;
+  if (id === 'E' && textos.some(t => /restant\.|sumant\.|desigualtat/.test(t))) return 'Resol la inequació.';
+  if (id === 'E') {
+    // «Resol l'equació: …» amb el resultat (i el que s'hi hagi afegit: «Totes dues solucions són del domini», «no té solucions»…)
+    const sol = textos.map(t => /(La solució és|Les solucions són|solució \(doble\):|la solució és) (.*)$/.exec(t)).filter(Boolean).pop();
+    const extra = textos.flatMap(t => (t.match(/(Un quadrat no pot ser negatiu[^.]*\.|L'arrel quadrada d'un nombre negatiu[^.]*\.|Totes dues solucions són del domini\.|[^.]*no és del domini[^.]*\.)/g) || []));
+    if (sol) return `Resol l'equació: ${/^Les/.test(sol[1]) ? 'les solucions són' : 'la solució és'} ${sol[2]}`.replace(/\.?$/, '.') + (extra.length ? ' ' + extra.join(' ') : '');
+    const resultat = textos.map(t => /: (\$x = [^$]*\$(?:\$[^$]*\$|[^.$])*)\./.exec(t)).filter(Boolean).pop();
+    if (!resultat && !extra.length) return textos.every(t => /^Divideix/.test(t)) ? 'Simplifica l\'equació.' : 'Resol l\'equació.';
+    return `Resol l'equació${resultat ? ': ' + resultat[1] : ''}.` + (extra.length ? ' ' + extra.join(' ') : '');
+  }
+  if (id === 'V1') {
+    const cap = textos.filter(t => !/^(Calcula cada terme|Opera|Calcula el numerador i el denominador|Simplifica)/.test(t));
+    const res = /^(Opera|Simplifica): (.*)$/.exec(ultim);
+    const fi = !res ? '' : /^el valor/.test(res[2]) ? res[2][0].toUpperCase() + res[2].slice(1) : /^\$f\(/.test(res[2]) ? res[2]
+      : 'El valor és ' + res[2].replace(/\. Per dibuixar-lo, el valor aproximat\.?$/, ' (per dibuixar-lo, el valor aproximat).');
+    return [...cap.map(sensePunt).map(t => t + '.'), fi].filter(Boolean).join(' ') || ultim;
+  }
+  if (id === 'L') {     // L1 (polinomis) + L3 (racionals de graus iguals)
+    const limit = textos.map(t => /(?:el límit és|tendeix a|quocient, ) ?(\$[^$]*\$)\.?$/.exec(t)).filter(Boolean).pop();
+    const ara = /^Ara \$x \\to -\\infty\$/.test(primer) ? 'Ara $x \\to -\\infty$: també ' : '', i = ara ? ', i' : ':';
+    if (textos.some(t => /mateix grau/.test(t))) return `${ara ? ara + 'm' : 'M'}ana el terme de grau més alt de dalt i de baix: com que tenen el mateix grau, el límit és el quocient dels seus coeficients.`;
+    if (!limit) return textos.join(' ');
+    if (textos.some(t => /^Simplifica/.test(t))) return `${ara ? ara + 'm' : 'M'}ana el terme de grau més alt. Simplifica: el límit és ${limit[1]}.`;
+    return `${ara ? ara + 'm' : 'M'}ana el terme de grau més alt${i} el límit és ${limit[1]}.`;
+  }
+  if (id === 'S1') return `${sensePunt(primer)}. ${ultim.replace(/^\$f('+)\(x\)\$ no canvia de signe dins de l'interval\. Per tant, serà /, 'Com que $f$1(x)$ no canvia de signe dins de l\'interval, és ')}`;
+  if (id === 'S2') return [primer, ...textos.slice(1).map(t => t.replace(/^Escriu els punts on s'anul·la (\$[^$]*\$)\.?/, 'Escriu-hi els punts on s\'anul·la $1.'))].join(' ');
+  if (id === 'D2') return 'Treu factor comú al numerador i simplifica el factor que hi ha a dalt i a baix.'.replace('factor comú', /factor comú (\$[^$]*\$)/.exec(primer) ? 'factor comú ' + /factor comú (\$[^$]*\$)/.exec(primer)[1] : 'factor comú');
+  return textos.join(' ');
+}
+
+/** Ajunta els passos seguits d'un mateix grup aprovat. */
+function simplifica(passos) {
+  const out = [];
+  let i = 0;
+  while (i < passos.length) {
+    const g = grupDe(passos[i].text);
+    if (g && g.elimina) { i++; continue; }
+    if (!g) { out.push(passos[i]); i++; continue; }
+    let j = i + 1;
+    while (j < passos.length) {
+      const h = grupDe(passos[j].text);
+      if (!h || h.id !== g.id || (h.inici && h.inici.some(r => r.test(passos[j].text)))) break;
+      j++;
+    }
+    const grup = passos.slice(i, j), ultim = grup[grup.length - 1];
+    const abans = out.length ? out[out.length - 1] : {files: [], classes: []};
+    const {fusiona, reanomena} = fusionsDelGrup(abans, grup);
+    const pas = {files: ultim.files, classes: ultim.classes, text: fraseDelGrup(g.id, grup.map(p => p.text)), tipus: ultim.tipus};
+    if (Object.keys(fusiona).length) pas.fusiona = fusiona;
+    if (Object.keys(reanomena).length) pas.reanomena = reanomena;
+    if (grup.length === 1 && ultim.cursor) pas.cursor = ultim.cursor;
+    out.push(Object.freeze(pas));
+    i = j;
+  }
+  return out;
+}
+
+
 /* ── 8. EL PROCEDIMENT ─────────────────────────────────────────────── */
 
 const enunciat = v => `Elabora un esbós de la gràfica de la funció $f(x) = ${texDe(perId(v.p))}$, justificant-ho tot.`;
@@ -1169,7 +1291,7 @@ function texDe(pr) {
   const P = coefs(pr.P), Q = coefs(pr.Q);
   return grau(Q) === 0 ? tp(P) : `\\dfrac{${tp(P)}}{${tp(Q)}}`;
 }
-const passos = v => { const pr = perId(v.p); return pr.tipus === 'radical' ? passosRadical(pr) : passosRacional(pr); };
+const passos = v => { const pr = perId(v.p); return simplifica(pr.tipus === 'radical' ? passosRadical(pr) : passosRacional(pr)); };
 
 arrel.GraficaFuncio = Object.freeze({
   titol: 'Gràfica d\'una funció',

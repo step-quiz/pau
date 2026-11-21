@@ -1,0 +1,412 @@
+<title>Simplificar passos — Gràfica d’una funció</title>
+<style>/*__KATEX_CSS__*/</style>
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#fff; --surface-2:#f0eee8; --border:#dfdbd1; --border-2:#c8c3b7;
+  --txt:#1f2328; --muted:#6a6f78; --hover:#ebe9e3; --accent:#2453c7;
+  --ok:#1d7a46; --ok-fons:#e6f4eb; --no:#b42318; --no-fons:#fbe9e7; --tard:#8a6d00; --tard-fons:#fbf3d6; --parla:#5546b0; --parla-fons:#efecfa;
+  --cat:#7c5cbf; --cat-fons:rgba(124,92,191,.10); --catp:#7c5cbf; --catp-fons:rgba(124,92,191,.10);
+  --paper:#fff; --paper-dots:#e3e8ef; --paper-border:#d6dbe3; --paper-ink:#1e293b;
+  --serif:'Libre Baskerville', Georgia, serif; --sans:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--txt); font:15px/1.5 var(--sans)}
+header{position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px 0}
+h1{font-size:18px; margin:0 0 4px; color:var(--cat)}
+.estat-global{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13.5px; color:var(--muted); margin-bottom:8px}
+.estat-global b{color:var(--txt)}
+.tabs{display:flex; gap:4px}
+.tabs button{border:0; background:none; padding:8px 14px; font:inherit; font-weight:600; color:var(--muted); border-bottom:3px solid transparent; cursor:pointer}
+.tabs button[aria-selected=true]{color:var(--cat); border-bottom-color:var(--cat)}
+main{max-width:980px; margin:0 auto; padding:16px}
+.avis{background:var(--tard-fons); border:1px solid #e6cf7a; border-radius:8px; padding:10px 14px; margin-bottom:14px}
+.filtres{display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; margin-bottom:14px; font-size:14px}
+.seg{display:inline-flex; border:1px solid var(--border-2); border-radius:8px; overflow:hidden}
+.seg button{border:0; background:var(--surface); padding:5px 11px; font:inherit; cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--cat); color:#fff}
+h2{font-size:15px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:22px 0 8px}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:12px}
+.card.si{border-left:5px solid var(--ok)} .card.no{border-left:5px solid var(--no)} .card.tard{border-left:5px solid var(--tard)} .card.parla{border-left:5px solid var(--parla)}
+.cap{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
+.id{font-weight:700; color:var(--cat); font-family:ui-monospace,monospace}
+.titol{font-weight:700; font-size:16px}
+.xifres{margin-left:auto; font-size:13px; color:var(--muted)}
+.camp{margin:6px 0} .camp .et{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; margin-right:6px}
+.pregunta{font-weight:600}
+.decisions{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 6px}
+.dec{border:1px solid var(--border-2); background:var(--surface); border-radius:999px; padding:5px 13px; font:inherit; font-size:14px; cursor:pointer}
+.dec:hover{background:var(--hover)}
+.dec[aria-pressed=true][data-v=si]{background:var(--ok); border-color:var(--ok); color:#fff}
+.dec[aria-pressed=true][data-v=no]{background:var(--no); border-color:var(--no); color:#fff}
+.dec[aria-pressed=true][data-v=tard]{background:var(--tard); border-color:var(--tard); color:#fff}
+.dec[aria-pressed=true][data-v=parla]{background:var(--parla); border-color:var(--parla); color:#fff}
+.dec[aria-pressed=true][data-v=mante]{background:var(--ok); border-color:var(--ok); color:#fff}
+.dec[aria-pressed=true][data-v=elimina]{background:var(--no); border-color:var(--no); color:#fff}
+.dec[aria-pressed=true][data-v=fusiona]{background:var(--parla); border-color:var(--parla); color:#fff}
+textarea,input[type=text]{width:100%; font:inherit; font-size:14px; border:1px solid var(--border-2); border-radius:8px; padding:7px 10px; background:#fff}
+textarea{min-height:52px; resize:vertical}
+.desat{font-size:12.5px; color:var(--muted); margin-top:3px; min-height:1.2em}
+.desat.err{color:var(--no); font-weight:600}
+.nota{background:var(--ok-fons); border-radius:8px; padding:7px 10px; margin-top:8px; font-size:14px}
+.nota::before{content:'Claude: '; font-weight:700; color:var(--ok)}
+.enllac{border:0; background:none; color:var(--accent); font:inherit; font-size:13.5px; cursor:pointer; padding:0; text-decoration:underline}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px}
+.chip{border:1px solid var(--border-2); background:var(--surface); border-radius:999px; padding:5px 12px; font:inherit; font-size:14px; cursor:pointer}
+.chip[aria-pressed=true]{background:var(--cat); color:#fff; border-color:var(--cat)}
+.chip small{opacity:.8}
+details.seccio{margin-bottom:10px}
+details.seccio>summary{cursor:pointer; font-weight:700; color:var(--cat); padding:6px 2px; font-size:15.5px}
+details.seccio>summary small{color:var(--muted); font-weight:400}
+.pas{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px; margin:0 0 8px; border-left:5px solid var(--border)}
+.pas.cau{opacity:.62; border-left-color:var(--parla); background:repeating-linear-gradient(135deg,#fff,#fff 8px,#f6f4fb 8px,#f6f4fb 16px)}
+.pas.elim{opacity:.55; border-left-color:var(--no)}
+.pas.mante{border-left-color:var(--ok)}
+.pas .num{font-weight:700; font-size:13px; color:var(--muted)}
+.pas .frase{font-family:var(--serif); font-size:15px; margin:3px 0}
+.etiq{display:inline-block; font-size:12px; font-weight:700; border-radius:6px; padding:1px 7px; margin-left:6px; background:var(--surface-2); color:var(--muted)}
+.etiq.si{background:var(--ok-fons); color:var(--ok)} .etiq.no{background:var(--no-fons); color:var(--no)}
+.efecte{font-size:13px; color:var(--parla); font-weight:600}
+.efecte.elim{color:var(--no)}
+.pas .decisions{margin:6px 0 2px}
+.pas .dec{font-size:13px; padding:3px 10px}
+.editor{display:grid; gap:6px; margin-top:6px}
+.editor[hidden],[hidden]{display:none !important}
+.abast{display:flex; flex-wrap:wrap; gap:4px 16px; font-size:13.5px}
+.resum-taula{width:100%; border-collapse:collapse; background:var(--surface); border-radius:10px; overflow:hidden}
+.resum-taula th,.resum-taula td{padding:7px 10px; border-bottom:1px solid var(--border); text-align:left; font-size:14px}
+.resum-taula td.n{text-align:right; font-variant-numeric:tabular-nums}
+.barra{height:8px; background:var(--surface-2); border-radius:4px; overflow:hidden; min-width:120px}
+.barra i{display:block; height:100%; background:var(--cat)}
+.toast{position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#1f2328; color:#fff; padding:8px 16px; border-radius:8px; font-size:14px; z-index:9}
+.destaca{outline:3px solid #e3a008; outline-offset:2px}
+/* Pissarra */
+.pissarra{margin-top:8px; background:var(--paper); background-image:radial-gradient(var(--paper-dots) 1.1px, transparent 1.3px); background-size:20px 20px; border:1px solid var(--paper-border); border-radius:10px; padding:8px 18px; font-size:18px; color:var(--paper-ink); overflow-x:auto}
+.oculta-pissarres .pissarra{display:none}
+.pissarra .fila.vella{opacity:.38}
+/*__PISSARRA_CSS__*/
+@media (max-width:600px){ main{padding:10px} .xifres{margin-left:0; width:100%} }
+</style>
+
+<header>
+  <h1>Simplificar els passos · Gràfica d’una funció</h1>
+  <div class="estat-global" id="global"></div>
+  <nav class="tabs">
+    <button data-v="propostes">Propostes</button>
+    <button data-v="passos">Pas a pas</button>
+    <button data-v="resum">Resum</button>
+  </nav>
+</header>
+<main id="main"></main>
+
+<script type="application/json" id="dades">/*__DADES__*/</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+(() => {
+'use strict';
+const D = JSON.parse(document.getElementById('dades').textContent);
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const cache = new Map();
+function tex(t) {
+  if (!window.katex) return `<code>${esc(t)}</code>`;
+  let r = cache.get(t);
+  if (r === undefined) { try { r = katex.renderToString(t, {throwOnError: false, strict: 'ignore'}); } catch (e) { r = `<code>${esc(t)}</code>`; } cache.set(t, r); }
+  return r;
+}
+const amb = text => String(text).split(/(\$[^$]+\$)/).map(t => t.length > 2 && t[0] === '$' && t.endsWith('$') ? tex(t.slice(1, -1)) : esc(t).replace(/\n/g, '<br>')).join('');
+const LS = {get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+            set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }};
+const PROP = new Map(D.propostes.map(p => [p.id, p]));
+const DEC_P = [['si', 'Sí, fes-ho'], ['no', 'No'], ['tard', 'Més endavant'], ['parla', 'En parlem']];
+const DEC_S = [['mante', 'Mantén'], ['elimina', 'Elimina'], ['fusiona', 'Fusiona amb l’anterior']];
+const NOM_DEC = Object.fromEntries([...DEC_P, ...DEC_S]);
+
+// ── Estat i desament ────────────────────────────────────────────────────────────────────────
+const prop = new Map(), pas = new Map();   // documents de les col·leccions «propostes» i «passos»
+let botiga = null, local = false;
+const est = Object.assign({vista: 'propostes', ex: 0, filtre: 'totes', filtreP: 'tots', pissarres: true}, LS.get('simpl-gf:pos', {}));
+const desaPos = () => LS.set('simpl-gf:pos', est);
+
+async function inicia() {
+  let db = null;
+  try { if (window.claude && window.claude.use) db = await Promise.race([window.claude.use('db'), new Promise(r => setTimeout(() => r(null), 10000))]); } catch (e) { db = null; }
+  if (db) {
+    const sub = (col, mapa) => {
+      const s = () => db.collection(col).onSnapshot(snap => { mapa.clear(); for (const d of snap.docs) mapa.set(d.id, d.data()); refresca(); },
+        err => { if (err && err.code === 'unavailable') setTimeout(s, 3000); else toast('No puc llegir les respostes (' + (err && (err.code || err.message)) + ').'); });
+      s();
+    };
+    sub('propostes', prop); sub('passos', pas);
+    botiga = {desa: (c, id, d) => db.collection(c).doc(id).set(d), esborra: (c, id) => db.collection(c).doc(id).delete()};
+  } else {
+    local = true;
+    for (const [id, d] of Object.entries(LS.get('simpl-gf:propostes', {}))) prop.set(id, d);
+    for (const [id, d] of Object.entries(LS.get('simpl-gf:passos', {}))) pas.set(id, d);
+    const desaL = (c, m) => LS.set('simpl-gf:' + c, Object.fromEntries(m));
+    botiga = {desa: async (c, id, d) => { (c === 'propostes' ? prop : pas).set(id, d); desaL(c, c === 'propostes' ? prop : pas); },
+              esborra: async (c, id) => { (c === 'propostes' ? prop : pas).delete(id); desaL(c, c === 'propostes' ? prop : pas); }};
+    refresca();
+  }
+}
+const cua = new Map();   // una escriptura a la vegada per document
+function escriu(col, id, d, statusEl) {
+  const k = col + '/' + id;
+  const anterior = cua.get(k) || Promise.resolve();
+  if (statusEl) { statusEl.textContent = 'Desant…'; statusEl.classList.remove('err'); }
+  const p = anterior.catch(() => {}).then(() => d ? botiga.desa(col, id, d) : botiga.esborra(col, id))
+    .then(() => { if (statusEl) statusEl.textContent = local ? 'Desat en aquest navegador' : 'Desat'; })
+    .catch(e => { if (statusEl) { statusEl.textContent = 'No s’ha pogut desar: ' + (e && (e.code || e.message)); statusEl.classList.add('err'); } });
+  cua.set(k, p);
+  return p;
+}
+const temporitzadors = new Map();
+function programa(k, f) { const v = temporitzadors.get(k); if (v) clearTimeout(v.h); temporitzadors.set(k, {f, h: setTimeout(() => { temporitzadors.delete(k); f(); }, 700)}); }
+function buida(k) { const v = temporitzadors.get(k); if (!v) return; clearTimeout(v.h); temporitzadors.delete(k); v.f(); }
+
+// ── Càlcul: quins passos queden ─────────────────────────────────────────────────────────────
+const idPas = (ei, si) => `${D.exemples[ei].id}~${si + 1}`;
+function decisioPas(ei, si) {
+  const own = pas.get(idPas(ei, si));
+  if (own && own.decisio) return {d: own.decisio, propi: true};
+  const pl = D.exemples[ei].passos[si].pl;
+  for (const [id, doc] of pas) if (doc.abast === 'tot' && doc.decisio && doc.pl === pl) return {d: doc.decisio, propi: false, de: id};
+  return null;
+}
+const aprovada = id => (prop.get(id) || {}).decisio === 'si';
+function analitza(ei) {     // → [{queda, motiu, pr}]
+  const e = D.exemples[ei], out = [];
+  let prev = null, n = 0;
+  e.passos.forEach((s, si) => {
+    const dp = decisioPas(ei, si);
+    if (dp && dp.d === 'elimina') { out.push({queda: false, motiu: 'elimina'}); return; }
+    if (dp && dp.d === 'fusiona' && si > 0) { out.push({queda: false, motiu: 'fusiona'}); return; }
+    if (dp && dp.d === 'mante') { n++; prev = null; out.push({queda: true, motiu: 'mante', nou: n}); return; }
+    const pr = s.pr && aprovada(s.pr) ? PROP.get(s.pr) : null;
+    if (pr) {
+      if (pr.elimina) { out.push({queda: false, motiu: 'elimina', pr: pr.id}); return; }
+      if (pr.ambAnterior && si > 0) { out.push({queda: false, motiu: 'fusiona', pr: pr.id}); return; }
+      if (pr.id === prev && !s.ini) { out.push({queda: false, motiu: 'fusiona', pr: pr.id}); return; }
+      n++; prev = pr.id; out.push({queda: true, nou: n, pr: pr.id}); return;
+    }
+    n++; prev = null; out.push({queda: true, nou: n});
+  });
+  return out;
+}
+const total = ei => D.exemples[ei].passos.length;
+const finals = ei => analitza(ei).filter(x => x.queda).length;
+function potencial(id) {   // passos que estalviaria la proposta sola (sobre l'estat actual)
+  const ara = prop.get(id); let abans = 0, despres = 0;
+  const desa = prop.get(id);
+  prop.set(id, Object.assign({}, desa || {}, {decisio: 'no'}));
+  D.exemples.forEach((e, ei) => { abans += finals(ei); });
+  prop.set(id, Object.assign({}, desa || {}, {decisio: 'si'}));
+  D.exemples.forEach((e, ei) => { despres += finals(ei); });
+  if (ara) prop.set(id, ara); else prop.delete(id);
+  return abans - despres;
+}
+function primerLloc(id) {
+  for (let ei = 0; ei < D.exemples.length; ei++) { const si = D.exemples[ei].passos.findIndex(s => s.pr === id); if (si >= 0) return [ei, si]; }
+  return null;
+}
+
+// ── Dibuix ──────────────────────────────────────────────────────────────────────────────────
+const main = $('#main');
+function pintaGlobal() {
+  const resp = D.propostes.filter(p => (prop.get(p.id) || {}).decisio).length;
+  let t0 = 0, t1 = 0; D.exemples.forEach((e, ei) => { t0 += total(ei); t1 += finals(ei); });
+  const nPas = [...pas.values()].filter(d => d.decisio || d.comentari || d.frase).length;
+  $('#global').innerHTML = `<span>Propostes contestades: <b>${resp} / ${D.propostes.length}</b></span>
+    <span>Passos (9 exemples): <b>${t0} → ${t1}</b> <small>(${Math.round(100 * (t0 - t1) / t0)} % menys)</small></span>
+    <span>Passos marcats a mà: <b>${nPas}</b></span>` + (local ? ' <span style="color:var(--no)"><b>Sense base de dades</b>: es desa només en aquest navegador</span>' : '');
+}
+function pinta() {
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === est.vista)));
+  pintaGlobal();
+  if (est.vista === 'propostes') pintaPropostes();
+  else if (est.vista === 'passos') pintaPassos();
+  else pintaResum();
+}
+// No redibuixar mentre s'escriu (perdria el focus): només els comptadors.
+function refresca() {
+  const a = document.activeElement;
+  if (a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT') && main.contains(a)) { pintaGlobal(); return; }
+  const y = window.scrollY; pinta(); window.scrollTo(0, y);
+}
+
+function htmlBotons(llista, actual, extra = '') {
+  return `<div class="decisions">${llista.map(([v, t]) => `<button class="dec" data-v="${v}" aria-pressed="${actual === v}" ${extra}>${t}</button>`).join('')}</div>`;
+}
+function pintaPropostes() {
+  const llista = D.propostes.filter(p => est.filtre === 'totes' || !(prop.get(p.id) || {}).decisio);
+  let html = `${local ? '<div class="avis">No hi ha base de dades en aquesta vista: les respostes es desen només en aquest navegador. Si passa, fes servir el botó «Copia les respostes» de la pestanya Resum i enganxa-les al xat.</div>' : ''}
+  <div class="filtres"><span class="seg">
+    <button data-f="totes" aria-pressed="${est.filtre === 'totes'}">Totes</button>
+    <button data-f="sense" aria-pressed="${est.filtre === 'sense'}">Sense resposta</button></span>
+    <span style="color:var(--muted)">Cada proposta ajunta en un sol pas els passos d’aquell tipus que van seguits. A «Pas a pas» veus l’efecte exemple per exemple.</span></div>`;
+  let cat = '';
+  for (const p of llista) {
+    if (p.cat !== cat) { cat = p.cat; html += `<h2>${esc(cat)}</h2>`; }
+    const d = prop.get(p.id) || {};
+    html += `<article class="card ${d.decisio || ''}" data-p="${p.id}">
+      <div class="cap"><span class="id">${p.id}</span><span class="titol">${amb(p.titol)}</span>
+        <span class="xifres">${p.n} passos afectats · estalvia ${potencial(p.id)}</span></div>
+      <div class="camp"><span class="et">Què passa</span>${amb(p.passa)}</div>
+      <div class="camp"><span class="et">Proposta</span>${amb(p.proposta)}</div>
+      <div class="camp pregunta">${amb(p.pregunta)}</div>
+      ${htmlBotons(DEC_P, d.decisio)}
+      <textarea placeholder="Comentari (opcional): com ho vols, excepcions…">${esc(d.comentari || '')}</textarea>
+      <div class="desat"></div>
+      <button class="enllac" data-veure="${p.id}">Mostra-ho a «Pas a pas» →</button>
+      ${d.nota ? `<div class="nota">${amb(d.nota)}</div>` : ''}
+    </article>`;
+  }
+  if (!llista.length) html += '<p>Totes les propostes tenen resposta. 🎉</p>';
+  main.innerHTML = html;
+}
+function desaProposta(card) {
+  const id = card.dataset.p, vell = prop.get(id) || {};
+  const dec = (card.querySelector('.dec[aria-pressed=true]') || {}).dataset;
+  const d = Object.assign({}, vell, {id, titol: PROP.get(id).titol, decisio: dec ? dec.v : '', comentari: card.querySelector('textarea').value.trim(), quan: new Date().toISOString()});
+  if (!d.decisio && !d.comentari && !d.nota) { prop.delete(id); return escriu('propostes', id, null, card.querySelector('.desat')); }
+  prop.set(id, d);
+  return escriu('propostes', id, d, card.querySelector('.desat'));
+}
+
+function htmlPissarra(ei, si, complet) {
+  const ps = D.exemples[ei].passos, s = ps[si], ant = si > 0 ? ps[si - 1] : null;
+  const h = s.f.map((fi, i) => {
+    if (fi < 0) return '';
+    const t = D.files[fi], canv = !ant || ant.f[i] !== fi || ant.c[i] !== s.c[i];
+    if (!complet && !canv) return '';
+    const cls = (s.c[i] || '') + (canv ? ' canviada' : ' vella');
+    if (t.startsWith('<svg')) return `<div class="fila figura ${cls}">${t}</div>`;
+    if (t.startsWith('§')) return `<div class="fila text ${cls}">${amb(t.slice(1))}</div>`;
+    return `<div class="fila ${cls}">${tex(t)}</div>`;
+  }).join('');
+  return (h || '<div style="color:#6a6f78;font-size:14px">(La pissarra no canvia en aquest pas.)</div>') +
+    `<button class="enllac tota" style="font-size:13px">${complet ? 'Mostra només el que canvia' : 'Mostra tota la pissarra'}</button>`;
+}
+const obs = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return; obs.unobserve(e.target);
+  const a = e.target.closest('.pas'); e.target.innerHTML = htmlPissarra(+a.dataset.ei, +a.dataset.si);
+}), {rootMargin: '800px 0px'}) : null;
+
+function pintaPassos() {
+  const ei = Math.min(est.ex, D.exemples.length - 1), e = D.exemples[ei], an = analitza(ei);
+  let html = `<div class="chips">${D.exemples.map((x, i) => `<button class="chip" data-ex="${i}" aria-pressed="${i === ei}">${esc(x.nom)} <small>${total(i)} → ${finals(i)}</small></button>`).join('')}</div>
+  <div class="filtres"><span class="seg">
+    <button data-fp="tots" aria-pressed="${est.filtreP === 'tots'}">Tots els passos</button>
+    <button data-fp="cauen" aria-pressed="${est.filtreP === 'cauen'}">Només els que desapareixen</button>
+    <button data-fp="queden" aria-pressed="${est.filtreP === 'queden'}">Només els que queden</button></span>
+    <label><input type="checkbox" id="pis" ${est.pissarres ? 'checked' : ''}> Mostra les pissarres</label></div>
+  <p style="margin:0 0 10px; color:var(--muted); font-size:14px">${amb(e.enunciat)} · <b>${total(ei)} passos → ${finals(ei)}</b>.
+   Els passos ratllats en lila s’ajunten amb l’anterior; en vermell, s’eliminen. De cada pissarra es veu només el que canvia en aquell pas.</p>`;
+  let sec = -1, cos = '', nSec = 0, nQueden = 0;
+  const tanca = () => { if (sec >= 0) html += `<details class="seccio" open><summary>${sec ? sec + '. ' : ''}${esc(D.seccions[sec])} <small>(${nSec} passos → ${nQueden})</small></summary>${cos}</details>`; };
+  e.passos.forEach((s, si) => {
+    if (s.s !== sec) { tanca(); sec = s.s; cos = ''; nSec = 0; nQueden = 0; }
+    nSec++; const a = an[si]; if (a.queda) nQueden++;
+    if (est.filtreP === 'cauen' && a.queda) return;
+    if (est.filtreP === 'queden' && !a.queda) return;
+    const doc = pas.get(idPas(ei, si)) || {}, dp = decisioPas(ei, si);
+    const p = s.pr ? PROP.get(s.pr) : null, pd = p ? (prop.get(p.id) || {}).decisio : '';
+    const efecte = a.queda ? '' : `<div class="efecte ${a.motiu === 'elimina' ? 'elim' : ''}">${a.motiu === 'elimina' ? '✕ S’elimina' : '↑ S’ajunta amb el pas anterior'}${a.pr ? ' (proposta ' + a.pr + ')' : dp && !dp.propi ? ' (decisió «a tot arreu»)' : ''}</div>`;
+    const nVeg = D.exemples.reduce((n, x) => n + x.passos.filter(y => y.pl === s.pl).length, 0);
+    cos += `<article class="pas ${a.queda ? (dp && dp.d === 'mante' ? 'mante' : '') : a.motiu === 'elimina' ? 'elim' : 'cau'}" data-ei="${ei}" data-si="${si}" id="pas-${si}">
+      <div><span class="num">Pas ${si + 1}${a.queda ? ' → nou pas ' + a.nou : ''}</span>${p ? `<span class="etiq ${pd === 'si' ? 'si' : pd === 'no' ? 'no' : ''}">${p.id}${pd ? ' · ' + NOM_DEC[pd] : ''}</span>` : ''}</div>
+      <div class="frase">${amb(s.t)}</div>${efecte}
+      ${htmlBotons(DEC_S, doc.decisio)}
+      <div class="editor" ${doc.decisio || doc.comentari || doc.frase ? '' : 'hidden'}>
+        <div class="abast"><label><input type="radio" name="ab-${si}" value="aqui" ${doc.abast !== 'tot' ? 'checked' : ''}> Només aquí</label>
+          <label><input type="radio" name="ab-${si}" value="tot" ${doc.abast === 'tot' ? 'checked' : ''}> A tots els passos iguals (${nVeg} als 9 exemples)</label></div>
+        <input type="text" class="frase-nova" placeholder="Frase nova del pas (opcional)" value="${esc(doc.frase || '')}">
+        <textarea placeholder="Comentari (opcional)">${esc(doc.comentari || '')}</textarea>
+        <div class="desat"></div>
+        ${doc.nota ? `<div class="nota">${amb(doc.nota)}</div>` : ''}
+      </div>
+      <button class="enllac obre" ${doc.decisio || doc.comentari || doc.frase ? 'hidden' : ''}>Comenta o canvia la frase</button>
+      <div class="pissarra"></div>
+    </article>`;
+  });
+  tanca();
+  main.innerHTML = html;
+  main.classList.toggle('oculta-pissarres', !est.pissarres);
+  if (est.pissarres) main.querySelectorAll('.pissarra').forEach(el => obs ? obs.observe(el) : (el.innerHTML = htmlPissarra(+el.closest('.pas').dataset.ei, +el.closest('.pas').dataset.si)));
+}
+function desaPas(card) {
+  const ei = +card.dataset.ei, si = +card.dataset.si, id = idPas(ei, si), vell = pas.get(id) || {}, s = D.exemples[ei].passos[si];
+  const dec = (card.querySelector('.dec[aria-pressed=true]') || {}).dataset;
+  const d = Object.assign({}, vell, {exemple: D.exemples[ei].id, pas: si + 1, original: s.t, pl: s.pl, proposta: s.pr || '',
+    decisio: dec ? dec.v : '', abast: (card.querySelector('.abast input:checked') || {}).value || 'aqui',
+    frase: card.querySelector('.frase-nova').value.trim(), comentari: card.querySelector('textarea').value.trim(), quan: new Date().toISOString()});
+  if (!d.decisio && !d.frase && !d.comentari && !d.nota) { pas.delete(id); return escriu('passos', id, null, card.querySelector('.desat')); }
+  pas.set(id, d);
+  return escriu('passos', id, d, card.querySelector('.desat'));
+}
+
+function pintaResum() {
+  let t0 = 0, t1 = 0;
+  const files = D.exemples.map((e, ei) => { const a = total(ei), b = finals(ei); t0 += a; t1 += b;
+    return `<tr><td>${esc(e.nom)}</td><td class="n">${a}</td><td class="n">${b}</td><td><div class="barra"><i style="width:${Math.round(100 * b / a)}%"></i></div></td></tr>`; }).join('');
+  main.innerHTML = `<table class="resum-taula"><tr><th>Exemple</th><th>Ara</th><th>Amb els canvis</th><th></th></tr>${files}
+    <tr><th>Total</th><th class="n">${t0}</th><th class="n">${t1}</th><th></th></tr></table>
+    <p style="font-size:14px; color:var(--muted)">El recompte compta les propostes amb «Sí, fes-ho» i els passos que has marcat a mà. És una estimació: en aplicar-les, alguna fusió pot necessitar un pas més perquè la pissarra s’entengui.</p>
+    <button class="dec" id="copia">Copia les respostes</button>`;
+}
+function textRespostes() {
+  const l = ['PROPOSTES'];
+  for (const p of D.propostes) { const d = prop.get(p.id); if (d) l.push(`${p.id}: ${NOM_DEC[d.decisio] || '—'}${d.comentari ? ' · ' + d.comentari : ''}`); }
+  l.push('', 'PASSOS');
+  for (const [id, d] of pas) l.push(`${id}: ${NOM_DEC[d.decisio] || '—'} (${d.abast})${d.frase ? ' · frase: ' + d.frase : ''}${d.comentari ? ' · ' + d.comentari : ''}`);
+  return l.join('\n');
+}
+function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 3500); }
+
+// ── Esdeveniments ───────────────────────────────────────────────────────────────────────────
+document.querySelector('.tabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; est.vista = b.dataset.v; desaPos(); pinta(); window.scrollTo(0, 0); });
+main.addEventListener('click', ev => {
+  const t = ev.target;
+  const f = t.closest('[data-f]'); if (f) { est.filtre = f.dataset.f; desaPos(); pinta(); return; }
+  const fp = t.closest('[data-fp]'); if (fp) { est.filtreP = fp.dataset.fp; desaPos(); pinta(); return; }
+  const ch = t.closest('[data-ex]'); if (ch) { est.ex = +ch.dataset.ex; desaPos(); pinta(); window.scrollTo(0, 0); return; }
+  const v = t.closest('[data-veure]');
+  if (v) { const ll = primerLloc(v.dataset.veure); if (!ll) return; est.vista = 'passos'; est.ex = ll[0]; est.filtreP = 'tots'; desaPos(); pinta();
+    const el = document.getElementById('pas-' + ll[1]); if (el) { el.scrollIntoView({block: 'center'}); el.classList.add('destaca'); setTimeout(() => el.classList.remove('destaca'), 2500); } return; }
+  if (t.id === 'copia') { const txt = textRespostes(); let ta = $('#text-copia');
+    if (!ta) { ta = document.createElement('textarea'); ta.id = 'text-copia'; ta.style.minHeight = '200px'; ta.style.marginTop = '10px'; main.appendChild(ta); }
+    ta.value = txt; try { navigator.clipboard.writeText(txt).then(() => toast('Copiat'), () => toast('Selecciona el text i copia’l')); } catch (e) { toast('Selecciona el text i copia’l'); } return; }
+  if (t.classList.contains('tota')) { const pc = t.closest('.pas'), pz = pc.querySelector('.pissarra'); pz.dataset.complet = pz.dataset.complet ? '' : '1';
+    pz.innerHTML = htmlPissarra(+pc.dataset.ei, +pc.dataset.si, !!pz.dataset.complet); return; }
+  if (t.classList.contains('obre')) { const c = t.closest('.pas'); c.querySelector('.editor').hidden = false; t.hidden = true; c.querySelector('textarea').focus(); return; }
+  const dec = t.closest('.dec');
+  if (dec) {
+    const grup = dec.parentElement, ja = dec.getAttribute('aria-pressed') === 'true';
+    grup.querySelectorAll('.dec').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    if (!ja) dec.setAttribute('aria-pressed', 'true');
+    const card = dec.closest('.card'), pc = dec.closest('.pas');
+    if (card) desaProposta(card).then(refresca);
+    else if (pc) { pc.querySelector('.editor').hidden = false; const o = pc.querySelector('.obre'); if (o) o.hidden = true; desaPas(pc); refresca(); }
+  }
+});
+main.addEventListener('change', ev => {
+  if (ev.target.id === 'pis') { est.pissarres = ev.target.checked; desaPos(); pinta(); return; }
+  const pc = ev.target.closest('.pas'); if (pc && ev.target.type === 'radio') { desaPas(pc); refresca(); }
+});
+main.addEventListener('input', ev => {
+  const card = ev.target.closest('.card'), pc = ev.target.closest('.pas');
+  if (card) { card.querySelector('.desat').textContent = 'Es desa sol mentre escrius…'; programa('p:' + card.dataset.p, () => desaProposta(card)); }
+  if (pc) { pc.querySelector('.desat').textContent = 'Es desa sol mentre escrius…'; programa('s:' + pc.dataset.ei + '~' + pc.dataset.si, () => desaPas(pc)); }
+});
+main.addEventListener('focusout', ev => {   // en sortir del camp, desa ja i redibuixa
+  const card = ev.target.closest('.card'), pc = ev.target.closest('.pas');
+  const k = card ? 'p:' + card.dataset.p : pc ? 's:' + pc.dataset.ei + '~' + pc.dataset.si : null;
+  if (k) buida(k);
+  setTimeout(() => { if (!main.contains(document.activeElement) || !/TEXTAREA|INPUT/.test(document.activeElement.tagName)) refresca(); }, 50);
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) for (const k of [...temporitzadors.keys()]) buida(k); });
+
+pinta();
+inicia();
+})();
+</script>
