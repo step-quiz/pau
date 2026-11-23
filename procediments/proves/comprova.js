@@ -1389,7 +1389,15 @@ function comprovaEsquemes(problema, model, llista) {
   // On surt: gran a la condició al pas de la funció, després al costat de l'enunciat, i el final a l'últim pas.
   const darrer = llista[llista.length - 1];
   comprova(darrer.files[FILA.titol1] === final && !darrer.files[FILA.esquema], () => `${nom}: a l'últim pas, l'esquema final ha de ser gran, sota l'enunciat`);
-  comprova(amb[0].files[FILA.titol1b] === inicial && amb[0].files[FILA.funcio], () => `${nom}: l'esquema ha de sortir gran amb la funció objectiu`);
+  // L'esquema gran surt amb la funció objectiu; si el problema té esquema previ (figura.previ, sense mides, E_0), abans n'hi ha hagut un altre a dalt.
+  const gran = llista.find(q => (q.files[FILA.titol1b] || '').startsWith('<svg'));
+  comprova(gran && gran.files[FILA.titol1b] === inicial && gran.files[FILA.funcio], () => `${nom}: l'esquema ha de sortir gran amb la funció objectiu`);
+  if (problema.figura.previ) {
+    const previ = Optimitzacio.esquema(problema, false, true);
+    const i0 = llista.findIndex(q => q.files[FILA.esquema] === previ);
+    comprova(i0 >= 0 && i0 < llista.indexOf(gran) && llista.slice(i0, llista.indexOf(gran)).every(q => q.files[FILA.esquema] === previ),
+      () => `${nom}: l'esquema previ ha de ser a dalt fins que surt el gran`);
+  }
   comprova(llista.every(q => q.classes[FILA.esquema] === 'esquema-costat' && q.classes[FILA.enunciat] === 'amb-esquema'), () => `${nom}: classes de l'esquema i de l'enunciat`);
   comprova(llista.some(q => (q.llum || []).length), () => `${nom}: cap pas il·lumina les lletres de l'esquema`);
 }
