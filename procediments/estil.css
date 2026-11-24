@@ -445,5 +445,5 @@ html{touch-action:pan-y pinch-zoom}
 .fila.figura .signe-cup{fill:#2563eb; font-size:18px}
 .fila.figura .signe-cap{fill:#d97706; font-size:18px}
 .fila.figura .punt-final{fill:#000; stroke:#fff; stroke-width:1.2}
-.fila.figura text.retol-punt{font-size:13px; fill:#000; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round}
-.fila.figura text.retol-asimptota{font-size:13px; fill:#475569; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round}
+.fila.figura text.retol-punt{font-size:13px; font-style:normal; fill:#000; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round}
+.fila.figura text.retol-asimptota{font-size:13px; font-style:normal; fill:#475569; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round}

@@ -876,15 +876,16 @@ function resumFinal(g, {ff, trams, finestra, asimptotes}) {
   if (!/k=Fe[,}]/.test(g.files[0])) throw new Error('grafica-funcio: la fila 0 no és f(x)');
   const base = {f: ff, trams, x: finestra.x, y: finestra.y, asimptotes: asimptotes.map(a => Object.assign({text: textAsimptota(a)}, a))};
   const dibuix = extra => Gr.esbos(Object.assign({}, base, extra));
-  // Els punts: talls i extrems, un rètol per punt (si coincideixen, junts: «mín P₂(3, 0)», «Q, P₁(0, 0)»).
+  // Els punts: talls i extrems, un rètol per punt (si coincideixen, junts: «mínim P₂(3, 0)», «Q = P₁ = (0, 0)», David).
   const punts = [];
   const punt = (x, y) => { let p = punts.find(q => q.x.igual(x)); if (!p) punts.push(p = {x, y, noms: [], tipus: null}); return p; };
   for (const t of g.resum.talls) punt(t.x, t.y).noms.push(textNom(t.nom));
   for (const e of r1.especials) punt(e.valor, e.y).tipus = e.tipus;
   const etiquetes = punts.map(p => ({x: p.x.valor(), y: p.y.valor(), lloc: p.tipus === 'mínim' ? 'baix' : 'dalt',
-    text: `${p.tipus ? p.tipus + ' ' : ''}${p.noms.join(', ')}(${textDe(texNombre(p.x))}, ${textDe(texNombre(p.y))})`}));
+    text: `${p.tipus ? p.tipus + ' ' : ''}${p.noms.length > 1 ? p.noms.join(' = ') + ' = ' : p.noms.join('')}(${textDe(texNombre(p.x))}, ${textDe(texNombre(p.y))})`}));
   const color = (c, text, interval) => `\\textcolor{${c}}{\\text{${text} } ${interval}}`;
-  const llegenda = (P, a, b) => linies([a && K(P + 'a', a), b && K(P + 'b', b)].filter(Boolean));
+  // Les dues línies d'una llegenda, juntes; entre les dues llegendes, més espai (classe «separat» a totes dues files).
+  const llegenda = (P, a, b) => { const ls = [a && K(P + 'a', a), b && K(P + 'b', b)].filter(Boolean); return ls.length > 1 ? `\\begin{array}{l} ${ls.join(' \\\\[2pt] ')} \\end{array}` : ls[0]; };
 
   // 1. S'esborra la pissarra.
   for (let i = 1; i < g.files.length; i++) { g.files[i] = ''; g.classes[i] = ''; }
@@ -899,6 +900,7 @@ function resumFinal(g, {ff, trams, finestra, asimptotes}) {
     : r1.mes ? 'En verd, els intervals on $f$ creix (no decreix a cap interval).' : 'En vermell, els intervals on $f$ decreix (no creix a cap interval).');
   // 3. La concavitat.
   g.files[fG] = dibuix({creixement: r1.intervals, concavitat: r2.intervals});
+  g.classes[fL2] = 'separat';
   g.files[fL2] = llegenda('Yv', r2.mes && color(COLORS.cup, 'Concavitat positiva:', r2.mes), r2.menys && color(COLORS.cap, 'Concavitat negativa:', r2.menys));
   g.afegeix(r2.mes && r2.menys ? 'En blau, on la concavitat és positiva ($\\cup$); en taronja, on és negativa ($\\cap$).'
     : r2.mes ? 'En blau, on la concavitat és positiva ($\\cup$) (no és negativa a cap interval).' : 'En taronja, on la concavitat és negativa ($\\cap$) (no és positiva a cap interval).');
