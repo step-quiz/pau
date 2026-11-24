@@ -5,16 +5,19 @@
    (polinòmiques, racionals, amb radicals, altres). Enunciat, sempre:
    «Elabora un esbós de la gràfica de la funció f(x) = …, justificant-ho tot.»
 
-   Set apartats, l'un darrere l'altre, i res no s'esborra («tot a la vista»,
+   Set apartats, l'un darrere l'altre, i res no s'esborra fins al resum final («tot a la vista»,
    David): la pissarra creix cap avall (pissarraCreix) i cada apartat comença
    amb un títol (fila de text de classe «apartat»):
-     1. Domini i possibles asímptotes verticals
-     2. Límits en l'infinit i possibles asímptotes horitzontals i obliqües
-     3. Punts de tall amb els eixos: Q(0, …), P₁(…, 0), P₂(…, 0)…
-     4. Creixement, decreixement i extrems relatius (f', taula de signes)
-     5. Concavitat i punts d'inflexió (f'', taula de signes)
-     6. Taula de valors: els talls, els extrems, les inflexions i dos punts més
-     7. La gràfica (Grafiques.esbos): primer les asímptotes i els punts, després la corba
+     A. Domini i possibles asímptotes verticals
+     B. Límits en l'infinit i possibles asímptotes horitzontals i obliqües
+     C. Punts de tall amb els eixos: Q(0, …), P₁(…, 0), P₂(…, 0)…
+     D. Creixement, decreixement i extrems relatius (f', taula de signes)
+     E. Concavitat i punts d'inflexió (f'', taula de signes)
+     F. Taula de valors: els talls, els extrems, les inflexions i dos punts més
+     G. La gràfica (Grafiques.esbos): primer les asímptotes i els punts, després la corba
+     i, per acabar, el resum (resumFinal): s'esborra la pissarra i queda només la gràfica, amb el
+     creixement, la concavitat, els extrems i els talls destacats (quatre passos)
+   Els apartats es nomenen amb lletres (A. Domini…, B. Límits…), no amb nombres (David, 24/11/2026).
 
    Les polinòmiques i les racionals es calculen amb aritmètica exacta (Fraccio, i
    Radical per a ±√3): passosRacional. Les equacions, amb Matrius.passosArrels
@@ -168,13 +171,13 @@ function valorDeProva(a, b) {
 
 const FILES = 72;
 const TITOLS = [
-  '1. Domini i possibles asímptotes verticals',
-  '2. Límits en l\'infinit i possibles asímptotes horitzontals i asímptotes obliqües',
-  '3. Punts de tall amb els eixos',
-  '4. Creixement, decreixement i extrems relatius',
-  '5. Concavitat positiva o concavitat negativa i punts d\'inflexió',
-  '6. Taula de valors',
-  '7. Gràfica de la funció',
+  'A. Domini i possibles asímptotes verticals',
+  'B. Límits en l\'infinit i possibles asímptotes horitzontals i asímptotes obliqües',
+  'C. Punts de tall amb els eixos',
+  'D. Creixement, decreixement i extrems relatius',
+  'E. Concavitat positiva o concavitat negativa i punts d\'inflexió',
+  'F. Taula de valors',
+  'G. Gràfica de la funció',
 ];
 
 /**
@@ -200,6 +203,10 @@ function nouGuio() {
   g.filesLliures = (t, n) => Array.from({length: n}, () => g.fila(t));
   /** El títol d'un apartat: una fila de text; el pas el posa el primer càlcul de l'apartat. */
   g.apartat = n => { const i = g.fila('apartat'); g.files[i] = F.filaText(TITOLS[n - 1]); g.classes[i] = 'apartat'; };
+  /** Una fila ja feta servir, per a un contingut nou (el resum final, quan s'ha esborrat la pissarra). */
+  g.reutilitza = (i, t) => { tipus[i] = t; return i; };
+  /** El que necessita el resum final: els talls amb els eixos [{x, y, nom}] i, per a cada derivada (1, 2), els intervals. */
+  g.resum = {talls: []};
   return g;
 }
 
@@ -363,11 +370,11 @@ function passosRacional(pr) {
   const dom = g.fila('domini');
   if (pol) {
     g.files[dom] = DOMINI;
-    g.afegeix('1. Domini i possibles asímptotes verticals.\n$f$ és una funció polinòmica. Per tant, el domini és: Dom($f$)= $\\mathbb{R}$.');
+    g.afegeix('A. Domini i possibles asímptotes verticals.\n$f$ és una funció polinòmica. Per tant, el domini és: Dom($f$)= $\\mathbb{R}$.');
   } else {
     const eq = g.fila('equacio:Q'), treball = g.fila('equacio:Q');
     const sol = F.resolEquacio(g, {fila: eq, treball, P: 'aE', termes: termes(Q), irracionals: false, lila: true,
-      text: `1. Domini i possibles asímptotes verticals. $f$ no existeix on el denominador val $0$. Resol l'equació $${tp(Q)} = 0$.`,
+      text: `A. Domini i possibles asímptotes verticals. $f$ no existeix on el denominador val $0$. Resol l'equació $${tp(Q)} = 0$.`,
       final: s => `El denominador val $0$ per a ${llista(s.map(t => t.valor))}.`});
     fora = sol.map(s => s.valor);
     g.files[dom] = DOMINI + (sol.length
@@ -412,7 +419,7 @@ function passosRacional(pr) {
   const mes = passosInfinit(P, Q, 1), l = mes.limit;
   ls2.linies.push('');
   cadena(g, {fila: fl2, P: 'Ip', esquerra: `${LIM('+\\infty')} f(x)`, ls: ls2, parts: [
-    [`${LIM('+\\infty')} ${expr}`, '2. Límits en l\'infinit. Comença per calcular: $\\lim_{x \\to +\\infty} f(x)$.'],
+    [`${LIM('+\\infty')} ${expr}`, 'B. Límits en l\'infinit. Comença per calcular: $\\lim_{x \\to +\\infty} f(x)$.'],
     ...mes.passos,
   ]});
   const limMenys = l.finit ? l : limitInfinit(P, Q, -1);
@@ -490,7 +497,7 @@ function passosRacional(pr) {
     const fv = g.fila('valors');
     cadena(g, {fila: fv, P: 'U0', esquerra: 'f(0)', parts: [
       [pol ? substitucio(P, ZERO) : `\\dfrac{${substitucio(P, ZERO)}}{${substitucio(Q, ZERO)}}`,
-        '3. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: és el punt de la gràfica amb $x = 0$. Calcula $f(0)$.'],
+        'C. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: és el punt de la gràfica amb $x = 0$. Calcula $f(0)$.'],
       [texNombre(y0), `Opera: $f(0) = ${texNombre(y0)}$.`],
     ]});
     posaPunt(ZERO, y0);
@@ -499,6 +506,7 @@ function passosRacional(pr) {
   g.classes[fq] = 'destacat';
   if (zeroDom) {
     g.files[fq] = K('Zq', `Q(0,\\ ${texNombre(fRad(ZERO))})`);
+    g.resum.talls.push({x: ZERO, y: fRad(ZERO), nom: 'Q'});
     g.afegeix(`La gràfica talla l'eix d'ordenades en el punt $Q(0,\\ ${texNombre(fRad(ZERO))})$.`);
   } else {
     g.files[fq] = K('Zq', '\\text{No talla l\'eix d\'ordenades}');
@@ -523,6 +531,7 @@ function passosRacional(pr) {
   const fp = g.fila('punts');
   g.classes[fp] = 'destacat';
   const nomP = (i, n) => (n > 1 ? `P_{${i + 1}}` : 'P');
+  zeros.forEach((z, i) => g.resum.talls.push({x: z, y: ZERO, nom: nomP(i, zeros.length)}));
   g.files[fp] = K('Zp', zeros.length ? zeros.map((z, i) => `${nomP(i, zeros.length)}(${texNombre(z)},\\ 0)`).join(',\\quad ')
     : '\\text{No talla l\'eix d\'abscisses}');
   g.afegeix(zeros.length ? `La gràfica talla l'eix d'abscisses ${zeros.length > 1 ? 'en els punts' : 'en el punt'} `
@@ -573,8 +582,8 @@ function seccioDerivada(g, {ordre, P, Q, pol, fora, texF, fRad, posaPunt, d1}) {
   const PX = primera ? '1' : '2';
   g.apartat(primera ? 4 : 5);
   const inici = primera
-    ? '4. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe indica on $f(x)$ creix i on decreix.'
-    : '5. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$.';
+    ? 'D. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe indica on $f(x)$ creix i on decreix.'
+    : 'E. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$.';
 
   /* La derivada: N/den, amb den = Q^(ordre + 1) (un polinomi: den = 1). */
   const fd = g.fila(primera ? 'derivada1' : 'derivada2');
@@ -792,6 +801,7 @@ function estudiSignes(g, {ordre, trossos, fora, arrels, prova, valorY, yDe, posa
   }
   g.files[fc] = linies(ls);
   g.classes[fc] = 'destacat';
+  g.resum[ordre] = {mes, menys, especials, intervals: intervals.map(({a, b}, j) => ({a: a ? a.valor() : -Infinity, b: b ? b.valor() : Infinity, positiu: cel.di[j] === '+'}))};
   const textP = e => `$${punt(e)}$`;
   g.afegeix(primera
     ? `Resultat: $f$ ${mes ? `creix a $${mes}$` : 'no creix a cap interval'} i ${menys ? `decreix a $${menys}$` : 'no decreix a cap interval'}`
@@ -813,7 +823,7 @@ function seccionsFinals(g, {extres, valorY, yDe, posaPunt, taula, hiHaPunts, ff,
     lsx.index = lsx.linies.length;
     lsx.linies.push('');
     cadena(g, {fila: fx, P: 'Ux' + i, esquerra: `f(${texNombre(x)})`, ls: lsx, parts: valorY(x,
-      i === 0 ? `6. Taula de valors. Ja tens els talls amb els eixos${hiHaPunts ? ', els extrems i els punts d\'inflexió' : ''}. Afegeix-hi dos punts més, perquè es vegi cap on va la gràfica: calcula $f(${texNombre(x)})$.`
+      i === 0 ? `F. Taula de valors. Ja tens els talls amb els eixos${hiHaPunts ? ', els extrems i els punts d\'inflexió' : ''}. Afegeix-hi dos punts més, perquè es vegi cap on va la gràfica: calcula $f(${texNombre(x)})$.`
         : `I calcula també $f(${texNombre(x)})$.`)});
     posaPunt(x, yDe(x));
   });
@@ -829,9 +839,72 @@ function seccionsFinals(g, {extres, valorY, yDe, posaPunt, taula, hiHaPunts, ff,
   const punts = ord.map(p => ({x: p.x.valor(), y: p.y.valor()}));
   const dibuix = corba => Gr.esbos({f: ff, trams, x: finestra.x, y: finestra.y, asimptotes, punts, corba});
   g.files[fG] = dibuix(false);
-  g.afegeix(`7. Gràfica de la funció. Dibuixa els eixos${asimptotes.length ? (asimptotes.length > 1 ? ', les asímptotes (discontínues)' : ', l\'asímptota (discontínua)') : ''} i, a continuació, els punts de la taula de valors.`);
+  g.afegeix(`G. Gràfica de la funció. Dibuixa els eixos${asimptotes.length ? (asimptotes.length > 1 ? ', les asímptotes (discontínues)' : ', l\'asímptota (discontínua)') : ''} i, a continuació, els punts de la taula de valors.`);
   g.files[fG] = dibuix(true);
-  g.afegeix(`Uneix els punts seguint el que has estudiat: on creix i on decreix, la concavitat${asimptotes.length ? ` i com s'acosta ${asimptotes.length > 1 ? 'a les asímptotes' : 'a l\'asímptota'}` : ''}. Aquest és l'esbós de la gràfica.`);
+  g.afegeix(`Uneix els punts seguint el que has estudiat: on creix i on decreix, la concavitat${asimptotes.length ? ` i com s'acosta ${asimptotes.length > 1 ? 'a les asímptotes' : 'a l\'asímptota'}` : ''}.`);
+  resumFinal(g, {ff, trams, finestra, asimptotes});
+}
+
+/* ── 6b. EL RESUM FINAL (David, 24/11/2026) ────────────────────────── */
+/*
+ * S'esborra la pissarra (menys la fila f(x) = …) i només queda la gràfica, en quatre passos:
+ *   1. la corba (negra) i les asímptotes, discontínues, amb el rètol «Equació: …»;
+ *   2. el creixement: la corba verda on f creix i vermella on decreix, i la llegenda amb els intervals;
+ *   3. la concavitat: franges blaves (∪) i taronja (∩), i la llegenda amb els intervals;
+ *   4. els extrems relatius i els talls amb els eixos: punts negres amb rètol. Ni inflexions ni els punts extra.
+ * Les files 1–3 es tornen a fer servir (tipus grafica, llegenda1, llegenda2): la resta queden buides.
+ */
+const COLORS = Object.freeze({creix: '#15803d', decreix: '#dc2626', cup: '#2563eb', cap: '#b45309'});
+/** Un nombre exacte (TeX de texNombre) en text per a un rètol del dibuix: «5√3/4», «−1». */
+const textDe = tex => tex.replace(/\\sqrt\{([^{}]*)\}/g, '√$1').replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g, '$1/$2').replace(/-/g, '−');
+/** «P_{2}» → «P₂». */
+const textNom = nom => nom.replace(/_\{?(\d+)\}?/, (m, d) => [...d].map(c => '₀₁₂₃₄₅₆₇₈₉'[c]).join(''));
+/** Un coeficient d'una asímptota (nombre) en text: enters i fraccions senzilles. */
+const textCoef = v => {
+  for (let d = 1; d <= 12; d++) if (Math.abs(v * d - Math.round(v * d)) < 1e-9) return textDe(texNombre(new Fraccio(Math.round(v * d), d)));
+  return String(Math.round(v * 100) / 100).replace('.', ',').replace('-', '−');
+};
+function textAsimptota(a) {
+  if (a.v !== undefined) return `Equació: x = ${textCoef(a.v)}`;
+  if (a.h !== undefined) return `Equació: y = ${textCoef(a.h)}`;
+  const mx = a.m === 1 ? 'x' : a.m === -1 ? '−x' : `${textCoef(a.m)}x`;
+  return `Equació: y = ${mx}${a.n ? (a.n > 0 ? ' + ' : ' − ') + textCoef(Math.abs(a.n)) : ''}`;
+}
+
+function resumFinal(g, {ff, trams, finestra, asimptotes}) {
+  const r1 = g.resum[1], r2 = g.resum[2];
+  if (!/k=Fe[,}]/.test(g.files[0])) throw new Error('grafica-funcio: la fila 0 no és f(x)');
+  const base = {f: ff, trams, x: finestra.x, y: finestra.y, asimptotes: asimptotes.map(a => Object.assign({text: textAsimptota(a)}, a))};
+  const dibuix = extra => Gr.esbos(Object.assign({}, base, extra));
+  // Els punts: talls i extrems, un rètol per punt (si coincideixen, junts: «mín P₂(3, 0)», «Q, P₁(0, 0)»).
+  const punts = [];
+  const punt = (x, y) => { let p = punts.find(q => q.x.igual(x)); if (!p) punts.push(p = {x, y, noms: [], tipus: null}); return p; };
+  for (const t of g.resum.talls) punt(t.x, t.y).noms.push(textNom(t.nom));
+  for (const e of r1.especials) punt(e.valor, e.y).tipus = e.tipus;
+  const etiquetes = punts.map(p => ({x: p.x.valor(), y: p.y.valor(), lloc: p.tipus === 'mínim' ? 'baix' : 'dalt',
+    text: `${p.tipus ? p.tipus + ' ' : ''}${p.noms.join(', ')}(${textDe(texNombre(p.x))}, ${textDe(texNombre(p.y))})`}));
+  const color = (c, text, interval) => `\\textcolor{${c}}{\\text{${text} } ${interval}}`;
+  const llegenda = (P, a, b) => linies([a && K(P + 'a', a), b && K(P + 'b', b)].filter(Boolean));
+
+  // 1. S'esborra la pissarra.
+  for (let i = 1; i < g.files.length; i++) { g.files[i] = ''; g.classes[i] = ''; }
+  const fG = g.reutilitza(1, 'grafica'), fL1 = g.reutilitza(2, 'llegenda1'), fL2 = g.reutilitza(3, 'llegenda2');
+  g.files[fG] = dibuix({});
+  g.afegeix('Esborra la pissarra: només cal la gràfica.' + (asimptotes.length > 1 ? ' Les asímptotes, discontínues.' : asimptotes.length ? ' L\'asímptota, discontínua.' : ''));
+  // 2. El creixement.
+  g.files[fG] = dibuix({creixement: r1.intervals});
+  g.files[fL1] = llegenda('Yc', r1.mes && color(COLORS.creix, 'Creixent:', r1.mes), r1.menys && color(COLORS.decreix, 'Decreixent:', r1.menys));
+  g.classes[fL1] = 'separat';
+  g.afegeix(r1.mes && r1.menys ? 'En verd, els intervals on $f$ creix; en vermell, on decreix.'
+    : r1.mes ? 'En verd, els intervals on $f$ creix (no decreix a cap interval).' : 'En vermell, els intervals on $f$ decreix (no creix a cap interval).');
+  // 3. La concavitat.
+  g.files[fG] = dibuix({creixement: r1.intervals, concavitat: r2.intervals});
+  g.files[fL2] = llegenda('Yv', r2.mes && color(COLORS.cup, 'Concavitat positiva:', r2.mes), r2.menys && color(COLORS.cap, 'Concavitat negativa:', r2.menys));
+  g.afegeix(r2.mes && r2.menys ? 'En blau, on la concavitat és positiva ($\\cup$); en taronja, on és negativa ($\\cap$).'
+    : r2.mes ? 'En blau, on la concavitat és positiva ($\\cup$) (no és negativa a cap interval).' : 'En taronja, on la concavitat és negativa ($\\cap$) (no és positiva a cap interval).');
+  // 4. Els extrems relatius i els talls amb els eixos.
+  g.files[fG] = dibuix({creixement: r1.intervals, concavitat: r2.intervals, etiquetes});
+  g.afegeix(`Marca-hi ${r1.especials.length ? 'els extrems relatius i ' : ''}els punts de tall amb els eixos. Aquest és l'esbós de la gràfica.`);
 }
 
 
@@ -845,11 +918,11 @@ function seccionsFinals(g, {extres, valorY, yDe, posaPunt, taula, hiHaPunts, ff,
  */
 
 const DOMINI = K('Vt', '\\text{Dom}\\,') + K('Vf', 'f') + R('Vq', '=');
-const INICI4 = '4. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe indica on $f(x)$ creix i on decreix.';
-const INICI5 = '5. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$.';
-const ARREL_DOMINI = '1. Domini i possibles asímptotes verticals. L\'arrel quadrada d\'un nombre negatiu no existeix: el que hi ha dins de l\'arrel no pot ser negatiu. Planteja la inequació.';
-const INICI2 = '2. Límits en l\'infinit i possibles asímptotes horitzontals i obliqües.';
-const INICI3 = '3. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: és el punt de la gràfica amb $x = 0$. Calcula $f(0)$.';
+const INICI4 = 'D. Creixement, decreixement i extrems relatius. Calcula la derivada, $f\'(x)$: el seu signe indica on $f(x)$ creix i on decreix.';
+const INICI5 = 'E. Concavitat positiva o negativa i punts d\'inflexió. Calcula la segona derivada, $f\'\'(x)$.';
+const ARREL_DOMINI = 'A. Domini i possibles asímptotes verticals. L\'arrel quadrada d\'un nombre negatiu no existeix: el que hi ha dins de l\'arrel no pot ser negatiu. Planteja la inequació.';
+const INICI2 = 'B. Límits en l\'infinit i possibles asímptotes horitzontals i obliqües.';
+const INICI3 = 'C. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: és el punt de la gràfica amb $x = 0$. Calcula $f(0)$.';
 const ABSCISSES = 'Ara, amb l\'eix d\'abscisses: són els punts de la gràfica amb $y = 0$. Resol l\'equació $f(x) = 0$.';
 const CAP_VERTICAL = 'No hi ha asímptotes verticals';
 const NO_OBLIQUA = 'El límit és infinit, i $m$ ha de ser un nombre: no hi ha asímptota obliqua. La gràfica creix més de pressa que qualsevol recta: és una branca parabòlica.';
@@ -886,6 +959,7 @@ function tallOrdenades(g, H) {
   cadena(g, {fila: g.fila('valors'), P: 'U0', esquerra: 'f(0)', parts: H.valorY(ZERO, INICI3)});
   const y0 = H.yDe(ZERO);
   H.posaPunt(ZERO, y0);
+  g.resum.talls.push({x: ZERO, y: y0, nom: 'Q'});
   destacat(g, 'punts', K('Zq', `Q(0,\\ ${texNombre(y0)})`), `La gràfica talla l'eix d'ordenades en el punt $Q(0,\\ ${texNombre(y0)})$.`);
 }
 /** La fila dels talls amb l'eix d'abscisses, P₁(…, 0)… */
@@ -893,6 +967,7 @@ function tallsAbscisses(g, H, zeros) {
   const z = ordena(zeros);
   z.forEach(x => H.posaPunt(x, ZERO));
   const nomP = i => (z.length > 1 ? `P_{${i + 1}}` : 'P');
+  z.forEach((x, i) => g.resum.talls.push({x, y: ZERO, nom: nomP(i)}));
   destacat(g, 'punts', K('Zp', z.map((x, i) => `${nomP(i)}(${texNombre(x)},\\ 0)`).join(',\\quad ')),
     `La gràfica talla l'eix d'abscisses ${z.length > 1 ? 'en els punts' : 'en el punt'} ${iCatala(z.map((x, i) => `$${nomP(i)}(${texNombre(x)},\\ 0)$`))}.`);
 }
@@ -1115,7 +1190,7 @@ function guioArrelObliques(g, H) {
 
   g.apartat(3);
   destacat(g, 'punts', K('Zq', '\\text{No talla l\'eix d\'ordenades}'),
-    '3. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: $x = 0$ no és del domini ($0^2 - 4 < 0$), i la gràfica no talla l\'eix d\'ordenades.');
+    'C. Punts de tall amb els eixos. Primer, amb l\'eix d\'ordenades: $x = 0$ no és del domini ($0^2 - 4 < 0$), i la gràfica no talla l\'eix d\'ordenades.');
   const zeros = equacioMa(g, {pre: 'c', tipus: 'equacio:f',
     principal: [['f(x)', ABSCISSES], ['\\sqrt{x^{2} - 4}', 'Substitueix $f(x)$ per la seva expressió.']],
     treball: [['x^{2} - 4 = 0', 'Una arrel val $0$ només quan el que hi ha a dins val $0$.'], ['x^{2} = 4', 'Passa el $4$ a l\'altre costat.']],

@@ -18,6 +18,11 @@ MUT=[
  (F, "g.files[fah] = K('Ah', `\\\\text{Asímptota horitzontal: } y = ${texNombre(l.finit)}`);", "g.files[fah] = K('Ah', `\\\\text{Asímptota horitzontal: } y = ${texNombre(l.finit.suma(1))}`);", "l'asímptota horitzontal equivocada"),
  (F, "zeros.forEach(z => posaPunt(z, ZERO));", "zeros.slice(1).forEach(z => posaPunt(z, ZERO));", 'un tall amb l\'eix que no és a la taula'),
  (F, "const sub = potDen ? `\\\\dfrac{${substitucio(N, t)}}", "const sub = potDen ? `\\\\dfrac{${substitucio(N, t.suma(1))}}", 'la substitució del valor de prova amb un altre valor'),
+ # El resum final (pissarra esborrada)
+ (F, "for (let i = 1; i < g.files.length; i++) { g.files[i] = ''; g.classes[i] = ''; }", "for (let i = 1; i < 4; i++) { g.files[i] = ''; g.classes[i] = ''; }", 'el resum final no esborra la pissarra'),
+ (F, "for (const e of r1.especials) punt(e.valor, e.y).tipus = e.tipus;", "for (const e of r1.especials.concat(r2.especials)) punt(e.valor, e.y).tipus = e.tipus;", 'el resum final dibuixa els punts d\'inflexió'),
+ (F, "if (a.v !== undefined) return `Equació: x = ${textCoef(a.v)}`;", "if (a.v !== undefined) return `x = ${textCoef(a.v)}`;", 'asímptota vertical sense «Equació:»'),
+ (F, "r1.menys && color(COLORS.decreix, 'Decreixent:', r1.menys)", "r1.menys && color(COLORS.decreix, 'Decreixent:', r1.mes)", 'la llegenda del decreixement amb els intervals del creixement'),
  # Amb radicals
  (F, "K('VI', '[-1,\\\\ +\\\\infty)')", "K('VI', '(-1,\\\\ +\\\\infty)')", 'domini amb l\'extrem obert en lloc de tancat'),
  (F, "['x \\\\ge -3', ", "['x \\\\ge 3', ", 'inequació del domini mal resolta'),

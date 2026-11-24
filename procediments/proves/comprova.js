@@ -6010,11 +6010,11 @@ const MODELS_GRAFICA = (() => {
       dom: [[-Infinity, -2, false, true], [2, Infinity, true, false]], fora: [], zeros: [-2, 2], critics: [], inflexions: []},
   };
 })();
-const TITOLS_GRAFICA = ['1. Domini i possibles asímptotes verticals', '2. Límits en l\'infinit i possibles asímptotes horitzontals i asímptotes obliqües',
-  '3. Punts de tall amb els eixos', '4. Creixement, decreixement i extrems relatius', '5. Concavitat positiva o concavitat negativa i punts d\'inflexió',
-  '6. Taula de valors', '7. Gràfica de la funció'];
+const TITOLS_GRAFICA = ['A. Domini i possibles asímptotes verticals', 'B. Límits en l\'infinit i possibles asímptotes horitzontals i asímptotes obliqües',
+  'C. Punts de tall amb els eixos', 'D. Creixement, decreixement i extrems relatius', 'E. Concavitat positiva o concavitat negativa i punts d\'inflexió',
+  'F. Taula de valors', 'G. Gràfica de la funció'];
 const TIPUS_GRAFICA = new Set(['f', 'apartat', 'domini', 'inequacio', 'equacio:Q', 'equacio:f', 'equacio:f1', 'equacio:f2', 'limits', 'asimptotes', 'valors', 'punts',
-  'derivada1', 'derivada2', 'proves1', 'proves2', 'taula1', 'taula2', 'conclusio1', 'conclusio2', 'taula-valors', 'grafica']);
+  'derivada1', 'derivada2', 'proves1', 'proves2', 'taula1', 'taula2', 'conclusio1', 'conclusio2', 'taula-valors', 'grafica', 'llegenda1', 'llegenda2']);
 
 /** Derivada numèrica (cinc punts). */
 const derivadaNum = (g, x) => { const h = 1e-4 * Math.max(1, Math.abs(x)); return (-g(x + 2 * h) + 8 * g(x + h) - 8 * g(x - h) + g(x - 2 * h)) / (12 * h); };
@@ -6200,11 +6200,14 @@ function comprovaGrafica(id) {
     });
   });
 
-  /* L'últim pas: els set apartats en ordre, les solucions en lila, les taules plenes, la gràfica. */
-  const ultim = passos[passos.length - 1];
+  /* L'últim pas amb tota la feina (abans del resum): els set apartats en ordre, les solucions en lila, les taules plenes, la gràfica. */
+  let ip = passos.length - 1;
+  while (ip >= 0 && !passos[ip].tipus.some((t, i) => t === 'apartat' && passos[ip].files[i])) ip--;
+  const ultim = passos[Math.max(ip, 0)];
   const titols = ultim.files.filter((t, i) => ultim.tipus[i] === 'apartat').map(t => t.slice(1));
   comprova(iguals(titols, TITOLS_GRAFICA), () => `${nom}: els títols dels apartats no són els set, en ordre: ${JSON.stringify(titols)}`);
-  comprova(ultim.files.some((t, i) => ultim.tipus[i] === 'grafica' && t.startsWith('<svg') && t.includes('class="corba"')), () => `${nom}: a l'últim pas hi ha d'haver la gràfica amb la corba`);
+  comprova(ultim.files.some((t, i) => ultim.tipus[i] === 'grafica' && t.startsWith('<svg') && t.includes('class="corba"')), () => `${nom}: abans del resum hi ha d'haver la gràfica amb la corba`);
+  comprovaResumGrafica(passos, ip, model, nom, foraDe);
   for (const [tipus, esperats] of Object.entries(esperatsEq)) {
     const lila = ultim.files.flatMap((t, i) => (ultim.tipus[i] === tipus ? contingutsMarcats(t, 'solucio').map(x => valorNum(textPla(x)).v) : []));
     comprova(mateixosValors(lila.sort((a, b) => a - b), esperats), () => `${nom}: les solucions en lila de ${tipus} (${lila}) no són ${esperats}`);
@@ -6216,6 +6219,41 @@ function comprovaGrafica(id) {
     const c = cellesTaula(ultim.files[i]);
     comprova(c[1].slice(1).every((x, j) => x || j % 2 === 1) && c[2].slice(1).every((x, j) => x || j % 2 === 1), () => `${nom}: la ${t} no és plena a l'últim pas`);
   }
+}
+
+/**
+ * El resum final (David, 24/11/2026): després de l'últim pas amb tota la feina (ip), quatre passos amb la pissarra
+ * esborrada: només f(x) = …, la gràfica i les llegendes. La llegenda diu exactament els intervals de les conclusions
+ * (sense «cap interval»); a la gràfica, el creixement en colors, les franges de concavitat i un punt negre per a cada
+ * tall i cada extrem de la finestra (cap inflexió, cap punt extra); les asímptotes amb el rètol «Equació: …».
+ */
+function comprovaResumGrafica(passos, ip, model, nom, foraDe) {
+  const resum = passos.slice(ip + 1), complet = passos[ip];
+  comprova(resum.length === 4, () => `${nom}: el resum final ha de tenir quatre passos (en té ${resum.length})`);
+  const permesos = new Set(['f', 'grafica', 'llegenda1', 'llegenda2']);
+  resum.forEach((pas, k) => pas.files.forEach((t, i) => {
+    if (t) comprova(permesos.has(pas.tipus[i]), () => `${nom}, pas ${ip + k + 2}: la pissarra no s'ha esborrat (fila ${i}, ${pas.tipus[i]})`);
+  }));
+  const fila = (pas, tipus) => pas.files.find((t, i) => pas.tipus[i] === tipus && t) || '';
+  const fi = resum[resum.length - 1];
+  if (!fi) return;
+  comprova(fila(fi, 'f') === fila(complet, 'f'), () => `${nom}: la fila f(x) = … ha de quedar a dalt`);
+  for (const n of ['1', '2']) {
+    const esperat = liniesLogiques(fila(complet, 'conclusio' + n)).filter(l => /^«(Creixent|Decreixent|Concavitat)/.test(l) && !l.endsWith('«capinterval»'));
+    comprova(iguals(liniesLogiques(fila(fi, 'llegenda' + n)), esperat), () => `${nom}: la llegenda ${n} no diu el mateix que la conclusió (${esperat})`);
+  }
+  const svg = fila(fi, 'grafica');
+  comprova(/class="corba (creix|decreix)"/.test(svg) && /class="franja-(cup|cap)"/.test(svg), () => `${nom}: la gràfica final no destaca el creixement i la concavitat`);
+  comprova(!svg.includes('punt-esbos'), () => `${nom}: a la gràfica final hi ha els punts de la taula de valors`);
+  const {finestra} = GraficaFuncio.PROBLEMES.find(p => `grafica-funcio ${p.id}` === nom);
+  const dins = ([x, y]) => x >= finestra.x[0] && x <= finestra.x[1] && y >= finestra.y[0] && y <= finestra.y[1];
+  const xs = [...model.zeros, ...(foraDe(0) ? [] : [0]), ...model.critics.filter(([, t]) => t).map(([x]) => x)];
+  const unics = xs.filter((x, i) => xs.findIndex(w => Math.abs(w - x) < 1e-9) === i).map(x => [x, model.f(x)]).filter(dins);
+  const n = (svg.match(/class="punt-final"/g) || []).length;
+  comprova(n === unics.length, () => `${nom}: a la gràfica final hi ha ${n} punts, i hi ha d'haver ${unics.length} (talls i extrems)`);
+  const retols = [...svg.matchAll(/class="retol-asimptota"[^>]*>([^<]*)</g)].map(m => m[1]);
+  const nAs = (svg.match(/class="asimptota"/g) || []).length;
+  comprova(retols.length === nAs && retols.every(r => r.startsWith('Equació: ')), () => `${nom}: les asímptotes porten «Equació: …» (${retols})`);
 }
 
 /** Comprova una fila (TeX) segons el seu tipus. */
@@ -6431,8 +6469,8 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
     });
     return;
   }
-  if (tipus === 'conclusio1' || tipus === 'conclusio2') {
-    const primera = tipus === 'conclusio1', g = primera ? model.f1 : model.f2;
+  if (tipus === 'conclusio1' || tipus === 'conclusio2' || tipus === 'llegenda1' || tipus === 'llegenda2') {
+    const primera = tipus.endsWith('1'), g = primera ? model.f1 : model.f2, llegenda = tipus.startsWith('llegenda');
     const xs = [];
     for (let x = c.W[0] + 0.0037; x < c.W[1]; x += 0.0131) if (!c.foraDe(x) && [...model.fora, ...c.crit, ...c.infl].every(a => Math.abs(a - x) > 1e-3)) xs.push(x);
     const dins = (ivs, x) => ivs.some(([a, b]) => x > a && x < b);
@@ -6441,6 +6479,7 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
     for (const linia of liniesLogiques(tex)) {
       const m = /^«(Creixent:|Decreixent:|Concavitatpositiva:|Concavitatnegativa:)»(.*)$/.exec(linia);
       if (m) {
+        comprova(!llegenda || (primera === /Creixent|Decreixent/.test(m[1])), () => `${lloc}: «${linia}» no va en aquesta llegenda`);
         const ivs = llegeixIntervals(m[2]);
         const positiu = /Creixent|positiva/.test(m[1]);
         comprova(xs.every(x => dins(ivs, x) === (positiu ? g(x) > 0 : g(x) < 0)), () => `${lloc}: «${linia}» no és on ${primera ? "f'" : "f''"} ${positiu ? '> 0' : '< 0'}`);
@@ -6448,6 +6487,8 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
           && !c.dom.some(([p, q]) => (p > a && p < b) || (q > a && q < b))), () => `${lloc}: «${linia}» conté un punt que no és del domini`);
         continue;
       }
+      comprova(!llegenda, () => `${lloc}: la llegenda només diu intervals: «${linia}»`);
+      if (llegenda) continue;
       const e = /^«(Màximrelatiuen|Mínimrelatiuen|Puntd'inflexióen|Puntsd'inflexióen)»(.*)$/.exec(linia);
       if (e) {
         const tipusE = e[1].startsWith('Màxim') ? 'màxim' : e[1].startsWith('Mínim') ? 'mínim' : 'inflexió';
@@ -6460,7 +6501,7 @@ function comprovaFilaGrafica(tipus, tex, model, c) {
       comprova(/^«Nohihaextremsrelatius»$|^«Nohihapuntsd'inflexió»$/.test(linia), () => `${lloc}: no s'entén «${linia}»`);
       comprova(!especials.length, () => `${lloc}: «${linia}», però n'hi ha`);
     }
-    if (trobats.length || especials.length) {
+    if (!llegenda && (trobats.length || especials.length)) {
       const ordena = l => l.slice().sort((p, q) => p[0] - q[0]);
       comprova(JSON.stringify(ordena(trobats).map(([x, t]) => [x.toFixed(6), t])) === JSON.stringify(ordena(especials).map(([x, t]) => [x.toFixed(6), t])),
         () => `${lloc}: els ${primera ? 'extrems' : 'punts d\'inflexió'} no són els del model`);

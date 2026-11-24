@@ -87,9 +87,15 @@ const estat = p => p.evaluate(() => {
       await p.screenshot({path: path.join(SHOTS, `gf-ex${e + 1}-final.png`)});
     }
     ok(await p.evaluate(() => location.search) === '?p=arrel-obliques', 'address follows the examples: ' + await p.evaluate(() => location.search));
-    // El dibuix de l'últim pas (√(x² − 4)): la corba, les dues asímptotes obliqües i els quatre punts de la taula.
-    const fig = await p.$eval('.fila.figura svg', s => ({corbes: s.querySelectorAll('.corba').length, asimptotes: s.querySelectorAll('.asimptota').length, punts: s.querySelectorAll('.punt-esbos').length, w: s.getBoundingClientRect().width}));
-    ok(fig.corbes >= 1 && fig.asimptotes === 2 && fig.punts === 4 && fig.w >= 400, 'graph drawn: ' + JSON.stringify(fig));
+    // El resum de l'últim pas (√(x² − 4)): la pissarra esborrada (f(x), la gràfica i les dues llegendes), la corba
+    // verda i vermella, les dues asímptotes obliqües amb l'equació, les franges ∩ i els dos talls (cap punt de la taula).
+    const fig = await p.$eval('.fila.figura svg', s => ({creix: s.querySelectorAll('.corba.creix').length, decreix: s.querySelectorAll('.corba.decreix').length,
+      asimptotes: s.querySelectorAll('.asimptota').length, retols: [...s.querySelectorAll('.retol-asimptota')].map(t => t.textContent),
+      franges: s.querySelectorAll('.franja-cap').length, punts: s.querySelectorAll('.punt-final').length, taula: s.querySelectorAll('.punt-esbos').length, w: s.getBoundingClientRect().width}));
+    ok(fig.creix === 1 && fig.decreix === 1 && fig.asimptotes === 2 && fig.retols.every(t => t.startsWith('Equació: ')) && fig.franges === 2 && fig.punts === 2 && fig.taula === 0 && fig.w >= 400,
+      'final summary graph: ' + JSON.stringify(fig));
+    const visibles = await p.$$eval('.pissarra > .capa > .fila', fs => fs.filter(f => !f.hidden && f.innerHTML).length);
+    ok(visibles === 4, `final summary: only f(x), the graph and the two legends are on the board (${visibles} rows)`);
     ok(!consola.length, 'no console errors: ' + JSON.stringify(consola));
     await context.close();
   }
