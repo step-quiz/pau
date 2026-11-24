@@ -130,7 +130,7 @@ button{font:inherit; color:inherit}
   font-family:var(--lletra); font-size:18px; line-height:1.7; max-width:72ch;
 }
 .fila.text .katex{font-size:1.05em}
-/* Títol d'un apartat (p. ex. «1. Domini i possibles asímptotes verticals» a la gràfica d'una funció): una fila de text */
+/* Títol d'un apartat (p. ex. «A. Domini i possibles asímptotes verticals» a la gràfica d'una funció): una fila de text */
 /* Una fila ampla (taula de signes) que a pantalla petita es desplaça de costat, sense fer petita la lletra de tota la pissarra (motor.js, ajusta) */
 .fila.desplacable{overflow-x:auto; overflow-y:hidden}
 .fila.text.apartat.neutre{color:var(--txt)}
@@ -435,3 +435,15 @@ button{font:inherit; color:inherit}
    arriba a la pàgina (sense això, el navegador es quedava el gest al mòbil del David). Les files amples tenen el seu propi pan-x. */
 html{touch-action:pan-y pinch-zoom}
 .fila.desplacable{touch-action:pan-x pan-y pinch-zoom}
+/* El resum final de «Gràfica d'una funció» (David, 24/11/2026): creixement en verd/vermell, concavitat en franges
+   blaves (∪) i taronja (∩) (un taronja groguenc, que no sembli vermell), punts negres amb rètol. Els mateixos colors
+   que la llegenda (COLORS a grafica-funcio.js). */
+.fila.figura .corba.creix{stroke:#15803d; stroke-width:2.8}
+.fila.figura .corba.decreix{stroke:#dc2626; stroke-width:2.8}
+.fila.figura .franja-cup{fill:#2563eb; fill-opacity:.10; stroke:none}
+.fila.figura .franja-cap{fill:#d97706; fill-opacity:.13; stroke:none}
+.fila.figura .signe-cup{fill:#2563eb; font-size:18px}
+.fila.figura .signe-cap{fill:#d97706; font-size:18px}
+.fila.figura .punt-final{fill:#000; stroke:#fff; stroke-width:1.2}
+.fila.figura text.retol-punt{font-size:13px; fill:#000; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round}
+.fila.figura text.retol-asimptota{font-size:13px; fill:#475569; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round}
